@@ -186,6 +186,7 @@ describe('import page', () => {
         accountId: null,
         avatar: null,
         fastReader: null,
+        frequency: null,
         lastOriginId: null,
         lastPublishedAt: null,
         loaderData: null,

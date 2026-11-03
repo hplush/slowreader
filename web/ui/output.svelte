@@ -12,12 +12,14 @@
   let {
     children,
     font = 'mono',
+    hint,
     label,
     value = $bindable(''),
     ...props
   }: {
     children?: Snippet
     font?: 'mono' | 'normal'
+    hint?: string
     label: string
   } & HTMLInputAttributes = $props()
 
@@ -28,7 +30,7 @@
 </script>
 
 <div class="output">
-  <Label {id}>{label}</Label>
+  <Label {id} {hint}>{label}</Label>
   <div class="output_control">
     {#if children}
       <output

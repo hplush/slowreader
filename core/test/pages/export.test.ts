@@ -119,6 +119,7 @@ describe('export page', () => {
           avatar: null,
           categoryId: category,
           fastReader: null,
+          frequency: null,
           id: feed,
           lastOriginId: null,
           lastPublishedAt: null,

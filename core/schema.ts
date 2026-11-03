@@ -119,6 +119,8 @@ export const feedsTable = defineCrdtTable(
     avatar: optional(string()),
     categoryId: string({ default: GENERAL_CATEGORY }),
     fastReader: optional(oneOf(READERS)),
+    // Posts per day on the last refresh
+    frequency: optional(number()),
     lastOriginId: optional(string()),
     lastPublishedAt: optional(bigint()),
     loader: string<LoaderName>(),

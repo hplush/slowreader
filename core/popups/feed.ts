@@ -1,4 +1,4 @@
-import { atom, onMount } from 'nanostores'
+import { atom, computed, onMount } from 'nanostores'
 
 import {
   type AccountValue,
@@ -33,7 +33,11 @@ import {
   loaders,
   tryLoadFeedData
 } from '../loader/index.ts'
-import { createPostsList, type PostsList } from '../posts-list.ts'
+import {
+  createPostsList,
+  getPostsFrequency,
+  type PostsList
+} from '../posts-list.ts'
 import { loadRecentPosts } from '../refresh.ts'
 import type { FeedChanges } from '../schema.ts'
 import { addThreadStarts } from '../thread.ts'
@@ -349,6 +353,7 @@ export const feed = definePopup('feed', async url => {
     },
     feed: $feed,
     followedBy: $followedBy,
+    frequency: computed(posts, () => getPostsFrequency(posts)),
     loader: service,
     posts,
     remove,

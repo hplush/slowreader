@@ -1,7 +1,9 @@
 import { formatter, type Formatter } from '@nanostores/i18n'
+import type { StoreValue } from 'nanostores'
 
 import { $locale } from './i18n.ts'
 import { loaders } from './loader/index.ts'
+import type { organizeMessages } from './messages/index.ts'
 
 export const i18nFormat = formatter($locale)
 
@@ -78,6 +80,21 @@ export function formatTimeShort(format: Formatter, date: Date): string {
     return format.time(date, { timeStyle: 'short' })
   }
   return format.time(date, { dateStyle: 'medium' })
+}
+
+export function formatFrequency(
+  t: StoreValue<typeof organizeMessages>,
+  perDay: number
+): string {
+  if (perDay >= 1) {
+    return t.perDay(Math.round(perDay))
+  } else if (perDay * 7 >= 1) {
+    return t.perWeek(Math.round(perDay * 7))
+  } else if (perDay * 30 >= 1) {
+    return t.perMonth(Math.round(perDay * 30))
+  } else {
+    return t.perYear(Math.max(1, Math.round(perDay * 365)))
+  }
 }
 
 export function humanizeUrl(url: string): string {

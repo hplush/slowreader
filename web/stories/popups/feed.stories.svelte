@@ -41,6 +41,24 @@
     contentType: 'application/atom+xml'
   }
 
+  const FREQUENT_ATOM = {
+    body: `<?xml version="1.0" encoding="utf-8"?>
+    <feed xmlns="http://www.w3.org/2005/Atom">
+      <title>Example Hourly</title>
+      <id>https://example.com/hourly.atom</id>
+      ${Array.from({ length: 12 }, (_, i) => {
+        let date = new Date(Date.now() - i * 2 * 3600 * 1000).toISOString()
+        return `<entry>
+          <title>Hourly news ${i + 1}</title>
+          <link href="https://example.com/hourly/${i + 1}" />
+          <id>https://example.com/hourly/${i + 1}</id>
+          <updated>${date}</updated>
+        </entry>`
+      }).join('')}
+    </feed>`,
+    contentType: 'application/atom+xml'
+  }
+
   const MASTODON_API = 'https://mastodon.social/api/v1/accounts'
 
   const STATUSES = [1, 2, 3].map(id => ({
@@ -222,10 +240,10 @@
   parameters={{ layout: 'fullscreen' }}
 >
   <Scene
-    feeds={[{ reading: 'fast', url: 'https://example.com/news.atom' }]}
-    responses={[['https://example.com/news.atom', ATOM]]}
+    feeds={[{ reading: 'fast', url: 'https://example.com/hourly.atom' }]}
+    responses={[['https://example.com/hourly.atom', FREQUENT_ATOM]]}
   >
-    <LoadedPopup popup={popups.feed('https://example.com/news.atom')}>
+    <LoadedPopup popup={popups.feed('https://example.com/hourly.atom')}>
       {#snippet loaded(popup)}
         <FeedPopupComponent {popup} />
       {/snippet}

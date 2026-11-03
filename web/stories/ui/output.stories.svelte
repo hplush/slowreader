@@ -32,6 +32,7 @@
   <Section stack width={200}>
     <Output label="Base" value="test" />
     <Output font="normal" label="Normal" value="Feed title" />
+    <Output hint="Atom" label="Hinted" value="https://example.com/" />
     <Output label="Copied" value="test" />
     <Output label="Formatted" value="0.20261027.1">
       <Version value="0.20261027.1" />
@@ -48,6 +49,7 @@
   <Section stack width={200}>
     <Output label="Base" value="test" />
     <Output font="normal" label="Normal" value="Feed title" />
+    <Output hint="Atom" label="Hinted" value="https://example.com/" />
     <Output label="Copied" value="test" />
     <Output label="Formatted" value="0.20261027.1">
       <Version value="0.20261027.1" />

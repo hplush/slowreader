@@ -61,6 +61,7 @@
     --selection-color: oklch(0.93 0.16 102);
     --text-color: var(--dark-text-color);
     --dangerous-text-color: oklch(0.5 0.16 20);
+    --warning-text-color: oklch(0.47 0.11 70);
     --success-text-color: oklch(0.5 0.16 150);
     --url-color: oklch(0.52 0.115 240);
     --url-visited-color: oklch(0.53 0.116 320);
@@ -141,6 +142,7 @@
     --selection-color: oklch(0.5 0.1 102);
     --text-color: var(--light-text-color);
     --dangerous-text-color: oklch(0.84 0.1 20);
+    --warning-text-color: oklch(0.85 0.12 90);
     --success-text-color: oklch(0.7 0.16 150);
     --url-color: oklch(0.78 0.114 240);
     --url-visited-color: oklch(0.8 0.114 320);

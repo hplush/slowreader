@@ -44,7 +44,7 @@ import {
   type PostAuthor,
   processOriginPost
 } from './post.ts'
-import type { PostsList } from './posts-list.ts'
+import { getPostsFrequency, type PostsList } from './posts-list.ts'
 import { getTables, openedDatabase } from './schema.ts'
 import {
   autoRefresh,
@@ -327,20 +327,26 @@ function writePage(state: TargetRefresh): Promise<false | Found> {
  * refresh can not create duplicates, so the marker can wait.
  */
 let refreshedAt = 0
-let untouched: string[] = []
+let untouched = new Map<null | number, string[]>()
 let untouchedAccounts: string[] = []
 
 async function finishTarget(state: TargetRefresh): Promise<void> {
   let { newest, target } = state
   if ('feed' in target) {
+    let frequency = getPostsFrequency(state.pages)
     if (newest) {
       await changeFeed(target.feed.id, {
+        frequency,
         lastOriginId: newest.originId,
         lastPublishedAt: getSortedAt(newest),
         refreshedAt
       })
     } else {
-      untouched.push(target.feed.id)
+      let key =
+        frequency === undefined || frequency === target.feed.frequency
+          ? null
+          : frequency
+      untouched.set(key, [...(untouched.get(key) ?? []), target.feed.id])
     }
   } else {
     if (newest) {
@@ -494,7 +500,7 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
   if (!isRefreshing.get()) return
 
   refreshedAt = Math.round(Date.now() / 1000)
-  untouched = []
+  untouched = new Map()
   untouchedAccounts = []
   await waitLoading(syncedSettingsLoading)
   let [feeds, accounts] = await Promise.all([
@@ -551,7 +557,12 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
     }
   )
 
-  if (untouched.length > 0) await changeFeed(untouched, { refreshedAt })
+  for (let [frequency, ids] of untouched) {
+    await changeFeed(
+      ids,
+      frequency === null ? { refreshedAt } : { frequency, refreshedAt }
+    )
+  }
   if (untouchedAccounts.length > 0) {
     await getTables().accounts.update(untouchedAccounts, { refreshedAt })
   }

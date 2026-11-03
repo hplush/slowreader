@@ -4,6 +4,7 @@ import { describe, test } from 'node:test'
 
 import {
   formatDuration,
+  formatFrequency,
   formatHour,
   formatPublishedAt,
   formatRelativeTime,
@@ -11,6 +12,7 @@ import {
   formatTimeShort,
   humanizeUrl
 } from '../format.ts'
+import { organizeMessages } from '../messages/index.ts'
 
 describe('format', () => {
   function createMockFormatter(): Formatter {
@@ -121,5 +123,15 @@ describe('format', () => {
   test('formats hour as short time', () => {
     let format = createMockFormatter()
     equal(formatHour(format, 23), 'time')
+  })
+
+  test('formats frequency in the biggest period', () => {
+    let t = organizeMessages.get()
+    equal(formatFrequency(t, 10), '10 posts per\u00A0day')
+    equal(formatFrequency(t, 1), '1 post per\u00A0day')
+    equal(formatFrequency(t, 0.2), '1 post per\u00A0week')
+    equal(formatFrequency(t, 0.04), '1 post per\u00A0month')
+    equal(formatFrequency(t, 0.02), '7 posts per\u00A0year')
+    equal(formatFrequency(t, 0.0009), '1 post per\u00A0year')
   })
 })

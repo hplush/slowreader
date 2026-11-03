@@ -11,9 +11,11 @@
     collapseThreads,
     errorToMessage,
     type FeedPopup,
+    formatFrequency,
     getPopupId,
     hasPersonAvatar,
     isAccountService,
+    isTooFrequent,
     organizeMessages as t,
     toPreviewPost
   } from '@slowreader/core'
@@ -42,6 +44,7 @@
     deleting,
     feed,
     followedBy,
+    frequency,
     posts,
     site,
     userPostUrl
@@ -106,7 +109,8 @@
       {/if}
     </Stack>
     <Output
-      label={$t.feedUrl({ type: $add[`${popup.loader}Loader`] })}
+      hint={$add[`${popup.loader}Loader`]}
+      label={$t.feedUrl}
       value={popup.param}
     />
     {#if $accountError}
@@ -154,7 +158,17 @@
     {/if}
     <Stack gap="s">
       <Stack gap="xs">
-        <Label tag="h2">{$t.feedPosts}</Label>
+        <Label
+          hint={$frequency === undefined
+            ? undefined
+            : formatFrequency($t, $frequency)}
+          tag="h2"
+          warning={$frequency !== undefined && isTooFrequent($frequency)
+            ? $t.tooFrequent
+            : undefined}
+        >
+          {$t.feedPosts}
+        </Label>
         {#if $posts.list.length > 0}
           <Feed
             feedUrl={popup.param}

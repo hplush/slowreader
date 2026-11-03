@@ -1,4 +1,4 @@
-import { params } from '@nanostores/i18n'
+import { count } from '@nanostores/i18n'
 
 import { i18n } from '../../i18n.ts'
 
@@ -14,13 +14,30 @@ export const organizeMessages = i18n('organize', {
     'This will permanently delete the feed, including its statistics and posts. Are you sure?',
   deleteFeed: 'Delete feed',
   fast: 'Fun',
+  perDay: count({
+    many: '{count} posts per day',
+    one: '{count} post per day'
+  }),
+  perMonth: count({
+    many: '{count} posts per month',
+    one: '{count} post per month'
+  }),
+  perWeek: count({
+    many: '{count} posts per week',
+    one: '{count} post per week'
+  }),
+  perYear: count({
+    many: '{count} posts per year',
+    one: '{count} post per year'
+  }),
   feedPosts: 'Recent posts',
   feedsTitle: 'Feeds',
-  feedUrl: params('Feed URL ({type})'),
+  feedUrl: 'Feed URL',
   morePosts: 'More posts',
   openWebsite: 'Open website',
   renameCategory: 'Rename category',
   slow: 'Useful',
   title: 'Feed name',
+  tooFrequent: 'Feed posts too often',
   type: 'Feed type'
 })

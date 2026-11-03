@@ -31,6 +31,7 @@ import {
   isRefreshing,
   loaders,
   NetworkError,
+  type FeedValue,
   type ParsedPost,
   type PostsListResult,
   type PostValue,
@@ -421,6 +422,49 @@ describe('refresh', () => {
     deepEqual(await getPostKeys('title'), ['3', '4'])
     deepEqual(actions, ['posts/created', 'posts/created', 'feeds/changed'])
     equal((await loadFeed(feedId))!.lastOriginId, 'post4')
+  })
+
+  test('saves frequency and refreshes frequent feeds first', async () => {
+    let now = Math.round(Date.now() / 1000)
+    function posts(url: string, count: number): ParsedPost[] {
+      return Array.from({ length: count }, (_, i) => ({
+        originId: `${url}${i}`,
+        publishedAt: now - Math.round((i * 2 * 86400) / (count - 1))
+      }))
+    }
+    let lists: Record<string, ParsedPost[]> = {
+      'https://a.com/': [],
+      'https://b.com/': posts('https://b.com/', 2),
+      'https://c.com/': posts('https://c.com/', 20),
+      'https://d.com/': posts('https://d.com/', 4)
+    }
+    function untouched(url: string): Partial<FeedValue> {
+      return { lastOriginId: `${url}0`, lastPublishedAt: now, url }
+    }
+    let a = await addFeed(testFeed({ title: 'A', url: 'https://a.com/' }))
+    let b = await addFeed(
+      testFeed({ frequency: 0.5, title: 'B', ...untouched('https://b.com/') })
+    )
+    let c = await addFeed(
+      testFeed({ frequency: 5, title: 'C', url: 'https://c.com/' })
+    )
+    let d = await addFeed(
+      testFeed({ frequency: 2, title: 'D', ...untouched('https://d.com/') })
+    )
+    let load = spyOn(loaders.rss, 'getPosts', (task, url) => {
+      return createPostsList(() => [lists[url]!, undefined])
+    })
+
+    await refreshPosts()
+    deepEqual(
+      load.calls.map(call => call[1]),
+      ['https://c.com/', 'https://d.com/', 'https://b.com/', 'https://a.com/']
+    )
+    equal((await loadFeed(a))!.frequency, null)
+    equal((await loadFeed(b))!.frequency, 1)
+    equal((await loadFeed(c))!.frequency, 10)
+    equal((await loadFeed(d))!.frequency, 2)
+    equal((await loadFeed(a))!.refreshedAt, (await loadFeed(b))!.refreshedAt)
   })
 
   test('keeps future posts at the time of refresh', async () => {

@@ -58,6 +58,7 @@ export function loadFeeds(): Promise<FeedValue[]> {
  */
 export type RefreshFeed = Pick<
   FeedValue,
+  | 'frequency'
   | 'id'
   | 'lastOriginId'
   | 'lastPublishedAt'
@@ -70,12 +71,14 @@ export type RefreshFeed = Pick<
 
 /**
  * Feeds with `accountId` get posts from the account’s home timeline.
+ * Frequent feeds go first, since they have more posts to load.
  */
 export function loadFeedsForRefresh(): Promise<RefreshFeed[]> {
   return getCrdt().select<RefreshFeed>`
     SELECT "id", "title", "url", "loader", "loaderData", "refreshedAt",
-      "lastOriginId", "lastPublishedAt"
-    FROM "feeds" WHERE "accountId" IS NULL ORDER BY "title"
+      "lastOriginId", "lastPublishedAt", "frequency"
+    FROM "feeds" WHERE "accountId" IS NULL
+    ORDER BY "frequency" DESC NULLS LAST, "title"
   `
 }
 
@@ -258,6 +261,7 @@ export function testFeed(
     avatar: null,
     categoryId: GENERAL_CATEGORY,
     fastReader: null,
+    frequency: null,
     id: `feed-${testFeedId}`,
     lastOriginId: null,
     lastPublishedAt: null,
