@@ -19,6 +19,19 @@ export default {
   stories: ['../stories/**/*.stories.svelte'],
   viteFinal(config: InlineConfig) {
     config.publicDir = 'public'
+    config.plugins = [
+      ...(config.plugins ?? []),
+      {
+        enforce: 'pre',
+        name: 'mock-version',
+        transform(code, id) {
+          if (id.endsWith('/api/index.ts')) {
+            return code.replace(/VERSION = '[^']+'/, "VERSION = '0.20260101.0'")
+          }
+          return undefined
+        }
+      }
+    ]
     return config
   }
 } satisfies StorybookConfig
