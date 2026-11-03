@@ -140,7 +140,7 @@
   :root {
     --selection-color: oklch(0.5 0.1 102);
     --text-color: var(--light-text-color);
-    --dangerous-text-color: oklch(0.7 0.16 20);
+    --dangerous-text-color: oklch(0.84 0.1 20);
     --success-text-color: oklch(0.7 0.16 150);
     --url-color: oklch(0.78 0.114 240);
     --url-visited-color: oklch(0.8 0.114 320);
