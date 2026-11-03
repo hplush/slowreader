@@ -146,6 +146,14 @@ function renderPage(release: Release, prev: Release | undefined): string {
   )
 }
 
+// CHANGELOG has only a day, readers need unique time to sort same-day releases
+function releaseTime(release: Release): string {
+  let patch = Number(release.version.split('.').at(-1))
+  return new Date(Date.parse(release.date) + patch * 1000)
+    .toISOString()
+    .replace('.000', '')
+}
+
 function renderAtom(all: Release[]): string {
   let entries = all.map(i => {
     let url = `${ORIGIN}/releases/${i.version}`
@@ -154,7 +162,7 @@ function renderAtom(all: Release[]): string {
     <title>${i.version}</title>
     <id>${url}</id>
     <link href="${url}" />
-    <updated>${i.date}T00:00:00Z</updated>
+    <updated>${releaseTime(i)}</updated>
     <content type="html">${escapeXml(toHtml(i.changes))}</content>
   </entry>`
   })
@@ -166,7 +174,7 @@ function renderAtom(all: Release[]): string {
   <link rel="self" href="${ORIGIN}/releases.atom" />
   <icon>${ORIGIN}/icon.svg</icon>
   <author><name>Slow Reader</name></author>
-  <updated>${all[0]!.date}T00:00:00Z</updated>${entries.join('')}
+  <updated>${releaseTime(all[0]!)}</updated>${entries.join('')}
 </feed>
 `
 }
