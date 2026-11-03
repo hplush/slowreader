@@ -11,13 +11,14 @@
     mdiWifi
   } from '@mdi/js'
   import {
+    autoRefresh,
     cacheImages,
     cacheMediaReading,
     cacheVideos,
     canDetectNetwork,
     extensionState,
     layoutType,
-    type MediaDownload,
+    type NetworkUse,
     requestMethod,
     settingsMessages,
     networkMessages as t,
@@ -28,12 +29,12 @@
   import { clientUpdate } from '../stores/client-update.ts'
   import Button from '../ui/button.svelte'
   import InstallExtension from '../ui/install-extension.svelte'
-  import Label from '../ui/label.svelte'
   import Note from '../ui/note.svelte'
   import RadioList from '../ui/radio-list.svelte'
   import Radio from '../ui/radio.svelte'
   import Stack from '../ui/stack.svelte'
   import ThinPage from '../ui/thin-page.svelte'
+  import Title from '../ui/title.svelte'
 
   let wifi = canDetectNetwork()
 
@@ -43,18 +44,19 @@
         ['always', $t.cacheAlways, mdiSignal],
         ['free', $t.cacheFree, mdiWifi],
         ['never', $t.cacheNever, mdiGaugeLow]
-      ] satisfies [MediaDownload, string, string][]
+      ] satisfies [NetworkUse, string, string][]
     ).filter(([value]) => wifi || value !== 'free')
   )
 
-  function shownDownload(value: MediaDownload): MediaDownload {
+  function shownNetworkUse(value: NetworkUse): NetworkUse {
     return !wifi && value === 'free' ? 'always' : value
   }
 </script>
 
 <ThinPage title={[$t.pageTitle, $settingsMessages.commonTitle]}>
-  <Stack gap="xl">
+  <Stack gap="xxl">
     <Stack gap="m">
+      <Title>{$t.requestsGroup}</Title>
       <RadioList
         label={$t.method}
         onchange={value => {
@@ -97,13 +99,23 @@
         {/if}
       {/if}
     </Stack>
-    {#if $clientUpdate}
-      <Stack gap="xs">
-        <Label tag="h2">{$t.offlineMode}</Label>
-        <Note icon={mdiAirplane} variant="good">{$t.offline}</Note>
-      </Stack>
-    {/if}
     <Stack gap="m">
+      <Title>{$t.refreshGroup}</Title>
+      <Radio
+        label={$t.autoRefresh}
+        onchange={value => {
+          autoRefresh.set(value)
+        }}
+        size="wide"
+        value={shownNetworkUse($autoRefresh)}
+        values={downloadValues}
+      />
+    </Stack>
+    <Stack gap="m">
+      <Title>{$t.offlineGroup}</Title>
+      {#if $clientUpdate}
+        <Note icon={mdiAirplane} variant="good">{$t.offline}</Note>
+      {/if}
       <Radio
         label={$t.cacheMediaReading}
         onchange={value => {
@@ -124,7 +136,7 @@
             cacheImages.set(value)
           }}
           size="wide"
-          value={shownDownload($cacheImages)}
+          value={shownNetworkUse($cacheImages)}
           values={downloadValues}
         />
         <Radio
@@ -133,7 +145,7 @@
             cacheVideos.set(value)
           }}
           size="wide"
-          value={shownDownload($cacheVideos)}
+          value={shownNetworkUse($cacheVideos)}
           values={downloadValues}
         />
       {/if}

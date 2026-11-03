@@ -84,17 +84,27 @@ export const theme = persistentAtom<'dark' | 'light' | 'system'>(
   'system'
 )
 
-export type MediaDownload = 'always' | 'free' | 'never'
+export type NetworkUse = 'always' | 'free' | 'never'
 
-export const cacheImages = persistentAtom<MediaDownload>(
+export const cacheImages = persistentAtom<NetworkUse>(
   'slowreader:cacheImages',
   'always'
 )
 
-export const cacheVideos = persistentAtom<MediaDownload>(
+export const cacheVideos = persistentAtom<NetworkUse>(
   'slowreader:cacheVideos',
   'never'
 )
+
+export const autoRefresh = persistentAtom<NetworkUse>(
+  'slowreader:autoRefresh',
+  'never'
+)
+
+export const lastRefresh = persistentAtom<number>('slowreader:lastRefresh', 0, {
+  decode: Number,
+  encode: String
+})
 
 export type MediaReading = 'all' | 'none' | 'slow'
 

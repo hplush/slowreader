@@ -1,4 +1,4 @@
-import { atom, computed, map } from 'nanostores'
+import { atom, computed, effect, map } from 'nanostores'
 
 import {
   type AccountValue,
@@ -6,7 +6,7 @@ import {
   loadAccount,
   loadAccounts
 } from './account.ts'
-import { waitSyncOrOffline } from './client.ts'
+import { onClient, waitSyncOrOffline } from './client.ts'
 import { getEnvironment } from './environment.ts'
 import {
   changeFeed,
@@ -20,6 +20,7 @@ import {
 } from './feed.ts'
 import { type FilterChecker, loadFilterChecker } from './filter.ts'
 import { createDownloadTask, type DownloadTask } from './lib/download.ts'
+import { canUseNetwork } from './lib/network.ts'
 import { createQueue, type QueueCallback } from './lib/queue.ts'
 import { increaseKey, waitLoading } from './lib/stores.ts'
 import { loaders } from './loader/index.ts'
@@ -31,6 +32,7 @@ import {
   stopMediaCache,
   syncMediaCache
 } from './media-cache.ts'
+import { nightLocked } from './night-lock.ts'
 import {
   addPost,
   deleteFastPostsBefore,
@@ -43,12 +45,14 @@ import {
   processOriginPost
 } from './post.ts'
 import type { PostsList } from './posts-list.ts'
-import { getTables } from './schema.ts'
+import { getTables, openedDatabase } from './schema.ts'
 import {
+  autoRefresh,
   cacheImages,
   cacheMediaReading,
   cacheVideos,
   fastPostsMaxAge,
+  lastRefresh,
   syncedSettingsLoading
 } from './settings.ts'
 import { linkThreads } from './thread.ts'
@@ -462,8 +466,16 @@ export async function loadRecentPosts(
   }
 }
 
-export async function refreshPosts(): Promise<void> {
+/**
+ * `auto` refresh is for the app start and the return to the app.
+ * It respects user settings and skips if other tab did it recently.
+ */
+export async function refreshPosts({ auto = false } = {}): Promise<void> {
   if (isRefreshing.get()) return
+  if (auto) {
+    if (!canUseNetwork(autoRefresh.get())) return
+    if (Date.now() - lastRefresh.get() < 5 * 60_000) return
+  }
   if (doneTimeout) {
     clearTimeout(doneTimeout)
     doneTimeout = undefined
@@ -473,6 +485,7 @@ export async function refreshPosts(): Promise<void> {
   refreshStatistics.set({ ...DEFAULT_REFRESH_STATISTICS, initializing: true })
   mediaStatistics.set({ ...DEFAULT_MEDIA_STATISTICS })
   mediaErrors.set([])
+  lastRefresh.set(Date.now())
 
   // Other device could already load these posts and move feed markers
   await waitSyncOrOffline()
@@ -482,12 +495,16 @@ export async function refreshPosts(): Promise<void> {
   untouched = []
   untouchedAccounts = []
   await waitLoading(syncedSettingsLoading)
-  let maxAge = fastPostsMaxAge.get()
-  if (maxAge > 0) await deleteFastPostsBefore(refreshedAt - maxAge)
   let [feeds, accounts] = await Promise.all([
     loadFeedsForRefresh(),
     loadAccounts()
   ])
+  if (auto && (nightLocked.get() || feeds.length + accounts.length === 0)) {
+    refreshStatus.set('start')
+    return
+  }
+  let maxAge = fastPostsMaxAge.get()
+  if (maxAge > 0) await deleteFastPostsBefore(refreshedAt - maxAge)
   let targets: RefreshTarget[] = [
     ...accounts.map(account => ({ account })),
     ...feeds.map(feed => ({ feed }))
@@ -545,6 +562,7 @@ export async function refreshPosts(): Promise<void> {
     }
   }
 
+  lastRefresh.set(Date.now())
   if (refreshStatus.get() === 'refreshingError') {
     refreshStatus.set('error')
   } else {
@@ -554,6 +572,12 @@ export async function refreshPosts(): Promise<void> {
     }, 1000)
   }
 }
+
+onClient(() =>
+  effect(openedDatabase, db => {
+    if (db) void refreshPosts({ auto: true })
+  })
+)
 
 export function stopRefreshing(): void {
   if (!isRefreshing.get()) return

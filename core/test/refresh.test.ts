@@ -9,11 +9,15 @@ import {
   addFeed,
   addFilter,
   addPost,
+  autoRefresh,
   createPostsList,
   DEFAULT_REFRESH_STATISTICS,
   deleteAccount,
   deleteFeed,
   fastPostsMaxAge,
+  lastRefresh,
+  type NetworkTypeDetector,
+  nightLock,
   syncedSettingsLoading,
   getClient,
   loadAccount,
@@ -34,6 +38,7 @@ import {
   refreshStatistics,
   refreshStatus,
   setRequestMethod,
+  setupEnvironment,
   stopRefreshing,
   testAccount,
   testFeed,
@@ -47,6 +52,7 @@ import {
   startClient,
   expectRequest,
   expectWarning,
+  getTestEnvironment,
   mockRequest,
   setupNodeDom,
   throws
@@ -1213,5 +1219,94 @@ describe('refresh of accounts', () => {
       return createPostsList(() => Promise.reject(error))
     })
     equal(await throws(() => loadRecentPosts(feedId)), error)
+  })
+})
+
+describe('auto refresh', () => {
+  beforeEach(async () => {
+    mockRequest()
+    startClient()
+    await waitLoading(syncedSettingsLoading)
+    fastPostsMaxAge.set(0)
+  })
+
+  afterEach(async () => {
+    fastPostsMaxAge.set(604800)
+    autoRefresh.set('never')
+    lastRefresh.set(0)
+    nightLock.set({ enabled: false, from: 23, to: 4 })
+    refreshStatistics.set({ ...DEFAULT_REFRESH_STATISTICS })
+    await cleanClient()
+    restoreAll()
+    checkAndRemoveRequestMock()
+  })
+
+  test('refreshes on start only by user setting', async () => {
+    await addFeed(testFeed({ loader: 'rss', url: 'https://one.com/' }))
+    let load = spyOn(loaders.rss, 'getPosts', () => {
+      return createPostsList(() => Promise.resolve([[], undefined]))
+    })
+
+    await refreshPosts({ auto: true })
+    equal(load.callCount, 0)
+
+    autoRefresh.set('always')
+    await refreshPosts({ auto: true })
+    equal(load.callCount, 1)
+    ok(Date.now() - lastRefresh.get() < 1000)
+  })
+
+  test('respects network type on auto refresh', async () => {
+    let network: ReturnType<NetworkTypeDetector> = {
+      saveData: false,
+      type: 'paid'
+    }
+    setupEnvironment({ ...getTestEnvironment(), networkType: () => network })
+    await addFeed(testFeed({ loader: 'rss', url: 'https://one.com/' }))
+    let load = spyOn(loaders.rss, 'getPosts', () => {
+      return createPostsList(() => Promise.resolve([[], undefined]))
+    })
+    autoRefresh.set('free')
+
+    await refreshPosts({ auto: true })
+    equal(load.callCount, 0)
+
+    network = { saveData: false, type: 'free' }
+    await refreshPosts({ auto: true })
+    equal(load.callCount, 1)
+  })
+
+  test('does not auto refresh too often', async () => {
+    await addFeed(testFeed({ loader: 'rss', url: 'https://one.com/' }))
+    let load = spyOn(loaders.rss, 'getPosts', () => {
+      return createPostsList(() => Promise.resolve([[], undefined]))
+    })
+    autoRefresh.set('always')
+
+    lastRefresh.set(Date.now() - 60_000)
+    await refreshPosts({ auto: true })
+    equal(load.callCount, 0)
+
+    lastRefresh.set(Date.now() - 600_000)
+    await refreshPosts({ auto: true })
+    equal(load.callCount, 1)
+    ok(Date.now() - lastRefresh.get() < 1000)
+
+    await refreshPosts({ auto: true })
+    equal(load.callCount, 1)
+  })
+
+  test('does not auto refresh without feeds or at night', async () => {
+    autoRefresh.set('always')
+    await refreshPosts({ auto: true })
+    equal(refreshStatus.get(), 'start')
+
+    await addFeed(testFeed({ loader: 'rss', url: 'https://one.com/' }))
+    let load = spyOn(loaders.rss, 'getPosts', () => {
+      return createPostsList(() => Promise.resolve([[], undefined]))
+    })
+    nightLock.set({ enabled: true, from: 0, to: 24 })
+    await refreshPosts({ auto: true })
+    equal(load.callCount, 0)
   })
 })

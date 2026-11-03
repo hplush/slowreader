@@ -4,6 +4,7 @@
     addCategory,
     addFeed,
     addPost,
+    autoRefresh,
     type BaseRoute,
     busy,
     cacheImages,
@@ -230,6 +231,7 @@
     fastPostsMaxAge.set(604800)
     nightLock.set({ enabled: false, from: 23, to: 4 })
     cacheMediaReading.set('all')
+    autoRefresh.set('never')
     cacheImages.set('always')
     cacheVideos.set('never')
     setMediaCacheSize(0)

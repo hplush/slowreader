@@ -4,7 +4,7 @@ import { atom, computed, effect, map } from 'nanostores'
 
 import { type CachedMedia, getEnvironment } from './environment.ts'
 import { HTTPStatusError } from './errors.ts'
-import { canDownloadMedia } from './lib/network.ts'
+import { canUseNetwork } from './lib/network.ts'
 import { createQueue } from './lib/queue.ts'
 import { increaseKey } from './lib/stores.ts'
 import { changePost, loadPost } from './post.ts'
@@ -374,8 +374,8 @@ export async function syncMediaCache(): Promise<void> {
   let unused = [...cached].filter(url => !wanted.has(url))
   if (unused.length > 0) await cache.delete(unused)
 
-  let downloadImages = canDownloadMedia(images)
-  let downloadVideos = canDownloadMedia(videos)
+  let downloadImages = canUseNetwork(images)
+  let downloadVideos = canUseNetwork(videos)
   let missing = [...wanted]
     .filter(([url, item]) => {
       return !cached.has(url) && (item.video ? downloadVideos : downloadImages)

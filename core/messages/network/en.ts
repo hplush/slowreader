@@ -2,6 +2,7 @@ import { i18n } from '../../i18n.ts'
 
 export const networkMessages = i18n('network', {
   allowExtension: 'Allow the sites',
+  autoRefresh: 'Refresh feeds on app start',
   cacheAlways: 'Always',
   cacheFree: 'Wi-Fi',
   cacheImages: 'Save images for offline',
@@ -17,12 +18,14 @@ export const networkMessages = i18n('network', {
     'and nobody in the middle knows what you read.',
   method: 'Network requests',
   offline: 'App works without network',
-  offlineMode: 'Offline mode',
+  offlineGroup: 'Offline media',
   noExtension:
     'The extension makes the requests right from your browser: it is ' +
     'faster, and nobody in the middle knows what you read.',
   installExtension: 'Install the extension',
   pageTitle: 'Network',
+  refreshGroup: 'New posts',
+  requestsGroup: 'Connection',
   unsupportedBrowser: 'No extension for this browser',
   installedExtension: 'If you installed the extension, reload the page.',
   reloadApp: 'Reload the app',

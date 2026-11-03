@@ -1,5 +1,5 @@
 import { getEnvironment } from '../environment.ts'
-import type { MediaDownload } from '../settings.ts'
+import type { NetworkUse } from '../settings.ts'
 
 /**
  * Only some browsers tell Wi-Fi from cellular, so the Wi-Fi option
@@ -10,7 +10,7 @@ export function canDetectNetwork(): boolean {
   return type === 'free' || type === 'paid'
 }
 
-export function canDownloadMedia(setting: MediaDownload): boolean {
+export function canUseNetwork(setting: NetworkUse): boolean {
   if (setting !== 'free') return setting === 'always'
   let network = getEnvironment().networkType()
   return network.type !== 'paid' && !network.saveData

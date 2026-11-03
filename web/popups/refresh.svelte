@@ -43,7 +43,7 @@
         {$t.stop}
       </Button>
     {:else}
-      <Button icon={mdiRefresh} onclick={refreshPosts}>
+      <Button icon={mdiRefresh} onclick={() => refreshPosts()}>
         {$t.start}
       </Button>
     {/if}

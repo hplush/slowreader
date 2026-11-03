@@ -33,7 +33,7 @@
         <Button
           icon={mdiReload}
           loader={$isRefreshing ? $refreshProgress : undefined}
-          onclick={refreshPosts}>{$t.refresh}</Button
+          onclick={() => refreshPosts()}>{$t.refresh}</Button
         >
       </Stack>
     </Stack>

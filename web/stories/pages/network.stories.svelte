@@ -1,5 +1,6 @@
 <script context="module" lang="ts">
   import {
+    autoRefresh,
     cacheMediaReading,
     cacheVideos,
     extensionState,
@@ -22,6 +23,7 @@
   <Scene
     oninit={() => {
       clientUpdate.set(undefined)
+      autoRefresh.set('free')
     }}
     route="network"
   >
@@ -38,6 +40,7 @@
       requestMethod.set('extension')
       cacheMediaReading.set('slow')
       cacheVideos.set('free')
+      autoRefresh.set('always')
     }}
     route="network"
   >

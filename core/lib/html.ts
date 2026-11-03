@@ -1,7 +1,7 @@
 import createDOMPurify from 'dompurify'
 
 import { cacheImages } from '../settings.ts'
-import { canDownloadMedia } from './network.ts'
+import { canUseNetwork } from './network.ts'
 import { PUNCTUATION_CHARS, truncateText } from './text.ts'
 
 const ALLOWED_TAGS = [
@@ -324,7 +324,7 @@ export function sanitizeDOM(html: string): Element {
     media.setAttribute('controls', '')
     media.setAttribute('preload', 'none')
   }
-  let loading = canDownloadMedia(cacheImages.get()) ? 'eager' : 'lazy'
+  let loading = canUseNetwork(cacheImages.get()) ? 'eager' : 'lazy'
   for (let image of node.querySelectorAll('img')) {
     image.setAttribute('loading', loading)
     image.setAttribute('decoding', 'async')
