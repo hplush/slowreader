@@ -18,6 +18,8 @@
 
   let id = $props.id()
 
+  let pointer = $state(false)
+
   let current = $derived.by(() => {
     let currentOption = values.find(i => i[0] === value)
     return currentOption ? currentOption[1] : ' '
@@ -26,7 +28,7 @@
 
 <div class="select">
   <Label {id}>{label}</Label>
-  <div class="select_fake">
+  <div class="select_fake" class:is-pointer={pointer}>
     <div class="select_overflow">
       <div class="select_text">{current}</div>
     </div>
@@ -34,8 +36,17 @@
     <select
       {id}
       class="select_select"
+      onblur={() => {
+        if (document.hasFocus()) pointer = false
+      }}
       onchange={e => {
         onchange(e.currentTarget.value as Value)
+      }}
+      onkeydown={() => {
+        pointer = false
+      }}
+      onpointerdown={() => {
+        pointer = true
       }}
     >
       {#each values as [key, name] (key)}
@@ -69,7 +80,7 @@
       border-radius: var(--base-radius);
       box-shadow: var(--field-shadow);
 
-      &:has(.select_select:focus-visible) {
+      &:not(.is-pointer):has(.select_select:focus-visible) {
         @mixin focus;
       }
 
