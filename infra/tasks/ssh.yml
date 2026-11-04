@@ -25,6 +25,30 @@
     group: ai
     mode: '0600'
 
+# Without the password, removing NOPASSWD would lock us out of sudo
+- name: Check admin password
+  ansible.builtin.command: passwd --status ai
+  register: admin_password
+  changed_when: false
+
+- name: Require admin password
+  ansible.builtin.assert:
+    that: admin_password.stdout.split()[1] == 'P'
+    fail_msg: Set admin password by Admin Password section of infra/README.md
+
+# Stolen SSH session or agent can’t become root without the password
+- name: Ask admin password for sudo
+  ansible.builtin.copy:
+    dest: /etc/sudoers.d/90-ai
+    content: "ai ALL=(ALL:ALL) ALL\n"
+    mode: '0440'
+    validate: visudo -cf %s
+
+- name: Remove sudo without password from cloud config
+  ansible.builtin.file:
+    path: /etc/sudoers.d/90-cloud-init-users
+    state: absent
+
 - name: Create deploy user
   ansible.builtin.user:
     name: deploy

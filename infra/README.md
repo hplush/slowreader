@@ -36,7 +36,7 @@ Hetzner Cloud Firewall `ssh` allows port 22 only from maintainers’ IPv4. `ssh-
 
 SSH accepts only hardware keys from [`verifier/allowed_signers`](../verifier/allowed_signers):
 
-- `ai` is the admin with `sudo`. Only Ansible uses it.
+- `ai` is the admin. `sudo` asks its password from the maintainer’s password manager.
 - `deploy` has no `sudo` and no shell. Its key can only call `deploy-request`, which accepts `request VERSION` and `status VERSION`.
 
 ### Deploy
@@ -244,6 +244,8 @@ You need these steps only once.
             - sk-ssh-ed25519@openssh.com AAAA…
       ```
 
+      Ansible replaces `NOPASSWD` by a password after Admin Password section.
+
    8. Enter `slowreader` name and click **Create & Buy now**.
 6. Open the server’s **Console** and find `SSH HOST KEY FINGERPRINTS` in the boot log.
 7. Save the server’s key in Dev Container and compare its fingerprint with the console:
@@ -254,6 +256,15 @@ You need these steps only once.
    ```
 
 8. Commit `infra/known_hosts`.
+
+### Admin Password
+
+Generate a password for `ai` in the password manager. Connect and set it:
+
+```sh
+SERVER=SERVER_IPV4 ./infra/scripts/ssh.sh
+sudo passwd ai
+```
 
 ### Livepatch
 
