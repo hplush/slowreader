@@ -225,8 +225,8 @@ You need these steps only once.
    2. `ssh`: without rules.
 4. Open `ssh` firewall rules and copy page URL to `FIREWALL` in [`scripts/ssh-access.sh`](./scripts/ssh-access.sh).
 5. Create a server in **Servers** → **Add Server**:
-   1. Select **Nuremberg** location and **Ubuntu 26.04** image.
-   2. Select **Cost Optimized** → **x86** → **CX23**: 2 vCPU, 4 GB RAM, 40 GB disk.
+   1. Select **Cost Optimized** → **x86** → **CX23**: 2 vCPU, 4 GB RAM, 40 GB disk.
+   2. Select **Nuremberg** location and **Ubuntu 26.04** image.
    3. Enable public IPv4 and IPv6.
    4. Add your hardware key from `verifier/allowed_signers` in **SSH keys**.
    5. Select `web` and `ssh` firewalls.
@@ -241,21 +241,19 @@ You need these steps only once.
           shell: /bin/bash
           sudo: ALL=(ALL) NOPASSWD:ALL
           ssh_authorized_keys:
-            - sk-ssh-ed25519@openssh.com AAAA…
+            - sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAICdU+eT8ehMEMpILicrcF1Uxv2Sj7MSIuwhTaJfRvcOpAAAABHNzaDo= andrey@sitnik.ru
       ```
 
       Ansible replaces `NOPASSWD` by a password after Admin Password section.
 
    8. Enter `slowreader` name and click **Create & Buy now**.
-6. Open the server’s **Console** and find `SSH HOST KEY FINGERPRINTS` in the boot log.
-7. Save the server’s key in Dev Container and compare its fingerprint with the console:
+6. Save the server’s key:
 
    ```sh
    ssh-keyscan -t ed25519 SERVER_IPV4 | sed 's/^[^ ]*/slowreader.app/' > infra/known_hosts
-   ssh-keygen -lf infra/known_hosts
    ```
 
-8. Commit `infra/known_hosts`.
+7. Commit `infra/known_hosts`.
 
 ### Admin Password
 
@@ -276,7 +274,6 @@ sudo passwd ai
    ```
 
 3. Run `sudo pro attach` and follow its link to attach the server without typing the token.
-4. Check that `sudo pro status` has `livepatch` enabled.
 
 ### Backup Bucket
 
