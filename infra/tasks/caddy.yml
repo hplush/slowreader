@@ -57,9 +57,9 @@
   register: origins
   changed_when: false
   failed_when: >-
-    'o=cloudsmith/caddy/stable' not in origins.stdout or
-    'o=UbuntuESMApps' not in origins.stdout or
-    'o=UbuntuESM,' not in origins.stdout
+    'origin=cloudsmith/caddy/stable' not in origins.stdout or
+    'origin=UbuntuESMApps,' not in origins.stdout or
+    'origin=UbuntuESM,' not in origins.stdout
 
 - name: Move Caddy admin API to a private socket
   ansible.builtin.copy:

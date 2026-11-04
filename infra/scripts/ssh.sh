@@ -10,4 +10,5 @@ set -euo pipefail
 INFRA="$(cd "$(dirname "$0")/.." && pwd)"
 exec "$INFRA/scripts/ssh-access.sh" ssh -4 \
   -o "UserKnownHostsFile=$INFRA/known_hosts" -o StrictHostKeyChecking=yes \
-  -o HostKeyAlias=slowreader.app "ai@${SERVER:-slowreader.app}" "$@"
+  -o HostKeyAlias=slowreader.app -o PreferredAuthentications=publickey \
+  "ai@${SERVER:-slowreader.app}" "$@"

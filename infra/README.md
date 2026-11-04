@@ -225,12 +225,13 @@ You need these steps only once.
    2. `ssh`: without rules.
 4. Open `ssh` firewall rules and copy page URL to `FIREWALL` in [`scripts/ssh-access.sh`](./scripts/ssh-access.sh).
 5. Create a server in **Servers** → **Add Server**:
-   1. Select location in Germany, Ubuntu 26.04 image, and shared vCPU type.
-   2. Enable public IPv4 and IPv6.
-   3. Add your hardware key from `verifier/allowed_signers` in **SSH keys**.
-   4. Select `web` and `ssh` firewalls.
-   5. Enable **Backups** as the last resort, if Ansible breaks the server.
-   6. Put to **Cloud config**, with your key from `verifier/allowed_signers`:
+   1. Select **Nuremberg** location and **Ubuntu 26.04** image.
+   2. Select **Cost Optimized** → **x86** → **CX23**: 2 vCPU, 4 GB RAM, 40 GB disk.
+   3. Enable public IPv4 and IPv6.
+   4. Add your hardware key from `verifier/allowed_signers` in **SSH keys**.
+   5. Select `web` and `ssh` firewalls.
+   6. Enable **Backups** as the last resort, if Ansible breaks the server.
+   7. Put to **Cloud config**, with your key from `verifier/allowed_signers`.
 
       ```yaml
       #cloud-config
@@ -243,7 +244,7 @@ You need these steps only once.
             - sk-ssh-ed25519@openssh.com AAAA…
       ```
 
-   7. Enter `slowreader` name and click **Create & Buy now**.
+   8. Enter `slowreader` name and click **Create & Buy now**.
 6. Open the server’s **Console** and find `SSH HOST KEY FINGERPRINTS` in the boot log.
 7. Save the server’s key in Dev Container and compare its fingerprint with the console:
 
@@ -256,7 +257,7 @@ You need these steps only once.
 
 ### Livepatch
 
-1. Get Ubuntu Pro token at [ubuntu.com/pro](https://ubuntu.com/pro).
+1. Get Ubuntu Pro token at [ubuntu.com/pro](https://ubuntu.com/pro/dashboard).
 2. Connect to the server:
 
    ```sh
@@ -272,7 +273,7 @@ You need these steps only once.
 2. Select `Paris` (`fr-par`) region, enter `slowreader-backups` name, select **Private** visibility, and enable **Object Lock** (it enables versioning too).
 3. In bucket **Settings** set default Object Lock retention: **Compliance** mode, **14 days**.
 4. In **Lifecycle rules** add a rule to delete noncurrent versions after **15 days**.
-5. Create `backup` IAM application with policy for `Slow Reader` project: **Object Storage** → `ObjectStorageObjectsRead`, `ObjectStorageObjectsWrite`, `ObjectStorageObjectsDelete`, `ObjectStorageBucketsRead`.
+5. Create `backup` IAM application with policy for `Slow Reader` project: **Object Storage** → `ObjectStorageObjectsDelete`, `ObjectStorageObjectsRead`, `ObjectStorageObjectsWrite`, `ObjectStorageBucketsRead`.
 6. Create API key for `backup` application without expiration. Keep the window open for the next section.
 
 ### Secrets
