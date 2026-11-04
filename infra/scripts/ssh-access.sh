@@ -8,7 +8,7 @@
 
 set -euo pipefail
 
-FIREWALL=https://console.hetzner.com/
+FIREWALL=https://console.hetzner.com/projects/16666548/firewalls
 SERVER=${SERVER:-slowreader.app}
 SAVED="$(dirname "$0")/../.ssh-ip"
 
