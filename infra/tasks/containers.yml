@@ -5,13 +5,35 @@
       - podman
       - prometheus-systemd-exporter
 
+# Each service can read and write only its own requests
+- name: Create deploy groups
+  ansible.builtin.group:
+    name: deploy-{{ item }}
+  loop: '{{ services.keys() }}'
+
 - name: Create service users
   ansible.builtin.user:
     name: '{{ item }}'
     shell: /usr/sbin/nologin
     password_lock: true
+    groups: deploy-{{ item }}
+    append: true
   loop: '{{ services.keys() }}'
   register: users
+
+- name: Add deploy user to deploy groups
+  ansible.builtin.user:
+    name: deploy
+    groups: '{{ services.keys() | map("regex_replace", "^", "deploy-") | list }}'
+    append: true
+
+# User services started before the new group can’t read request folders
+- name: Restart user services after group change
+  ansible.builtin.systemd_service:
+    name: user@{{ item.uid }}
+    state: restarted
+  loop: '{{ users.results }}'
+  when: item.changed
 
 # Fixed ranges, so they never overlap with ranges of other users
 - name: Set container UID ranges
@@ -21,7 +43,7 @@
     line: '{{ item.1.key }}:{{ 1000000 + item.1.value * 65536 }}:65536'
   loop: >-
     {{ ['/etc/subuid', '/etc/subgid']
-      | product({'app': 0, 'proxy': 1} | dict2items) | list }}
+      | product({'slowreader-app': 0, 'slowreader-proxy': 1} | dict2items) | list }}
 
 - name: Run user services without login
   ansible.builtin.command: loginctl enable-linger {{ item }}
@@ -49,21 +71,6 @@
   ansible.builtin.systemd_service:
     name: proxy-firewall
     enabled: true
-
-# Each service can read and write only its own requests
-- name: Create deploy groups
-  ansible.builtin.group:
-    name: deploy-{{ item }}
-  loop: '{{ services.keys() }}'
-
-- name: Add users to deploy groups
-  ansible.builtin.user:
-    name: '{{ item.0 }}'
-    groups: deploy-{{ item.1 }}
-    append: true
-  loop: >-
-    {{ [['deploy', 'app'], ['deploy', 'proxy'], ['app', 'app'],
-      ['proxy', 'proxy']] }}
 
 - name: Create deploy folders
   ansible.builtin.file:

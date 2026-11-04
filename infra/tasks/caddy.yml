@@ -61,6 +61,12 @@
     'origin=UbuntuESMApps,' not in origins.stdout or
     'origin=UbuntuESM,' not in origins.stdout
 
+- name: Create caddy drop-in folder
+  ansible.builtin.file:
+    path: /etc/systemd/system/caddy.service.d
+    state: directory
+    mode: '0755'
+
 - name: Move Caddy admin API to a private socket
   ansible.builtin.copy:
     dest: /etc/systemd/system/caddy.service.d/50-slowreader.conf

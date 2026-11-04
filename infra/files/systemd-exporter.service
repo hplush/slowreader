@@ -1,7 +1,7 @@
 [Unit]
 Description=Metrics of container units
-ConditionUser=|app
-ConditionUser=|proxy
+ConditionUser=|slowreader-app
+ConditionUser=|slowreader-proxy
 
 [Service]
 EnvironmentFile=/etc/default/systemd-exporter-%u

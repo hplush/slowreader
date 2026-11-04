@@ -1,7 +1,7 @@
 #!/bin/bash
-# Forced SSH command of deploy user. It only creates request files for app
-# and proxy users or shows their results, so a stolen key can only redeploy
-# a release, which verifier signed.
+# Forced SSH command of deploy user. It only creates request files for
+# slowreader-app and slowreader-proxy users or shows their results, so a stolen
+# key can only redeploy a release, which verifier signed.
 
 set -euo pipefail
 
@@ -16,12 +16,12 @@ read -r ACTION VERSION EXTRA <<< "${SSH_ORIGINAL_COMMAND:-}"
 
 case "$ACTION" in
   request)
-    for SERVICE in app proxy; do
+    for SERVICE in slowreader-app slowreader-proxy; do
       : > "/srv/deploy/$SERVICE/requests/$VERSION"
     done
     ;;
   status)
-    for SERVICE in app proxy; do
+    for SERVICE in slowreader-app slowreader-proxy; do
       RESULT="/srv/deploy/$SERVICE/results/$VERSION"
       # Result of the previous deploy of the same version stays until then
       if [ -f "/srv/deploy/$SERVICE/requests/$VERSION" ]; then
@@ -32,7 +32,7 @@ case "$ACTION" in
         echo "$SERVICE wait"
       fi
     done
-    for SERVICE in app proxy; do
+    for SERVICE in slowreader-app slowreader-proxy; do
       RESULT="/srv/deploy/$SERVICE/results/$VERSION"
       if [ -f "$RESULT" ] && [ "$(head -n 1 "$RESULT")" = fail ]; then
         echo

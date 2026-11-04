@@ -9,7 +9,7 @@ scrape_configs:
     bearer_token_file: /run/credentials/victoria-metrics-product.service/analytics-token
     static_configs:
       - targets:
-{% for port in services.app.ports.values() %}
+{% for port in services['slowreader-app'].ports.values() %}
           - 127.0.0.1:{{ port }}
 {% endfor %}
 {% endif %}

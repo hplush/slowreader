@@ -41,19 +41,19 @@ SSH accepts only hardware keys from [`verifier/allowed_signers`](../verifier/all
 
 ### Deploy
 
-1. `deploy-request` creates a file with the version in `/srv/deploy/app/requests/` and `/srv/deploy/proxy/requests/`. Only `deploy` and the service’s user can write to its folder.
-2. It triggers `deploy.path` systemd unit of `app` and `proxy` users, which starts `deploy-service` under its service user.
+1. `deploy-request` creates a file with the version in `/srv/deploy/slowreader-app/requests/` and `/srv/deploy/slowreader-proxy/requests/`. Only `deploy` and the service’s user can write to its folder.
+2. It triggers `deploy.path` systemd unit of `slowreader-app` and `slowreader-proxy` users, which starts `deploy-service` under its service user.
 3. `deploy-service` downloads [verifier’s](../verifier/) result for the version, checks its signature by pinned [`cosign.pub`](../verifier/cosign.pub), and takes the image digest only from the signed result.
 4. Each service has 2 containers, blue and green, and only one of them runs. It starts the stopped one with the new image, waits for `/health` and for Caddy’s health check, and stops the old one. Caddy moves traffic by itself.
 5. It removes unused images and writes `ok` or `fail` with the log to `/srv/deploy/SERVICE/results/VERSION`.
 
 ### Containers
 
-Quadlet units in `/etc/containers/systemd/users/` run blue and green containers of each service, like `app-blue`, from local images like `localhost/slowreader:app-blue`. Containers can’t change their files or use any root rights (read-only file system without Linux capabilities).
+Quadlet units in `/etc/containers/systemd/users/` run blue and green containers of each service, like `slowreader-app-blue`, from local images like `localhost/slowreader:slowreader-app-blue`. Containers can’t change their files or use any root rights (read-only file system without Linux capabilities).
 
-`Pull=never` stops Podman from downloading images: only `deploy-service` puts verified images there. App gets `DATABASE_URL` and `ANALYTICS_TOKEN` from Podman secrets of `app` user and connects to PostgreSQL by Unix socket.
+`Pull=never` stops Podman from downloading images: only `deploy-service` puts verified images there. App gets `DATABASE_URL` and `ANALYTICS_TOKEN` from Podman secrets of `slowreader-app` user and connects to PostgreSQL by Unix socket.
 
-nftables blocks `proxy` user from loopback, private networks, and Hetzner metadata, so the proxy can’t load our internal services.
+nftables blocks `slowreader-proxy` user from loopback, private networks, and Hetzner metadata, so the proxy can’t load our internal services.
 
 ### Self-Healing
 
@@ -92,7 +92,7 @@ Connect to the server for all commands below:
 ./infra/scripts/ssh.sh
 ```
 
-Commands for `app` user work for `proxy` too, if you replace the name.
+Commands for `slowreader-app` user work for `slowreader-proxy` too, if you replace the name.
 
 ### Server Doesn’t Answer
 
@@ -104,25 +104,25 @@ Reset it in Hetzner console: open the server, **Power** → **Reset**. Watchdog 
 
    ```sh
    systemctl --failed
-   sudo -u app XDG_RUNTIME_DIR=/run/user/$(id -u app) systemctl --user --failed
+   sudo -u slowreader-app XDG_RUNTIME_DIR=/run/user/$(id -u slowreader-app) systemctl --user --failed
    ```
 
 2. Running color and containers:
 
    ```sh
-   sudo cat /home/app/.local/state/slowreader-color
-   sudo podman-as app ps --all
+   sudo cat /home/slowreader-app/.local/state/slowreader-color
+   sudo podman-as slowreader-app ps --all
    ```
 
 3. Logs:
 
    ```sh
    # App or proxy container
-   sudo journalctl CONTAINER_NAME=app-blue -n 200 --no-pager
+   sudo journalctl CONTAINER_NAME=slowreader-app-blue -n 200 --no-pager
    # Everything of app user: containers, deploy, health checks
-   sudo journalctl _UID=$(id -u app) -n 200 --no-pager
+   sudo journalctl _UID=$(id -u slowreader-app) -n 200 --no-pager
    # Last deploy
-   sudo cat /srv/deploy/app/results/VERSION
+   sudo cat /srv/deploy/slowreader-app/results/VERSION
    # Caddy, PostgreSQL, backups, and restore test
    sudo journalctl -u caddy -n 200 --no-pager
    sudo tail -n 200 /var/log/postgresql/postgresql-*-main.log
@@ -139,12 +139,12 @@ Reset it in Hetzner console: open the server, **Power** → **Reset**. Watchdog 
    sudo du -xh / --max-depth=3 | sort -h | tail -n 20
    ```
 
-   Free the disk by `sudo journalctl --vacuum-size=200M` and `sudo podman-as app image prune --all --force`.
+   Free the disk by `sudo journalctl --vacuum-size=200M` and `sudo podman-as slowreader-app image prune --all --force`.
 
 ### Restart a Container
 
 ```sh
-sudo -u app XDG_RUNTIME_DIR=/run/user/$(id -u app) systemctl --user restart app-$(sudo cat /home/app/.local/state/slowreader-color).service
+sudo -u slowreader-app XDG_RUNTIME_DIR=/run/user/$(id -u slowreader-app) systemctl --user restart slowreader-app-$(sudo cat /home/slowreader-app/.local/state/slowreader-color).service
 ```
 
 ### Roll Back a Release
@@ -170,7 +170,7 @@ pgBackRest can restore to the latest change or to any minute in the last 2 weeks
 2. Stop the app and PostgreSQL:
 
    ```sh
-   sudo -u app XDG_RUNTIME_DIR=/run/user/$(id -u app) systemctl --user stop app-blue.service app-green.service
+   sudo -u slowreader-app XDG_RUNTIME_DIR=/run/user/$(id -u slowreader-app) systemctl --user stop slowreader-app-blue.service slowreader-app-green.service
    sudo systemctl stop postgresql
    ```
 
@@ -196,7 +196,7 @@ pgBackRest can restore to the latest change or to any minute in the last 2 weeks
 5. Start the app:
 
    ```sh
-   sudo -u app XDG_RUNTIME_DIR=/run/user/$(id -u app) systemctl --user start app-$(sudo cat /home/app/.local/state/slowreader-color).service
+   sudo -u slowreader-app XDG_RUNTIME_DIR=/run/user/$(id -u slowreader-app) systemctl --user start slowreader-app-$(sudo cat /home/slowreader-app/.local/state/slowreader-color).service
    ```
 
 6. Restore to the past starts a new history of changes, so make a full backup:
@@ -292,7 +292,7 @@ Ansible skips parts, which need secrets, until you create them on the server. Se
    ```sh
    PASSWORD=$(openssl rand -hex 32)
    printf "ALTER ROLE slowreader PASSWORD '%s'" "$PASSWORD" | sudo -u postgres psql -q
-   printf 'postgres://slowreader:%s@localhost/slowreader?host=/run/postgresql' "$PASSWORD" | sudo podman-as app secret create database_url -
+   printf 'postgres://slowreader:%s@localhost/slowreader?host=/run/postgresql' "$PASSWORD" | sudo podman-as slowreader-app secret create database_url -
    unset PASSWORD
    ```
 
@@ -300,7 +300,7 @@ Ansible skips parts, which need secrets, until you create them on the server. Se
 
    ```sh
    TOKEN=$(openssl rand -hex 32)
-   printf %s "$TOKEN" | sudo podman-as app secret create analytics_token -
+   printf %s "$TOKEN" | sudo podman-as slowreader-app secret create analytics_token -
    printf %s "$TOKEN" | sudo sh -c 'umask 077 && cat > /etc/slowreader/analytics-token'
    unset TOKEN
    ```

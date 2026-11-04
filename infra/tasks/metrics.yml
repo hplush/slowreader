@@ -49,6 +49,12 @@
     - Restart victoria-metrics
     - Restart victoria-metrics-product
 
+- name: Create victoria-metrics drop-in folder
+  ansible.builtin.file:
+    path: /etc/systemd/system/victoria-metrics.service.d
+    state: directory
+    mode: '0755'
+
 - name: Configure VictoriaMetrics
   ansible.builtin.copy:
     dest: /etc/systemd/system/victoria-metrics.service.d/50-slowreader.conf

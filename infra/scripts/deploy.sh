@@ -20,9 +20,9 @@ remote request "$VERSION"
 for _ in $(seq 120); do
   sleep 10
   remote status "$VERSION" > "$WORK/status"
-  grep -qE '^(app|proxy) wait$' "$WORK/status" || break
+  grep -qE '^slowreader-(app|proxy) wait$' "$WORK/status" || break
 done
 cat "$WORK/status"
-if grep -qE '^(app|proxy) (wait|fail)$' "$WORK/status"; then
+if grep -qE '^slowreader-(app|proxy) (wait|fail)$' "$WORK/status"; then
   exit 1
 fi

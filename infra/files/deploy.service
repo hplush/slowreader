@@ -1,7 +1,7 @@
 [Unit]
 Description=Deploy requested versions
-ConditionUser=|app
-ConditionUser=|proxy
+ConditionUser=|slowreader-app
+ConditionUser=|slowreader-proxy
 
 [Service]
 Type=oneshot

@@ -1,6 +1,6 @@
 # {{ ansible_managed }}
 [Unit]
-Description=Slow Reader {{ name }} ({{ color }})
+Description={{ name }} ({{ color }})
 
 [Container]
 ContainerName={{ name }}-{{ color }}
@@ -8,7 +8,7 @@ ContainerName={{ name }}-{{ color }}
 Image=localhost/slowreader:{{ name }}-{{ color }}
 Pull=never
 EnvironmentFile=/etc/containers/slowreader/{{ name }}.env
-{% if name == 'app' %}
+{% if name == 'slowreader-app' %}
 Secret=database_url,type=env,target=DATABASE_URL
 Secret=analytics_token,type=env,target=ANALYTICS_TOKEN
 Volume=/run/postgresql:/run/postgresql:ro

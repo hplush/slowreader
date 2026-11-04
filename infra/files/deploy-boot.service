@@ -1,7 +1,7 @@
 [Unit]
 Description=Start the last deployed color
-ConditionUser=|app
-ConditionUser=|proxy
+ConditionUser=|slowreader-app
+ConditionUser=|slowreader-proxy
 
 [Service]
 Type=oneshot

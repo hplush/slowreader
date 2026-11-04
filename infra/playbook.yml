@@ -10,7 +10,7 @@
       - 91.98.155.169
       - 2a01:4f8:c012:2e6f::1
     services:
-      app:
+      slowreader-app:
         domain: '{{ domain }}'
         memory: 512m
         ports: { blue: 2581, green: 2582 }
@@ -19,7 +19,7 @@
           ROLE: app
           BEHIND_BALANCER: '1'
           WEB_ORIGIN: https://{{ domain }}
-      proxy:
+      slowreader-proxy:
         domain: proxy.{{ domain }}
         memory: 1g
         ports: { blue: 2591, green: 2592 }
@@ -104,3 +104,11 @@
       ansible.builtin.import_tasks: tasks/secrets.yml
     - name: Backups
       ansible.builtin.import_tasks: tasks/backups.yml
+    # The last task, so it is easy to see
+    - name: Show missing secrets
+      ansible.builtin.debug:
+        msg: Create secrets by Secrets section of infra/README.md and run Ansible again
+      when: >-
+        not caddy_env.stat.exists or not analytics_token.stat.exists or
+        not backup_secrets.stat.exists or
+        app_secrets.results | rejectattr('rc', 'equalto', 0) | list | length > 0

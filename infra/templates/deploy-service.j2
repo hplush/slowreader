@@ -1,8 +1,9 @@
 #!/bin/bash
 # {{ ansible_managed }}
 #
-# Deploy versions from deploy-request as app or proxy user: check verifier’s
-# signature, start the free color, wait for health, and stop the old color.
+# Deploy versions from deploy-request as slowreader-app or slowreader-proxy
+# user: check verifier’s signature, start the free color, wait for health,
+# and stop the old color.
 # Caddy moves traffic by its own health checks.
 #
 # `deploy-service boot` starts the last deployed color after reboot.

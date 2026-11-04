@@ -1,6 +1,6 @@
 #!/bin/bash
-# Run rootless Podman of app or proxy user, which have no login shell.
-# Example: sudo podman-as app secret ls
+# Run rootless Podman of slowreader-app or slowreader-proxy user, which have no login shell.
+# Example: sudo podman-as slowreader-app secret ls
 
 set -euo pipefail
 

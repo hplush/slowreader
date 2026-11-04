@@ -19,8 +19,6 @@
     - /etc/needrestart/conf.d
     - /etc/systemd/system.conf.d
     - /etc/systemd/journald.conf.d
-    - /etc/systemd/system/caddy.service.d
-    - /etc/systemd/system/victoria-metrics.service.d
     - /etc/nftables.d
 
 - name: Create secrets folder
