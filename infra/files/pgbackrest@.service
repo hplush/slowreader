@@ -1,0 +1,9 @@
+[Unit]
+Description=pgBackRest %i backup
+After=postgresql.service
+
+[Service]
+Type=oneshot
+User=postgres
+ExecStart=/usr/bin/pgbackrest --stanza=slowreader --type=%i backup
+ExecStopPost=+/usr/local/sbin/save-backup-metric %i

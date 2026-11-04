@@ -1,0 +1,28 @@
+#!/bin/bash
+# Ask the server to deploy VERSION and wait for app and proxy results.
+# Run it inside ssh-access.sh. scripts/release.sh calls it.
+
+set -euo pipefail
+
+VERSION=$1
+INFRA="$(cd "$(dirname "$0")/.." && pwd)"
+WORK=$(mktemp -d)
+trap 'ssh -o "ControlPath=$WORK/ssh" -O exit deploy 2> /dev/null; rm -rf "$WORK"' EXIT
+
+# One connection, so hardware key needs only one touch
+remote() {
+  ssh -4 -o ControlMaster=auto -o "ControlPath=$WORK/ssh" -o ControlPersist=20m \
+    -o "UserKnownHostsFile=$INFRA/known_hosts" -o StrictHostKeyChecking=yes \
+    -o HostKeyAlias=slowreader.app "deploy@${SERVER:-slowreader.app}" "$@"
+}
+
+remote request "$VERSION"
+for _ in $(seq 120); do
+  sleep 10
+  remote status "$VERSION" > "$WORK/status"
+  grep -qE '^(app|proxy) wait$' "$WORK/status" || break
+done
+cat "$WORK/status"
+if grep -qE '^(app|proxy) (wait|fail)$' "$WORK/status"; then
+  exit 1
+fi

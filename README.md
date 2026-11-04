@@ -151,7 +151,7 @@ Each project has its own tools, too.
 - `pnpm -F loader-tests check-opml`: test loaders with user’s OPML RSS export.
 - `pnpm -F loader-tests test`: test loaders with different blogging platforms.
 - `pnpm unused-messages`: check that all messages are used.
-- `pnpm update-tools`: check for Node.js, pnpm, and OpenTofu updates.
+- `pnpm update-tools`: check for Node.js and pnpm updates.
 - `pnpm update-review`: run Multiocular to review updates.
 - `pnpm update-browsers`: update target browsers of web client.
 - `pnpm update-aaguids`: update passkey providers names and print the changes.
@@ -280,11 +280,8 @@ pnpm update-browsers
 # Update passkey providers in server/aaguids/commit.lock
 pnpm update-aaguids
 
-# Update Node.js, pnpm, and OpenTofu
+# Update Node.js and pnpm
 pnpm update-tools
-
-# Update OpenTofu providers in infra/
-node ./scripts/update-infra.ts
 
 # Review updates by Multiocular
 pnpm update-review
@@ -337,7 +334,7 @@ The build is reproducible: anyone can build the same image from the same commit 
 
 ### Environments
 
-- **Production:** `slowreader.app` and `proxy.slowreader.app` on [Scaleway](./infra/).
+- **Production:** `slowreader.app` and `proxy.slowreader.app` on our [Hetzner server](./infra/).
 - **Staging:** `main` branch is on `dev.slowreader.app` and `proxy.dev.slowreader.app` on our [cloud](https://github.com/hplush/cloud).
 - **Pull request preview:** CI publishes a `View deployment` link to the pull request in 2 minutes. Preview runs everything in one instance on our [cloud](https://github.com/hplush/cloud).
 
@@ -365,7 +362,7 @@ We release every week. Version is `MAJOR.DATE.PATCH` like `0.20261012.1`: `DATE`
 6. It asks to touch the hardware key from [`verifier/allowed_signers`](./verifier/allowed_signers) to sign the image.
 7. It asks to paste the signature as a comment to `release` environment approval.
 8. It waits for [verifier](./verifier/) to check the image.
-9. It asks 1 hour API key of `deploy` IAM application from [Scaleway console](https://console.scaleway.com/iam/api-keys) and deploys the image to production by digest.
+9. It asks to open SSH in Hetzner Cloud Firewall and asks the server to deploy the version. The server checks the verifier’s signature by itself.
 
 ### Self-Hosted
 

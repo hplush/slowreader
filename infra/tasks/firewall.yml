@@ -1,0 +1,18 @@
+# Second layer, in case Cloud Firewall is detached from the server
+- name: Deny incoming connections by default
+  ansible.builtin.command: ufw default deny incoming
+  changed_when: false
+
+- name: Allow SSH, HTTP, and HTTPS
+  ansible.builtin.command: ufw allow {{ item }}
+  loop:
+    - 22/tcp
+    - 80/tcp
+    - 443/tcp
+    - 443/udp
+  register: ufw
+  changed_when: "'Skipping' not in ufw.stdout"
+
+- name: Enable ufw
+  ansible.builtin.command: ufw --force enable
+  changed_when: false

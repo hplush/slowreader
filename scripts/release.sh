@@ -1,10 +1,9 @@
 #!/bin/bash
 # Release new version: move unreleased-changes/ to CHANGELOG.md, tag,
-# wait for the image, sign it by hardware key, and deploy it to Scaleway.
+# wait for the image, sign it by hardware key, and deploy it to our server.
 #
 # Run it outside Dev Container.
 #
-# Use `SKIP_VERIFIER=1 ./scripts/release.sh` to skip waiting for verifier.
 # Use `ONLY_DEPLOY=1 ./scripts/release.sh` to deploy the latest release again.
 
 set -euo pipefail
@@ -43,91 +42,50 @@ ask() {
   read -r "${@:2}" -p "$1" ANSWER
   printf "$GRAY"
 }
-scaleway() {
-  curl -sS --fail-with-body -o "$WORK/scaleway.json" \
-    -H "X-Auth-Token: $SECRET" "$@" \
-    || error "Scaleway: $(cat "$WORK/scaleway.json")"
-  cat "$WORK/scaleway.json"
-}
-
 deploy() {
-  # SKIP_VERIFIER=1 for the first release, which verifier can’t check yet
-  if [ -z "${SKIP_VERIFIER:-}" ]; then
-    step "Waiting for the verifier"
-    PUBLISHED=""
-    PIPELINE=""
-    until curl -fsS -o "$WORK/verified.json" \
-      "https://gitlab.com/hplush/slowreader-verifier/-/raw/main/releases/$VERSION.json" \
-      2> /dev/null; do
-      # GitHub API returns 404 for a few seconds after the release
-      if [ -z "$PUBLISHED" ]; then
-        PUBLISHED=$(curl -fsS "https://api.github.com/repos/$REPO/releases/tags/$VERSION" \
-          2> /dev/null | jq -r '.published_at // empty' || true)
-      fi
-      # Release workflow triggers the pipeline a few seconds after the release
-      if [ -z "$PIPELINE" ] && [ -n "$PUBLISHED" ]; then
-        PIPELINE=$(curl -fsS "https://gitlab.com/api/v4/projects/hplush%2Fslowreader-verifier/pipelines?source=trigger&created_after=$PUBLISHED&per_page=1" \
-          | jq -r '.[0].web_url // empty' || true)
-        [ -z "$PIPELINE" ] || step "$PIPELINE"
-      fi
-      sleep 60
-    done
-    if [ "$(jq -r .status "$WORK/verified.json")" != "verified" ]; then
-      error "Verifier: $(jq -r .reason "$WORK/verified.json")"
+  step "Waiting for the verifier"
+  PUBLISHED=""
+  PIPELINE=""
+  until curl -fsS -o "$WORK/verified.json" \
+    "https://gitlab.com/hplush/slowreader-verifier/-/raw/main/releases/$VERSION.json" \
+    2> /dev/null; do
+    # GitHub API returns 404 for a few seconds after the release
+    if [ -z "$PUBLISHED" ]; then
+      PUBLISHED=$(curl -fsS "https://api.github.com/repos/$REPO/releases/tags/$VERSION" \
+        2> /dev/null | jq -r '.published_at // empty' || true)
     fi
-    if [ "$(jq -r .image "$WORK/verified.json")" != "$(cat "$WORK/image.txt")" ]; then
-      error "Verifier checked $(jq -r .image "$WORK/verified.json")"
+    # Release workflow triggers the pipeline a few seconds after the release
+    if [ -z "$PIPELINE" ] && [ -n "$PUBLISHED" ]; then
+      PIPELINE=$(curl -fsS "https://gitlab.com/api/v4/projects/hplush%2Fslowreader-verifier/pipelines?source=trigger&created_after=$PUBLISHED&per_page=1" \
+        | jq -r '.[0].web_url // empty' || true)
+      [ -z "$PIPELINE" ] || step "$PIPELINE"
     fi
-    success "Verifier rebuilt the same image"
+    sleep 60
+  done
+  if [ "$(jq -r .status "$WORK/verified.json")" != "verified" ]; then
+    error "Verifier: $(jq -r .reason "$WORK/verified.json")"
   fi
+  if [ "$(jq -r .image "$WORK/verified.json")" != "$(cat "$WORK/image.txt")" ]; then
+    error "Verifier checked $(jq -r .image "$WORK/verified.json")"
+  fi
+  success "Verifier rebuilt the same image"
 
-  highlight "Create 1 hour API key for deploy application:"
-  highlight "https://console.scaleway.com/iam/api-keys"
-  ask 'Scaleway secret key: ' -s
-  SECRET=$ANSWER
-  echo
-  API=https://api.scaleway.com/containers/v1/regions/fr-par
-  NAMESPACE=$(scaleway "$API/namespaces?name=slowreader" \
-    | jq -r '.namespaces[0].id // empty')
-  [ -n "$NAMESPACE" ] || error "Key has no access to slowreader namespace"
-  # Name filter needs at least 4 symbols, so we can’t ask for app container
-  scaleway "$API/containers?namespace_id=$NAMESPACE" > "$WORK/containers.json"
-  IDS=()
-  for NAME in app proxy; do
-    ID=$(jq -r --arg name "$NAME" \
-      '.containers[] | select(.name == $name) | .id' "$WORK/containers.json")
-    [ -n "$ID" ] || error "No $NAME container"
-    step "Deploying $NAME"
-    # Digest instead of tag, so production runs exactly the signed image
-    jq -n --arg image "$(cat "$WORK/image.txt")" '{image: $image}' \
-      | scaleway -X PATCH "$API/containers/$ID" \
-        -H 'Content-Type: application/json' --data @- > /dev/null
-    IDS+=("$ID")
-  done
-  for ID in "${IDS[@]}"; do
-    STATUS=""
-    until [ "$STATUS" = "ready" ]; do
-      sleep 10
-      CONTAINER=$(scaleway "$API/containers/$ID")
-      STATUS=$(jq -r .status <<< "$CONTAINER")
-      if [ "$STATUS" = "error" ]; then
-        error "$(jq -r '"\(.name): \(.error_message)"' <<< "$CONTAINER")"
-      fi
-    done
-  done
+  # Server checks verifier’s signature by itself and takes the image from it
+  step "Deploying $VERSION"
+  "$ROOT/infra/scripts/ssh-access.sh" \
+    "$ROOT/infra/scripts/deploy.sh" "$VERSION" || error "Deploy failed"
 
   DEPLOYED=$(curl -fsS https://slowreader.app/manifest.json | jq -r .commit)
   if [ "$DEPLOYED" != "$RELEASED" ]; then
     error "slowreader.app runs $DEPLOYED commit"
   fi
   success "Deployed $VERSION"
-  action "Delete API key: https://console.scaleway.com/iam/api-keys"
 }
 
 # Commands output is gray to separate it from script’s steps
 printf "$GRAY"
 
-# Malicious dependency in Dev Container could steal the deploy key
+# Malicious dependency in Dev Container could steal the deploy access.
 if [ -f /.dockerenv ] || [ -f /run/.containerenv ]; then
   error "Run it outside of Dev Container"
 fi

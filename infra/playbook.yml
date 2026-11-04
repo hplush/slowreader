@@ -1,0 +1,106 @@
+- name: Slow Reader production
+  hosts: production
+  become: true
+  vars:
+    # Test VM overrides them by `-e`
+    domain: slowreader.app
+    backup_bucket: slowreader-backups
+    # Our Grafana on dashboard.hplush.dev
+    grafana_ips:
+      - 91.98.155.169
+      - 2a01:4f8:c012:2e6f::1
+    services:
+      app:
+        domain: '{{ domain }}'
+        memory: 512m
+        ports: { blue: 2581, green: 2582 }
+        systemd_exporter: 9581
+        environment:
+          ROLE: app
+          BEHIND_BALANCER: '1'
+          WEB_ORIGIN: https://{{ domain }}
+      proxy:
+        domain: proxy.{{ domain }}
+        memory: 1g
+        ports: { blue: 2591, green: 2592 }
+        systemd_exporter: 9591
+        environment:
+          ROLE: proxy
+          BEHIND_BALANCER: '1'
+          PROXY_ORIGIN: ^https://{{ domain | replace('.', '[.]') }}$
+    maintainer_keys: >-
+      {{ lookup('file', playbook_dir + '/../verifier/allowed_signers').splitlines()
+        | map('regex_search', 'sk-\S+ \S+') | select | list }}
+  handlers:
+    - name: Restart ssh
+      ansible.builtin.systemd_service:
+        name: ssh
+        state: restarted
+    - name: Apply sysctl
+      ansible.builtin.command: sysctl --system
+      changed_when: true
+    - name: Reexec systemd
+      ansible.builtin.systemd_service:
+        daemon_reexec: true
+    - name: Reload systemd
+      ansible.builtin.systemd_service:
+        daemon_reload: true
+    - name: Restart journald
+      ansible.builtin.systemd_service:
+        name: systemd-journald
+        state: restarted
+    - name: Restart fail2ban
+      ansible.builtin.systemd_service:
+        name: fail2ban
+        state: restarted
+    - name: Load proxy firewall
+      ansible.builtin.systemd_service:
+        name: proxy-firewall
+        state: restarted
+    - name: Restart caddy
+      ansible.builtin.systemd_service:
+        name: caddy
+        state: restarted
+    - name: Reload caddy
+      ansible.builtin.systemd_service:
+        name: caddy
+        state: reloaded
+    - name: Restart postgresql
+      ansible.builtin.systemd_service:
+        name: postgresql
+        state: restarted
+    - name: Restart victoria-metrics
+      ansible.builtin.systemd_service:
+        name: victoria-metrics
+        state: restarted
+    - name: Restart victoria-metrics-product
+      ansible.builtin.systemd_service:
+        name: victoria-metrics-product
+        state: restarted
+    - name: Restart postgres exporter
+      ansible.builtin.systemd_service:
+        name: prometheus-postgres-exporter
+        state: restarted
+    - name: Restart node exporter
+      ansible.builtin.systemd_service:
+        name: prometheus-node-exporter
+        state: restarted
+  tasks:
+    - name: Base system
+      ansible.builtin.import_tasks: tasks/base.yml
+    - name: SSH
+      ansible.builtin.import_tasks: tasks/ssh.yml
+    - name: Firewall
+      ansible.builtin.import_tasks: tasks/firewall.yml
+    - name: Caddy
+      ansible.builtin.import_tasks: tasks/caddy.yml
+    - name: PostgreSQL
+      ansible.builtin.import_tasks: tasks/postgresql.yml
+    - name: Containers
+      ansible.builtin.import_tasks: tasks/containers.yml
+    - name: Metrics
+      ansible.builtin.import_tasks: tasks/metrics.yml
+    - name: Secrets
+      ansible.builtin.import_tasks: tasks/secrets.yml
+    - name: Backups
+      ansible.builtin.import_tasks: tasks/backups.yml

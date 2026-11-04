@@ -1,0 +1,8 @@
+[Unit]
+Description=Deploy requested versions
+ConditionUser=|app
+ConditionUser=|proxy
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/deploy-service

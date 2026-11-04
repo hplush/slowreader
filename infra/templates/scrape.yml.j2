@@ -1,0 +1,32 @@
+# {{ ansible_managed }}
+# Server metrics for 1 year. victoria-metrics-product keeps app’s metrics.
+global:
+  scrape_interval: 60s
+scrape_configs:
+{% for job, port in [('node', 9100), ('postgres', 9187), ('caddy', 9180)] %}
+  - job_name: {{ job }}
+    static_configs:
+      - targets: [127.0.0.1:{{ port }}]
+    metric_relabel_configs:
+      # Exporter’s own metrics and Caddy’s histograms take most of the disk
+      - source_labels: [__name__]
+        regex: (go|process|promhttp)_.*|caddy_.*_bucket
+        action: drop
+{% endfor %}
+  - job_name: victoria-metrics
+    static_configs:
+      - targets: [127.0.0.1:8428, 127.0.0.1:8429]
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: vm_free_disk_space_bytes|vm_data_size_bytes|vm_rows|vm_app_uptime_seconds
+        action: keep
+  - job_name: containers
+    static_configs:
+      - targets:
+{% for service in services.values() %}
+          - 127.0.0.1:{{ service.systemd_exporter }}
+{% endfor %}
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: (go|process|promhttp)_.*
+        action: drop

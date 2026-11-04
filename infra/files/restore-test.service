@@ -1,0 +1,9 @@
+[Unit]
+Description=Restore the latest backup to a temporary folder
+After=postgresql.service
+
+[Service]
+Type=oneshot
+User=postgres
+ExecStart=/usr/local/sbin/restore-test
+ExecStopPost=+/usr/local/sbin/save-backup-metric restore-test

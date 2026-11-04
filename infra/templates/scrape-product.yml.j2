@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+# Only app’s metrics, which we keep for 10 years
+global:
+  scrape_interval: 60s
+scrape_configs:
+{% if analytics_token.stat.exists %}
+  # Both colors, since only one of them runs
+  - job_name: app
+    bearer_token_file: /run/credentials/victoria-metrics-product.service/analytics-token
+    static_configs:
+      - targets:
+{% for port in services.app.ports.values() %}
+          - 127.0.0.1:{{ port }}
+{% endfor %}
+{% endif %}

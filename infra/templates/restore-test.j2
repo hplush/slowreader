@@ -1,0 +1,30 @@
+#!/bin/bash
+# {{ ansible_managed }}
+#
+# Restore the latest backup with WAL to a temporary folder, start PostgreSQL
+# there, and check that the database has users.
+
+set -euo pipefail
+
+BIN=/usr/lib/postgresql/{{ postgresql_version }}/bin
+CONFIG=/etc/postgresql/{{ postgresql_version }}/main
+WORK=$(mktemp -d /var/lib/postgresql/restore-test.XXXXXX)
+trap '"$BIN/pg_ctl" -D "$WORK/data" -m immediate stop > /dev/null 2>&1 || true; rm -rf "$WORK"' EXIT
+
+# archive-mode=off, so the test server will not push WAL to the repository
+pgbackrest --stanza=slowreader --pg1-path="$WORK/data" --archive-mode=off \
+  restore
+
+# Ubuntu keeps configs outside of the data folder
+cat > "$WORK/data/postgresql.conf" <<CONF
+hba_file = '$CONFIG/pg_hba.conf'
+ident_file = '$CONFIG/pg_ident.conf'
+listen_addresses = ''
+unix_socket_directories = '$WORK'
+port = 5433
+CONF
+
+"$BIN/pg_ctl" -D "$WORK/data" -l "$WORK/log" -w -t 3600 start
+USERS=$(psql -h "$WORK" -p 5433 -d slowreader -tAc 'SELECT count(*) FROM users')
+echo "Restored database has $USERS users"
+[ "$USERS" -gt 0 ]

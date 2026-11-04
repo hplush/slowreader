@@ -1,0 +1,6 @@
+[Unit]
+Description=Reboot if Livepatch can't protect the kernel
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/reboot-if-needed

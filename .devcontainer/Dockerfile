@@ -14,14 +14,11 @@ ENV PNPM_VERSION=12.17.0 \
   PNPM_CHECKSUM_X64=2c58959fd5df5cb9f4e72784c08a60ffc7ee558fed9b04b22254e29112203a51 \
   PNPM_CHECKSUM_ARM64=ce5a5b95a9974a0bbd713a5ef74416dbcd0e3fdf11f69ea92c5995b9c18ccb47
 
-  ENV TOFU_VERSION=1.13.2 \
-    TOFU_CHECKSUM_X64=ac05d9952662c7db28dd57e93f0a68018837bfdf9342384ec0987977c16a9645 \
-    TOFU_CHECKSUM_ARM64=88e2d9e3f94f97b76ab2faf55ade87578f56aed19c5e45fa139d70e994366d1f
 
 RUN dnf install -yq zsh micro git tig psmisc procps-ng awk libatomic wget zip \
   gtk3 nss nspr alsa-lib cups-libs mesa-libgbm dbus-libs libX11-xcb \
   libXcomposite libXdamage libXrandr libXcursor libXi libxkbcommon \
-  google-noto-sans-fonts google-noto-emoji-fonts gh jq bind-utils openssl \
+  google-noto-sans-fonts google-noto-emoji-fonts gh jq bind-utils openssl ansible-core openssh-clients \
   && dnf clean all \
   && rm -rf /var/cache/dnf
 
@@ -32,12 +29,10 @@ RUN <<EOF
   if [ "$TARGETARCH" = "amd64" ]; then
     export NODE_CHECKSUM=$NODE_CHECKSUM_X64
     export PNPM_CHECKSUM=$PNPM_CHECKSUM_X64
-    export TOFU_CHECKSUM=$TOFU_CHECKSUM_X64
     export ARCH="x64"
   elif [ "$TARGETARCH" = "arm64" ]; then
     export NODE_CHECKSUM=$NODE_CHECKSUM_ARM64
     export PNPM_CHECKSUM=$PNPM_CHECKSUM_ARM64
-    export TOFU_CHECKSUM=$TOFU_CHECKSUM_ARM64
     export ARCH="arm64"
   else
     echo "Unsupported architecture: $TARGETARCH"
@@ -59,12 +54,6 @@ RUN <<EOF
   tar -xz -f /pnpm.tar.gz -C /usr/local/share/pnpm
   ln -s /usr/local/share/pnpm/pnpm /usr/local/bin/pnpm
   rm /pnpm.tar.gz
-
-  curl "https://github.com/opentofu/opentofu/releases/download/v${TOFU_VERSION}/tofu_${TOFU_VERSION}_linux_${TARGETARCH}.tar.gz" \
-    --fail --show-error --location --silent --output /tofu.tar.gz
-  echo "$TOFU_CHECKSUM /tofu.tar.gz" | sha256sum -c
-  tar -xz -f /tofu.tar.gz -C /usr/local/bin tofu
-  rm /tofu.tar.gz
 EOF
 
 RUN useradd -s /bin/zsh developer

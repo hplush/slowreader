@@ -1,0 +1,24 @@
+#!/bin/bash
+# Reboot only if Livepatch can't protect the running kernel. Every new kernel
+# package creates /run/reboot-required, so we can't trust only it.
+
+set -euo pipefail
+
+[ -f /run/reboot-required ] || exit 0
+
+# Broken Livepatch means that nothing patches the kernel
+if ! STATUS=$(/snap/bin/canonical-livepatch status --format json); then
+  echo "Livepatch status failed, rebooting"
+  exec systemctl reboot
+fi
+
+# Key case differs between Livepatch versions
+if jq -e --arg limit "$(date -u -d '+2 days' +%F)" '
+  walk(if type == "object" then with_entries(.key |= ascii_downcase) else . end)
+  | [.status[] | select(.running)][0]
+  | .supported != "supported"
+    or ((.upgraderequireddate // "") != "" and .upgraderequireddate[0:10] <= $limit)
+    or ((.livepatch.state // "") | test("fail"))' <<< "$STATUS" > /dev/null; then
+  echo "Livepatch can't protect the kernel, rebooting"
+  exec systemctl reboot
+fi

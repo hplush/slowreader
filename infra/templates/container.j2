@@ -1,0 +1,33 @@
+# {{ ansible_managed }}
+[Unit]
+Description=Slow Reader {{ name }} ({{ color }})
+
+[Container]
+ContainerName={{ name }}-{{ color }}
+# Only deploy-service puts verified images here
+Image=localhost/slowreader:{{ name }}-{{ color }}
+Pull=never
+EnvironmentFile=/etc/containers/slowreader/{{ name }}.env
+{% if name == 'app' %}
+Secret=database_url,type=env,target=DATABASE_URL
+Secret=analytics_token,type=env,target=ANALYTICS_TOKEN
+Volume=/run/postgresql:/run/postgresql:ro
+{% endif %}
+PublishPort=127.0.0.1:{{ service.ports[color] }}:2553
+ReadOnly=true
+DropCapability=all
+NoNewPrivileges=true
+PodmanArgs=--memory={{ service.memory }}
+# Podman ignores HEALTHCHECK of OCI images
+HealthCmd=/usr/bin/httpcheck http://127.0.0.1:2553/health
+HealthInterval=10s
+HealthTimeout=3s
+HealthRetries=3
+# App applies migrations before /health answers
+HealthStartPeriod=10m
+HealthOnFailure=kill
+Notify=healthy
+
+[Service]
+Restart=always
+TimeoutStartSec=10min

@@ -1,0 +1,208 @@
+- name: Install Podman and cosign
+  ansible.builtin.apt:
+    name:
+      - cosign
+      - podman
+      - prometheus-systemd-exporter
+
+- name: Create service users
+  ansible.builtin.user:
+    name: '{{ item }}'
+    shell: /usr/sbin/nologin
+    password_lock: true
+  loop: '{{ services.keys() }}'
+  register: users
+
+# Fixed ranges, so they never overlap with ranges of other users
+- name: Set container UID ranges
+  ansible.builtin.lineinfile:
+    path: '{{ item.0 }}'
+    regexp: '^{{ item.1.key }}:'
+    line: '{{ item.1.key }}:{{ 1000000 + item.1.value * 65536 }}:65536'
+  loop: >-
+    {{ ['/etc/subuid', '/etc/subgid']
+      | product({'app': 0, 'proxy': 1} | dict2items) | list }}
+
+- name: Run user services without login
+  ansible.builtin.command: loginctl enable-linger {{ item }}
+  args:
+    creates: /var/lib/systemd/linger/{{ item }}
+  loop: '{{ services.keys() }}'
+
+- name: Install proxy firewall
+  ansible.builtin.copy:
+    src: proxy-firewall.nft
+    dest: /etc/nftables.d/proxy-firewall.nft
+    mode: '0644'
+  notify: Load proxy firewall
+
+- name: Install proxy firewall unit
+  ansible.builtin.copy:
+    src: proxy-firewall.service
+    dest: /etc/systemd/system/proxy-firewall.service
+    mode: '0644'
+  notify:
+    - Reload systemd
+    - Load proxy firewall
+
+- name: Enable proxy firewall
+  ansible.builtin.systemd_service:
+    name: proxy-firewall
+    enabled: true
+
+# Each service can read and write only its own requests
+- name: Create deploy groups
+  ansible.builtin.group:
+    name: deploy-{{ item }}
+  loop: '{{ services.keys() }}'
+
+- name: Add users to deploy groups
+  ansible.builtin.user:
+    name: '{{ item.0 }}'
+    groups: deploy-{{ item.1 }}
+    append: true
+  loop: >-
+    {{ [['deploy', 'app'], ['deploy', 'proxy'], ['app', 'app'],
+      ['proxy', 'proxy']] }}
+
+- name: Create deploy folders
+  ansible.builtin.file:
+    path: /srv/deploy/{{ item }}
+    state: directory
+    mode: '0755'
+  loop: '{{ services.keys() }}'
+
+- name: Create request folders
+  ansible.builtin.file:
+    path: /srv/deploy/{{ item }}/requests
+    state: directory
+    owner: root
+    group: deploy-{{ item }}
+    mode: '2770'
+  loop: '{{ services.keys() }}'
+
+- name: Create result folders
+  ansible.builtin.file:
+    path: /srv/deploy/{{ item }}/results
+    state: directory
+    owner: '{{ item }}'
+    group: deploy-{{ item }}
+    mode: '2750'
+  loop: '{{ services.keys() }}'
+
+- name: Create verifier key folder
+  ansible.builtin.file:
+    path: /usr/local/share/slowreader
+    state: directory
+    mode: '0755'
+
+- name: Copy verifier key
+  ansible.builtin.copy:
+    src: '{{ playbook_dir }}/../verifier/cosign.pub'
+    dest: /usr/local/share/slowreader/cosign.pub
+    mode: '0644'
+
+- name: Install deploy request command
+  ansible.builtin.copy:
+    src: deploy-request
+    dest: /usr/local/bin/deploy-request
+    mode: '0755'
+
+- name: Install deploy script
+  ansible.builtin.template:
+    src: deploy-service.j2
+    dest: /usr/local/bin/deploy-service
+    mode: '0755'
+
+- name: Install Podman helper for secrets
+  ansible.builtin.copy:
+    src: podman-as
+    dest: /usr/local/sbin/podman-as
+    mode: '0755'
+
+- name: Create containers environment folder
+  ansible.builtin.file:
+    path: /etc/containers/slowreader
+    state: directory
+    mode: '0755'
+
+- name: Set containers environment
+  ansible.builtin.copy:
+    dest: /etc/containers/slowreader/{{ item.key }}.env
+    content: |
+      {% for key, value in item.value.environment.items() %}
+      {{ key }}={{ value }}
+      {% endfor %}
+    mode: '0644'
+  loop: '{{ services | dict2items }}'
+
+- name: Create Quadlet folders
+  ansible.builtin.file:
+    path: /etc/containers/systemd/users/{{ item.uid }}
+    state: directory
+    mode: '0755'
+  loop: '{{ users.results }}'
+
+- name: Install Quadlet units
+  ansible.builtin.template:
+    src: container.j2
+    dest: >-
+      /etc/containers/systemd/users/{{ item.0.uid }}/{{ item.0.name }}-{{
+      item.1 }}.container
+    mode: '0644'
+  vars:
+    name: '{{ item.0.name }}'
+    service: '{{ services[item.0.name] }}'
+    color: '{{ item.1 }}'
+  loop: '{{ users.results | product(["blue", "green"]) | list }}'
+
+- name: Set user metrics port
+  ansible.builtin.copy:
+    dest: /etc/default/systemd-exporter-{{ item.key }}
+    content: "PORT={{ item.value.systemd_exporter }}\n"
+    mode: '0644'
+  loop: '{{ services | dict2items }}'
+
+- name: Install user units
+  ansible.builtin.copy:
+    src: '{{ item }}'
+    dest: /etc/systemd/user/{{ item }}
+    mode: '0644'
+  loop:
+    - deploy.path
+    - deploy.service
+    - deploy-boot.service
+    - systemd-exporter.service
+
+- name: Enable user units
+  ansible.builtin.shell: >
+    systemctl --global is-enabled --quiet {{ item }} ||
+    (systemctl --global enable {{ item }} && echo enabled)
+  register: global_unit
+  changed_when: "'enabled' in global_unit.stdout"
+  loop:
+    - deploy.path
+    - deploy-boot.service
+    - systemd-exporter.service
+
+- name: Reload user units
+  ansible.builtin.systemd_service:
+    scope: user
+    daemon_reload: true
+  become_user: '{{ item.name }}'
+  environment:
+    XDG_RUNTIME_DIR: /run/user/{{ item.uid }}
+  loop: '{{ users.results }}'
+  changed_when: false
+
+- name: Start user units
+  ansible.builtin.systemd_service:
+    scope: user
+    name: '{{ item.1 }}'
+    state: started
+  become_user: '{{ item.0.name }}'
+  environment:
+    XDG_RUNTIME_DIR: /run/user/{{ item.0.uid }}
+  loop: >-
+    {{ users.results | product(['deploy.path', 'systemd-exporter.service'])
+      | list }}

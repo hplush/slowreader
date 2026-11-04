@@ -1,0 +1,18 @@
+#!/bin/bash
+# Save backup or restore test result for node exporter, so Grafana can alert.
+# systemd runs it after the job with SERVICE_RESULT.
+
+set -euo pipefail
+
+FILE=/var/lib/prometheus/node-exporter/backup-$1.prom
+NOW=$(date +%s)
+SUCCESS=$(sed -n 's/^slowreader_backup_success_timestamp_seconds{[^}]*} //p' \
+  "$FILE" 2> /dev/null || true)
+if [ "${SERVICE_RESULT:-}" = success ]; then
+  SUCCESS=$NOW
+fi
+cat > "$FILE.tmp" <<METRICS
+slowreader_backup_run_timestamp_seconds{job="$1"} $NOW
+slowreader_backup_success_timestamp_seconds{job="$1"} ${SUCCESS:-0}
+METRICS
+mv "$FILE.tmp" "$FILE"

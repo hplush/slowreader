@@ -23,7 +23,7 @@ The server needs some data unencrypted to sync your devices. This is all the une
 
 Sync can’t work without this data, so there is no way to have a cloud account with less data.
 
-We keep this data until you delete it. The _Delete your data from the cloud_ button on the _Cloud_ page deletes all of it immediately. Daily database backups keep a copy for 7 more days. Deleting your account doesn’t change daily totals already saved, because they don’t contain your data.
+We keep this data until you delete it. The _Delete your data from the cloud_ button on the _Cloud_ page deletes all of it immediately. Encrypted database backups keep a copy for up to 30 more days. Deleting your account doesn’t change totals already saved, because they don’t contain your data.
 
 ## Loading Feeds
 
@@ -35,7 +35,7 @@ With the extension, the app downloads feeds directly, so feed websites see your 
 
 We have two separate counters. Neither can link data to you. The only cookie keeps you signed in to the cloud.
 
-- **App:** our server counts active cloud accounts, their browsers, passkeys, and <a href="/docs/experiments">error pages</a>. It saves only daily totals without user IDs or IP addresses. Users without a cloud account don’t send error counts, and you can turn them off on the _Cloud_ page.
+- **App:** our server counts active cloud accounts, their browsers, passkeys, and <a href="/docs/experiments">error pages</a>. Our metrics database saves only totals without user IDs or IP addresses. Users without a cloud account don’t send error counts, and you can turn them off on the _Cloud_ page.
 - **Home page and docs:** our own copy of <a href="https://plausible.io/data-policy" target="_blank">Plausible</a> counts visits. It sets no cookies, doesn’t save your IP address, and can’t connect your visits on different days.
 
 ## Logs
@@ -44,9 +44,9 @@ Our logs don’t have your IP address or data, only your random user ID and devi
 
 ## Hosting
 
-Our servers and database run at Scaleway in Paris, France. Database backups are stored in another Scaleway data center in the EU. You can read <a href="https://www.scaleway.com/en/privacy-policy/" target="_blank">Scaleway’s privacy policy</a>.
+Our servers run at <a href="https://www.hetzner.com/legal/privacy-policy/" target="_blank">Hetzner</a> in Germany.
 
-The test version at `dev.slowreader.app` and visit counter at `lens.hplush.dev` run at Hetzner in the EU. You can read <a href="https://www.hetzner.com/legal/privacy-policy/" target="_blank">Hetzner’s privacy policy</a>.
+Encrypted database backups are stored at <a href="https://www.scaleway.com/en/privacy-policy/" target="_blank">Scaleway</a> in Paris, France, and only we have the key.
 
 ## Your Rights
 
@@ -69,4 +69,4 @@ If you email us, we use your email address and message only to answer you. We de
 
 ## Changes
 
-We may change this policy at any time. Check this page for the latest version. Last change: November 2, 2026. See <a href="https://github.com/hplush/slowreader/commits/main/docs/privacy.md" target="_blank">the history of changes</a> of this policy.
+We may change this policy at any time. Check this page for the latest version. Last change: November 4, 2026. See <a href="https://github.com/hplush/slowreader/commits/main/docs/privacy.md" target="_blank">the history of changes</a> of this policy.

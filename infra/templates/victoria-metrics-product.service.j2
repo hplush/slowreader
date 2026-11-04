@@ -1,0 +1,16 @@
+# {{ ansible_managed }}
+[Unit]
+Description=VictoriaMetrics for app metrics of 10 years
+After=network.target
+
+[Service]
+DynamicUser=true
+StateDirectory=victoria-metrics-product
+{% if analytics_token.stat.exists %}
+LoadCredential=analytics-token:/etc/slowreader/analytics-token
+{% endif %}
+ExecStart=/usr/bin/victoria-metrics -httpListenAddr=127.0.0.1:8429 -storageDataPath=/var/lib/victoria-metrics-product -retentionPeriod=10y -promscrape.config=/etc/victoria-metrics/scrape-product.yml
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

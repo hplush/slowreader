@@ -1,0 +1,69 @@
+- name: Create pgBackRest config folders
+  ansible.builtin.file:
+    path: '{{ item }}'
+    state: directory
+    owner: postgres
+    group: postgres
+    mode: '0750'
+  loop:
+    - /etc/pgbackrest
+    - /etc/pgbackrest/conf.d
+
+- name: Configure pgBackRest
+  ansible.builtin.template:
+    src: pgbackrest.conf.j2
+    dest: /etc/pgbackrest/pgbackrest.conf
+    owner: postgres
+    group: postgres
+    mode: '0640'
+
+- name: Install backup scripts
+  ansible.builtin.copy:
+    src: save-backup-metric
+    dest: /usr/local/sbin/save-backup-metric
+    mode: '0755'
+
+- name: Install restore test
+  ansible.builtin.template:
+    src: restore-test.j2
+    dest: /usr/local/sbin/restore-test
+    mode: '0755'
+
+- name: Install backup units
+  ansible.builtin.copy:
+    src: '{{ item }}'
+    dest: /etc/systemd/system/{{ item }}
+    mode: '0644'
+  loop:
+    - pgbackrest@.service
+    - pgbackrest-full.timer
+    - pgbackrest-diff.timer
+    - restore-test.service
+    - restore-test.timer
+  notify: Reload systemd
+
+- name: Flush handlers to load backup units
+  ansible.builtin.meta: flush_handlers
+
+- name: Create backup repository
+  ansible.builtin.command: pgbackrest --stanza=slowreader stanza-create
+  become_user: postgres
+  when: backup_secrets.stat.exists
+  changed_when: false
+
+- name: Check WAL archiving
+  ansible.builtin.command: pgbackrest --stanza=slowreader check
+  become_user: postgres
+  when: backup_secrets.stat.exists
+  changed_when: false
+
+- name: Enable backup timers
+  ansible.builtin.systemd_service:
+    name: '{{ item }}'
+    enabled: true
+    state: started
+  loop:
+    - pgbackrest-full.timer
+    - pgbackrest-diff.timer
+    - restore-test.timer
+  when: backup_secrets.stat.exists

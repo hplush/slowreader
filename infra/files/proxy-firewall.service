@@ -1,0 +1,14 @@
+[Unit]
+Description=Block local and private networks for proxy user
+Wants=network-pre.target
+Before=network-pre.target
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/usr/sbin/nft -f /etc/nftables.d/proxy-firewall.nft
+ExecStop=/usr/sbin/nft delete table inet proxy_firewall
+
+[Install]
+WantedBy=multi-user.target

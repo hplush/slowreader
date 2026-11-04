@@ -47,12 +47,14 @@ A supply chain attack is malicious code, which comes to the project not from our
 7. **Reproducible build.** Anyone can check that we run the published source code. The build is reproducible: building the image from the same commit gives the same files as in our published image. We use the same image for production and self-hosted servers, so there is only one image to check.
 8. **Separated time-sensitive image.** Demo database and landing screenshots change on every build, so they come from a separated image, built before every weekly release by [Demo Database workflow](../../.github/workflows/demo-db.yml) and fixed by hash.
 9. **Independent verifier.** [Scripts](../../verifier/) on GitLab CI, outside of our GitHub, rebuild every release, check its signatures, and every hour compare `slowreader.app` files with it. Results are on the [status page](https://hplush.gitlab.io/slowreader-verifier/), which also checks `slowreader.app` from your browser, and in the append-only [Rekor](https://docs.sigstore.dev/logging/overview/) log, so nobody can hide a failed check.
+10. **Verified deploy.** The server deploys only images that our verifier checked. It downloads the verifier’s result and checks the signature. Attackers with a stolen deploy key or GitHub account can’t deploy their own image (pinned [`cosign.pub`](../../verifier/cosign.pub) in [`infra/`](../../infra/)).
 
 ## Runtime
 
 1. **Separated proxy domain.** App and CORS proxy run in separated containers on different domains. Content from any website, which proxy loads, can’t access the app’s storage.
 2. **Node.js permissions.** Server and proxy run with Node.js `--permission`. A malicious server dependency can read only server code, can’t write files, start other processes, or load native code.
 3. **gVisor sandbox.** Pull request previews run unreviewed code, so they get even less: read-only file system, no Linux capabilities, and a gVisor sandbox between them and the server’s kernel on our [cloud](https://github.com/hplush/cloud).
+4. **Proxy egress firewall.** Proxy loads any URL from users, so the server’s firewall blocks it from loopback, private networks, and Hetzner metadata. Attackers can’t use the proxy to reach our database or internal services (nftables rule for `proxy` user in [`infra/`](../../infra/)).
 
 ## Web Client
 

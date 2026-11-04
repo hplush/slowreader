@@ -1,0 +1,106 @@
+# Downloaded only once, so later runs can't get a replaced key
+- name: Add Caddy repository key
+  ansible.builtin.get_url:
+    url: https://dl.cloudsmith.io/public/caddy/stable/gpg.key
+    dest: /etc/apt/keyrings/caddy.asc
+    force: false
+    mode: '0644'
+
+- name: Add Caddy repository
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/caddy.sources
+    content: |
+      Types: deb
+      URIs: https://dl.cloudsmith.io/public/caddy/stable/deb/debian
+      Suites: any-version
+      Components: main
+      Signed-By: /etc/apt/keyrings/caddy.asc
+    mode: '0644'
+
+# Ubuntu and Ubuntu Pro have old Caddy 2.6
+- name: Prefer Caddy repository
+  ansible.builtin.copy:
+    dest: /etc/apt/preferences.d/caddy
+    content: |
+      Package: caddy
+      Pin: origin dl.cloudsmith.io
+      Pin-Priority: 990
+    mode: '0644'
+
+- name: Install Caddy
+  ansible.builtin.apt:
+    name: caddy
+    update_cache: true
+
+- name: Check Caddy source
+  ansible.builtin.shell: |
+    set -o pipefail
+    apt-cache policy caddy | awk '
+      /Candidate:/ { candidate = $2; next }
+      candidate && ($1 == candidate || ($1 == "***" && $2 == candidate)) {
+        found = 1; next
+      }
+      found && /^ +[0-9]+ / { print; next }
+      found { exit }'
+  args:
+    executable: /bin/bash
+  register: caddy_source
+  changed_when: false
+  failed_when: "'dl.cloudsmith.io' not in caddy_source.stdout"
+
+- name: Check unattended-upgrades origins
+  ansible.builtin.shell: |
+    set -o pipefail
+    unattended-upgrade --dry-run --debug 2>&1 | grep 'Allowed origins'
+  args:
+    executable: /bin/bash
+  register: origins
+  changed_when: false
+  failed_when: >-
+    'o=cloudsmith/caddy/stable' not in origins.stdout or
+    'o=UbuntuESMApps' not in origins.stdout or
+    'o=UbuntuESM,' not in origins.stdout
+
+- name: Move Caddy admin API to a private socket
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/caddy.service.d/50-slowreader.conf
+    content: |
+      [Service]
+      RuntimeDirectory=caddy
+      RuntimeDirectoryMode=0700
+      EnvironmentFile=-/etc/slowreader/caddy.env
+    mode: '0644'
+  notify:
+    - Reload systemd
+    - Restart caddy
+
+- name: Create error page folder
+  ansible.builtin.file:
+    path: /srv/caddy
+    state: directory
+    mode: '0755'
+
+- name: Copy error page
+  ansible.builtin.copy:
+    src: '{{ playbook_dir }}/../web/public/{{ item }}'
+    dest: /srv/caddy/{{ item }}
+    mode: '0644'
+  loop:
+    - 500.html
+    - favicon.ico
+    - icon-error.svg
+
+- name: Check metrics token
+  ansible.builtin.stat:
+    path: /etc/slowreader/caddy.env
+  register: caddy_env
+
+- name: Configure Caddy
+  ansible.builtin.template:
+    src: Caddyfile.j2
+    dest: /etc/caddy/Caddyfile
+    owner: root
+    group: root
+    mode: '0644'
+    validate: caddy validate --adapter caddyfile --config %s
+  notify: Reload caddy

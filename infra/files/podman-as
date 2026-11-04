@@ -1,0 +1,11 @@
+#!/bin/bash
+# Run rootless Podman of app or proxy user, which have no login shell.
+# Example: sudo podman-as app secret ls
+
+set -euo pipefail
+
+NAME=$1
+shift
+cd /
+exec runuser -u "$NAME" -- env "XDG_RUNTIME_DIR=/run/user/$(id -u "$NAME")" \
+  podman "$@"

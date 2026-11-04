@@ -1,0 +1,25 @@
+# Proxy loads any URL from users, so it must not reach our local services,
+# private networks, or Hetzner metadata. Rootless Podman sends container
+# traffic from the proxy user’s pasta process.
+
+table inet proxy_firewall
+delete table inet proxy_firewall
+
+table inet proxy_firewall {
+  chain output {
+    type filter hook output priority filter; policy accept;
+    meta skuid != proxy accept
+    # Answers to Caddy and VictoriaMetrics
+    ct state established,related accept
+    # pasta sends container’s DNS to systemd-resolved
+    ip daddr 127.0.0.53 meta l4proto { tcp, udp } th dport 53 accept
+    ip daddr {
+      0.0.0.0/8, 10.0.0.0/8, 100.64.0.0/10, 127.0.0.0/8, 169.254.0.0/16,
+      172.16.0.0/12, 192.0.0.0/24, 192.168.0.0/16, 198.18.0.0/15,
+      224.0.0.0/3
+    } reject
+    ip6 daddr {
+      ::/127, ::ffff:0:0/96, 64:ff9b::/96, fc00::/7, fe80::/10, ff00::/8
+    } reject
+  }
+}

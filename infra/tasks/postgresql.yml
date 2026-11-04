@@ -1,0 +1,66 @@
+- name: Install PostgreSQL
+  ansible.builtin.apt:
+    name:
+      - pgbackrest
+      - postgresql
+
+- name: Find PostgreSQL version
+  ansible.builtin.command: pg_lsclusters --no-header
+  register: clusters
+  changed_when: false
+
+- name: Remember PostgreSQL version
+  ansible.builtin.set_fact:
+    postgresql_version: '{{ clusters.stdout.split()[0] }}'
+
+- name: Configure PostgreSQL
+  ansible.builtin.copy:
+    dest: /etc/postgresql/{{ postgresql_version }}/main/conf.d/50-slowreader.conf
+    content: |
+      # Only Unix socket
+      listen_addresses = ''
+      password_encryption = scram-sha-256
+      wal_level = replica
+      archive_mode = on
+      archive_command = 'pgbackrest --stanza=slowreader archive-push %p'
+    mode: '0644'
+  notify: Restart postgresql
+
+- name: Allow only known local users
+  ansible.builtin.copy:
+    dest: /etc/postgresql/{{ postgresql_version }}/main/pg_hba.conf
+    content: |
+      local all postgres peer
+      local postgres prometheus peer
+      local slowreader slowreader scram-sha-256
+    owner: postgres
+    group: postgres
+    mode: '0640'
+  notify: Restart postgresql
+
+- name: Flush handlers to apply PostgreSQL config
+  ansible.builtin.meta: flush_handlers
+
+- name: Create database users
+  ansible.builtin.shell: |
+    psql -tAc "SELECT 1 FROM pg_roles WHERE rolname = '{{ item }}'" | grep -q 1 \
+      || (createuser {{ item }} && echo created)
+  become_user: postgres
+  register: role
+  changed_when: "'created' in role.stdout"
+  loop:
+    - slowreader
+    - prometheus
+
+- name: Create database
+  ansible.builtin.shell: |
+    psql -tAc "SELECT 1 FROM pg_database WHERE datname = 'slowreader'" \
+      | grep -q 1 || (createdb --owner slowreader slowreader && echo created)
+  become_user: postgres
+  register: database
+  changed_when: "'created' in database.stdout"
+
+- name: Allow metrics user to read statistics
+  ansible.builtin.command: psql -c 'GRANT pg_monitor TO prometheus'
+  become_user: postgres
+  changed_when: false

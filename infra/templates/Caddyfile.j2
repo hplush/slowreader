@@ -1,0 +1,76 @@
+# {{ ansible_managed }}
+{
+	# Only root and caddy can change the config
+	admin unix//run/caddy/admin.sock
+	metrics
+	log {
+		# Our privacy policy promises no IP addresses in logs
+		format filter {
+			wrap json
+			fields {
+				request>remote_ip delete
+				request>client_ip delete
+				request>remote_port delete
+				request>headers delete
+			}
+		}
+	}
+}
+
+(errors) {
+	handle_errors 5xx {
+		root * /srv/caddy
+		@asset path /favicon.ico /icon-error.svg
+		handle @asset {
+			file_server
+		}
+		handle {
+			rewrite * /500.html
+			file_server {
+				status {err.status_code}
+			}
+		}
+	}
+}
+
+{% for service in services.values() %}
+{{ service.domain }} {
+	@metrics path /metrics
+	respond @metrics 404
+	# Only one color runs, except a few seconds of the deploy
+	reverse_proxy 127.0.0.1:{{ service.ports.blue }} 127.0.0.1:{{ service.ports.green }} {
+		lb_policy first
+		lb_try_duration 10s
+		health_uri /health
+		health_interval 2s
+		health_timeout 2s
+	}
+	import errors
+}
+
+{% endfor %}
+{% if caddy_env.stat.exists %}
+metrics.{{ domain }} {
+{% for prefix, port in [('/product', 8429), ('', 8428)] %}
+	@grafana{{ prefix | replace('/', '_') }} {
+		remote_ip {{ grafana_ips | join(' ') }}
+		header Authorization "Bearer {$METRICS_TOKEN}"
+		path_regexp ^{{ prefix }}/api/v1/(query|query_range|series|labels|label/[^/]+/values|metadata|status/buildinfo)$
+	}
+	handle @grafana{{ prefix | replace('/', '_') }} {
+{% if prefix %}
+		uri strip_prefix {{ prefix }}
+{% endif %}
+		reverse_proxy 127.0.0.1:{{ port }}
+	}
+{% endfor %}
+	handle {
+		respond 403
+	}
+}
+
+{% endif %}
+http://127.0.0.1:9180 {
+	bind 127.0.0.1
+	metrics
+}

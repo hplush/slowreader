@@ -1,0 +1,46 @@
+#!/bin/bash
+# Forced SSH command of deploy user. It only creates request files for app
+# and proxy users or shows their results, so a stolen key can only redeploy
+# a release, which verifier signed.
+
+set -euo pipefail
+
+usage() {
+  echo 'Usage: request VERSION or status VERSION' >&2
+  exit 1
+}
+
+read -r ACTION VERSION EXTRA <<< "${SSH_ORIGINAL_COMMAND:-}"
+[ -z "${EXTRA:-}" ] || usage
+[[ "${VERSION:-}" =~ ^0\.[0-9]{8}\.[0-9]+$ ]] || usage
+
+case "$ACTION" in
+  request)
+    for SERVICE in app proxy; do
+      : > "/srv/deploy/$SERVICE/requests/$VERSION"
+    done
+    ;;
+  status)
+    for SERVICE in app proxy; do
+      RESULT="/srv/deploy/$SERVICE/results/$VERSION"
+      # Result of the previous deploy of the same version stays until then
+      if [ -f "/srv/deploy/$SERVICE/requests/$VERSION" ]; then
+        echo "$SERVICE wait"
+      elif [ -f "$RESULT" ]; then
+        echo "$SERVICE $(head -n 1 "$RESULT")"
+      else
+        echo "$SERVICE wait"
+      fi
+    done
+    for SERVICE in app proxy; do
+      RESULT="/srv/deploy/$SERVICE/results/$VERSION"
+      if [ -f "$RESULT" ] && [ "$(head -n 1 "$RESULT")" = fail ]; then
+        echo
+        tail -n +2 "$RESULT" | sed "s/^/$SERVICE: /"
+      fi
+    done
+    ;;
+  *)
+    usage
+    ;;
+esac

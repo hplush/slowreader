@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Script to update Node.js, pnpm, and OpenTofu everywhere.
+// Script to update Node.js and pnpm everywhere.
 //
 // By default it will keep Node.js and pnpm major versions, but can update
 // to the next major by `pnpm update-tools --major-node` and `--major-pnpm`
@@ -61,7 +61,7 @@ function getVersionNumbers(tag: string): number[] {
 }
 
 // GitHub’s latest release is the last published one, which can be a fix
-// for the older branch, since pnpm and OpenTofu release several branches
+// for the older branch, since pnpm releases several branches
 function findNewestRelease(
   releases: GitHubReleases[],
   prefix: string
@@ -98,25 +98,6 @@ async function getLatestPnpm(
     {
       arm64: getAssetSha256(release, 'pnpm-linux-arm64.tar.gz'),
       x64: getAssetSha256(release, 'pnpm-linux-x64.tar.gz')
-    }
-  ]
-}
-
-async function getLatestTofu(): Promise<[string, Architectures]> {
-  let response = await fetch(
-    'https://api.github.com/repos/opentofu/opentofu/releases?per_page=100'
-  )
-  let releases = (await response.json()) as GitHubReleases[]
-  let release = findNewestRelease(
-    releases.filter(i => !i.prerelease),
-    'v'
-  )
-  let version = release.tag_name.slice(1)
-  return [
-    version,
-    {
-      arm64: getAssetSha256(release, `tofu_${version}_linux_arm64.tar.gz`),
-      x64: getAssetSha256(release, `tofu_${version}_linux_amd64.tar.gz`)
     }
   ]
 }
@@ -200,7 +181,6 @@ function replaceKey(file: string, key: string, value: string): string {
 let dockerfile = read(join(ROOT, '.devcontainer', 'Dockerfile'))
 let currentNode = dockerfile.match(/NODE_VERSION=(\S+)/)![1]!
 let currentPnpm = dockerfile.match(/PNPM_VERSION=(\S+)/)![1]!
-let currentTofu = dockerfile.match(/TOFU_VERSION=(\S+)/)![1]!
 
 let latestNode = await getLatestNodeVersion(
   getMajor('--major-node', currentNode.split('.')[0]!)
@@ -208,7 +188,6 @@ let latestNode = await getLatestNodeVersion(
 let [latestPnpm, pnpmChecksums] = await getLatestPnpm(
   getMajor('--major-pnpm', currentPnpm.split('.')[0]!)
 )
-let [latestTofu, tofuChecksums] = await getLatestTofu()
 
 if (currentNode !== latestNode || FORCE) {
   printUpdate('Node.js', currentNode, latestNode)
@@ -243,15 +222,8 @@ if (updatePnpm) {
   })
 }
 
-let updateTofu = currentTofu !== latestTofu || FORCE
-if (updateTofu) {
-  printUpdate('OpenTofu', currentTofu, latestTofu)
-  dockerfile = replaceVersionEnv(dockerfile, 'TOFU', latestTofu, tofuChecksums)
-  writeFileSync(join(ROOT, '.devcontainer', 'Dockerfile'), dockerfile)
-}
-
-if (currentNode === latestNode && !updatePnpm && !updateTofu) {
+if (currentNode === latestNode && !updatePnpm) {
   process.stderr.write(
-    styleText('gray', 'No Node.js, pnpm, or OpenTofu updates available\n')
+    styleText('gray', 'No Node.js or pnpm updates available\n')
   )
 }

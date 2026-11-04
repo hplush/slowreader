@@ -1,0 +1,10 @@
+[Unit]
+Description=Wait for deploy requests
+ConditionUser=|app
+ConditionUser=|proxy
+
+[Path]
+DirectoryNotEmpty=/srv/deploy/%u/requests
+
+[Install]
+WantedBy=default.target

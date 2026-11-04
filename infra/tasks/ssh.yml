@@ -1,0 +1,62 @@
+- name: Configure SSH server
+  ansible.builtin.copy:
+    dest: /etc/ssh/sshd_config.d/10-slowreader.conf
+    content: |
+      PermitRootLogin no
+      AllowUsers ai deploy
+      AuthenticationMethods publickey
+      PasswordAuthentication no
+      KbdInteractiveAuthentication no
+      AllowAgentForwarding no
+      AllowTcpForwarding no
+      X11Forwarding no
+    mode: '0644'
+    validate: sshd -t -f %s
+  notify: Restart ssh
+
+- name: Add maintainers keys to admin
+  ansible.builtin.copy:
+    dest: /home/ai/.ssh/authorized_keys
+    content: |
+      {% for key in maintainer_keys %}
+      {{ key }}
+      {% endfor %}
+    owner: ai
+    group: ai
+    mode: '0600'
+
+- name: Create deploy user
+  ansible.builtin.user:
+    name: deploy
+    shell: /bin/sh
+    password_lock: true
+
+- name: Create deploy SSH folder
+  ansible.builtin.file:
+    path: /home/deploy/.ssh
+    state: directory
+    owner: root
+    group: deploy
+    mode: '0750'
+
+# deploy can only call deploy-request, which creates request files
+- name: Add maintainers keys to deploy
+  ansible.builtin.copy:
+    dest: /home/deploy/.ssh/authorized_keys
+    content: |
+      {% for key in maintainer_keys %}
+      restrict,command="/usr/local/bin/deploy-request" {{ key }}
+      {% endfor %}
+    owner: root
+    group: deploy
+    mode: '0640'
+
+- name: Enable fail2ban for SSH
+  ansible.builtin.copy:
+    dest: /etc/fail2ban/jail.d/sshd.local
+    content: |
+      [sshd]
+      enabled = true
+      backend = systemd
+    mode: '0644'
+  notify: Restart fail2ban

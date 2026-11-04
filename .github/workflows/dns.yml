@@ -1,0 +1,32 @@
+name: DNS
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'infra/dns.txt'
+      - 'infra/scripts/dump-dns.ts'
+      - '.github/workflows/dns.yml'
+  schedule:
+    - cron: '00 22 * * *' # Every day at 22:00 UTC
+permissions:
+  contents: read
+jobs:
+  check:
+    name: Check DNS records
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        with:
+          egress-policy: audit # dig asks DNS servers directly
+      - name: Checkout the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+      - name: Compare DNS with infra/dns.txt
+        run: node infra/scripts/dump-dns.ts --check

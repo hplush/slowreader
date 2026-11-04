@@ -1,0 +1,12 @@
+[Unit]
+Description=Metrics of container units
+ConditionUser=|app
+ConditionUser=|proxy
+
+[Service]
+EnvironmentFile=/etc/default/systemd-exporter-%u
+ExecStart=/usr/bin/prometheus-systemd-exporter --systemd.collector.user --web.listen-address=127.0.0.1:${PORT} --systemd.collector.unit-include=%u-(blue|green)[.]service
+Restart=always
+
+[Install]
+WantedBy=default.target

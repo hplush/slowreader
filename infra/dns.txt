@@ -1,0 +1,14 @@
+slowreader.app NS ns0.dom.scw.cloud.
+slowreader.app NS ns1.dom.scw.cloud.
+slowreader.app MX 0 .
+slowreader.app A 195.154.157.19
+slowreader.app AAAA 2001:bc8:710:3f48::
+slowreader.app CAA 0 iodef "mailto:andrey@sitnik.es"
+slowreader.app CAA 0 issue "letsencrypt.org"
+slowreader.app CAA 0 issuewild ";"
+slowreader.app TXT "v=spf1 -all"
+_dmarc.slowreader.app TXT "v=DMARC1; p=reject; adkim=s; aspf=s"
+proxy.slowreader.app CNAME slowreaderc19f9fa6-proxy.functions.fnc.fr-par.scw.cloud.
+dev.slowreader.app A 91.98.155.169
+dev.slowreader.app AAAA 2a01:4f8:c012:2e6f::1
+proxy.dev.slowreader.app CNAME dev.slowreader.app.

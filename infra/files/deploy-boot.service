@@ -1,0 +1,11 @@
+[Unit]
+Description=Start the last deployed color
+ConditionUser=|app
+ConditionUser=|proxy
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/deploy-service boot
+
+[Install]
+WantedBy=default.target

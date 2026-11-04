@@ -1,0 +1,81 @@
+- name: Install metrics packages
+  ansible.builtin.apt:
+    name:
+      - prometheus-node-exporter
+      - prometheus-postgres-exporter
+      - victoria-metrics
+
+- name: Configure node exporter
+  ansible.builtin.copy:
+    dest: /etc/default/prometheus-node-exporter
+    content: >
+      ARGS="--web.listen-address=127.0.0.1:9100
+      --collector.systemd
+      --collector.textfile.directory=/var/lib/prometheus/node-exporter"
+    mode: '0644'
+  notify: Restart node exporter
+
+- name: Configure PostgreSQL exporter
+  ansible.builtin.copy:
+    dest: /etc/default/prometheus-postgres-exporter
+    content: |
+      DATA_SOURCE_NAME='user=prometheus host=/run/postgresql dbname=postgres'
+      ARGS='--web.listen-address=127.0.0.1:9187'
+    owner: prometheus
+    group: prometheus
+    mode: '0640'
+  notify: Restart postgres exporter
+
+- name: Check analytics token
+  ansible.builtin.stat:
+    path: /etc/slowreader/analytics-token
+  register: analytics_token
+
+- name: Create VictoriaMetrics config folder
+  ansible.builtin.file:
+    path: /etc/victoria-metrics
+    state: directory
+    mode: '0755'
+
+- name: Configure scraping
+  ansible.builtin.template:
+    src: '{{ item.src }}'
+    dest: /etc/victoria-metrics/{{ item.dest }}
+    mode: '0644'
+  loop:
+    - { src: scrape.yml.j2, dest: scrape.yml }
+    - { src: scrape-product.yml.j2, dest: scrape-product.yml }
+  notify:
+    - Restart victoria-metrics
+    - Restart victoria-metrics-product
+
+- name: Configure VictoriaMetrics
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/victoria-metrics.service.d/50-slowreader.conf
+    content: |
+      [Service]
+      StateDirectory=victoria-metrics
+      ExecStart=
+      ExecStart=/usr/bin/victoria-metrics -httpListenAddr=127.0.0.1:8428 -storageDataPath=/var/lib/victoria-metrics -retentionPeriod=1y -promscrape.config=/etc/victoria-metrics/scrape.yml
+    mode: '0644'
+  notify:
+    - Reload systemd
+    - Restart victoria-metrics
+
+- name: Install VictoriaMetrics for app metrics
+  ansible.builtin.template:
+    src: victoria-metrics-product.service.j2
+    dest: /etc/systemd/system/victoria-metrics-product.service
+    mode: '0644'
+  notify:
+    - Reload systemd
+    - Restart victoria-metrics-product
+
+- name: Flush handlers to load VictoriaMetrics for app metrics
+  ansible.builtin.meta: flush_handlers
+
+- name: Enable VictoriaMetrics for app metrics
+  ansible.builtin.systemd_service:
+    name: victoria-metrics-product
+    enabled: true
+    state: started

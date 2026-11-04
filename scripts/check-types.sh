@@ -4,9 +4,9 @@
 
 set -e
 
-# Load projects from pnpm-workspace.yaml and add scripts
+# Load projects from pnpm-workspace.yaml and add scripts and infra
 ALL_PROJECTS=$(pnpm config get packages --json | grep -o '"[^"]*"' | tr -d '"' | tr '\n' ' ')
-ALL_PROJECTS="$ALL_PROJECTS scripts"
+ALL_PROJECTS="$ALL_PROJECTS scripts infra"
 
 # Function to determine which projects to check based on file paths
 get_projects_from_files() {

@@ -1,0 +1,142 @@
+- name: Install system packages
+  ansible.builtin.apt:
+    name:
+      - curl
+      - fail2ban
+      - jq
+      - needrestart
+      - nftables
+      - ufw
+      - unattended-upgrades
+    update_cache: true
+
+- name: Create config folders
+  ansible.builtin.file:
+    path: '{{ item }}'
+    state: directory
+    mode: '0755'
+  loop:
+    - /etc/needrestart/conf.d
+    - /etc/systemd/system.conf.d
+    - /etc/systemd/journald.conf.d
+    - /etc/systemd/system/caddy.service.d
+    - /etc/systemd/system/victoria-metrics.service.d
+    - /etc/nftables.d
+
+- name: Create secrets folder
+  ansible.builtin.file:
+    path: /etc/slowreader
+    state: directory
+    mode: '0700'
+
+- name: Configure unattended-upgrades
+  ansible.builtin.copy:
+    src: unattended-upgrades.conf
+    dest: /etc/apt/apt.conf.d/52slowreader-unattended-upgrades
+    mode: '0644'
+
+- name: Enable daily upgrades
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+    mode: '0644'
+
+- name: Restart services after upgrades without asking
+  ansible.builtin.copy:
+    dest: /etc/needrestart/conf.d/50-slowreader.conf
+    content: |
+      $nrconf{restart} = 'a';
+      $nrconf{kernelhints} = 0;
+    mode: '0644'
+
+- name: Check Livepatch
+  ansible.builtin.command: /snap/bin/canonical-livepatch status
+  changed_when: false
+
+- name: Install reboot script
+  ansible.builtin.copy:
+    src: reboot-if-needed
+    dest: /usr/local/sbin/reboot-if-needed
+    mode: '0755'
+
+- name: Install reboot units
+  ansible.builtin.copy:
+    src: '{{ item }}'
+    dest: /etc/systemd/system/{{ item }}
+    mode: '0644'
+  loop:
+    - reboot-if-needed.service
+    - reboot-if-needed.timer
+  notify: Reload systemd
+
+- name: Flush handlers to load new units
+  ansible.builtin.meta: flush_handlers
+
+- name: Enable reboot timer
+  ansible.builtin.systemd_service:
+    name: reboot-if-needed.timer
+    enabled: true
+    state: started
+
+- name: Configure kernel
+  ansible.builtin.copy:
+    dest: /etc/sysctl.d/90-slowreader.conf
+    content: |
+      vm.swappiness = 10
+      # Reboot on kernel failures instead of freezing
+      kernel.panic = 10
+      kernel.panic_on_oops = 1
+      kernel.softlockup_panic = 1
+      kernel.hardlockup_panic = 1
+      kernel.hung_task_panic = 1
+    mode: '0644'
+  notify: Apply sysctl
+
+# Hetzner VM has no watchdog device
+- name: Load software watchdog on boot
+  ansible.builtin.copy:
+    dest: /etc/modules-load.d/softdog.conf
+    content: "softdog\n"
+    mode: '0644'
+
+- name: Load software watchdog now
+  ansible.builtin.command: modprobe softdog
+  changed_when: false
+
+- name: Ping watchdog from systemd
+  ansible.builtin.copy:
+    dest: /etc/systemd/system.conf.d/50-watchdog.conf
+    content: |
+      [Manager]
+      RuntimeWatchdogSec=30s
+      RebootWatchdogSec=10min
+    mode: '0644'
+  notify: Reexec systemd
+
+- name: Limit journal
+  ansible.builtin.copy:
+    dest: /etc/systemd/journald.conf.d/50-size.conf
+    content: |
+      [Journal]
+      SystemMaxUse=1G
+      MaxRetentionSec=1month
+    mode: '0644'
+  notify: Restart journald
+
+- name: Create swap file
+  ansible.builtin.command: fallocate -l 1G /swapfile
+  args:
+    creates: /swapfile
+  register: swap
+
+- name: Format swap file
+  ansible.builtin.shell: chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile
+  when: swap.changed
+  changed_when: true
+
+- name: Mount swap on boot
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    line: /swapfile none swap sw 0 0

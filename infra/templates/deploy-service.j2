@@ -1,0 +1,96 @@
+#!/bin/bash
+# {{ ansible_managed }}
+#
+# Deploy versions from deploy-request as app or proxy user: check verifier’s
+# signature, start the free color, wait for health, and stop the old color.
+# Caddy moves traffic by its own health checks.
+#
+# `deploy-service boot` starts the last deployed color after reboot.
+
+set -euo pipefail
+
+SERVICE=$(id -un)
+FOLDER=/srv/deploy/$SERVICE
+STATE=$HOME/.local/state/slowreader-color
+declare -A PORTS=(
+{% for name, service in services.items() %}
+{% for color, port in service.ports.items() %}
+  [{{ name }}-{{ color }}]={{ port }}
+{% endfor %}
+{% endfor %}
+)
+
+if [ "${1:-}" = boot ]; then
+  [ -f "$STATE" ] || exit 0
+  exec systemctl --user start --no-block "$SERVICE-$(cat "$STATE").service"
+fi
+
+if [ "${1:-}" = version ]; then
+  VERSION=$2
+  WORK=$(mktemp -d)
+  trap 'rm -rf "$WORK"' EXIT
+
+  URL="https://hplush.gitlab.io/slowreader-verifier/releases/$VERSION"
+  curl -fsS --proto =https -o "$WORK/result.json" "$URL.json"
+  curl -fsS --proto =https -o "$WORK/result.sigstore.json" "$URL.sigstore.json"
+  cosign verify-blob --key /usr/local/share/slowreader/cosign.pub \
+    --bundle "$WORK/result.sigstore.json" "$WORK/result.json"
+
+  # Take image only from the signed result
+  if ! jq -e --arg version "$VERSION" \
+    '.status == "verified" and .tag == $version' "$WORK/result.json" > /dev/null; then
+    echo "Verifier did not verify $VERSION: $(jq -r .reason "$WORK/result.json")"
+    exit 1
+  fi
+  IMAGE=$(jq -r .image "$WORK/result.json")
+  if ! [[ "$IMAGE" =~ ^ghcr\.io/hplush/slowreader@sha256:[0-9a-f]{64}$ ]]; then
+    echo "Wrong image: $IMAGE"
+    exit 1
+  fi
+
+  if systemctl --user is-active --quiet "$SERVICE-blue.service"; then
+    OLD=blue NEW=green
+  else
+    OLD=green NEW=blue
+  fi
+  echo "Starting $SERVICE-$NEW with $IMAGE"
+  podman pull --quiet "$IMAGE"
+  podman tag "$IMAGE" "localhost/slowreader:$SERVICE-$NEW"
+
+  # Notify=healthy makes systemd wait for the container health check
+  if ! systemctl --user restart "$SERVICE-$NEW.service"; then
+    systemctl --user status --no-pager "$SERVICE-$NEW.service" || true
+    systemctl --user stop "$SERVICE-$NEW.service"
+    exit 1
+  fi
+  curl -fsS -o /dev/null --retry 10 --retry-all-errors --retry-delay 1 \
+    "http://127.0.0.1:${PORTS[$SERVICE-$NEW]}/health"
+  # Caddy checks health every 2 seconds
+  sleep 5
+
+  mkdir -p "$(dirname "$STATE")"
+  echo "$NEW" > "$STATE"
+  systemctl --user stop "$SERVICE-$OLD.service"
+  echo "Deployed $VERSION to $SERVICE-$NEW"
+  exit
+fi
+
+for REQUEST in "$FOLDER"/requests/*; do
+  [ -f "$REQUEST" ] || continue
+  VERSION=$(basename "$REQUEST")
+  if [[ "$VERSION" =~ ^0\.[0-9]{8}\.[0-9]+$ ]]; then
+    RESULT=$FOLDER/results/$VERSION
+    rm -f "$RESULT"
+    # Separated process, because `set -e` doesn’t work inside `if`
+    if "$0" version "$VERSION" > "$RESULT.log" 2>&1; then
+      STATUS=ok
+    else
+      STATUS=fail
+    fi
+    podman image prune --all --force >> "$RESULT.log" 2>&1 || true
+    { echo "$STATUS"; cat "$RESULT.log"; } > "$RESULT.tmp"
+    rm "$RESULT.log"
+    mv "$RESULT.tmp" "$RESULT"
+  fi
+  rm "$REQUEST"
+done

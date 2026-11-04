@@ -1,0 +1,6 @@
+all:
+  hosts:
+    production:
+      # SERVER=IP before DNS points to the server
+      ansible_host: "{{ lookup('env', 'SERVER') or 'slowreader.app' }}"
+      ansible_user: ai
