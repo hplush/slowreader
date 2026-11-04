@@ -25,6 +25,17 @@
     group: ai
     mode: '0600'
 
+# Ubuntu’s .bashrc loads it after own prompt, so we keep Ubuntu’s defaults
+- name: Configure admin shell
+  ansible.builtin.copy:
+    dest: /home/ai/.bash_aliases
+    content: |
+      export PS1="\n\[\e[01;31m\]\h \[\e[01;36m\]\w\n\[\e[0;32m\]❯\[\e[m\] "
+      alias ..='cd ..'
+    owner: ai
+    group: ai
+    mode: '0644'
+
 # Without the password, removing NOPASSWD would lock us out of sudo
 - name: Check admin password
   ansible.builtin.command: passwd --status ai
