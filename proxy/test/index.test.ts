@@ -184,6 +184,12 @@ describe('proxy', () => {
     equal(await response.text(), 'OK\n')
   })
 
+  test('has root page', async () => {
+    let response = await fetch(`${proxyUrl}/`)
+    equal(response.status, 200)
+    equal(await response.text(), 'Slow Reader proxy\n')
+  })
+
   test('has timeout', async () => {
     let response = await request(`${targetUrl}?sleep=2000`, {})
     await expectBadRequest(response, 'Timeout')
@@ -231,11 +237,8 @@ describe('proxy', () => {
   })
 
   test('checks URL', async () => {
-    let response1 = await request('bad')
-    await expectBadRequest(response1, 'Invalid URL')
-
-    let response2 = await request('')
-    await expectBadRequest(response2, 'Invalid URL')
+    let response = await request('bad')
+    await expectBadRequest(response, 'Invalid URL')
   })
 
   test('follows redirects', async () => {

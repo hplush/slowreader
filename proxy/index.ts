@@ -348,6 +348,11 @@ export function createProxy(
       return res.end('OK\n')
     }
 
+    if (req.url === '/') {
+      res.writeHead(200, { 'Content-Type': 'text/plain' })
+      return res.end('Slow Reader proxy\n')
+    }
+
     allowCors(req, res)
 
     if (req.method === 'OPTIONS') {
