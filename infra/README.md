@@ -221,12 +221,12 @@ You need these steps only once.
 1. Add a hardware key as the second factor in Hetzner account.
 2. Create `Slow Reader` project in [Hetzner Console](https://console.hetzner.com/).
 3. Create firewalls in **Firewalls**:
-   1. `web`: inbound 80/tcp, 443/tcp, and 443/udp from any IPv4 and IPv6.
-   2. `ssh`: without rules.
+   1. `Web`: inbound ICMP, 80/tcp, 443/tcp, and 443/udp from any IPv4 and IPv6.
+   2. `SSH`: without rules.
 4. Open `ssh` firewall rules and copy page URL to `FIREWALL` in [`scripts/ssh-access.sh`](./scripts/ssh-access.sh).
 5. Create a server in **Servers** → **Add Server**:
    1. Select **Cost Optimized** → **x86** → **CX23**: 2 vCPU, 4 GB RAM, 40 GB disk.
-   2. Select **Nuremberg** location and **Ubuntu 26.04** image.
+   2. Select **Falkenstein** location and **Ubuntu 26.04** image.
    3. Enable public IPv4 and IPv6.
    4. Add your hardware key from `verifier/allowed_signers` in **SSH keys**.
    5. Select `web` and `ssh` firewalls.
@@ -279,14 +279,26 @@ sudo passwd ai
 
 1. In [Scaleway console](https://console.scaleway.com/) open **Object Storage** → **Create bucket**.
 2. Select `Paris` (`fr-par`) region, enter `slowreader-backups` name, select **Private** visibility, and enable **Object Lock** (it enables versioning too).
-3. In bucket **Settings** set default Object Lock retention: **Compliance** mode, **14 days**.
-4. In **Lifecycle rules** add a rule to delete noncurrent versions after **15 days**.
-5. Create `backup` IAM application with policy for `Slow Reader` project: **Object Storage** → `ObjectStorageObjectsDelete`, `ObjectStorageObjectsRead`, `ObjectStorageObjectsWrite`, `ObjectStorageBucketsRead`.
-6. Create API key for `backup` application without expiration. Keep the window open for the next section.
+3. Enable bucket encryption with Scaleway-managed keys (**SSE-ONE**). pgBackRest already encrypts the files, so it is only the second layer. Don’t use own keys (**SSE-KMS**): deleted key would make backups unreadable.
+4. Lock every new file for 14 days, so even our hacked server can’t delete backups. Console can’t set it, so create a 1 hour API key for your user and run in Dev Container:
+
+   ```sh
+   read -rs KEY
+   read -rs SECRET
+   BODY='<ObjectLockConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><ObjectLockEnabled>Enabled</ObjectLockEnabled><Rule><DefaultRetention><Mode>COMPLIANCE</Mode><Days>14</Days></DefaultRetention></Rule></ObjectLockConfiguration>'
+   curl -fsS --aws-sigv4 aws:amz:fr-par:s3 --user "$KEY:$SECRET" -X PUT -H "Content-MD5: $(printf %s "$BODY" | openssl dgst -md5 -binary | base64)" --data "$BODY" 'https://slowreader-backups.s3.fr-par.scw.cloud/?object-lock'
+   unset KEY SECRET
+   ```
+
+   Console shows **Compliance for 14 days** in **Object lock** of bucket’s settings.
+
+5. In **Lifecycle rules** add `delete-old-versions` rule for all objects with **Expire non-current versions of objects** after **15** days and **Expire incomplete multipart uploads** after **1** day.
+6. Create `backup` IAM application with policy for `Slow Reader` project: **Object Storage** → `ObjectStorageObjectsDelete`, `ObjectStorageObjectsRead`, `ObjectStorageObjectsWrite`, `ObjectStorageBucketsRead`.
+7. Create API key for `backup` application without expiration. Keep the window open for the next section.
 
 ### Secrets
 
-Ansible skips parts, which need secrets, until you create them on the server. Secrets go from `openssl rand` straight to files or Podman secrets, so nobody sees them.
+Ansible skips parts, which need secrets, until you create them on the server.
 
 1. Run Ansible the first time:
 
@@ -294,7 +306,7 @@ Ansible skips parts, which need secrets, until you create them on the server. Se
    SERVER=SERVER_IPV4 ./infra/scripts/ansible.sh
    ```
 
-2. Connect to the server like in the Livepatch section.
+2. Connect to the server `./infra/scripts/ssh.sh`.
 3. Set database password:
 
    ```sh
@@ -340,45 +352,22 @@ Ansible skips parts, which need secrets, until you create them on the server. Se
 
 ### Grafana
 
-Connect our Grafana on `dashboard.hplush.dev`, which [hplush/cloud](https://github.com/hplush/cloud) deploys.
+Our Grafana on `dashboard.hplush.dev` is deployed by [hplush/cloud](https://github.com/hplush/cloud). It has `Slow Reader Server` and `Slow Reader App` data sources for `https://metrics.slowreader.app` and `/product`, dashboards, and alerts to Telegram. They turn on when their tokens in `group_vars/all.yml` aren’t empty.
 
-1. Add 2 Prometheus data sources to `group_vars/all.yml` of `hplush/cloud`: `https://metrics.slowreader.app` for the server and `https://metrics.slowreader.app/product` for the app.
-2. Encrypt the token without showing it. Run it from Slow Reader repository with `hplush/cloud` next to it:
+1. In Slow Reader Dev Container print the metrics token:
 
    ```sh
-   ./infra/scripts/ssh.sh sudo sed -n 's/^METRICS_TOKEN=//p' /etc/slowreader/caddy.env | (cd ../cloud && ansible-vault encrypt_string --stdin-name dashboards_slowreader_metrics_token)
+   ./infra/scripts/ssh.sh sudo sed -n 's/^METRICS_TOKEN=//p' /etc/slowreader/caddy.env
    ```
 
-3. Put the output into `group_vars/all.yml` of `hplush/cloud`.
-4. Add alert rules. Set **no data** and **error** to **Alerting** for all of them, since a frozen server sends nothing.
-   - Server frozen: `up{job="node"} < 1` for 5 minutes.
-   - App down: `max(up{job="app"}) < 1` from `/product` data source.
-   - PostgreSQL down: `pg_up < 1`.
-   - Failed systemd unit: `node_systemd_unit_state{state="failed"} == 1`. It covers Caddy, PostgreSQL, backups, and restore test.
-   - Container restarts: `increase(systemd_service_restart_total[1h]) > 3`.
-   - Disk: `node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"} < 0.2`.
-   - Memory: `node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes < 0.1` for 10 minutes.
-   - WAL archiving fails: `increase(pg_stat_archiver_failed_count[1h]) > 0`. Without it, backups miss the latest changes.
-   - Backup failed: `slowreader_backup_run_timestamp_seconds - slowreader_backup_success_timestamp_seconds > 0`. It fires right after a failed backup or restore test.
-   - Backups too old: `time() - slowreader_backup_success_timestamp_seconds{job=~"full|diff"} > 2 * 86400`.
-   - Restore test too old: `time() - slowreader_backup_success_timestamp_seconds{job="restore-test"} > 8 * 86400`.
-   - Server errors: `sum(rate(caddy_http_request_duration_seconds_count{code=~"5.."}[5m])) > 0.1` for 5 minutes.
-   - Crash spike: `increase(slowreader_events_total{name="fatal-crash"}[1h]) > 10` from `/product` data source.
-5. Send alerts to a contact point without SMTP, like a Telegram bot. Put its token to `hplush/cloud` by `ansible-vault` like the metrics token.
+2. In `hplush/cloud` Dev Container paste it to `read`:
 
-### DNS
+   ```sh
+   read -rs TOKEN
+   printf %s "$TOKEN" | ansible-vault encrypt_string --stdin-name dashboards_metrics_token
+   unset TOKEN
+   ```
 
-`slowreader.app` zone is on Netim with DNSSEC. Edit records manually in Netim and run `node infra/scripts/dump-dns.ts` after it.
-
-Records:
-
-- `slowreader.app` CAA `0 issue "letsencrypt.org"`, `0 issuewild ";"`, and `0 iodef "mailto:andrey@sitnik.es"`.
-- `slowreader.app` TXT `v=spf1 -all`, since the domain sends no mail.
-- `_dmarc.slowreader.app` TXT `v=DMARC1; p=reject; adkim=s; aspf=s`.
-- `slowreader.app` MX `0 .` (null MX).
-- A and AAAA of the server for `slowreader.app`, `proxy`, and `metrics`.
-- A `91.98.155.169` and AAAA `2a01:4f8:c012:2e6f::1` for `dev`, our staging on [hplush/cloud](https://github.com/hplush/cloud).
-- HTTPS `1 . alpn=h3,h2` for `slowreader.app`, `proxy`, and `dev`.
-- `proxy.dev` CNAME `dev.slowreader.app.`
-
-We don’t use ECH for now: dedicated IP reveals the site anyway, and Netim has no Caddy DNS plugin to rotate ECH keys.
+3. Clear the first terminal. Replace `dashboards_metrics_token: ''` by the output.
+4. Create Telegram bot by [@BotFather](https://t.me/BotFather), encrypt its token the same way as `dashboards_telegram_token`, and put chat ID to `dashboards_telegram_chat`.
+5. Deploy `hplush/cloud`.
