@@ -2,7 +2,10 @@
 {
 	# Only root and caddy can change the config
 	admin unix//run/caddy/admin.sock
-	metrics
+	# Split requests by app and proxy domains
+	metrics {
+		per_host
+	}
 	log {
 		# Our privacy policy promises no IP addresses in logs
 		format filter {
