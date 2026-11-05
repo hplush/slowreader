@@ -1,14 +1,22 @@
-slowreader.app NS ns0.dom.scw.cloud.
-slowreader.app NS ns1.dom.scw.cloud.
+slowreader.app NS ns1.netim.net.
+slowreader.app NS ns2.netim.net.
+slowreader.app NS ns3.netim.net.
 slowreader.app MX 0 .
 slowreader.app A 178.105.15.149
 slowreader.app AAAA 2a01:4f8:c016:172b::
 slowreader.app CAA 0 iodef "mailto:andrey@sitnik.es"
 slowreader.app CAA 0 issue "letsencrypt.org"
 slowreader.app CAA 0 issuewild ";"
+slowreader.app HTTPS 1 . alpn="h3,h2"
 slowreader.app TXT "v=spf1 -all"
 _dmarc.slowreader.app TXT "v=DMARC1; p=reject; adkim=s; aspf=s"
-proxy.slowreader.app CNAME slowreaderc19f9fa6-proxy.functions.fnc.fr-par.scw.cloud.
+proxy.slowreader.app A 178.105.15.149
+proxy.slowreader.app AAAA 2a01:4f8:c016:172b::
+proxy.slowreader.app HTTPS 1 . alpn="h3,h2"
+metrics.slowreader.app CNAME slowreader.app.
 dev.slowreader.app A 91.98.155.169
 dev.slowreader.app AAAA 2a01:4f8:c012:2e6f::1
-proxy.dev.slowreader.app CNAME dev.slowreader.app.
+dev.slowreader.app HTTPS 1 . alpn="h3,h2"
+proxy.dev.slowreader.app A 91.98.155.169
+proxy.dev.slowreader.app AAAA 2a01:4f8:c012:2e6f::1
+proxy.dev.slowreader.app HTTPS 1 . alpn="h3,h2"
