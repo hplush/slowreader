@@ -1,8 +1,8 @@
 slowreader.app NS ns0.dom.scw.cloud.
 slowreader.app NS ns1.dom.scw.cloud.
 slowreader.app MX 0 .
-slowreader.app A 195.154.157.19
-slowreader.app AAAA 2001:bc8:710:3f48::
+slowreader.app A 178.105.15.149
+slowreader.app AAAA 2a01:4f8:c016:172b::
 slowreader.app CAA 0 iodef "mailto:andrey@sitnik.es"
 slowreader.app CAA 0 issue "letsencrypt.org"
 slowreader.app CAA 0 issuewild ";"
