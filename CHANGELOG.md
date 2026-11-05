@@ -1,5 +1,32 @@
 # Change Log
 
+## 0.20261105.0
+
+_2026-11-05 · +1430 −432_
+
+### Auto-Refresh
+
+Network settings has an option to refresh feeds on app start and on return to the app after 5 minutes.
+
+### Feed Posts Frequency
+
+Feed popup shows how often the feed posts and warns about too frequent feeds. Refresh loads frequent feeds first.
+
+### Metrics
+
+Self-hosters can read usage metrics in Prometheus format by `GET /metrics` with `ANALYTICS_TOKEN`. It replaces `GET /analytics`, and `ANALYTICS_IPS` was removed. Old daily statistics are removed from the database.
+
+### Fixes
+
+- Improved contrast of red text in dark theme.
+- Fixed feed support with future dates, like in events feeds.
+- Fix inline code backgrounds merging between lines in posts.
+- Fix long category name overflowing the feeds by category page.
+- Hide text sizes above 150% on mobile since they break UI.
+- Make headings inside posts smaller than the post title.
+- Fixed focus outline on select after tapping it on Android.
+- Center titles on About, Import, and error pages.
+
 ## 0.20261102.1
 
 _2026-11-02 · +35 −13_
