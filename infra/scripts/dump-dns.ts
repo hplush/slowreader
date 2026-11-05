@@ -32,12 +32,21 @@ function dig(...args: string[]): string[] {
     .toSorted()
 }
 
-let servers = dig('NS', 'slowreader.app')
+// Resolvers can keep old NS in the cache, so we ask .app registry directly
+let registry = dig('NS', 'app')[0]
+if (!registry) throw new Error('No .app registry servers')
+let servers = dig(
+  '+authority',
+  '+norecurse',
+  `@${registry}`,
+  'NS',
+  'slowreader.app'
+)
 if (servers.length === 0) throw new Error('slowreader.app has no NS records')
 
 let records = servers.map(i => `slowreader.app NS ${i}`)
-// DS lives in the parent zone, so we ask it by the resolver
-for (let answer of dig('DS', 'slowreader.app')) {
+// DS lives in the parent zone
+for (let answer of dig('+norecurse', `@${registry}`, 'DS', 'slowreader.app')) {
   records.push(`slowreader.app DS ${answer}`)
 }
 for (let answer of dig(`@${servers[0]}`, 'MX', 'slowreader.app')) {
