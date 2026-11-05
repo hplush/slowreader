@@ -8,7 +8,7 @@ on:
       - 'infra/scripts/dump-dns.ts'
       - '.github/workflows/dns.yml'
   schedule:
-    - cron: '00 22 * * *' # Every day at 22:00 UTC
+    - cron: '00 09 * * 3' # Every Wednesday at 09:00 UTC
 permissions:
   contents: read
 jobs:

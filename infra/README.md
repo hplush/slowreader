@@ -21,7 +21,7 @@ Add `--check --diff` to see changes without applying them.
 - [`files/`](./files/) and [`templates/`](./templates/): configs, systemd units, and scripts, which Ansible copies to the server.
 - [`inventory.yml`](./inventory.yml) and [`ansible.cfg`](./ansible.cfg): server address and SSH settings.
 - `known_hosts`: server’s SSH host key, so SSH never trusts another server.
-- [`dns.txt`](./dns.txt): dump of `slowreader.app` DNS records. [DNS workflow](../.github/workflows/dns.yml) checks it every day.
+- [`dns.txt`](./dns.txt): dump of `slowreader.app` DNS records. [DNS workflow](../.github/workflows/dns.yml) checks it every week with [deploy checks](../test/).
 - [`scripts/ssh-access.sh`](./scripts/ssh-access.sh): asks to allow your IPv4 in Hetzner Cloud Firewall if it changed since the last run (saved in ignored `.ssh-ip`), and runs the command.
 - [`scripts/ssh.sh`](./scripts/ssh.sh): connects to the server as admin through `ssh-access.sh`, with a command or a shell.
 - [`scripts/ansible.sh`](./scripts/ansible.sh): runs the playbook inside `ssh-access.sh`.
