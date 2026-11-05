@@ -68,7 +68,7 @@
 
     .post-warning_text {
       display: flex;
-      flex: 1 1 10rem;
+      flex: 1 1 6rem;
       gap: 0.25rem;
       align-items: center;
       align-self: center;
