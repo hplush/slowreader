@@ -178,16 +178,21 @@
           />
         {/if}
       </Stack>
-      {#if $posts.isLoading}
+      {#if $posts.isLoading && $posts.list.length === 0}
         <Loader track="feed-popup-posts" />
       {:else}
-        {#if $posts.error}
+        {#if $posts.error && !$posts.isLoading}
           <Note icon={mdiAlertCircleOutline} variant="dangerous">
             {errorToMessage($posts.error)}
           </Note>
         {/if}
         {#if $posts.hasNext}
-          <Button icon={mdiChevronDown} onclick={posts.next} size="wide">
+          <Button
+            icon={mdiChevronDown}
+            loader={$posts.isLoading}
+            onclick={posts.next}
+            size="wide"
+          >
             {$t.morePosts}
           </Button>
         {/if}
