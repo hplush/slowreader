@@ -58,14 +58,15 @@ if [ "${1:-}" = version ]; then
   podman pull --quiet "$IMAGE"
   podman tag "$IMAGE" "localhost/slowreader:$SERVICE-$NEW"
 
-  # Notify=healthy makes systemd wait for the container health check
-  if ! systemctl --user restart "$SERVICE-$NEW.service"; then
+  # Not Notify=healthy: Podman holds the container lock while waiting
+  if ! systemctl --user restart "$SERVICE-$NEW.service" ||
+    ! curl -fsS -o /dev/null --retry 600 --retry-all-errors --retry-delay 1 \
+      "http://127.0.0.1:${PORTS[$SERVICE-$NEW]}/health"; then
     systemctl --user status --no-pager "$SERVICE-$NEW.service" || true
+    journalctl --user -u "$SERVICE-$NEW.service" -n 30 --no-pager || true
     systemctl --user stop "$SERVICE-$NEW.service"
     exit 1
   fi
-  curl -fsS -o /dev/null --retry 10 --retry-all-errors --retry-delay 1 \
-    "http://127.0.0.1:${PORTS[$SERVICE-$NEW]}/health"
   # Caddy checks health every 2 seconds
   sleep 5
 

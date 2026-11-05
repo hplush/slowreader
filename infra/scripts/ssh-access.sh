@@ -24,7 +24,7 @@ ssh_answers() {
 IP=$(dig -4 +short TXT o-o.myaddr.l.google.com @ns1.google.com | tr -d '"')
 PREVIOUS=$(cat "$SAVED" 2> /dev/null || true)
 
-if [ "$IP" != "$PREVIOUS" ] || ! ssh_answers; then
+if [ "$IP" != "$PREVIOUS" ]; then
   printf "$BOLD%s$RESET\n" "Replace IP in 22/tcp rule of ssh firewall by:" >&2
   printf "$YELLOW%s$RESET\n" "$IP/32" >&2
   printf "$YELLOW%s$RESET\n" "$FIREWALL" >&2
@@ -32,6 +32,15 @@ if [ "$IP" != "$PREVIOUS" ] || ! ssh_answers; then
     sleep 3
   done
   echo "$IP" > "$SAVED"
+elif ! ssh_answers; then
+  printf "$BOLD%s$RESET\n" "SSH doesn’t answer, waiting. Check in Hetzner console:" >&2
+  printf "%s\n" "- the server is rebooting or frozen" >&2
+  printf "%s\n" "- fail2ban banned $IP: sudo fail2ban-client set sshd unbanip $IP" >&2
+  printf "%s\n" "- 22/tcp rule of ssh firewall still has $IP/32" >&2
+  printf "$YELLOW%s$RESET\n" "$FIREWALL" >&2
+  until ssh_answers; do
+    sleep 3
+  done
 fi
 
 "$@"

@@ -12,6 +12,8 @@ EnvironmentFile=/etc/containers/slowreader/{{ name }}.env
 Secret=database_url,type=env,target=DATABASE_URL
 Secret=analytics_token,type=env,target=ANALYTICS_TOKEN
 Volume=/run/postgresql:/run/postgresql:ro
+# nginx keeps request bodies and proxied answers there
+Tmpfs=/var/lib/nginx/tmp
 {% endif %}
 PublishPort=127.0.0.1:{{ service.ports[color] }}:2553
 ReadOnly=true
@@ -26,7 +28,6 @@ HealthRetries=3
 # App applies migrations before /health answers
 HealthStartPeriod=10m
 HealthOnFailure=kill
-Notify=healthy
 
 [Service]
 Restart=always

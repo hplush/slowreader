@@ -1,0 +1,12 @@
+[Unit]
+Description=Load software watchdog
+DefaultDependencies=no
+Before=sysinit.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/usr/sbin/modprobe softdog
+
+[Install]
+WantedBy=sysinit.target

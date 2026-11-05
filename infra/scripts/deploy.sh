@@ -16,11 +16,15 @@ remote() {
     -o HostKeyAlias=slowreader.app "deploy@${SERVER:-slowreader.app}" "$@"
 }
 
+echo "Touch hardware key to connect" >&2
 remote request "$VERSION"
+echo "Requested $VERSION, waiting for the server" >&2
 for _ in $(seq 120); do
   sleep 10
   remote status "$VERSION" > "$WORK/status"
   grep -qE '^slowreader-(app|proxy) wait$' "$WORK/status" || break
+  echo "Still waiting: $(grep -oE '^slowreader-(app|proxy) wait' "$WORK/status" \
+    | cut -d' ' -f1 | paste -sd' ' -)" >&2
 done
 cat "$WORK/status"
 if grep -qE '^slowreader-(app|proxy) (wait|fail)$' "$WORK/status"; then
