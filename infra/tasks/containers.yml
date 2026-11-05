@@ -52,8 +52,8 @@
   loop: '{{ services.keys() }}'
 
 - name: Install proxy firewall
-  ansible.builtin.copy:
-    src: proxy-firewall.nft
+  ansible.builtin.template:
+    src: proxy-firewall.nft.j2
     dest: /etc/nftables.d/proxy-firewall.nft
     mode: '0644'
   notify: Load proxy firewall

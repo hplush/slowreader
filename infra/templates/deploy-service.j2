@@ -60,8 +60,9 @@ if [ "${1:-}" = version ]; then
 
   # Not Notify=healthy: Podman holds the container lock while waiting
   if ! systemctl --user restart "$SERVICE-$NEW.service" ||
-    ! curl -fsS -o /dev/null --retry 600 --retry-all-errors --retry-delay 1 \
+    ! curl -fs -o /dev/null --retry 600 --retry-all-errors --retry-delay 1 \
       "http://127.0.0.1:${PORTS[$SERVICE-$NEW]}/health"; then
+    curl -fsS -o /dev/null -m 3 "http://127.0.0.1:${PORTS[$SERVICE-$NEW]}/health" || true
     systemctl --user status --no-pager "$SERVICE-$NEW.service" || true
     journalctl --user -u "$SERVICE-$NEW.service" -n 30 --no-pager || true
     systemctl --user stop "$SERVICE-$NEW.service"

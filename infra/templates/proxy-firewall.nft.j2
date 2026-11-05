@@ -1,6 +1,6 @@
+# {{ ansible_managed }}
 # Proxy loads any URL from users, so it must not reach our local services,
-# private networks, or Hetzner metadata. Rootless Podman sends container
-# traffic from the slowreader-proxy user’s pasta process.
+# private networks, or Hetzner metadata.
 
 table inet proxy_firewall
 delete table inet proxy_firewall
@@ -11,6 +11,8 @@ table inet proxy_firewall {
     meta skuid != "slowreader-proxy" accept
     # Answers to Caddy and VictoriaMetrics
     ct state established,related accept
+    # deploy-service checks health of proxy’s own ports
+    ip daddr 127.0.0.1 tcp dport { {{ services['slowreader-proxy'].ports.values() | join(', ') }} } accept
     # pasta sends container’s DNS to systemd-resolved
     ip daddr 127.0.0.53 meta l4proto { tcp, udp } th dport 53 accept
     ip daddr {
