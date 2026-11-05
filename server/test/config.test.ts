@@ -43,11 +43,6 @@ describe('server config', () => {
 
   test('checks analytics token', () => {
     equal(getConfig({}).analyticsToken, undefined)
-    deepEqual(getConfig({}).analyticsIps, [])
-    deepEqual(
-      getConfig({ ANALYTICS_IPS: ' 1.1.1.1, 2606:4700::1111,' }).analyticsIps,
-      ['1.1.1.1', '2606:4700::1111']
-    )
     throws(() => {
       getConfig({ ANALYTICS_TOKEN: 'short' })
     }, /ANALYTICS_TOKEN/)
@@ -78,7 +73,6 @@ describe('server config', () => {
   test('passes keys', () => {
     deepEqual(
       getConfig({
-        ANALYTICS_IPS: '1.1.1.1',
         ANALYTICS_TOKEN: 'T'.repeat(32),
         DATABASE_CA: 'PEM',
         DATABASE_URL,
@@ -89,7 +83,6 @@ describe('server config', () => {
         WEB_ORIGIN: 'https://slowreader.app/'
       }),
       {
-        analyticsIps: ['1.1.1.1'],
         analyticsToken: 'T'.repeat(32),
         db: DATABASE_URL,
         dbCa: 'PEM',

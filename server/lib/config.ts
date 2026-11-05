@@ -2,7 +2,6 @@ import { DEFAULT_PROXY_CONFIG } from '@slowreader/proxy'
 import { join } from 'node:path'
 
 export type Config = {
-  analyticsIps: string[]
   analyticsToken: string | undefined
   db: string
   dbCa: string | undefined
@@ -48,10 +47,6 @@ export function getConfig(from: Record<string, string | undefined>): Config {
     throw new Error('ANALYTICS_TOKEN must have at least 32 symbols')
   }
   return {
-    analyticsIps: (from.ANALYTICS_IPS ?? '')
-      .split(',')
-      .map(i => i.trim())
-      .filter(i => i !== ''),
     analyticsToken: from.ANALYTICS_TOKEN,
     db: from.DATABASE_URL ?? getDefaultDatabase(env),
     dbCa: from.DATABASE_CA,

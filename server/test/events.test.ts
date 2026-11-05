@@ -2,13 +2,12 @@ import { sendEvents } from '@slowreader/api'
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, describe, test } from 'node:test'
 
-import { db, events } from '../db/index.ts'
+import { eventCounts } from '../lib/metrics.ts'
 import eventsModule from '../modules/events.ts'
 import { buildTestServer, cleanAllTables, emptyTestServer } from './utils.ts'
 
-async function counts(): Promise<Record<string, number>> {
-  let rows = await db.select().from(events)
-  return Object.fromEntries(rows.map(i => [i.name, i.count]))
+function counts(): Record<string, number> {
+  return Object.fromEntries(eventCounts)
 }
 
 function post(
@@ -42,7 +41,7 @@ describe('server events', () => {
     equal(response.status, 200)
     deepEqual(await response.json(), {})
     await post(server, { events: ['fatal-crash', 'fatal-crash'] })
-    deepEqual(await counts(), { 'fatal-crash': 2, 'fatal-noDb': 1 })
+    deepEqual(counts(), { 'fatal-crash': 2, 'fatal-noDb': 1 })
   })
 
   test('accepts only known events', async () => {
@@ -55,7 +54,7 @@ describe('server events', () => {
       (await post(server, { events: ['fatal-crash'], userId: '1' })).status,
       400
     )
-    deepEqual(await counts(), {})
+    deepEqual(counts(), {})
   })
 
   test('limits requests by IP', async () => {
@@ -64,6 +63,6 @@ describe('server events', () => {
       equal((await post(server, { events: ['fatal-crash'] })).status, 200)
     }
     equal((await post(server, { events: ['fatal-crash'] })).status, 429)
-    deepEqual(await counts(), { 'fatal-crash': 20 })
+    deepEqual(counts(), { 'fatal-crash': 20 })
   })
 })

@@ -6,6 +6,7 @@ import { db, dbDriver } from './db/index.ts'
 import * as tables from './db/schema.ts'
 import { config } from './lib/config.ts'
 import { resetLimits } from './lib/limits.ts'
+import { eventCounts } from './lib/metrics.ts'
 import type { ClientData } from './lib/types.ts'
 import authModule from './modules/auth.ts'
 import eventsModule from './modules/events.ts'
@@ -34,6 +35,7 @@ export async function cleanSessions(): Promise<void> {
 
 export async function cleanAllTables(): Promise<void> {
   resetLimits()
+  eventCounts.clear()
   await Promise.all([
     store.clean(),
     ...Object.values(tables).map(async table => {

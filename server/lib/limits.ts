@@ -70,7 +70,7 @@ export const failedByUser = createCounter(10, FAILED_WINDOW)
 
 export const failedByIp = createCounter(10, FAILED_WINDOW)
 
-export const failedAnalytics = createCounter(10, FAILED_WINDOW)
+export const failedMetrics = createCounter(10, FAILED_WINDOW)
 
 export const eventsByIp = createCounter(20, 60 * 1000)
 
@@ -109,6 +109,6 @@ export function resetLimits(): void {
   anonymousChallenges.clear()
   failedByUser.clear()
   failedByIp.clear()
-  failedAnalytics.clear()
+  failedMetrics.clear()
   eventsByIp.clear()
 }

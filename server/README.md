@@ -32,8 +32,6 @@ It allows us to verify that client and server use the same API.
 
 We are using PostgreSQL database to store credentials and user’s log. For development, we are using [pglite](https://github.com/electric-sql/pglite) to work with PostgreSQL without running a separated DB service. For tests, we are using in-memory pglite.
 
-Server takes database credentials from `DATABASE_URL` environment variable. In additional to PostgreSQL URL schema, server supports pglite’s `file://` and `memory://`. Set `DATABASE_CA` with the server’s PEM certificate to verify TLS connection to the database.
-
 To use SQL with TypeScript we are using [Drizzle](https://orm.drizzle.team/docs/overview).
 
 To change database schema:
@@ -48,15 +46,13 @@ You can see local database content by running:
 pnpm -F server database
 ```
 
-## Analytics
+## Metrics
 
-Analytics works only with `ANALYTICS_TOKEN` environment variable.
+Metrics work only with `ANALYTICS_TOKEN` environment variable.
 
-Clients send anonymous events from [`api/events.ts`](../api/events.ts) by `POST /events`. The server adds them to daily totals in `events` table. Every event must be described in [`docs/experiments.md`](../docs/experiments.md).
+Clients send anonymous events from [`api/events.ts`](../api/events.ts) by `POST /events`. The server counts them in memory. Every event must be described in [`docs/experiments.md`](../docs/experiments.md).
 
-Every day the server also saves totals of users, DAU/MAU, browsers, and passkeys to `analytics` table.
-
-`GET /analytics` with `Authorization: Bearer TOKEN` returns everything: current stats in `now`, daily totals in `history`, and daily event totals in `events`. `ANALYTICS_IPS` limits it to listed client IPs.
+`GET /metrics` with `Authorization: Bearer TOKEN` returns Prometheus metrics: users, DAU/MAU, online users, browsers, OS, passkeys, and events counters. The server keeps no history: our VictoriaMetrics saves it.
 
 ## Log Retention
 

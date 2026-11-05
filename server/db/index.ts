@@ -32,10 +32,19 @@ let tls = config.dbCa
   ? { ssl: { ca: config.dbCa, checkServerIdentity: () => undefined } }
   : {}
 
+// postgres.js ignores libpq’s `?host=/run/postgresql` for Unix socket
+// and sends unknown query parameters to the database as settings
+function connectPostgres(options: { max?: number } = {}): postgres.Sql {
+  let url = new URL(config.db)
+  let socket = url.searchParams.get('host') ?? undefined
+  url.searchParams.delete('host')
+  return postgres(url.href, { ...tls, ...options, host: socket })
+}
+
 export const dbDriver =
   config.db.startsWith('memory://') || config.db.startsWith('file://')
     ? new PGlite(config.db, { debug: config.debug ? 5 : undefined })
-    : postgres(config.db, tls)
+    : connectPostgres()
 
 export const db: PgAsyncDatabase<PgQueryResultHKT, typeof relations> =
   dbDriver instanceof PGlite
@@ -49,7 +58,7 @@ export function closeDb(): Promise<void> {
 if (dbDriver instanceof PGlite) {
   await pgliteMigrate(pgliteDrizzle({ client: dbDriver }), MIGRATE_CONFIG)
 } else {
-  let migrator = postgres(config.db, { ...tls, max: 1 })
+  let migrator = connectPostgres({ max: 1 })
   await postgresMigrate(postgresDrizzle({ client: migrator }), MIGRATE_CONFIG)
   await migrator.end()
 }

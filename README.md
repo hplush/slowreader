@@ -327,14 +327,13 @@ The build is reproducible: anyone can build the same image from the same commit 
 - `ROLE`: chooses the [part](#parts): `app` or `proxy`.
 - `STAGING`: hides the web client from search engines.
 - `BEHIND_BALANCER`: takes the client’s IP from the last public address in `X-Forwarded-For`, so the balancer must be in a private network.
-- `DATABASE_URL`: PostgreSQL credentials with support of pglite’s `file://` and `memory://` schemas.
+- `DATABASE_URL`: PostgreSQL credentials with support of pglite’s `file://` and `memory://` schemas. Use `?host=/run/postgresql` to connect by Unix socket.
 - `DATABASE_CA`: PEM certificate of the PostgreSQL server to verify its TLS certificate. Without it, `sslmode=require` encrypts the connection but trusts any certificate.
 - `WEB_ORIGIN`: exact origin of the web client like `https://slowreader.app` for CORS and passkeys. Passkeys work only on this domain. You must set it when `NODE_ENV=production`.
 - `PROXY_ORIGIN`: RegExp to check `Origin` header in CORS proxy. Without `ROLE` it enables built-in proxy. You must set it with `ROLE=proxy`.
 - `PROXY_MAX_MEDIA_SIZE`: max size in MB of images and videos, which the proxy loads for offline reading. 100 by default.
 - `PORT`: HTTP port to listen.
-- `ANALYTICS_TOKEN`: at least 32 symbols to enable [usage statistics](./server/README.md#analytics).
-- `ANALYTICS_IPS`: comma-separated IPs allowed to read usage statistics. Any IP by default.
+- `ANALYTICS_TOKEN`: at least 32 symbols to enable [usage metrics](./server/README.md#metrics).
 
 ### Environments
 

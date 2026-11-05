@@ -9,9 +9,9 @@ export const SUBPROTOCOL = 2
 export const VERSION = '0.20261102.1'
 
 export * from './events.ts'
-export * from './http/analytics.ts'
 export * from './http/common.ts'
 export * from './http/events.ts'
+export * from './http/metrics.ts'
 export * from './http/new-password.ts'
 export * from './http/passkey-challenge.ts'
 export * from './http/password-locked-key.ts'
