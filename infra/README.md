@@ -278,9 +278,8 @@ sudo passwd ai
 ### Backup Bucket
 
 1. In [Scaleway console](https://console.scaleway.com/) open **Object Storage** → **Create bucket**.
-2. Select `Paris` (`fr-par`) region, enter `slowreader-backups` name, select **Private** visibility, and enable **Object Lock** (it enables versioning too).
-3. Enable bucket encryption with Scaleway-managed keys (**SSE-ONE**). pgBackRest already encrypts the files, so it is only the second layer. Don’t use own keys (**SSE-KMS**): deleted key would make backups unreadable.
-4. Lock every new file for 14 days, so even our hacked server can’t delete backups. Console can’t set it, so create a 1 hour API key for your user and run in Dev Container:
+2. Select `Paris` (`fr-par`) region, enter `slowreader-backups` name, select **Private** visibility, **Enable bucket encryption** (with **SSE-ONE**) and enable **Object Lock** (it enables versioning too).
+3. Lock every new file for 14 days, so even our hacked server can’t delete backups. Console can’t set it, so create a 1 hour API key for your user and run in Dev Container:
 
    ```sh
    read -rs KEY
@@ -292,9 +291,9 @@ sudo passwd ai
 
    Console shows **Compliance for 14 days** in **Object lock** of bucket’s settings.
 
-5. In **Lifecycle rules** add `delete-old-versions` rule for all objects with **Expire non-current versions of objects** after **15** days and **Expire incomplete multipart uploads** after **1** day.
-6. Create `backup` IAM application with policy for `Slow Reader` project: **Object Storage** → `ObjectStorageObjectsDelete`, `ObjectStorageObjectsRead`, `ObjectStorageObjectsWrite`, `ObjectStorageBucketsRead`.
-7. Create API key for `backup` application without expiration. Keep the window open for the next section.
+4. In **Lifecycle rules** add `delete-old-versions` rule for all objects with **Expire non-current versions of objects** after **15** days and **Expire incomplete multipart uploads** after **1** day.
+5. Create `backup` IAM application with policy for `Slow Reader` project: **Object Storage** → `ObjectStorageObjectsDelete`, `ObjectStorageObjectsRead`, `ObjectStorageObjectsWrite`, `ObjectStorageBucketsRead`.
+6. Create API key for `backup` application without expiration. Keep the window open for the next section.
 
 ### Secrets
 
