@@ -5,6 +5,7 @@
   },
   "proxy.slowreader.app": {
     "hidden": true,
+    "observatory": false,
     "paths": []
   },
   "dev.slowreader.app": {

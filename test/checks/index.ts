@@ -22,7 +22,11 @@ let pages = Object.entries(sites).flatMap(([host, site]) =>
 )
 
 let results = [
-  await checkObservatory(hosts),
+  await checkObservatory(
+    Object.entries(sites)
+      .filter(([, site]) => site.observatory !== false)
+      .map(([host]) => host)
+  ),
   await checkLighthouse(sites),
   await checkHttp3(hosts, pages),
   await checkDnsHealth(hosts),

@@ -4,6 +4,7 @@ import { styleText } from 'node:util'
 
 export interface Site {
   hidden: boolean
+  observatory?: false
   paths: string[]
 }
 
