@@ -4,6 +4,7 @@ import { styleText } from 'node:util'
 
 export interface Site {
   hidden: boolean
+  ignoreAudits?: Record<string, string[]>
   observatory?: false
   paths: string[]
 }

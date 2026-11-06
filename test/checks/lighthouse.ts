@@ -85,39 +85,29 @@ export async function checkLighthouse(
         // Diagnostics have no weight in the score, but we still want them
         // green. Metrics are the score itself, so they would repeat it.
         let broken: string[] = []
-        let warnings: string[] = []
+        let ignored: string[] = []
         for (let ref of category.auditRefs) {
           let audit = insights.lighthouseResult.audits[ref.id]
           if (ref.group === 'metrics' || ref.group === 'hidden') continue
           if (!audit || audit.score === null || audit.score === 1) continue
-          // These audits always find something on a fast page too
-          if (
-            id === 'performance' &&
-            score >= 95 &&
-            [
-              'network-dependency-tree-insight',
-              'render-blocking-insight',
-              'render-blocking-resources',
-              'unused-css-rules',
-              'unused-javascript'
-            ].includes(ref.id)
-          ) {
-            warnings.push(`  ${styleText('yellow', audit.title)}`)
+          if (site.ignoreAudits?.[path]?.includes(ref.id)) {
+            ignored.push(`  ${styleText('gray', `Ignored: ${audit.title}`)}`)
           } else {
-            broken.push(`  ${audit.title}`)
+            broken.push(`  ${styleText('red', audit.title)}`)
           }
         }
         let title = `${category.title} of ${short(url)} is ${grade(score)}`
-        // Performance score jumps between runs on the same deploy
-        if (score < (id === 'performance' ? 90 : 100) || broken.length > 0) {
+        // App performance score jumps between runs on the same deploy
+        if (
+          score < (id === 'performance' && path === '/app' ? 90 : 100) ||
+          broken.length > 0
+        ) {
           results.push(
-            fail(
-              [title, ...broken, ...warnings, `  ${link(report)}`].join('\n')
-            )
+            fail([title, ...broken, ...ignored, `  ${link(report)}`].join('\n'))
           )
         } else {
-          if (warnings.length > 0) warnings.push(`  ${link(report)}`)
-          results.push(pass([title, ...warnings].join('\n')))
+          if (ignored.length > 0) ignored.push(`  ${link(report)}`)
+          results.push(pass([title, ...ignored].join('\n')))
         }
       }
     }

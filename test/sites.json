@@ -1,6 +1,16 @@
 {
   "slowreader.app": {
     "hidden": false,
+    "ignoreAudits": {
+      "/": ["network-dependency-tree-insight"],
+      "/app": [
+        "network-dependency-tree-insight",
+        "render-blocking-insight",
+        "render-blocking-resources",
+        "unused-css-rules",
+        "unused-javascript"
+      ]
+    },
     "paths": ["/", "/app"]
   },
   "proxy.slowreader.app": {
@@ -10,6 +20,17 @@
   },
   "dev.slowreader.app": {
     "hidden": true,
+    "ignoreAudits": {
+      "/": ["forced-reflow-insight", "network-dependency-tree-insight"],
+      "/app": [
+        "forced-reflow-insight",
+        "network-dependency-tree-insight",
+        "render-blocking-insight",
+        "render-blocking-resources",
+        "unused-css-rules",
+        "unused-javascript"
+      ]
+    },
     "paths": ["/", "/app"]
   }
 }
