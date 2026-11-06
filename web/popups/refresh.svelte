@@ -27,7 +27,7 @@
   import Loader from '../ui/loader.svelte'
   import PageIcon from '../ui/page-icon.svelte'
   import Popup from '../ui/popup.svelte'
-  import PostsNumbers from '../ui/posts-numbers.svelte'
+  import ReadingNumbers from '../ui/reading-numbers.svelte'
   import Stack from '../ui/stack.svelte'
   import Title from '../ui/title.svelte'
 </script>
@@ -73,8 +73,9 @@
           value={$refreshStatistics.initializing ? undefined : $refreshProgress}
         />
       </Stack>
-      <PostsNumbers
+      <ReadingNumbers
         fast={$refreshStatistics.foundFast}
+        note={$t.postsLoaded}
         slow={$refreshStatistics.foundSlow}
       />
       {#if $mediaStatistics.total > 0}

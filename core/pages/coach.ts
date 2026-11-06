@@ -2,6 +2,7 @@ import { atom, computed } from 'nanostores'
 
 import { nightLockState, unlockCurrentPage } from '../night-lock.ts'
 import { nightLock } from '../settings.ts'
+import { usageSum, usageTimeline } from '../usage.ts'
 import { createPage } from './common.ts'
 
 export const coachPage = createPage('coach', () => {
@@ -33,7 +34,9 @@ export const coachPage = createPage('coach', () => {
     nightLockEnabled: $nightLockEnabled,
     nightLockFrom: computed(nightLock, lock => lock.from),
     nightLockTo: computed(nightLock, lock => lock.to),
-    params: {}
+    params: {},
+    usageSum,
+    usageTimeline
   }
 })
 

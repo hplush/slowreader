@@ -29,6 +29,7 @@ import {
   type FeedReader,
   hasCloud,
   hasSources,
+  lastUsage,
   isDemo,
   type ListReader,
   type Loader,
@@ -69,10 +70,12 @@ import {
 export { setupNodeDom } from '../node.ts'
 export {
   checkAndRemoveRequestMock,
+  exitTestApp,
   expectRequest,
   getTestEnvironment,
   mockRequest,
   openRoute,
+  setTestVisibility,
   testHistory,
   testOAuthPages,
   testSession,
@@ -115,6 +118,7 @@ let testKey = await toEncryptionKey(new Uint8Array(32))
 
 export function setTestUser(enable = true): void {
   hasSources.set(undefined)
+  lastUsage.set(undefined)
   welcomeSteps.set(undefined)
   extensionState.set('missing')
   encryptionKeyLost.set(false)
@@ -249,6 +253,7 @@ export async function cleanClient(): Promise<void> {
   isDemo.set(false)
   await client.get()?.clean()
   client.set(undefined)
+  lastUsage.set(undefined)
   fatal.set(undefined)
   setLayoutType('desktop')
   unmountPopups()

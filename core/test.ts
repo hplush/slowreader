@@ -57,6 +57,24 @@ function toBaseRoute(route: {
   }
 }
 
+let testVisible = atom(true)
+
+let testExitListeners = new Set<() => void>()
+
+/**
+ * Show or hide the app, like on switching to another browser tab.
+ */
+export function setTestVisibility(visible: boolean): void {
+  testVisible.set(visible)
+}
+
+/**
+ * Close the app, like on closing the browser tab.
+ */
+export function exitTestApp(): void {
+  for (let listener of testExitListeners) listener()
+}
+
 let warningTracking: undefined | unknown[]
 
 export function setWarningTracking(tracking: undefined | unknown[]): void {
@@ -88,6 +106,8 @@ export function openRoute(route: TestRoute | undefined, replace = false): void {
 }
 
 export function getTestEnvironment(): Environment {
+  testVisible.set(true)
+  testExitListeners.clear()
   testSession = undefined
   testSignals = []
   testHistory = []
@@ -148,6 +168,15 @@ export function getTestEnvironment(): Environment {
       return { saveData: undefined, type: undefined }
     },
     oauthRedirect: 'http://127.0.0.1:2553/settings/accounts',
+    onExit(listener) {
+      testExitListeners.add(listener)
+      return () => {
+        testExitListeners.delete(listener)
+      }
+    },
+    onVisibilityChange(listener) {
+      return testVisible.subscribe(listener)
+    },
     openOAuthPage(url) {
       testOAuthPages.push(url)
       return new Promise(() => {})

@@ -25,6 +25,7 @@
     hasCloud,
     hasSources,
     isDemo,
+    lastUsage,
     mediaErrors,
     mediaStatistics,
     type NetworkType,
@@ -98,9 +99,8 @@
   } = $props()
 
   async function fillScene(): Promise<void> {
-    // Feeds page redirects to the first feed only once, so it must be
-    // opened after the data was added
     baseRouter.set({ hash: '', params: {}, route: 'about' })
+    lastUsage.set(undefined)
     if (user) await startLocalUser(testCredentials())
     // Waits for the database too, so the app will not reset `busy`
     // and other stores, which the story sets in `oninit()`

@@ -33,6 +33,7 @@ import {
   generateCredentials,
   getClient,
   getPostId,
+  getTables,
   lastReset,
   loadFeeds,
   loadPosts,
@@ -251,6 +252,21 @@ describe('log', () => {
     equal(entries.length, 1)
     equal(entries[0]![0].type, 'shadow')
     deepEqual(entries[0]![1].reasons, ['tombstone'])
+  })
+
+  test('keeps no tombstone for usages', async () => {
+    await signUpCloudUser()
+
+    let id = await getTables().usages.create({
+      from: 1,
+      to: 2,
+      type: 'slow'
+    })
+    await waitSync()
+    await getTables().usages.delete(id)
+    await waitSync()
+    await waitUntil(async () => (await getServerLogIds()).length === 0)
+    await waitUntil(async () => (await logEntries()).length === 0)
   })
 
   test('restores the tables from themselves on the schema change', async () => {

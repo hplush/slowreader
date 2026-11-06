@@ -15,7 +15,7 @@
     width = 'stretch',
     wrap = false
   }: {
-    align?: 'baseline' | 'center' | 'end' | 'start'
+    align?: 'baseline' | 'center' | 'end' | 'start' | 'stretch'
     children: Snippet
     controls?: string
     gap?: 'l' | 'm' | 's' | 'xl' | 'xs' | 'xxl'
@@ -38,6 +38,7 @@
   class:is-align-center={align === 'center'}
   class:is-align-end={align === 'end'}
   class:is-align-start={align === 'start'}
+  class:is-align-stretch={align === 'stretch'}
   class:is-comfort-mode={reading === 'slow'}
   class:is-gap-l={gap === 'l'}
   class:is-gap-m={gap === 'm'}
@@ -87,6 +88,10 @@
 
       &.is-align-baseline {
         align-items: baseline;
+      }
+
+      &.is-align-stretch {
+        align-items: stretch;
       }
 
       &.is-justify-center {

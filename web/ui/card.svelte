@@ -4,11 +4,13 @@
   let {
     children,
     padding = 'normal',
-    variant = 'main'
+    variant = 'main',
+    width = 'auto'
   }: {
     children: Snippet
     padding?: 'no-top' | 'normal'
     variant?: 'main' | 'transparent'
+    width?: 'auto' | 'stretch'
   } = $props()
 </script>
 
@@ -16,6 +18,7 @@
   class="card"
   class:is-main={variant === 'main'}
   class:is-no-top-padding={padding === 'no-top'}
+  class:is-stretch={width === 'stretch'}
 >
   {@render children()}
 </div>
@@ -36,6 +39,11 @@
 
       &.is-no-top-padding {
         padding-top: 0;
+      }
+
+      &.is-stretch {
+        align-self: stretch;
+        margin-inline: -1rem;
       }
     }
   }

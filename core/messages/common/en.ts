@@ -20,6 +20,7 @@ export const commonMessages = i18n('common', {
   error451: 'Other server blocked it by the law',
   error5xx: 'Other server is not working',
   errorOther: params('Feed server error: {status}'),
+  fast: 'Fun',
   generalCategory: 'General',
   internalError: 'The app crashed. Please try again later while we fix it.',
   invalidCredentials: 'No user found with this credentials',
@@ -38,6 +39,7 @@ export const commonMessages = i18n('common', {
     'Your passkey provider can’t protect encrypted data. Sign in with password.',
   popupNotFound: 'Not found',
   quotaError: 'Not enough disk space',
+  slow: 'Useful',
   signingOut: 'Signing out',
   tooManyRequests: 'Too many attempts. Please try again later.',
   unknownPasskey:

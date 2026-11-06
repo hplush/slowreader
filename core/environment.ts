@@ -197,6 +197,17 @@ export interface Environment {
   oauthRedirect: string
 
   /**
+   * Call the listener before the page will be closed or unloaded.
+   */
+  onExit(listener: () => void): () => void
+
+  /**
+   * Call the listener with the current visibility of the app
+   * and on every change, like on switching to another tab.
+   */
+  onVisibilityChange(listener: (visible: boolean) => void): () => void
+
+  /**
    * Open OAuth sign in page of the service and return the fragment
    * of the callback URL or `undefined` if user closed the page.
    */
@@ -322,6 +333,8 @@ export function setupEnvironment<Router extends BaseRouter>(
     mediaCache: env.mediaCache,
     networkType: env.networkType,
     oauthRedirect: env.oauthRedirect,
+    onExit: env.onExit,
+    onVisibilityChange: env.onVisibilityChange,
     openOAuthPage: env.openOAuthPage,
     openRoute: env.openRoute,
     passkeySupport: env.passkeySupport,

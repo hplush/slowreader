@@ -262,8 +262,13 @@ export function trackLog(logux: Client, crdt: CrdtDatabase): LogTracker {
       if (rows.length === 0) return
       let indexes = rows.map(row => `${plural}/${row[0]}`)
       if (verb === 'deleted') {
-        meta.indexes = ['tombstone', ...indexes]
-        meta.reasons.push('tombstone')
+        // Every device deletes old usages by itself
+        if (plural === 'usages') {
+          meta.indexes = indexes
+        } else {
+          meta.indexes = ['tombstone', ...indexes]
+          meta.reasons.push('tombstone')
+        }
       } else {
         for (let [id, fields] of rows) {
           for (let cell of cellsOf(fields)) {

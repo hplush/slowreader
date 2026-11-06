@@ -21,8 +21,8 @@ import {
   string
 } from '@logux/client/db'
 import type { Action, MetaTime } from '@logux/core'
-import type { Database } from '@nanostores/sql'
-import { atom, effect } from 'nanostores'
+import type { Database, SqlStoreValue } from '@nanostores/sql'
+import { atom, effect, onMount, type ReadableAtom } from 'nanostores'
 
 import { busyDuring } from './busy.ts'
 import {
@@ -303,12 +303,23 @@ export const settingsTable = defineCrdtTable('settings', {
   showSensitiveMedia: optional(boolean())
 })
 
+export const usagesTable = defineCrdtTable(
+  'usages',
+  {
+    from: bigint(),
+    to: bigint(),
+    type: oneOf(READINGS)
+  },
+  ['to']
+)
+
 type AccountsSchema = typeof accountsTable.schema
 type CategoriesSchema = typeof categoriesTable.schema
 type FeedsSchema = typeof feedsTable.schema
 type FiltersSchema = typeof filtersTable.schema
 type PostsSchema = typeof postsTable.schema
 type SettingsSchema = typeof settingsTable.schema
+type UsagesSchema = typeof usagesTable.schema
 
 export type AccountValue = CrdtTableRow<AccountsSchema>
 export type CategoryValue = CrdtTableRow<CategoriesSchema>
@@ -316,6 +327,7 @@ export type FeedValue = CrdtTableRow<FeedsSchema>
 export type FilterValue = CrdtTableRow<FiltersSchema>
 export type PostValue = CrdtTableRow<PostsSchema>
 export type SettingsValue = CrdtTableRow<SettingsSchema>
+export type UsageValue = CrdtTableRow<UsagesSchema>
 
 export type NewAccount = NewCrdtRow<AccountsSchema>
 export type NewCategory = NewCrdtRow<CategoriesSchema>
@@ -337,6 +349,7 @@ export interface Tables {
   filters: CrdtTable<FiltersSchema>
   posts: CrdtTable<PostsSchema>
   settings: CrdtTable<SettingsSchema>
+  usages: CrdtTable<UsagesSchema>
 }
 
 let currentCrdt: CrdtDatabase | undefined
@@ -386,6 +399,34 @@ export function hasDatabase(): boolean {
  * on sign in and sign out.
  */
 export const openedDatabase = atom<Database | undefined>()
+
+/**
+ * Store of the query on the current user’s database. It is `undefined`
+ * while the query is loading and re-runs the query on sign in and sign out.
+ */
+export function lazyDbQuery<Value>(
+  query: (db: Database) => ReadableAtom<SqlStoreValue<Value>>
+): ReadableAtom<undefined | Value>
+export function lazyDbQuery<Value, Result>(
+  query: (db: Database) => ReadableAtom<SqlStoreValue<Value>>,
+  map: (value: Value) => Result
+): ReadableAtom<Result | undefined>
+export function lazyDbQuery(
+  query: (db: Database) => ReadableAtom<SqlStoreValue>,
+  map = (value: unknown): unknown => value
+): ReadableAtom<unknown> {
+  let $result = atom<unknown>()
+  onMount($result, () =>
+    effect(openedDatabase, db => {
+      $result.set(undefined)
+      if (!db) return
+      return query(db).subscribe(value => {
+        $result.set(value.status === 'ready' ? map(value.value) : undefined)
+      })
+    })
+  )
+  return $result
+}
 
 /**
  * Database of the current user for queries across few tables.
@@ -487,7 +528,8 @@ async function uploadLocalData(logux: CrossTabClient): Promise<void> {
     tables.feeds,
     tables.filters,
     tables.posts,
-    tables.settings
+    tables.settings,
+    tables.usages
   ])
   if (actions.length > 0) {
     await busyDuring(
@@ -607,7 +649,8 @@ function openDatabase(logux: CrossTabClient, db: Database): void {
     feeds: crdt.table(feedsTable),
     filters: crdt.table(filtersTable),
     posts: crdt.table(postsTable),
-    settings: crdt.table(settingsTable)
+    settings: crdt.table(settingsTable),
+    usages: crdt.table(usagesTable)
   }
   // The tracker parses actions by the tables, so it is installed after them
   if (cloud) currentTracker = trackLog(logux, crdt)

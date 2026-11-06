@@ -1,8 +1,14 @@
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
-import { clock, nightLock, solveNightTask } from '../../index.ts'
-import { cleanClient, openPage, openRoute, startClient } from '../utils.ts'
+import { clock, getTables, nightLock, solveNightTask } from '../../index.ts'
+import {
+  cleanClient,
+  openPage,
+  openRoute,
+  startClient,
+  waitFor
+} from '../utils.ts'
 
 describe('coach page', () => {
   let unbindClock = (): void => {}
@@ -58,5 +64,41 @@ describe('coach page', () => {
     openRoute({ params: {}, route: 'about' })
     page = openPage({ params: {}, route: 'coach' })
     equal(page.locked.get().locked, true)
+  })
+
+  test('shows usage of the last 24 hours', async () => {
+    let noon = new Date(2026, 0, 1, 12).getTime()
+    let hour = 60 * 60 * 1000
+    await getTables().usages.create([
+      { from: noon - 25 * hour, to: noon - 23 * hour, type: 'slow' },
+      { from: noon - 2 * hour, to: noon - 1.5 * hour, type: 'fast' }
+    ])
+    let page = openPage({ params: {}, route: 'coach' })
+    clock.set(new Date(noon))
+    await waitFor(page.usageTimeline, value => value.parts.length === 2)
+    deepEqual(page.usageSum.get(), { fast: 1800, slow: 3600 })
+    deepEqual(page.usageTimeline.get(), {
+      marks: [
+        { left: 25, time: noon - 18 * hour },
+        { left: 50, time: noon - 12 * hour },
+        { left: 75, time: noon - 6 * hour }
+      ],
+      parts: [
+        {
+          from: noon - 2 * hour,
+          left: ((22 * hour) / (24 * hour)) * 100,
+          to: noon - 1.5 * hour,
+          type: 'fast',
+          width: ((0.5 * hour) / (24 * hour)) * 100
+        },
+        {
+          from: noon - 24 * hour,
+          left: 0,
+          to: noon - 23 * hour,
+          type: 'slow',
+          width: (hour / (24 * hour)) * 100
+        }
+      ]
+    })
   })
 })

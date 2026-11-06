@@ -1,7 +1,7 @@
 import { withMeta, type WithoutMeta } from '@logux/client/db'
 import { formatter } from '@nanostores/i18n'
 import type { SqlStore } from '@nanostores/sql'
-import { atom, effect, onMount, type WritableAtom } from 'nanostores'
+import type { ReadableAtom } from 'nanostores'
 
 import { loadFeed } from './feed.ts'
 import { loadFilterChecker } from './filter.ts'
@@ -15,11 +15,11 @@ import {
 import { truncateText } from './lib/text.ts'
 import type { LoaderName } from './loader/index.ts'
 import {
+  lazyDbQuery,
   getCrdt,
   getTables,
   type MediaSize,
   type NewPost,
-  openedDatabase,
   type PostAuthor,
   type PostChanges,
   type PostMedia,
@@ -575,31 +575,20 @@ export function testPost(
 }
 
 function countPosts(
-  store: WritableAtom<number | undefined>,
   reading: PostValue['reading']
-): () => void {
-  return effect(openedDatabase, db => {
-    store.set(undefined)
-    if (!db) return
-    let $total = db.store<{ total: number }>`
+): ReadableAtom<number | undefined> {
+  return lazyDbQuery(
+    db => db.store<{ total: number }>`
       SELECT COUNT("originId") AS "total" FROM "posts"
       WHERE "reading" = ${reading}
-    `
-    return $total.subscribe(value => {
-      store.set(value.status === 'loading' ? undefined : value.value[0]!.total)
-    })
-  })
+    `,
+    rows => rows[0]!.total
+  )
 }
 
-export const fastPostsCount = atom<number | undefined>(undefined)
-onMount(fastPostsCount, () => {
-  return countPosts(fastPostsCount, 'fast')
-})
+export const fastPostsCount = countPosts('fast')
 
-export const slowPostsCount = atom<number | undefined>(undefined)
-onMount(slowPostsCount, () => {
-  return countPosts(slowPostsCount, 'slow')
-})
+export const slowPostsCount = countPosts('slow')
 
 export function uniqueMedia(media: PostMedia[]): PostMedia[] | undefined {
   if (media.length === 0) return undefined

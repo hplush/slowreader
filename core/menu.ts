@@ -5,7 +5,7 @@ import {
 } from '@logux/client'
 import { parseCrdtRows } from '@logux/client/db'
 import { persistentAtom } from '@nanostores/persistent'
-import { atom, computed, effect, keepMount, onMount } from 'nanostores'
+import { atom, computed, effect, keepMount } from 'nanostores'
 
 import { busyDuring } from './busy.ts'
 import { client, onClient } from './client.ts'
@@ -22,8 +22,8 @@ import {
   filtersTable,
   GENERAL_CATEGORY,
   getCrdt,
-  getTableActions,
-  openedDatabase
+  lazyDbQuery,
+  getTableActions
 } from './schema.ts'
 
 export const FEED_ROUTES = [
@@ -504,30 +504,20 @@ onClient(logux => {
  * The query is subscribed only while the menu is rendered and is re-created
  * on the database of the new user.
  */
-let $unread = atom<undefined | UnreadCounts>()
-
-onMount($unread, () =>
-  effect(openedDatabase, db => {
-    $unread.set(undefined)
-    if (!db) return
-    let store = db.store<UnreadCount>`
-      SELECT "feedId", "accountId", "reading", COUNT("originId") AS "unread"
-      FROM "posts"
-      WHERE "read" = 0 AND "merged" = 0 AND "reading" IN ('fast', 'slow')
-      GROUP BY "feedId", "accountId", "reading"
-    `
-    return store.subscribe(rows => {
-      if (rows.status === 'loading') {
-        $unread.set(undefined)
-      } else {
-        let counts: UnreadCounts = { fast: new Map(), slow: new Map() }
-        for (let row of rows.value) {
-          counts[row.reading].set(row.feedId ?? row.accountId!, row.unread)
-        }
-        $unread.set(counts)
-      }
-    })
-  })
+let $unread = lazyDbQuery(
+  db => db.store<UnreadCount>`
+    SELECT "feedId", "accountId", "reading", COUNT("originId") AS "unread"
+    FROM "posts"
+    WHERE "read" = 0 AND "merged" = 0 AND "reading" IN ('fast', 'slow')
+    GROUP BY "feedId", "accountId", "reading"
+  `,
+  (rows): UnreadCounts => {
+    let counts: UnreadCounts = { fast: new Map(), slow: new Map() }
+    for (let row of rows) {
+      counts[row.reading].set(row.feedId ?? row.accountId!, row.unread)
+    }
+    return counts
+  }
 )
 
 let $tree = computed($state, buildTree)

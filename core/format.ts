@@ -112,6 +112,14 @@ export function formatHour(format: Formatter, hour: number): string {
   return format.time(new Date(2000, 0, 1, hour), { timeStyle: 'short' })
 }
 
+export function formatShortHour(format: Formatter, time: number): string {
+  return format.time(new Date(time), { hour: 'numeric' })
+}
+
+export function formatTime(format: Formatter, time: number): string {
+  return format.time(new Date(time), { timeStyle: 'short' })
+}
+
 function pad(value: number): string {
   return String(value).padStart(2, '0')
 }

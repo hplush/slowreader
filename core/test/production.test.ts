@@ -11,8 +11,8 @@ describe('production', () => {
   global.WebSocket = function () {} as any
 
   afterEach(() => {
-    cleanStores(client)
     setTestUser(false)
+    cleanStores(client)
   })
 
   test('uses real server in production', () => {

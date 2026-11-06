@@ -109,6 +109,22 @@ setupEnvironment({
   mediaCache,
   networkType: detectNetworkType,
   oauthRedirect: location.origin + getURL('accounts'),
+  onExit(listener) {
+    window.addEventListener('pagehide', listener)
+    return () => {
+      window.removeEventListener('pagehide', listener)
+    }
+  },
+  onVisibilityChange(listener) {
+    function update(): void {
+      listener(!document.hidden)
+    }
+    update()
+    document.addEventListener('visibilitychange', update)
+    return () => {
+      document.removeEventListener('visibilitychange', update)
+    }
+  },
   openOAuthPage(url) {
     location.assign(url)
     return new Promise(() => {})

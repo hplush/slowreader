@@ -8,7 +8,9 @@ import {
   formatHour,
   formatPublishedAt,
   formatRelativeTime,
+  formatShortHour,
   formatSize,
+  formatTime,
   formatTimeShort,
   humanizeUrl
 } from '../format.ts'
@@ -21,6 +23,7 @@ describe('format', () => {
       relativeTime: (num, unit) => `${num} ${unit}`,
       time: (date, opts) => {
         let d = date instanceof Date ? date : new Date(date ?? 0)
+        if (opts?.hour) return 'hour'
         if (opts?.timeStyle && !opts.dateStyle) return 'time'
         if (opts?.dateStyle && !opts.timeStyle) return 'date'
         return d.toISOString()
@@ -123,6 +126,16 @@ describe('format', () => {
   test('formats hour as short time', () => {
     let format = createMockFormatter()
     equal(formatHour(format, 23), 'time')
+  })
+
+  test('formats hour without minutes', () => {
+    let format = createMockFormatter()
+    equal(formatShortHour(format, Date.now()), 'hour')
+  })
+
+  test('formats timestamp as short time', () => {
+    let format = createMockFormatter()
+    equal(formatTime(format, Date.now()), 'time')
   })
 
   test('formats frequency in the biggest period', () => {
