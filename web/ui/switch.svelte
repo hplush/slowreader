@@ -50,7 +50,7 @@
 </script>
 
 <label class="switch">
-  <div class="switch_description">
+  <div class="switch_description" class:is-iconed={!!icon}>
     {#if icon}
       <Icon compensate={3} path={icon} />
     {/if}
@@ -114,7 +114,14 @@
       display: flex;
       gap: var(--control-gap);
       align-items: baseline;
-      padding: 0.4rem 0.25rem 0.4rem var(--control-padding);
+      padding: 0.4rem 0.25rem 0.4rem
+        calc(var(--control-padding) + var(--switch-diff) / 2 + 0.125rem);
+
+      &.is-iconed {
+        padding-inline-start: calc(
+          var(--control-padding) + var(--switch-diff) / 2
+        );
+      }
     }
 
     .switch_text {
