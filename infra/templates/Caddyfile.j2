@@ -40,6 +40,9 @@
 {{ service.domain }} {
 	@metrics path /metrics
 	respond @metrics 404
+{% if service.compress | default(false) %}
+	encode zstd gzip
+{% endif %}
 	# Only one color runs, except a few seconds of the deploy
 	reverse_proxy 127.0.0.1:{{ service.ports.blue }} 127.0.0.1:{{ service.ports.green }} {
 		lb_policy first

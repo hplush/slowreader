@@ -12,6 +12,7 @@
     services:
       slowreader-app:
         domain: '{{ domain }}'
+        compress: true
         memory: 512m
         ports: { blue: 2581, green: 2582 }
         systemd_exporter: 9581
