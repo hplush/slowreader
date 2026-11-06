@@ -1,11 +1,12 @@
 <script lang="ts">
-  import { mdiWeatherNight } from '@mdi/js'
+  import { mdiScaleBalance, mdiWeatherNight } from '@mdi/js'
   import {
     type CoachPage,
     formatDuration,
     formatHour,
     i18nFormat,
     settingsMessages,
+    showUsageBalance,
     solveNightTask,
     coachMessages as t
   } from '@slowreader/core'
@@ -54,6 +55,12 @@
             parts={$usageTimeline.parts}
           />
         </Stack>
+        <Switch
+          icon={mdiScaleBalance}
+          label={$t.showBalance}
+          note={$t.showBalanceNote}
+          store={showUsageBalance}
+        />
       </Stack>
     </Card>
     <Card width="stretch">

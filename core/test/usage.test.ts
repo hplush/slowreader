@@ -11,6 +11,8 @@ import {
   userId,
   type UsageValue,
   usage24hours,
+  usageBalance,
+  usageMood,
   usageSince
 } from '../index.ts'
 import {
@@ -237,5 +239,43 @@ describe('usage', () => {
       (await loadUsages()).map(row => row.id),
       ['phone', 'laptop']
     )
+  })
+
+  test('balances Useful and Fun', async t => {
+    await getTables().usages.create({
+      from: START - 10 * MINUTE,
+      id: 'useful',
+      to: START - 8 * MINUTE,
+      type: 'slow'
+    })
+    clock.set(new Date(START))
+    t.after(usageMood.listen(() => {}))
+    await waitFor(usage24hours, list => list?.length === 1)
+    function read(type: 'fast' | 'slow', minutes: number): void {
+      lastUsage.set({
+        created: true,
+        from: START - minutes * MINUTE,
+        id: 'last',
+        saved: START,
+        to: START,
+        type
+      })
+    }
+
+    read('fast', 2)
+    equal(usageBalance.get(), 0)
+    equal(usageMood.get(), 'good')
+
+    read('fast', 4)
+    equal(usageBalance.get(), 2 / 6)
+    equal(usageMood.get(), 'neutral')
+
+    read('fast', 10)
+    equal(usageBalance.get(), 8 / 12)
+    equal(usageMood.get(), 'bad')
+
+    read('slow', 10)
+    equal(usageBalance.get(), -1)
+    equal(usageMood.get(), 'good')
   })
 })

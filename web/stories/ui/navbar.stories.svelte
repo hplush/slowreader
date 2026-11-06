@@ -5,6 +5,7 @@
     closedCategories,
     DEFAULT_REFRESH_STATISTICS,
     type FeedValue,
+    getTables,
     mediaStatistics,
     type PostValue,
     refreshStatistics,
@@ -46,6 +47,19 @@
     },
     { categoryId: 'socials', id: 'bluesky', title: 'Bluesky' }
   ] satisfies Partial<FeedValue>[]
+  function addUsage(fast: number, slow: number): void {
+    let now = new Date(2026, 0, 1, 12).getTime()
+    let minute = 60 * 1000
+    void getTables().usages.create([
+      {
+        from: now - 120 * minute,
+        to: now - (120 - slow) * minute,
+        type: 'slow'
+      },
+      { from: now - 60 * minute, to: now - (60 - fast) * minute, type: 'fast' }
+    ])
+  }
+
   const POSTS = [
     { feedId: 'mozilla', reading: 'slow', title: 'New Firefox Release' },
     { feedId: 'mastadon', reading: 'slow', title: 'Trunk & Tidbits' },
@@ -63,6 +77,7 @@
   <Scene
     oninit={() => {
       syncStatus.set('wait')
+      addUsage(50, 10)
     }}
     route="fast"
   >
@@ -248,7 +263,11 @@
   globals={{ viewport: { value: 'mobile2' } }}
   parameters={{ layout: 'fullscreen' }}
 >
-  <Scene>
+  <Scene
+    oninit={() => {
+      addUsage(30, 20)
+    }}
+  >
     <Navbar />
   </Scene>
 </Story>

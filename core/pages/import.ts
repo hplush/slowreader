@@ -25,6 +25,7 @@ import {
   postFont,
   postLineHeight,
   showSensitiveMedia,
+  showUsageBalance,
   textSize,
   theme
 } from '../settings.ts'
@@ -193,6 +194,9 @@ export const importPage = createPage('import', () => {
     }
     if (settings.showSensitiveMedia !== undefined) {
       showSensitiveMedia.set(settings.showSensitiveMedia)
+    }
+    if (settings.showUsageBalance !== undefined) {
+      showUsageBalance.set(settings.showUsageBalance)
     }
 
     let done = startProgress(

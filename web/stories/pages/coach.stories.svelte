@@ -1,5 +1,10 @@
 <script context="module" lang="ts">
-  import { getTables, nightLock, pages } from '@slowreader/core'
+  import {
+    getTables,
+    nightLock,
+    pages,
+    showUsageBalance
+  } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import CoachPage from '../../pages/coach.svelte'
@@ -36,6 +41,7 @@
   <Scene
     oninit={() => {
       nightLock.set({ enabled: true, from: 22, to: 6 })
+      showUsageBalance.set(false)
       addUsage(new Date(2026, 0, 1, 12))
     }}
     route="coach"

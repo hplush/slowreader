@@ -16,6 +16,7 @@
 
   import { getPopupHash, getURL } from '../../stores/url-router.ts'
   import Announce from '../announce.svelte'
+  import NavbarBalance from '../navbar/balance.svelte'
   import NavbarButton from '../navbar/button.svelte'
   import NavbarFast from '../navbar/fast.svelte'
   import NavbarFireplace from '../navbar/fireplace.svelte'
@@ -123,6 +124,7 @@
       size="icon"
     />
   </div>
+  <NavbarBalance />
   {#if $layoutType === 'desktop'}
     <div
       id="navbar_submenu"

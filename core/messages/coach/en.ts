@@ -9,6 +9,8 @@ export const coachMessages = i18n('coach', {
   nightLockNote: 'Solve a math task to open Fun',
   locked: params('Fun feed is locked until {time}'),
   pageTitle: 'Coach',
+  showBalance: 'Show balance',
+  showBalanceNote: 'Smile near Useful and Fun menu',
   settingsLocked: params('Solve a task to change settings until {time}'),
   to: 'To',
   unlock: 'Unlock',

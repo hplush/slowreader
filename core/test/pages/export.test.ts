@@ -181,6 +181,7 @@ describe('export page', () => {
         postFont: 'default',
         postLineHeight: 'normal',
         showSensitiveMedia: false,
+        showUsageBalance: true,
         textSize: 100,
         theme: 'system',
         useQuietCursor: false,

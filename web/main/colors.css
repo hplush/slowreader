@@ -76,6 +76,7 @@
     --note-c: 0.03;
     --field-l: 0.025;
     --current-l: 0.025;
+    --balance-marker-l: -0.09;
     --opened-feed-l: 0.05;
     --placeholder-l: -0.06;
     --slider-hover-background: oklch(0 0 0 / 3%);
@@ -165,6 +166,7 @@
     --field-l: -0.05;
     --field-c: 0;
     --current-l: 0.15;
+    --balance-marker-l: 0.15;
     --opened-feed-l: 0.15;
     --placeholder-l: 0.15;
     --slider-hover-background: oklch(1 0 0 / 2%);

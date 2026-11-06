@@ -13,6 +13,7 @@ import {
   postFont,
   postLineHeight,
   showSensitiveMedia,
+  showUsageBalance,
   textSize,
   useQuietCursor,
   useReducedMotion
@@ -58,5 +59,9 @@ describe('settings', () => {
 
   test('has store for sensitive media settings', () => {
     equal(showSensitiveMedia.get(), false)
+  })
+
+  test('shows reading balance by default', () => {
+    equal(showUsageBalance.get(), true)
   })
 })

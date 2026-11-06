@@ -234,6 +234,24 @@ export const usageSum = computed(usage24hours, (sessions): UsageSum => {
   return sum
 })
 
+/**
+ * Fun against Useful for the last 24 hours from -1 (only Useful) to 1.
+ * The first minutes keep the middle, otherwise the first opened feed
+ * will throw the marker to the end.
+ */
+export const usageBalance = computed(usageSum, ({ fast, slow }) => {
+  if (fast + slow < 5 * 60) return 0
+  return (fast - slow) / (fast + slow)
+})
+
+export type UsageMood = 'bad' | 'good' | 'neutral'
+
+export const usageMood = computed(usageBalance, (balance): UsageMood => {
+  if (balance > 0.5) return 'bad'
+  if (balance > 0) return 'neutral'
+  return 'good'
+})
+
 export interface UsagePart {
   from: number
   left: number

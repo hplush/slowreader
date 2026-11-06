@@ -44,6 +44,7 @@
     refreshStatus,
     requestMethod,
     showSensitiveMedia,
+    showUsageBalance,
     signOut,
     startLocalUser,
     stopRefreshing,
@@ -228,6 +229,7 @@
     customPostFont.set('')
     showSensitiveMedia.set(false)
     openWarnings.set(false)
+    showUsageBalance.set(true)
     fastPostsMaxAge.set(604800)
     nightLock.set({ enabled: false, from: 23, to: 4 })
     cacheMediaReading.set('all')
