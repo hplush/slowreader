@@ -98,6 +98,7 @@ export async function checkLighthouse(
               'network-dependency-tree-insight',
               'render-blocking-insight',
               'render-blocking-resources',
+              'unused-css-rules',
               'unused-javascript'
             ].includes(ref.id)
           ) {
