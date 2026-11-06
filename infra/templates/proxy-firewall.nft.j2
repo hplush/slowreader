@@ -8,7 +8,13 @@ delete table inet proxy_firewall
 table inet proxy_firewall {
   chain output {
     type filter hook output priority filter; policy accept;
-    meta skuid != "slowreader-proxy" accept
+    # Kernel packets like IPv6 neighbor discovery have no socket, so they
+    # match neither `skuid ==` nor `skuid !=`. Only a positive match
+    # lets them pass by the policy.
+    meta skuid "slowreader-proxy" jump proxy
+  }
+
+  chain proxy {
     # Answers to Caddy and VictoriaMetrics
     ct state established,related accept
     # deploy-service checks health of proxy’s own ports
