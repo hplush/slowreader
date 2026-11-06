@@ -8,6 +8,7 @@ import {
   getTables,
   lastUsage,
   nightLock,
+  readUsefulRecently,
   userId,
   type UsageValue,
   usage24hours,
@@ -277,5 +278,31 @@ describe('usage', () => {
     read('slow', 10)
     equal(usageBalance.get(), -1)
     equal(usageMood.get(), 'good')
+  })
+
+  test('knows about recent Useful reading', async t => {
+    await getTables().usages.create({
+      from: START - 30 * MINUTE,
+      id: 'old',
+      to: START - 12 * MINUTE,
+      type: 'slow'
+    })
+    clock.set(new Date(START))
+    t.after(readUsefulRecently.listen(() => {}))
+    await waitFor(usage24hours, list => list?.length === 1)
+    equal(readUsefulRecently.get(), false)
+
+    lastUsage.set({
+      created: true,
+      from: START - 9 * MINUTE,
+      id: 'last',
+      saved: START,
+      to: START - 3 * MINUTE,
+      type: 'slow'
+    })
+    equal(readUsefulRecently.get(), true)
+
+    clock.set(new Date(START + 5 * MINUTE))
+    equal(readUsefulRecently.get(), false)
   })
 })

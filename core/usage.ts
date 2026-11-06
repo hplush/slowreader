@@ -244,6 +244,17 @@ export const usageBalance = computed(usageSum, ({ fast, slow }) => {
   return (fast - slow) / (fast + slow)
 })
 
+/**
+ * User, who has just read Useful, does not need a reminder to go there.
+ */
+export const readUsefulRecently = computed(
+  [usage24hours, clock],
+  (sessions, now) => {
+    let since = now.getTime() - 10 * 60_000
+    return usageSince(sessions ?? [], 'slow', since) > 5 * 60_000
+  }
+)
+
 export type UsageMood = 'bad' | 'good' | 'neutral'
 
 export const usageMood = computed(usageBalance, (balance): UsageMood => {
