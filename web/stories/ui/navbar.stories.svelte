@@ -10,6 +10,7 @@
     type PostValue,
     refreshStatistics,
     refreshStatus,
+    showUsageBalance,
     syncStatus
   } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
@@ -105,6 +106,7 @@
     feeds={FEEDS}
     oninit={() => {
       syncStatus.set('synchronizedAfterWait')
+      showUsageBalance.set(false)
     }}
     posts={POSTS}
   >
@@ -278,7 +280,11 @@
   globals={{ viewport: { value: 'tablet' } }}
   parameters={{ layout: 'fullscreen' }}
 >
-  <Scene>
+  <Scene
+    oninit={() => {
+      showUsageBalance.set(false)
+    }}
+  >
     <Navbar />
   </Scene>
 </Story>
