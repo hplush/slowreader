@@ -100,23 +100,23 @@
     "postcss-mixins": "12.1.2",
     "postcss-smooth-corners": "0.1.2",
     "postcss-smooth-shadow": "0.3.2",
-    "rollup": "4.66.0",
+    "rollup": "4.67.5",
     "sharp": "0.35.5",
     "storybook": "10.6.5",
     "svelte": "5.57.3",
-    "vite": "8.3.5"
+    "vite": "8.3.6"
   },
   "devDependencies": {
     "@size-limit/file": "14.3.0",
     "@types/trusted-types": "2.0.7",
     "browserslist": "4.29.5",
-    "chromatic": "18.13.4",
-    "eslint": "10.13.0",
+    "chromatic": "18.14.1",
+    "eslint": "10.14.0",
     "postcss-html": "2.0.0",
     "postcss-nesting": "14.0.3",
     "postcss-selector-parser": "7.1.7",
     "size-limit": "14.3.0",
-    "svelte-check": "4.7.7"
+    "svelte-check": "4.7.8"
   },
   "engines": {
     "node": "^26.13.0"

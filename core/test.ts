@@ -233,7 +233,6 @@ export class MockRequestError extends Error {
   constructor(message: string) {
     super(message)
     this.name = 'MockRequestError'
-    Error.captureStackTrace(this, MockRequestError)
   }
 }
 

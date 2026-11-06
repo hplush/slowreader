@@ -47,3 +47,7 @@ auditConfig:
   ignoreGhsas:
     # deepmerge has no fix, vite-plugin-svelte merges only our own config
     - GHSA-gcqx-w48m-w2h4
+
+permissions:
+  drizzle-kit:
+    skills: false

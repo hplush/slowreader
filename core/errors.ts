@@ -80,7 +80,6 @@ export class UserFacingError extends Error {
   constructor(text: string, opts?: ErrorOptions) {
     super(text, opts)
     this.name = 'UserFacingError'
-    Error.captureStackTrace(this, this.constructor)
   }
 }
 
@@ -93,7 +92,6 @@ export class ParseError extends Error {
     super(message)
     this.name = 'ParseError'
     this.input = input
-    Error.captureStackTrace(this, ParseError)
   }
 }
 
@@ -124,7 +122,6 @@ export class NetworkError extends Error {
   constructor(cause: Error) {
     super(getReason(cause), { cause })
     this.name = 'NetworkError'
-    Error.captureStackTrace(this, NetworkError)
   }
 }
 
@@ -177,7 +174,6 @@ export class HTTPStatusError extends Error {
     this.response = response
     this.headers = headers
     this.name = 'HTTPStatusError'
-    Error.captureStackTrace(this, HTTPStatusError)
   }
 }
 
@@ -192,7 +188,6 @@ export class NotFoundError extends Error {
   constructor(options?: ErrorOptions) {
     super('Not found', options)
     this.name = 'NotFoundError'
-    Error.captureStackTrace(this, NotFoundError)
   }
 }
 
