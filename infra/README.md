@@ -73,7 +73,7 @@ It keeps app’s `/metrics` for 10 years and server tech metrics (node, PostgreS
 
 ### Backups
 
-pgBackRest encrypts the database on the server and uploads it to `slowreader-backups` bucket in Scaleway Object Storage.
+pgBackRest encrypts the database on the server and uploads it to `slowreader-backup` bucket in Scaleway Object Storage.
 
 The key is only on the server and in the maintainer’s personal password manager, so Scaleway can’t read backups.
 
@@ -278,14 +278,14 @@ sudo passwd ai
 ### Backup Bucket
 
 1. In [Scaleway console](https://console.scaleway.com/) open **Object Storage** → **Create bucket**.
-2. Select `Paris` (`fr-par`) region, enter `slowreader-backups` name, select **Private** visibility, **Enable bucket encryption** (with **SSE-ONE**) and enable **Object Lock** (it enables versioning too).
+2. Select `Paris` (`fr-par`) region, enter `slowreader-backup` name, select **Private** visibility, **Enable bucket encryption** (with **SSE-ONE**) and enable **Object Lock** (it enables versioning too).
 3. Lock every new file for 14 days, so even our hacked server can’t delete backups. Console can’t set it, so create a 1 hour API key for your user and run in Dev Container:
 
    ```sh
    read -rs KEY
    read -rs SECRET
    BODY='<ObjectLockConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><ObjectLockEnabled>Enabled</ObjectLockEnabled><Rule><DefaultRetention><Mode>COMPLIANCE</Mode><Days>14</Days></DefaultRetention></Rule></ObjectLockConfiguration>'
-   curl -fsS --aws-sigv4 aws:amz:fr-par:s3 --user "$KEY:$SECRET" -X PUT -H "Content-MD5: $(printf %s "$BODY" | openssl dgst -md5 -binary | base64)" --data "$BODY" 'https://slowreader-backups.s3.fr-par.scw.cloud/?object-lock'
+   curl -fsS --aws-sigv4 aws:amz:fr-par:s3 --user "$KEY:$SECRET" -X PUT -H "Content-MD5: $(printf %s "$BODY" | openssl dgst -md5 -binary | base64)" --data "$BODY" 'https://slowreader-backup.s3.fr-par.scw.cloud/?object-lock'
    unset KEY SECRET
    ```
 

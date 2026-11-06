@@ -4,7 +4,7 @@
   vars:
     # Test VM overrides them by `-e`
     domain: slowreader.app
-    backup_bucket: slowreader-backups
+    backup_bucket: slowreader-backup
     # Our Grafana on dashboard.hplush.dev
     grafana_ips:
       - 91.98.155.169
