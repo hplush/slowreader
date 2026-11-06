@@ -134,6 +134,21 @@
       }
     },
     {
+      "files": ["web/**/*.css", "web/**/*.pcss", "web/**/*.svelte"],
+      "rules": {
+        "value-type-custom-property-required-list": [
+          "color",
+          { "ignoreValues": ["transparent", "currentcolor"] }
+        ]
+      }
+    },
+    {
+      "files": ["web/main/colors.css", "web/demo/index.css"],
+      "rules": {
+        "value-type-custom-property-required-list": null
+      }
+    },
+    {
       "files": ["web/postcss/mixins/*.pcss"],
       "rules": {
         "nesting-selector-no-missing-scoping-root": null
