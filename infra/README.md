@@ -346,7 +346,8 @@ Ansible skips parts, which need secrets, until you create them on the server.
 9. Connect to SSH and run the first backup and restore test:
 
    ```sh
-   sudo systemctl start pgbackrest@full.service restore-test.service
+   sudo systemctl start pgbackrest@full.service
+   sudo systemctl start restore-test.service
    ```
 
 ### Grafana
