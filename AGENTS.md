@@ -16,6 +16,7 @@ In all interactions, plans, and commit messages, be extremely concise and sacrif
 - Do not create constants used only once. Inline the value even when it looks magic or needs an explanation.
 - Always use I18n, don’t put English messages in UI hardcoded.
 - Follow BEM: block styles only its own elements. Never change other block by nesting (`.a .b`, `.a + .b`). Wrap it into own element or add a prop to that block.
+- Think about a11y aspect on any new component in `web/ui/`. Check every new UI element with screen reader, keyboard and touch. Think about a11y not as a rules, but about real UX.
 
 ## Architecture
 
