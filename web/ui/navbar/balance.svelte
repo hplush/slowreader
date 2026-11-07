@@ -29,7 +29,6 @@
   href={getURL('coach')}
   title={$t[LABELS[$usageMood]]}
 >
-  <span class="navbar-balance_line"></span>
   <span class="navbar-balance_mark is-start"></span>
   <span class="navbar-balance_mark is-middle"></span>
   <span class="navbar-balance_mark is-end"></span>
@@ -78,19 +77,6 @@
             2 * var(--navbar-balance-inset)
         );
         margin: 0 auto;
-      }
-    }
-
-    .navbar-balance_line {
-      display: none;
-
-      @media (--no-desktop) {
-        position: absolute;
-        inset-inline: 0;
-        top: 0;
-        display: block;
-        height: var(--min-size);
-        background: var(--border-color);
       }
     }
 
