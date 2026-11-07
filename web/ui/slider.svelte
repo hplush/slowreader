@@ -203,7 +203,7 @@
         var(--slider-line) / 2 + var(--slider-progress) *
           (100% - var(--slider-line))
       );
-      height: 100%;
+      height: var(--slider-line);
       background: var(--accent-color);
       border-radius: var(--slider-line);
     }

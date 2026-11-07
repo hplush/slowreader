@@ -383,8 +383,8 @@ importers:
         specifier: 8.5.32
         version: 8.5.32
       postcss-smooth-corners:
-        specifier: 0.1.2
-        version: 0.1.2(postcss@8.5.32)
+        specifier: 0.2.0
+        version: 0.2.0(postcss@8.5.32)
       postcss-smooth-shadow:
         specifier: 0.3.2
         version: 0.3.2(postcss@8.5.32)
@@ -707,8 +707,8 @@ importers:
         specifier: 12.1.2
         version: 12.1.2(postcss@8.5.32)
       postcss-smooth-corners:
-        specifier: 0.1.2
-        version: 0.1.2(postcss@8.5.32)
+        specifier: 0.2.0
+        version: 0.2.0(postcss@8.5.32)
       postcss-smooth-shadow:
         specifier: 0.3.2
         version: 0.3.2(postcss@8.5.32)
@@ -4890,8 +4890,8 @@ packages:
     peerDependencies:
       postcss: ^8.2.1
 
-  postcss-smooth-corners@0.1.2:
-    resolution: {integrity: sha512-CV3MIY5pUIwfyKimwMqc8FV/3SeRTkAfMqTIWj1igL8GeLHF1OKjCJ17wlDtYHVVFzp1+vSPcSdt+sguGlF3pA==}
+  postcss-smooth-corners@0.2.0:
+    resolution: {integrity: sha512-27ObPN3RZ3U7hr4Few00RZjj7ynv9IX4bBDzTghYb+vPcKsGlpnEjF5OU9We+DUy1GfhDWWA37+23shZ3R+S4Q==}
     engines: {node: '>=22.0'}
     peerDependencies:
       postcss: ^8.4.0
@@ -9301,7 +9301,7 @@ snapshots:
     dependencies:
       postcss: 8.5.32
 
-  postcss-smooth-corners@0.1.2(postcss@8.5.32):
+  postcss-smooth-corners@0.2.0(postcss@8.5.32):
     dependencies:
       postcss: 8.5.32
 

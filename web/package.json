@@ -98,7 +98,7 @@
     "postcss": "8.5.32",
     "postcss-load-config": "6.0.1",
     "postcss-mixins": "12.1.2",
-    "postcss-smooth-corners": "0.1.2",
+    "postcss-smooth-corners": "0.2.0",
     "postcss-smooth-shadow": "0.3.2",
     "rollup": "4.67.5",
     "sharp": "0.35.5",

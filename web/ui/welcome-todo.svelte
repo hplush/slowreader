@@ -243,6 +243,7 @@
       margin-top: 0.1875rem;
       color: var(--text-on-accent-color);
       background: --tune-background(--placeholder);
+      corner-shape: squircle;
       border-radius: calc(var(--base-radius) / 2);
 
       --icon-size: 0.875rem;

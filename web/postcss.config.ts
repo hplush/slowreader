@@ -26,7 +26,15 @@ export default {
     tuneColor,
     quietCursor,
     reducedMotion,
-    corners({ auto: true, autoMinSize: 8, props: /-radius$/ }),
+    corners({
+      auto: true,
+      autoMinSize: 8,
+      props: /-radius$/,
+      vars: {
+        '--base-radius': '0.375rem',
+        '--slider-line': '0.25rem'
+      }
+    }),
     shadows(),
     autoprefixer(),
     mixins({
