@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { type PostAuthor, router } from '@slowreader/core'
+  import { humanizeUrl, type PostAuthor, router } from '@slowreader/core'
 
   import { waitImageDecoded } from '../../lib/image.ts'
   import { getPopupHash } from '../../stores/url-router.ts'
@@ -39,7 +39,14 @@
       src={author.avatar}
     />
   {/if}
-  <span class="post-author_title">{author.title}</span>
+  {#if author.url}
+    <span class="post-author_names">
+      <span class="post-author_title">{author.title}</span>
+      <span class="post-author_handle">{humanizeUrl(author.url)}</span>
+    </span>
+  {:else}
+    <span class="post-author_title">{author.title}</span>
+  {/if}
 </svelte:element>
 
 <style lang="postcss">
@@ -78,9 +85,24 @@
       }
     }
 
+    .post-author_names {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
     .post-author_title {
       overflow: hidden;
       text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .post-author_handle {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font: var(--tertiary-font);
+      line-height: 1.4;
+      color: var(--secondary-text-color);
       white-space: nowrap;
     }
   }
