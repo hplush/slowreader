@@ -22,12 +22,9 @@
   } as const
 </script>
 
-<a
+<div
   class="navbar-balance"
   class:is-hidden={!$showUsageBalance || !$trackUsage}
-  aria-label={$t[LABELS[$usageMood]]}
-  href={getURL('coach')}
-  title={$t[LABELS[$usageMood]]}
 >
   <span class="navbar-balance_mark is-start"></span>
   <span class="navbar-balance_mark is-middle"></span>
@@ -38,13 +35,20 @@
   >
     <span class="navbar-balance_pointer"></span>
     <span class="navbar-balance_shadow"></span>
-    <svg class="navbar-balance_marker" aria-hidden="true" viewBox="0 0 16 16">
-      <circle cx="6" cy="6.75" r="1" />
-      <circle cx="10" cy="6.75" r="1" />
-      <path d={MOUTHS[$usageMood]} />
-    </svg>
+    <a
+      class="navbar-balance_marker"
+      aria-label={$t[LABELS[$usageMood]]}
+      href={getURL('coach')}
+      title={$t[LABELS[$usageMood]]}
+    >
+      <svg aria-hidden="true" viewBox="0 0 16 16">
+        <circle cx="6" cy="6.75" r="1" />
+        <circle cx="10" cy="6.75" r="1" />
+        <path d={MOUTHS[$usageMood]} />
+      </svg>
+    </a>
   </span>
-</a>
+</div>
 
 <style lang="postcss">
   :global {
@@ -60,6 +64,7 @@
           var(--navbar-balance-inset)
       );
       margin-top: calc(-1 * var(--navbar-padding));
+      pointer-events: none;
 
       &.is-hidden {
         visibility: hidden;
@@ -153,10 +158,11 @@
       background: --tune-background(--balance-marker);
       margin-inline-start: -0.4375rem;
       border-radius: 50%;
+      pointer-events: auto;
 
-      .navbar-balance:hover &,
-      .navbar-balance:active &,
-      .navbar-balance:focus-visible & {
+      &:hover,
+      &:active,
+      &:focus-visible {
         color: var(--text-color);
       }
 
@@ -165,11 +171,17 @@
         translate: 0 -50%;
       }
 
-      > circle {
+      > svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      circle {
         fill: currentcolor;
       }
 
-      > path {
+      path {
         fill: none;
         stroke: currentcolor;
         stroke-linecap: round;
