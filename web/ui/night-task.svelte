@@ -1,6 +1,10 @@
 <script lang="ts">
   import { mdiLockOpenVariant } from '@mdi/js'
-  import { type NightTask, coachMessages as t } from '@slowreader/core'
+  import {
+    checkAnswer,
+    type NightTask,
+    coachMessages as t
+  } from '@slowreader/core'
 
   import Button from './button.svelte'
   import Error from './error.svelte'
@@ -43,6 +47,9 @@
           inputmode="numeric"
           label={question}
           labelless
+          oninput={value => {
+            if (checkAnswer(task, value)) onsolve(value)
+          }}
           pattern="[0-9]*"
           required
           bind:value={answer}
