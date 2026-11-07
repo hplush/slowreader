@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mdiScaleBalance, mdiTimerOutline, mdiWeatherNight } from '@mdi/js'
+  import { mdiScaleBalance } from '@mdi/js'
   import {
     type CoachPage,
     formatDuration,
@@ -19,7 +19,6 @@
   import Stack from '../ui/stack.svelte'
   import Switch from '../ui/switch.svelte'
   import ThinPage from '../ui/thin-page.svelte'
-  import Title from '../ui/title.svelte'
   import UsageTimeline from '../ui/usage-timeline.svelte'
 
   let { page }: { page: CoachPage } = $props()
@@ -44,12 +43,7 @@
   <Stack gap="l">
     <Card width="stretch">
       <Stack gap="m">
-        <Title>{$t.usageTitle}</Title>
-        <Switch
-          icon={mdiTimerOutline}
-          label={$t.trackUsage}
-          store={trackUsage}
-        />
+        <Switch label={$t.usageTitle} store={trackUsage} variant="title" />
         {#if $trackUsage}
           <Stack align="stretch" gap="s">
             <ReadingNumbers
@@ -73,7 +67,13 @@
     </Card>
     <Card width="stretch">
       <Stack gap="m">
-        <Title>{$t.nightLockGroup}</Title>
+        <Switch
+          disabled={$locked.locked}
+          label={$t.nightLock}
+          note={$t.nightLockNote}
+          store={nightLockEnabled}
+          variant="title"
+        />
         {#if $locked.locked}
           <Stack align="center" gap="l">
             {$t.settingsLocked({
@@ -85,34 +85,24 @@
               wrong={$locked.wrong}
             />
           </Stack>
-        {:else}
-          <Stack gap="m">
-            <Switch
-              icon={mdiWeatherNight}
-              label={$t.nightLock}
-              note={$t.nightLockNote}
-              store={nightLockEnabled}
+        {:else if $nightLockEnabled}
+          <Stack row>
+            <Select
+              label={$t.from}
+              onchange={value => {
+                page.changeNightLockFrom(Number(value))
+              }}
+              value={String($nightLockFrom)}
+              values={hours}
             />
-            {#if $nightLockEnabled}
-              <Stack row>
-                <Select
-                  label={$t.from}
-                  onchange={value => {
-                    page.changeNightLockFrom(Number(value))
-                  }}
-                  value={String($nightLockFrom)}
-                  values={hours}
-                />
-                <Select
-                  label={$t.to}
-                  onchange={value => {
-                    page.changeNightLockTo(Number(value))
-                  }}
-                  value={String($nightLockTo)}
-                  values={hours}
-                />
-              </Stack>
-            {/if}
+            <Select
+              label={$t.to}
+              onchange={value => {
+                page.changeNightLockTo(Number(value))
+              }}
+              value={String($nightLockTo)}
+              values={hours}
+            />
           </Stack>
         {/if}
       </Stack>

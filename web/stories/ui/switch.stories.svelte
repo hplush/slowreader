@@ -32,6 +32,14 @@
       label="Very-very long label with longlonglongwordthat couldbreakcontainer"
       store={storeOn}
     />
+    <Switch label="Title" store={storeOn} variant="title" />
+    <Switch
+      disabled
+      label="Disabled title"
+      note="Secondary text"
+      store={storeOff}
+      variant="title"
+    />
   </Section>
   <Section
     active="label:nth-child(2)"
@@ -52,6 +60,12 @@
     <Switch {icon} label="Off" store={storeOff} />
     <Switch disabled {icon} label="Disabled" store={storeOff} />
     <Switch {icon} label="Note" note="Secondary text" store={storeOn} />
+    <Switch
+      label="Title"
+      note="Secondary text"
+      store={storeOn}
+      variant="title"
+    />
   </Section>
   <Section
     active="label:nth-child(2)"

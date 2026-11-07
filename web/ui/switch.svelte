@@ -11,15 +11,20 @@
     label,
     note,
     reverseStore,
-    store
+    store,
+    variant = 'control'
   }: {
     disabled?: boolean
-    icon?: string
     label: string
     note?: string
     reverseStore?: WritableAtom<boolean>
     store?: WritableAtom<boolean>
-  } = $props()
+  } & (
+    | { icon?: string; variant?: 'control' }
+    | { icon?: undefined; variant: 'title' }
+  ) = $props()
+
+  let id = $props.id()
 
   let value = $state(false)
 
@@ -49,34 +54,48 @@
   }
 </script>
 
-<label class="switch">
-  <div class="switch_description" class:is-iconed={!!icon}>
-    {#if icon}
-      <Icon compensate={3} path={icon} />
-    {/if}
-    <div class="switch_text">
-      {label}
-      {#if note}
-        <div class="switch_note">{note}</div>
+{#snippet control()}
+  <label class="switch" class:is-title={variant === 'title'}>
+    <div class="switch_description" class:is-iconed={!!icon}>
+      {#if icon}
+        <Icon compensate={3} path={icon} />
       {/if}
-    </div>
-  </div>
-  <input
-    class="switch_input sr-only"
-    {disabled}
-    {onchange}
-    type="checkbox"
-    bind:checked={value}
-  />
-  <div class="switch_gutter">
-    <div class="switch_slider">
-      <div class="switch_icons">
-        <Icon path={mdiClose} />
-        <Icon path={mdiCheck} />
+      <div class="switch_text">
+        {label}
+        {#if note && variant === 'control'}
+          <div class="switch_note">{note}</div>
+        {/if}
       </div>
     </div>
+    <input
+      class="switch_input sr-only"
+      aria-describedby={note && variant === 'title' ? `${id}-note` : undefined}
+      {disabled}
+      {onchange}
+      type="checkbox"
+      bind:checked={value}
+    />
+    <div class="switch_gutter">
+      <div class="switch_slider">
+        <div class="switch_icons">
+          <Icon path={mdiClose} />
+          <Icon path={mdiCheck} />
+        </div>
+      </div>
+    </div>
+  </label>
+{/snippet}
+
+{#if variant === 'title'}
+  <div class="switch_title">
+    <h1 class="switch_heading">{@render control()}</h1>
+    {#if note}
+      <div id="{id}-note" class="switch_title-note">{note}</div>
+    {/if}
   </div>
-</label>
+{:else}
+  {@render control()}
+{/if}
 
 <style lang="postcss">
   :global {
@@ -108,6 +127,33 @@
       &:has(.switch_input:focus-visible) {
         @mixin focus;
       }
+
+      &.is-title {
+        margin-block-start: calc(
+          var(--switch-diff) / 2 - var(--slider-padding)
+        );
+        margin-inline: calc(
+            -1 * (var(--control-padding) + var(--switch-diff) / 2 + 0.125rem)
+          )
+          calc(var(--switch-diff) / 2 - var(--slider-padding));
+        font: var(--app-title-font);
+      }
+    }
+
+    .switch_title {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      align-self: stretch;
+    }
+
+    .switch_heading {
+      display: flex;
+    }
+
+    .switch_title-note {
+      font: var(--secondary-font);
+      color: var(--secondary-text-color);
     }
 
     .switch_description {
@@ -116,6 +162,10 @@
       align-items: baseline;
       padding: 0.4rem 0.25rem 0.4rem
         calc(var(--control-padding) + var(--switch-diff) / 2 + 0.125rem);
+
+      .switch.is-title & {
+        padding-block: max(0rem, (var(--control-height) - 1lh) / 2);
+      }
 
       &.is-iconed {
         padding-inline-start: calc(
@@ -129,6 +179,10 @@
       font: var(--control-font);
       overflow-wrap: anywhere;
       user-select: none;
+
+      .switch.is-title & {
+        font: inherit;
+      }
     }
 
     .switch_note {
