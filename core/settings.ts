@@ -209,6 +209,10 @@ export const trackUsage = syncedSetting('trackUsage', true)
 
 export const fastPostsMaxAge = syncedSetting('fastPostsMaxAge', 604800)
 
+export const generalFastReader = syncedSetting('generalFastReader', 'feed')
+
+export const generalSlowReader = syncedSetting('generalSlowReader', 'list')
+
 export const nightLock = syncedSetting('nightLock', {
   enabled: false,
   from: 23,
@@ -227,6 +231,8 @@ onClient(() =>
       'user',
       [
         fastPostsMaxAge,
+        generalFastReader,
+        generalSlowReader,
         nightLock,
         openWarnings,
         showSensitiveMedia,
@@ -246,6 +252,8 @@ onClient(() =>
 export interface Settings {
   customPostFont: StoreValue<typeof customPostFont>
   fastPostsMaxAge: StoreValue<typeof fastPostsMaxAge>
+  generalFastReader: StoreValue<typeof generalFastReader>
+  generalSlowReader: StoreValue<typeof generalSlowReader>
   nightLock: NightLock
   openWarnings: StoreValue<typeof openWarnings>
   postFont: PostFont

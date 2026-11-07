@@ -1,7 +1,7 @@
 import { withMeta } from '@logux/client/db'
 import type { SqlStore, SqlStoreValue } from '@nanostores/sql'
 import { nanoid } from 'nanoid'
-import { atom, computed, type ReadableAtom } from 'nanostores'
+import { computed, type ReadableAtom } from 'nanostores'
 
 import { commonMessages as t } from './messages/index.ts'
 import {
@@ -12,6 +12,7 @@ import {
   getTables,
   type NewCategory
 } from './schema.ts'
+import { generalFastReader, generalSlowReader } from './settings.ts'
 
 export type { CategoryValue, NewCategory }
 
@@ -21,8 +22,13 @@ export function getCategory(
   categoryId: string
 ): ReadableAtom<SqlStoreValue<CategoryValue | undefined>> {
   if (categoryId === GENERAL_CATEGORY) {
-    /* node:coverage ignore next 2 */
-    return atom({ status: 'ready', value: getGeneralCategory() })
+    return computed(
+      [generalFastReader, generalSlowReader, t],
+      (): SqlStoreValue<CategoryValue | undefined> => ({
+        status: 'ready',
+        value: getGeneralCategory()
+      })
+    )
   } else {
     return getTables().categories.row(categoryId)
   }
@@ -82,11 +88,16 @@ export async function addCategory(
   }
 }
 
-export function changeCategory(
+export async function changeCategory(
   categoryId: string,
   changes: CategoryChanges
 ): Promise<void> {
-  return getTables().categories.update(categoryId, changes)
+  if (categoryId === GENERAL_CATEGORY) {
+    if (changes.fastReader) generalFastReader.set(changes.fastReader)
+    if (changes.slowReader) generalSlowReader.set(changes.slowReader)
+  } else {
+    await getTables().categories.update(categoryId, changes)
+  }
 }
 
 export async function deleteCategory(categoryId: string): Promise<void> {
@@ -140,9 +151,9 @@ export function feedsByCategory(
 
 export function getGeneralCategory(): CategoryValue {
   return withMeta<CategoryValue>({
-    fastReader: null,
+    fastReader: generalFastReader.get(),
     id: GENERAL_CATEGORY,
-    slowReader: null,
+    slowReader: generalSlowReader.get(),
     title: t.value?.generalCategory || 'General'
   })
 }

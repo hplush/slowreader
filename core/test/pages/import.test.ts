@@ -19,6 +19,7 @@ import {
   deleteFilter,
   deletePost,
   fastPostsMaxAge,
+  generalFastReader,
   GENERAL_CATEGORY,
   isDemo,
   loadAccounts,
@@ -117,6 +118,7 @@ describe('import page', () => {
   })
 
   afterEach(async () => {
+    generalFastReader.set('feed')
     await cleanClient()
     restoreAll()
     checkAndRemoveRequestMock()
@@ -134,6 +136,7 @@ describe('import page', () => {
     openWarnings.set(true)
     showUsageBalance.set(false)
     trackUsage.set(false)
+    generalFastReader.set('list')
     textSize.set(150)
     postFont.set('custom')
     postLineHeight.set('relaxed')
@@ -158,6 +161,7 @@ describe('import page', () => {
     openWarnings.set(false)
     showUsageBalance.set(true)
     trackUsage.set(true)
+    generalFastReader.set('feed')
     textSize.set(100)
     postFont.set('default')
     postLineHeight.set('normal')
@@ -189,6 +193,7 @@ describe('import page', () => {
     equal(openWarnings.get(), true)
     equal(showUsageBalance.get(), false)
     equal(trackUsage.get(), false)
+    equal(generalFastReader.get(), 'list')
     equal(textSize.get(), 150)
     equal(postFont.get(), 'custom')
     equal(postLineHeight.get(), 'relaxed')

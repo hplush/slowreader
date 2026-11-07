@@ -21,6 +21,8 @@
     extensionState,
     fastPostsMaxAge,
     type FeedValue,
+    generalFastReader,
+    generalSlowReader,
     getTables,
     hasCloud,
     hasSources,
@@ -233,6 +235,8 @@
     showUsageBalance.set(true)
     trackUsage.set(true)
     fastPostsMaxAge.set(604800)
+    generalFastReader.set('feed')
+    generalSlowReader.set('list')
     nightLock.set({ enabled: false, from: 23, to: 4 })
     cacheMediaReading.set('all')
     autoRefresh.set('never')

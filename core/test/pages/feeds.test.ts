@@ -10,6 +10,8 @@ import {
   busyUntilMenuLoader,
   clock,
   encryptionKey,
+  generalFastReader,
+  generalSlowReader,
   nightLock,
   GENERAL_CATEGORY,
   isDemo,
@@ -42,6 +44,8 @@ describe('feeds page', () => {
   afterEach(async () => {
     openRoute({ params: {}, route: 'about' })
     nightLock.set({ enabled: false, from: 23, to: 7 })
+    generalFastReader.set('feed')
+    generalSlowReader.set('list')
     await cleanClient()
   })
 
@@ -583,6 +587,32 @@ describe('feeds page', () => {
 
     page = openPage({
       params: { category: category2 },
+      route: 'fast'
+    })
+    await setTimeout(10)
+    equal(page.posts.get()!.name, 'list')
+  })
+
+  test('changes reader of general category', async () => {
+    let feed = await addFeed(
+      testFeed({ categoryId: GENERAL_CATEGORY, reading: 'fast' })
+    )
+    await addPost(testPost({ feedId: feed, reading: 'fast' }))
+    let page = openPage({
+      params: { category: GENERAL_CATEGORY },
+      route: 'fast'
+    })
+    await setTimeout(10)
+    equal(page.posts.get()!.name, 'feed')
+
+    page.changeReader('list')
+    await setTimeout(10)
+    equal(page.posts.get()!.name, 'list')
+    equal(generalFastReader.get(), 'list')
+    equal(generalSlowReader.get(), 'list')
+
+    page = openPage({
+      params: { category: GENERAL_CATEGORY },
       route: 'fast'
     })
     await setTimeout(10)

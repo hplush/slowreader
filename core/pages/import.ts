@@ -20,6 +20,8 @@ import { GENERAL_CATEGORY } from '../schema.ts'
 import {
   customPostFont,
   fastPostsMaxAge,
+  generalFastReader,
+  generalSlowReader,
   nightLock,
   openWarnings,
   postFont,
@@ -188,6 +190,12 @@ export const importPage = createPage('import', () => {
     if (settings.customPostFont) customPostFont.set(settings.customPostFont)
     if (settings.fastPostsMaxAge !== undefined) {
       fastPostsMaxAge.set(settings.fastPostsMaxAge)
+    }
+    if (settings.generalFastReader) {
+      generalFastReader.set(settings.generalFastReader)
+    }
+    if (settings.generalSlowReader) {
+      generalSlowReader.set(settings.generalSlowReader)
     }
     if (settings.nightLock) nightLock.set(settings.nightLock)
     if (settings.openWarnings !== undefined) {

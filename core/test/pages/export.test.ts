@@ -176,6 +176,8 @@ describe('export page', () => {
       settings: {
         customPostFont: '',
         fastPostsMaxAge: 604800,
+        generalFastReader: 'feed',
+        generalSlowReader: 'list',
         nightLock: { enabled: false, from: 23, to: 4 },
         openWarnings: false,
         postFont: 'default',
