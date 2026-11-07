@@ -132,9 +132,7 @@
         margin-block-start: calc(
           var(--switch-diff) / 2 - var(--slider-padding)
         );
-        margin-inline: calc(
-            -1 * (var(--control-padding) + var(--switch-diff) / 2 + 0.125rem)
-          )
+        margin-inline: calc(-1 * var(--control-padding))
           calc(var(--switch-diff) / 2 - var(--slider-padding));
         font: var(--app-title-font);
       }
@@ -160,8 +158,7 @@
       display: flex;
       gap: var(--control-gap);
       align-items: baseline;
-      padding: 0.4rem 0.25rem 0.4rem
-        calc(var(--control-padding) + var(--switch-diff) / 2 + 0.125rem);
+      padding: 0.4rem 0.25rem 0.4rem var(--control-padding);
 
       .switch.is-title & {
         padding-block: max(0rem, (var(--control-height) - 1lh) / 2);
