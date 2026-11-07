@@ -17,9 +17,9 @@ function update(): void {
   if (tasks.length === 0) {
     busy.set(false)
   } else {
-    let last = tasks.findLast(i => i.label || i.progress !== undefined) ?? {
-      label: ''
-    }
+    let visible = tasks.filter(i => i.label || i.progress !== undefined)
+    let last = visible.findLast(i => i.blocking) ??
+      visible.at(-1) ?? { label: '' }
     busy.set({
       blocking: tasks.some(i => i.blocking),
       label: last.label,

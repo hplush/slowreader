@@ -76,4 +76,22 @@ describe('busy', () => {
     equal(result, 'done')
     equal(busy.get(), false)
   })
+
+  test('shows label of the blocking task over later tasks', async () => {
+    await busyDuring(
+      'Migrating',
+      async () => {
+        await busyDuring('Loading', async () => {
+          deepStrictEqual(busy.get(), {
+            blocking: true,
+            label: 'Migrating',
+            progress: undefined
+          })
+          await setTimeout(10)
+        })
+      },
+      true
+    )
+    equal(busy.get(), false)
+  })
 })

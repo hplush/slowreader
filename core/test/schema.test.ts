@@ -71,7 +71,7 @@ describe('schema', () => {
     deepEqual([...new Set(labels)], [commonMessages.get().loadingData])
   })
 
-  test('converts the old tables by the migrations', async () => {
+  test('converts the old tables by the migrations', async t => {
     await cleanClient()
     setTestUser(false)
     let creator = persistentDatabase()
@@ -104,8 +104,17 @@ describe('schema', () => {
     `
     await db.close()
 
+    let labels = new Set<string>()
+    t.after(
+      busy.listen(value => {
+        if (value && getCrdt().status.get() === 'migrating') {
+          labels.add(value.label)
+        }
+      })
+    )
     setTestUser()
     let post = await loadPost(postId)
+    deepEqual([...labels], [commonMessages.get().migratingDatabase])
     deepEqual(post!.media, media)
     equal(post!.read, true)
     equal(post!.sortedAt, 10)

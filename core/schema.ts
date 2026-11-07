@@ -605,6 +605,8 @@ function getOpeningLabel(crdt: CrdtDatabase): string {
     return messages.downloadingData
   } else if (crdt.status.get() === 'creating') {
     return messages.creatingDatabase
+  } else if (crdt.status.get() === 'migrating') {
+    return messages.migratingDatabase
   } else {
     return messages.loadingData
   }
@@ -636,10 +638,6 @@ function openDatabase(logux: CrossTabClient, db: Database): void {
   })
   currentCrdt = crdt
 
-  /* node:coverage ignore next 6 */
-  crdt.on('migrating', done => {
-    void busyDuring(commonMessages.get().migratingDatabase, () => done, true)
-  })
   crdt.on('stop', () => {
     fatal.set({ type: 'outdated' })
   })
@@ -662,7 +660,11 @@ function openDatabase(logux: CrossTabClient, db: Database): void {
   openedDatabase.set(db)
 
   void crdt.checked.then(() =>
-    busyDuring(getOpeningLabel(crdt), () => crdt.ready)
+    busyDuring(
+      getOpeningLabel(crdt),
+      () => crdt.ready,
+      crdt.status.get() === 'migrating'
+    )
   )
 
   void crdt.ready.then(async () => {
