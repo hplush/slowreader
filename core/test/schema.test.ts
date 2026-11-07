@@ -11,6 +11,7 @@ import {
   cleanDatabase,
   commonMessages,
   database,
+  fatal,
   freeDatabasePages,
   getClient,
   getCrdt,
@@ -69,6 +70,27 @@ describe('schema', () => {
     setTestUser()
     await setTimeout(100)
     deepEqual([...new Set(labels)], [commonMessages.get().loadingData])
+  })
+
+  test('stops on the database from the newer app', async () => {
+    await cleanClient()
+    setTestUser(false)
+    let creator = persistentDatabase()
+    setupEnvironment({ ...getTestEnvironment(), databaseCreator: creator })
+    setTestUser()
+    await getCrdt().ready
+    setTestUser(false)
+    await setTimeout(100)
+
+    let db = creator()
+    await db.exec`
+      UPDATE "logux_crdt" SET "value" = '1000' WHERE "key" = 'version'
+    `
+    await db.close()
+
+    setTestUser()
+    await getCrdt().ready
+    deepEqual(fatal.get(), { type: 'outdated' })
   })
 
   test('converts the old tables by the migrations', async t => {
