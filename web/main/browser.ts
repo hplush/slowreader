@@ -210,6 +210,7 @@ effect(busy, task => {
 
 // Android Chrome opens links from the installed app only in the in-app browser
 function openInBrowser(event: MouseEvent): void {
+  if (event.defaultPrevented) return
   if (!(event.target instanceof Element)) return
   let link = event.target.closest('a')
   if (
