@@ -169,7 +169,11 @@ export async function addCandidate(
     reading: 'slow' as const,
     title: candidate.title,
     url: candidate.url,
-    ...fields
+    ...fields,
+    avatar:
+      fields.avatar ??
+      (await tryLoadFeedData(task, candidate.name, candidate.url, { response }))
+        ?.avatar
   }
   let feedId = await addFeed(feed)
   let linked = await linkThreads(

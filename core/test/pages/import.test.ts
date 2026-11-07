@@ -1,5 +1,6 @@
 import { withoutMeta } from '@logux/client/db'
 import { SUBPROTOCOL } from '@slowreader/api'
+import { restoreAll, spyOn } from 'nanospy'
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
@@ -22,6 +23,7 @@ import {
   isDemo,
   loadAccounts,
   loadCategories,
+  loaders,
   loadFeeds,
   loadFilters,
   importMessages,
@@ -107,10 +109,16 @@ describe('import page', () => {
       }
     })
     mockRequest()
+    for (let loader of [loaders.atom, loaders.rss]) {
+      spyOn(loader, 'loadFeedData', (task, url) => {
+        return Promise.resolve({ title: '', url })
+      })
+    }
   })
 
   afterEach(async () => {
     await cleanClient()
+    restoreAll()
     checkAndRemoveRequestMock()
   })
 

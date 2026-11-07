@@ -53,6 +53,9 @@ describe('feed', () => {
       title: 'Jane',
       url: 'https://mastodon.social/@jane'
     }
+    spyOn(loaders.mastodon, 'loadFeedData', (task, url) => {
+      return Promise.resolve({ title: 'Jane', url })
+    })
     let statuses =
       'https://mastodon.social/api/v1/accounts/1/statuses?exclude_replies=true'
     expectRequest(
@@ -92,12 +95,15 @@ describe('feed', () => {
         ])
       })
     })
-    await addCandidate({
-      loader: loaders.rss,
-      name: 'rss',
-      title: 'Jane',
-      url: 'https://a.com/rss'
-    })
+    await addCandidate(
+      {
+        loader: loaders.rss,
+        name: 'rss',
+        title: 'Jane',
+        url: 'https://a.com/rss'
+      },
+      { avatar: 'https://a.com/icon.png' }
+    )
     deepEqual(
       Object.fromEntries(
         (await loadPosts()).map(post => [post.originId, post.threadId])
@@ -110,6 +116,35 @@ describe('feed', () => {
           Array.from({ length: 9 }, (_, i) => [`post${i}`, null])
         )
       }
+    )
+  })
+
+  test('saves avatar on adding', async () => {
+    let candidate = {
+      loader: loaders.rss,
+      name: 'rss' as const,
+      title: 'Blog',
+      url: 'https://a.com/blog/rss'
+    }
+    spyOn(loaders.rss, 'getPosts', () =>
+      createPostsList(() => Promise.resolve([[], undefined]))
+    )
+    expectRequest(candidate.url).andRespond(
+      200,
+      '<rss><channel><image><url>logo.png</url></image></channel></rss>',
+      'application/rss+xml'
+    )
+    expectIcon('https://a.com/blog/logo.png')
+    equal(
+      await getAvatar(await addCandidate(candidate)),
+      'https://a.com/blog/logo.png'
+    )
+
+    equal(
+      await getAvatar(
+        await addCandidate(candidate, { avatar: 'https://a.com/icon.png' })
+      ),
+      'https://a.com/icon.png'
     )
   })
 
