@@ -279,6 +279,10 @@ describe('usage', () => {
     equal(usageBalance.get(), 0)
     equal(usageMood.get(), 'good')
 
+    read('fast', 3)
+    equal(usageBalance.get(), 1 / 5)
+    equal(usageMood.get(), 'good')
+
     read('fast', 4)
     equal(usageBalance.get(), 2 / 6)
     equal(usageMood.get(), 'neutral')

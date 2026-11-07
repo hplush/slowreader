@@ -262,8 +262,8 @@ export const needUsefulReminder = computed(
 export type UsageMood = 'bad' | 'good' | 'neutral'
 
 export const usageMood = computed(usageBalance, (balance): UsageMood => {
-  if (balance > 0.5) return 'bad'
-  if (balance > 0) return 'neutral'
+  if (balance > 0.6) return 'bad'
+  if (balance > 0.3) return 'neutral'
   return 'good'
 })
 
