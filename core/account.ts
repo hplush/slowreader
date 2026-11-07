@@ -1,4 +1,3 @@
-import { withMeta, type WithoutMeta } from '@logux/client/db'
 import type { SqlStore, SqlStoreValue } from '@nanostores/sql'
 import { delay } from 'nanodelay'
 import { computed, type ReadableAtom } from 'nanostores'
@@ -379,11 +378,9 @@ export function getUserPostUrls(): ReadableAtom<UserPostUrl> {
 
 let testAccountId = 0
 
-export function testAccount(
-  account: Partial<WithoutMeta<AccountValue>> = {}
-): AccountValue {
+export function testAccount(account: Partial<AccountValue> = {}): AccountValue {
   testAccountId += 1
-  return withMeta<AccountValue>({
+  return {
     avatar: null,
     categoryId: GENERAL_CATEGORY,
     credentials: {
@@ -407,5 +404,5 @@ export function testAccount(
     title: `User ${testAccountId}`,
     url: `https://mastodon.social/@user${testAccountId}`,
     ...account
-  })
+  }
 }

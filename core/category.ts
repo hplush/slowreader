@@ -1,4 +1,3 @@
-import { withMeta } from '@logux/client/db'
 import type { SqlStore, SqlStoreValue } from '@nanostores/sql'
 import { nanoid } from 'nanoid'
 import { computed, type ReadableAtom } from 'nanostores'
@@ -150,10 +149,10 @@ export function feedsByCategory(
 }
 
 export function getGeneralCategory(): CategoryValue {
-  return withMeta<CategoryValue>({
+  return {
     fastReader: generalFastReader.get(),
     id: GENERAL_CATEGORY,
     slowReader: generalSlowReader.get(),
     title: t.value?.generalCategory || 'General'
-  })
+  }
 }

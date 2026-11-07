@@ -36,16 +36,13 @@ function at(ms: number): void {
   mock.timers.setTime(START + ms)
 }
 
-async function loadUsages(): Promise<
-  Omit<UsageValue, `updatedAt_${string}`>[]
-> {
-  let rows = await getTables().usages.load`ORDER BY "from"`
-  return rows.map(({ from, id, to, type }) => ({ from, id, to, type }))
+function loadUsages(): Promise<UsageValue[]> {
+  return getTables().usages.load`ORDER BY "from"`
 }
 
 async function waitUsages(
-  check: (rows: Omit<UsageValue, `updatedAt_${string}`>[]) => boolean
-): Promise<Omit<UsageValue, `updatedAt_${string}`>[]> {
+  check: (rows: UsageValue[]) => boolean
+): Promise<UsageValue[]> {
   // Mocked `Date` would never end the timeout of `waitUntil()`
   for (let i = 0; i < 300; i++) {
     let rows = await loadUsages()

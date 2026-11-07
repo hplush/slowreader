@@ -1,4 +1,3 @@
-import { withoutMeta } from '@logux/client/db'
 import { SUBPROTOCOL } from '@slowreader/api'
 import { restoreAll, spyOn } from 'nanospy'
 import { deepEqual, equal } from 'node:assert/strict'
@@ -203,10 +202,10 @@ describe('import page', () => {
     equal(postFont.get(), 'custom')
     equal(postLineHeight.get(), 'relaxed')
     equal(customPostFont.get(), 'Comic Sans MS')
-    deepEqual(withoutMeta(await loadCategories()), [
+    deepEqual(await loadCategories(), [
       { ...CATEGORY, fastReader: null, slowReader: null }
     ])
-    deepEqual(withoutMeta(await loadFeeds()), [
+    deepEqual(await loadFeeds(), [
       {
         ...FEED,
         accountId: null,
@@ -221,8 +220,8 @@ describe('import page', () => {
         slowReader: null
       }
     ])
-    deepEqual(withoutMeta(await loadFilters()), [FILTER])
-    deepEqual(withoutMeta(await loadPosts()), [
+    deepEqual(await loadFilters(), [FILTER])
+    deepEqual(await loadPosts(), [
       {
         ...POST,
         accountId: null,
@@ -254,17 +253,17 @@ describe('import page', () => {
       testAccount({ handle: '@me@mastodon.social', id: 'current' })
     )
     let backup = {
-      accounts: withoutMeta([
+      accounts: [
         testAccount({ handle: '@me@mastodon.social', id: 'a1' }),
         testAccount({ handle: '@work@mastodon.social', id: 'a2' })
-      ]),
+      ],
       categories: [],
-      feeds: withoutMeta([testFeed({ accountId: 'a1', id: 'virtual' })]),
+      feeds: [testFeed({ accountId: 'a1', id: 'virtual' })],
       filters: [],
-      posts: withoutMeta([
+      posts: [
         testPost({ accountId: 'a2', feedId: null, id: 'p1' }),
         testPost({ feedId: 'virtual', id: 'p2' })
-      ]),
+      ],
       settings: { preloadImages: 'always', theme: 'system' },
       subprotocol: SUBPROTOCOL
     }

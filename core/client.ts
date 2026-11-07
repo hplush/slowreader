@@ -157,15 +157,11 @@ onEnvironment(({ databaseCreator }) => {
       return
     }
     let db = databaseCreator()
-    // Mass deletions free their pages by `freeDatabasePages()` instead of
-    // long `VACUUM`. SQLite applies the mode only to a database without
-    // tables, so it must be set before the log store creates its own.
-    void db.exec`PRAGMA auto_vacuum = INCREMENTAL`
     let logux = new CrossTabClient({
       migrations,
       prefix: 'slowreader',
       server: getServer(),
-      store: new SqlLogStore(db),
+      store: new SqlLogStore(db, { autoVacuum: 'incremental' }),
       subprotocol: SUBPROTOCOL,
       time: testTime,
       token: () => Promise.resolve(getEnvironment().getSession() ?? ''),
@@ -307,13 +303,7 @@ onMount(syncStatus, () => {
         value === 'syncError'
       ) {
         syncStatus.set('error')
-        if (details) {
-          if ('error' in details) {
-            syncError.set(details.error.message)
-          } else {
-            syncError.set(details.action.action.type)
-          }
-        }
+        syncError.set(details.message)
       } else {
         syncError.set('')
         syncStatus.set(value)

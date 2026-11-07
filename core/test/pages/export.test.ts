@@ -1,4 +1,3 @@
-import { withoutMeta } from '@logux/client/db'
 import { SUBPROTOCOL } from '@slowreader/api'
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
@@ -104,7 +103,7 @@ describe('export page', () => {
     equal(filename.endsWith('.json'), true)
     let json = JSON.parse(await saved!.content.text())
     deepEqual(json, {
-      accounts: withoutMeta([account]),
+      accounts: [account],
       categories: [
         {
           fastReader: null,

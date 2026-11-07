@@ -15,8 +15,7 @@ import {
   getFeedLatestPosts,
   loadFeed,
   loadFeedsByUrls,
-  loadFeedsForRefresh,
-  type RefreshFeed
+  loadFeedsForRefresh
 } from './feed.ts'
 import { type FilterChecker, loadFilterChecker } from './filter.ts'
 import { createDownloadTask, type DownloadTask } from './lib/download.ts'
@@ -76,7 +75,7 @@ export const refreshStatistics = map({ ...DEFAULT_REFRESH_STATISTICS })
  */
 export type RefreshError =
   | { account: Pick<AccountValue, 'id' | 'title'>; error: Error }
-  | { error: Error; feed: Pick<RefreshFeed, 'id' | 'title' | 'url'> }
+  | { error: Error; feed: Pick<FeedValue, 'id' | 'title' | 'url'> }
 
 export const refreshErrors = atom<RefreshError[]>([])
 
@@ -129,7 +128,7 @@ export const refreshTotalProgress = computed(
   }
 )
 
-type RefreshTarget = { account: AccountValue } | { feed: RefreshFeed }
+type RefreshTarget = { account: AccountValue } | { feed: FeedValue }
 
 let queue = createQueue<RefreshTarget>([])
 

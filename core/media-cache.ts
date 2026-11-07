@@ -1,4 +1,3 @@
-import { parseCrdtRows } from '@logux/client/db'
 import type { Database } from '@nanostores/sql'
 import { atom, computed, effect, map } from 'nanostores'
 
@@ -15,7 +14,6 @@ import {
   type MediaSize,
   openedDatabase,
   type PostMedia,
-  postsTable,
   type PostValue,
   type QuotedPost
 } from './schema.ts'
@@ -171,7 +169,6 @@ async function createMediaTable(db: Database): Promise<void> {
  * since they are deleted on leaving the reader.
  */
 async function findNewPostsMedia(): Promise<void> {
-  let db = getDatabase()
   let rows: MediaPostRow[]
   do {
     rows = await getCrdt().select<MediaPostRow>`
@@ -183,39 +180,52 @@ async function findNewPostsMedia(): Promise<void> {
       WHERE "mediaFiles"."postId" IS NULL
       LIMIT 500
     `
-    let parsed = rows.map(row => getTables().posts.parseRow(row))
-    await db.transaction(async tx => {
-      for (let post of parsed) {
-        let files = new Map<string, WantedMedia>()
-        addUrl(files, post.author?.avatar, false)
-        addUrl(files, post.repostedBy?.avatar, false)
-        addUrl(files, post.preview?.image, false)
-        addMedia(files, post.media, post.id, 'media')
-        addQuoted(files, post.quoted, post.id, 'quoted')
-        addQuoted(files, post.replied, post.id, 'replied')
-        if (files.size === 0) {
-          await tx.exec`INSERT INTO "mediaFiles" ("postId") VALUES (${post.id})`
+    let inserts: MediaFileInsert[] = []
+    for (let row of rows) {
+      let post = getTables().posts.parseRow(row)
+      let files = new Map<string, WantedMedia>()
+      addUrl(files, post.author?.avatar, false)
+      addUrl(files, post.repostedBy?.avatar, false)
+      addUrl(files, post.preview?.image, false)
+      addMedia(files, post.media, post.id, 'media')
+      addQuoted(files, post.quoted, post.id, 'quoted')
+      addQuoted(files, post.replied, post.id, 'replied')
+      if (files.size === 0) inserts.push({ postId: post.id, video: 0 })
+      for (let [url, file] of files) {
+        let video = file.video ? 1 : 0
+        if (file.targets.length === 0) {
+          inserts.push({ postId: post.id, url, video })
         }
-        for (let [url, file] of files) {
-          let video = file.video ? 1 : 0
-          if (file.targets.length === 0) {
-            await tx.exec`
-              INSERT INTO "mediaFiles" ("postId", "url", "video")
-              VALUES (${post.id}, ${url}, ${video})
-            `
-          }
-          for (let target of file.targets) {
-            await tx.exec`
-              INSERT INTO "mediaFiles"
-                ("postId", "url", "video", "field", "position")
-              VALUES
-                (${post.id}, ${url}, ${video}, ${target.field}, ${target.index})
-            `
-          }
+        for (let target of file.targets) {
+          inserts.push({
+            field: target.field,
+            position: target.index,
+            postId: post.id,
+            url,
+            video
+          })
         }
       }
-    })
+    }
+    // A single statement is atomic without a transaction, which would
+    // collide with Logux transactions on the same connection
+    await getDatabase().exec`
+      INSERT INTO "mediaFiles" ("postId", "url", "video", "field", "position")
+      SELECT
+        json_extract("value", '$.postId'), json_extract("value", '$.url'),
+        json_extract("value", '$.video'), json_extract("value", '$.field'),
+        json_extract("value", '$.position')
+      FROM json_each(${JSON.stringify(inserts)})
+    `
   } while (rows.length === 500)
+}
+
+interface MediaFileInsert {
+  field?: SizedField
+  position?: number
+  postId: string
+  url?: string
+  video: number
 }
 
 interface MediaFileRow {
@@ -486,22 +496,26 @@ async function forgetPostsMedia(tx: Database, ids: string[]): Promise<void> {
 
 effect(openedDatabase, db => {
   if (!db) return
-  return getCrdt().on('applied', (tx, action) => {
-    if (postsTable.deleted.match(action)) {
-      return deletePostsMedia(
-        tx,
-        parseCrdtRows(action).map(([id]) => id)
-      )
-    } else if (
-      postsTable.changed.match(action) &&
-      ['author', 'media', 'preview', 'quoted', 'replied', 'repostedBy'].some(
-        key => key in action.fields
-      )
-    ) {
-      return forgetPostsMedia(
-        tx,
-        parseCrdtRows(action).map(([id]) => id)
-      )
-    }
-  })
+  let posts = getTables().posts
+  let unbinds = [
+    posts.on('deleted', deletePostsMedia),
+    posts.on('changed', (tx, rows) => {
+      let ids = rows
+        .filter(([, fields]) => {
+          return [
+            'author',
+            'media',
+            'preview',
+            'quoted',
+            'replied',
+            'repostedBy'
+          ].some(key => key in fields)
+        })
+        .map(([id]) => id)
+      if (ids.length > 0) return forgetPostsMedia(tx, ids)
+    })
+  ]
+  return () => {
+    for (let unbind of unbinds) unbind()
+  }
 })

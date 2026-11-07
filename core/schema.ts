@@ -445,15 +445,6 @@ export function getDatabase(): Database {
   return db
 }
 
-/**
- * `crdt.ready` is resolved also when the database was stopped, for instance,
- * by sign out during the opening. Raw SQL and empty results of `load()`
- * can’t tell it from the empty tables.
- */
-export function isReady(crdt: CrdtDatabase): boolean {
-  return crdt === currentCrdt && crdt.status.get() === 'ready'
-}
-
 export async function getDatabaseSize(): Promise<number> {
   let rows = await getCrdt().select<{ size: number }>`
     SELECT page_count * page_size AS size
@@ -479,7 +470,7 @@ export async function rebuildDatabase(): Promise<void> {
  */
 export async function freeDatabasePages(): Promise<void> {
   if (!hasDatabase()) return
-  await getCrdt().select`PRAGMA incremental_vacuum(1000)`
+  await getCrdt().freePages(1000)
 }
 
 /**
@@ -506,8 +497,7 @@ export async function getTableActions(
   let crdt = currentCrdt
   let tables = currentTables
   if (!crdt || !tables) return []
-  await crdt.ready
-  if (!isReady(crdt)) return []
+  if (!(await crdt.ready)) return []
   return crdtTableToActions(plurals.map(plural => tables[plural]))
 }
 
@@ -629,7 +619,6 @@ function openDatabase(logux: CrossTabClient, db: Database): void {
   // can not change during the database’s life
   let cloud = hasCloud.get()
   let crdt = createCrdtDatabase(logux, db, {
-    key: 'slowreader:db',
     storage: store,
     sync: cloud,
     // The database, which hangs instead of throwing the error, never resolves
@@ -667,9 +656,9 @@ function openDatabase(logux: CrossTabClient, db: Database): void {
     )
   )
 
-  void crdt.ready.then(async () => {
+  void crdt.ready.then(async ready => {
     // The user could sign out while the database was filling
-    if (!isReady(crdt)) return
+    if (!ready) return
     // The data is already here, but the mark was not removed: for instance,
     // the app was closed during the download
     if (downloadingCloudData.get()) {

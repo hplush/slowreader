@@ -63,7 +63,7 @@ function respond(url: string, body: unknown, status = 200): void {
 function fields(account: AccountValue | undefined): object {
   return Object.fromEntries(
     Object.entries(account!).filter(([key]) => {
-      return key !== 'id' && !key.startsWith('updatedAt_')
+      return key !== 'id'
     })
   )
 }

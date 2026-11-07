@@ -42,16 +42,9 @@ function isTableAction(action: Action): boolean {
   )
 }
 
-/**
- * Rows from `load()` have meta columns, which Logux ignores like `id`.
- */
 function cellsOf(fields: object | undefined): string[] {
   return Object.entries(fields ?? {})
-    .filter(([key, value]) => {
-      return (
-        value !== undefined && key !== 'id' && !key.startsWith('updatedAt_')
-      )
-    })
+    .filter(([key, value]) => value !== undefined && key !== 'id')
     .map(([key]) => key)
 }
 

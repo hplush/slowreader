@@ -1,4 +1,3 @@
-import { withMeta, withoutMeta } from '@logux/client/db'
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
@@ -34,7 +33,7 @@ describe('filter', () => {
     let filterId1 = await addFilterForFeed((await loadFeed(feedId1))!)
     let filterId2 = await addFilterForFeed((await loadFeed(feedId2))!)
 
-    deepEqual(withoutMeta(await loadFiltersByFeed(feedId1)), [
+    deepEqual(await loadFiltersByFeed(feedId1), [
       {
         action: 'slow',
         feedId: feedId1,
@@ -43,7 +42,7 @@ describe('filter', () => {
         query: ''
       }
     ])
-    deepEqual(withoutMeta(await loadFiltersByFeed(feedId2)), [
+    deepEqual(await loadFiltersByFeed(feedId2), [
       {
         action: 'fast',
         feedId: feedId2,
@@ -60,26 +59,26 @@ describe('filter', () => {
       feedId: '10',
       query: 'include(some text)'
     } as const
-    let filter100 = withMeta<FilterValue>({
+    let filter100: FilterValue = {
       ...common,
       id: '100',
       priority: 100
-    })
-    let filter200a = withMeta<FilterValue>({
+    }
+    let filter200a: FilterValue = {
       ...common,
       id: '200',
       priority: 200
-    })
-    let filter200b = withMeta<FilterValue>({
+    }
+    let filter200b: FilterValue = {
       ...common,
       id: '400',
       priority: 200
-    })
-    let filter300 = withMeta<FilterValue>({
+    }
+    let filter300: FilterValue = {
       ...common,
       id: '300',
       priority: 300
-    })
+    }
     deepEqual(sortFilters([filter200a, filter300, filter100, filter200b]), [
       filter100,
       filter200a,
@@ -145,20 +144,20 @@ describe('filter', () => {
   })
 
   test('applies filters to posts', () => {
-    let filterSpecial = withMeta<FilterValue>({
+    let filterSpecial: FilterValue = {
       action: 'slow',
       feedId: '10',
       id: '2',
       priority: 200,
       query: 'include(Special Text)'
-    })
-    let filterOther = withMeta<FilterValue>({
+    }
+    let filterOther: FilterValue = {
       action: 'delete',
       feedId: '10',
       id: '3',
       priority: 300,
       query: 'include(other text)'
-    })
+    }
     let checker = prepareFilters([filterSpecial, filterOther])
 
     equal(
@@ -231,20 +230,20 @@ describe('filter', () => {
   })
 
   test('supports not in filters', () => {
-    let filterA = withMeta<FilterValue>({
+    let filterA: FilterValue = {
       action: 'fast',
       feedId: '10',
       id: '1',
       priority: 100,
       query: 'include(a)'
-    })
-    let filterNotB = withMeta<FilterValue>({
+    }
+    let filterNotB: FilterValue = {
       action: 'slow',
       feedId: '10',
       id: '2',
       priority: 200,
       query: 'not include(b)'
-    })
+    }
     let checker = prepareFilters([filterA, filterNotB])
 
     equal(
@@ -284,20 +283,20 @@ describe('filter', () => {
   })
 
   test('is ready for broken filters', () => {
-    let filterA = withMeta<FilterValue>({
+    let filterA: FilterValue = {
       action: 'fast',
       feedId: '10',
       id: '1',
       priority: 100,
       query: 'broken'
-    })
-    let filterNotB = withMeta<FilterValue>({
+    }
+    let filterNotB: FilterValue = {
       action: 'slow',
       feedId: '10',
       id: '2',
       priority: 200,
       query: 'include(a)'
-    })
+    }
     let checker = prepareFilters([filterA, filterNotB])
 
     equal(

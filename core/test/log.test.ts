@@ -29,7 +29,6 @@ import {
   downloadingCloudData,
   type Credentials,
   deleteFeed,
-  type FeedValue,
   generateCredentials,
   getClient,
   getPostId,
@@ -297,7 +296,7 @@ describe('log', () => {
     })
     await waitUntil(async () => (await loadFeeds()).length === 1)
 
-    deepEqual(dropMeta(await loadFeeds()), dropMeta(before))
+    deepEqual(await loadFeeds(), before)
     let entries = await logEntries()
     deepEqual(
       entries.map(entry => entry[0].type),
@@ -903,15 +902,3 @@ describe('log', () => {
     deepEqual((await loadFeeds())[0]!.title, 'A')
   })
 })
-
-function dropMeta(feeds: FeedValue[]): object[] {
-  return feeds.map(feed => {
-    let clean: Record<string, unknown> = {}
-    for (let key in feed) {
-      if (!key.startsWith('updatedAt_')) {
-        clean[key] = feed[key as keyof FeedValue]
-      }
-    }
-    return clean
-  })
-}

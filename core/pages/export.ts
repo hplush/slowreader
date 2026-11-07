@@ -1,4 +1,3 @@
-import { type WithoutMeta, withoutMeta } from '@logux/client/db'
 import { SUBPROTOCOL } from '@slowreader/api'
 import { atom } from 'nanostores'
 
@@ -33,11 +32,11 @@ import {
 import { createPage } from './common.ts'
 
 export interface StateExport {
-  accounts: WithoutMeta<AccountValue>[]
-  categories: WithoutMeta<CategoryValue>[]
-  feeds: WithoutMeta<FeedValue>[]
-  filters: WithoutMeta<FilterValue>[]
-  posts: WithoutMeta<PostValue>[]
+  accounts: AccountValue[]
+  categories: CategoryValue[]
+  feeds: FeedValue[]
+  filters: FilterValue[]
+  posts: PostValue[]
   // Older backups do not have newer settings
   settings: Partial<Settings>
   subprotocol: number
@@ -154,17 +153,17 @@ export const exportPage = createPage('export', () => {
     $exportingBackup.set(true)
     let file = createFileWriter('application/json')
     file.write('{\n')
-    file.write(jsonRows('accounts', withoutMeta(await loadAccounts())))
-    file.write(jsonRows('categories', withoutMeta(await loadCategories())))
-    file.write(jsonRows('feeds', withoutMeta(await loadFeeds())))
-    file.write(jsonRows('filters', withoutMeta(await loadFilters())))
+    file.write(jsonRows('accounts', await loadAccounts()))
+    file.write(jsonRows('categories', await loadCategories()))
+    file.write(jsonRows('feeds', await loadFeeds()))
+    file.write(jsonRows('filters', await loadFilters()))
 
     file.write('  "posts": [')
     let total = 0
     while (true) {
       let page = await loadPostsPage(POSTS_PER_PAGE, total)
       if (stopped) break
-      for (let post of withoutMeta(page)) {
+      for (let post of page) {
         file.write(`${total === 0 ? '\n' : ',\n'}    ${JSON.stringify(post)}`)
         total += 1
       }

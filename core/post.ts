@@ -1,4 +1,3 @@
-import { withMeta, type WithoutMeta } from '@logux/client/db'
 import { formatter } from '@nanostores/i18n'
 import type { SqlStore } from '@nanostores/sql'
 import type { ReadableAtom } from 'nanostores'
@@ -595,11 +594,9 @@ export async function recalcPostsReading(feedId: string): Promise<void> {
 
 let testPostId = 0
 
-export function testPost(
-  post: Partial<WithoutMeta<PostValue>> = {}
-): PostValue {
+export function testPost(post: Partial<PostValue> = {}): PostValue {
   testPostId += 1
-  return withMeta<PostValue>({
+  return {
     accountId: null,
     author: null,
     feedId: 'feed-1',
@@ -628,7 +625,7 @@ export function testPost(
     url: `http://example.com/${testPostId}`,
     warning: null,
     ...post
-  })
+  }
 }
 
 function countPosts(

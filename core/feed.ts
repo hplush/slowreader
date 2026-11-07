@@ -1,4 +1,3 @@
-import { withMeta, type WithoutMeta } from '@logux/client/db'
 import { persistentAtom } from '@nanostores/persistent'
 import type { Database, SqlStore } from '@nanostores/sql'
 import { effect } from 'nanostores'
@@ -15,15 +14,12 @@ import {
 } from './post.ts'
 import type { PostsList } from './posts-list.ts'
 import {
-  accountsTable,
   type FeedChanges,
-  feedsTable,
   type FeedValue,
   GENERAL_CATEGORY,
   getCrdt,
   getTables,
   hasDatabase,
-  isReady,
   openedDatabase,
   type NewFeed
 } from './schema.ts'
@@ -52,33 +48,12 @@ export function loadFeeds(): Promise<FeedValue[]> {
 }
 
 /**
- * Feed’s columns used during the refresh. `SELECT *` returns also
- * `updatedAt_*` column of every field, and the list of all feeds
- * is kept in memory until the refresh ends.
- */
-export type RefreshFeed = Pick<
-  FeedValue,
-  | 'frequency'
-  | 'id'
-  | 'lastOriginId'
-  | 'lastPublishedAt'
-  | 'loader'
-  | 'loaderData'
-  | 'refreshedAt'
-  | 'title'
-  | 'url'
->
-
-/**
  * Feeds with `accountId` get posts from the account’s home timeline.
  * Frequent feeds go first, since they have more posts to load.
  */
-export function loadFeedsForRefresh(): Promise<RefreshFeed[]> {
-  return getCrdt().select<RefreshFeed>`
-    SELECT "id", "title", "url", "loader", "loaderData", "refreshedAt",
-      "lastOriginId", "lastPublishedAt", "frequency"
-    FROM "feeds" WHERE "accountId" IS NULL
-    ORDER BY "frequency" DESC NULLS LAST, "title"
+export function loadFeedsForRefresh(): Promise<FeedValue[]> {
+  return getTables().feeds.load`
+    WHERE "accountId" IS NULL ORDER BY "frequency" DESC NULLS LAST, "title"
   `
 }
 
@@ -256,11 +231,9 @@ export function updateFeedData(
 
 let testFeedId = 0
 
-export function testFeed(
-  feed: Partial<WithoutMeta<FeedValue>> = {}
-): FeedValue {
+export function testFeed(feed: Partial<FeedValue> = {}): FeedValue {
   testFeedId += 1
-  return withMeta<FeedValue>({
+  return {
     accountId: null,
     avatar: null,
     categoryId: GENERAL_CATEGORY,
@@ -278,7 +251,7 @@ export function testFeed(
     title: `Test ${testFeedId}`,
     url: `http://example.com/${testFeedId}`,
     ...feed
-  })
+  }
 }
 
 export const RELEASES_FEED = 'https://slowreader.app/releases.atom'
@@ -305,9 +278,8 @@ function hasAnySource(db: Database): Promise<boolean> {
 onClient(() => {
   let unbindCheck = effect([openedDatabase, hasSources], (db, known) => {
     if (!db || typeof known !== 'undefined') return
-    let crdt = getCrdt()
-    void crdt.ready.then(async () => {
-      if (!isReady(crdt)) return
+    void getCrdt().ready.then(async ready => {
+      if (!ready) return
       let found = await hasAnySource(db)
       // A feed could be added while the query was running
       if (typeof hasSources.get() === 'undefined') hasSources.set(found)
@@ -316,20 +288,21 @@ onClient(() => {
 
   let unbindActions = effect(openedDatabase, db => {
     if (!db) return
-    return getCrdt().on('applied', (tx, action) => {
-      if (
-        feedsTable.created.match(action) ||
-        accountsTable.created.match(action) ||
-        feedsTable.deleted.match(action) ||
-        accountsTable.deleted.match(action)
-      ) {
-        // Changes are applied asynchronously, so feeds can be counted
-        // only inside the applying transaction
-        return hasAnySource(tx).then(found => {
-          hasSources.set(found)
-        })
-      }
-    })
+    // Changes are applied asynchronously, so feeds can be counted
+    // only inside the applying transaction
+    function countSources(tx: Database): Promise<void> {
+      return hasAnySource(tx).then(found => {
+        hasSources.set(found)
+      })
+    }
+    let tables = getTables()
+    let unbinds = [
+      tables.feeds.on(['created', 'deleted'], countSources),
+      tables.accounts.on(['created', 'deleted'], countSources)
+    ]
+    return () => {
+      for (let unbind of unbinds) unbind()
+    }
   })
 
   return () => {
