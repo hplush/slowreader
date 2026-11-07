@@ -21,7 +21,7 @@ DropCapability=all
 NoNewPrivileges=true
 PodmanArgs=--memory={{ service.memory }}
 # Podman ignores HEALTHCHECK of OCI images
-HealthCmd=/usr/bin/httpcheck http://127.0.0.1:2553/health
+HealthCmd=["/usr/bin/httpcheck", "http://127.0.0.1:2553/health"]
 HealthInterval=10s
 HealthTimeout=3s
 HealthRetries=3
