@@ -5,7 +5,7 @@ In all interactions, plans, and commit messages, be extremely concise and sacrif
 ## Code Style
 
 - Prefer short one-word variable names. Avoid abbreviations: use `current` instead of `cur`.
-- Do not add any comments to generated code by default.
+- Do not add any comments to generated code by default. Even a “why” comment needs a reason: add it only if deleting it would likely make someone reintroduce a bug. Otherwise prefer a better name, a test, or nothing.
 - Never write a comment, which repeats the name of the function or variable. Comment only what the code can’t say: why, not what.
 - If a function or variable needs a comment to explain what it does, rename it to say that instead: `waitDisappearFromMenu()`, `menuHasUnread()`, `noNeedWait`. Keep comments only for why.
 - Import only specific functions. Don’t import everything.
