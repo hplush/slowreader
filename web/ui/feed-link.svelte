@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { humanizeUrl } from '@slowreader/core'
-
   import FeedAvatar from './feed-avatar.svelte'
 
   let {
@@ -8,18 +6,18 @@
     avatarRound,
     avatarSize,
     feedId,
+    handle,
     href,
     title,
-    url,
     variant = 'main'
   }: {
     avatar: null | string
     avatarRound: boolean
     avatarSize?: 'medium' | 'small'
     feedId: string
+    handle?: string
     href: string
     title: string
-    url?: string
     variant?: 'main' | 'secondary'
   } = $props()
 </script>
@@ -27,10 +25,10 @@
 <div class="feed-link" class:is-secondary={variant === 'secondary'}>
   <a class="feed-link_link" {href}>
     <FeedAvatar {avatar} {feedId} round={avatarRound} size={avatarSize} />
-    {#if url}
+    {#if handle}
       <span class="feed-link_names">
         <span class="feed-link_text">{title}</span>
-        <span class="feed-link_url">{humanizeUrl(url)}</span>
+        <span class="feed-link_handle">{handle}</span>
       </span>
     {:else}
       <span class="feed-link_text">{title}</span>
@@ -93,7 +91,7 @@
       white-space: nowrap;
     }
 
-    .feed-link_url {
+    .feed-link_handle {
       overflow: hidden;
       text-overflow: ellipsis;
       font: var(--tertiary-font);

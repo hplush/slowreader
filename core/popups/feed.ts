@@ -33,6 +33,7 @@ import {
   loaders,
   tryLoadFeedData
 } from '../loader/index.ts'
+import { collapseThreads, toPreviewPost } from '../post.ts'
 import {
   createPostsList,
   getPostsFrequency,
@@ -356,6 +357,9 @@ export const feed = definePopup('feed', async url => {
     frequency: computed(posts, () => getPostsFrequency(posts)),
     loader: service,
     posts,
+    previews: computed(posts, value =>
+      collapseThreads(value.list).map(i => toPreviewPost(i, service))
+    ),
     remove,
     rename,
     site: $site,

@@ -87,16 +87,29 @@ describe('format', () => {
   })
 
   test('humanizes URL without protocol and www or as handle', () => {
-    equal(humanizeUrl('https://www.example.com/feed'), 'example.com/feed')
-    equal(humanizeUrl('http://example.com/'), 'example.com/')
-    equal(humanizeUrl('https://wwwexample.com'), 'wwwexample.com')
     equal(
-      humanizeUrl('https://bsky.app/profile/publicdomainrev.bsky.social'),
+      humanizeUrl('https://www.example.com/feed', 'rss'),
+      'example.com/feed'
+    )
+    equal(humanizeUrl('http://example.com/', undefined), 'example.com/')
+    equal(humanizeUrl('https://wwwexample.com', 'rss'), 'wwwexample.com')
+    equal(
+      humanizeUrl(
+        'https://bsky.app/profile/publicdomainrev.bsky.social',
+        'bluesky'
+      ),
       '@publicdomainrev.bsky.social'
     )
-    equal(humanizeUrl('https://bsky.app/'), 'bsky.app/')
-    equal(humanizeUrl('https://mastodon.social/@jane'), '@jane@mastodon.social')
-    equal(humanizeUrl('https://medium.com/@jane'), 'medium.com/@jane')
+    equal(humanizeUrl('https://bsky.app/', 'bluesky'), 'bsky.app/')
+    equal(
+      humanizeUrl('https://chaos.social/@jane', 'mastodon'),
+      '@jane@chaos.social'
+    )
+    equal(humanizeUrl('https://medium.com/@jane', 'rss'), 'medium.com/@jane')
+    equal(
+      humanizeUrl('https://medium.com/@jane', undefined),
+      'medium.com/@jane'
+    )
   })
 
   test('formats relative time in the biggest unit', () => {

@@ -1,6 +1,11 @@
 <script lang="ts">
   import { mdiRepeatVariant } from '@mdi/js'
-  import { type PostAuthor, router, postMessages as t } from '@slowreader/core'
+  import {
+    type CardAuthor,
+    type PostAuthor,
+    router,
+    postMessages as t
+  } from '@slowreader/core'
 
   import { getPopupHash } from '../../stores/url-router.ts'
   import Icon from '../icon.svelte'
@@ -11,7 +16,7 @@
     repostedBy,
     repostHref
   }: {
-    author: null | PostAuthor | undefined
+    author: CardAuthor | null | undefined
     repostedBy: null | PostAuthor | undefined
     repostHref?: string
   } = $props()

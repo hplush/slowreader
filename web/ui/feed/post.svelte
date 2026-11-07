@@ -54,7 +54,7 @@
   } = $props()
 
   let [intro, more] = $derived(getPostIntro(post))
-  let param = $derived(getPostPopupParam('origin' in post ? post.origin : post))
+  let param = $derived(getPostPopupParam(post))
   let current = $derived(highlight && isOpenedPost($openedPost, post))
 
   let url = $derived(userPostUrl(post))
@@ -118,9 +118,9 @@
               avatarRound={author.round}
               avatarSize="medium"
               feedId={author.feedId}
+              handle={author.handle}
               href={getPopupHash($router, 'feed', author.url)}
               title={author.title}
-              url={author.url}
               variant="secondary"
             />
           </div>

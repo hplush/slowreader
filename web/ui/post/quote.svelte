@@ -2,10 +2,10 @@
   import {
     addMediaSizes,
     canOpenPostUrl,
+    type CardQuoted,
     getMediaOutsideText,
     getPostBadges,
     getQuotedIntro,
-    type QuotedPost,
     router,
     sanitizeDOM,
     postMessages as t,
@@ -31,7 +31,7 @@
     caption?: string
     full?: boolean
     linked?: boolean
-    quoted: QuotedPost
+    quoted: CardQuoted
     userPostUrl: UserPostUrl
   } = $props()
 

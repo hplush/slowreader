@@ -1013,7 +1013,7 @@ export const mastodon: Loader = {
 
   getHandleFromUrl(url) {
     let profile = url.pathname.match(PROFILE)
-    if (!profile || !POPULAR.has(url.hostname)) return undefined
+    if (!profile) return undefined
     return `@${decodeURIComponent(profile[1]!)}@${url.hostname}`
   },
 

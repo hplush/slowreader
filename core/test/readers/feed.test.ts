@@ -67,6 +67,7 @@ describe('feed reader', () => {
     equal(reader.authors.get().get(feed1)!.title, 'Test 1')
     equal(reader.authors.get().get(feed2)!.url, 'http://example.com/2')
     equal(reader.authors.get().get(feed2)!.feedId, feed2)
+    equal(reader.authors.get().get(feed2)!.handle, 'example.com/2')
   })
 
   test('picks pager by reading', async () => {
@@ -153,7 +154,7 @@ describe('feed reader', () => {
   test('loads social fields', async () => {
     let feedId = await addFeed(testFeed({ slowReader: 'feed' }))
     let social = {
-      author: { title: 'Author' },
+      author: { title: 'Author', url: 'https://example.com/@author' },
       preview: { url: 'https://example.com/' },
       quoted: { missing: true },
       repostedBy: { title: 'Reposter' },
@@ -174,14 +175,23 @@ describe('feed reader', () => {
         unsupported: post.unsupported,
         warning: post.warning
       },
-      social
+      {
+        ...social,
+        author: { ...social.author, handle: 'example.com/@author' }
+      }
     )
   })
 
   test('reads account posts', async () => {
     let categoryId = await addCategory({ fastReader: 'feed', title: 'A' })
     let other = await addCategory({ title: 'B' })
-    let feedId = await addFeed(testFeed({ categoryId, loader: 'mastodon' }))
+    let feedId = await addFeed(
+      testFeed({
+        categoryId,
+        loader: 'mastodon',
+        url: 'https://chaos.social/@a'
+      })
+    )
     let accountId = await addAccount(testAccount({ categoryId }))
     let otherAccount = await addAccount(testAccount({ categoryId: other }))
     function accountPost(
@@ -222,11 +232,16 @@ describe('feed reader', () => {
     let authors = reader.authors.get()
     let [first, , feedPost] = reader.list.get()
     equal(getFeedAuthor(first!, authors), undefined)
+    equal(first!.loader, 'mastodon')
     equal(getFeedAuthor(feedPost!, authors)?.feedId, feedId)
     equal(getFeedAuthor(feedPost!, authors)?.round, true)
+    equal(getFeedAuthor(feedPost!, authors)?.handle, '@a@chaos.social')
     equal(getFeedAuthor(feedPost!, undefined), undefined)
     equal(
-      getFeedAuthor(toPreviewPost({ id: 'preview', originId: 'p' }), authors),
+      getFeedAuthor(
+        toPreviewPost({ id: 'preview', originId: 'p' }, 'rss'),
+        authors
+      ),
       undefined
     )
     equal(reader.list.get()[0]!.threadSize, 2)

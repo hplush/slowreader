@@ -1,6 +1,7 @@
 import { computed } from 'nanostores'
 
 import { getUserPostUrls } from '../account.ts'
+import { humanizeUrl } from '../format.ts'
 import { hasPersonAvatar } from '../loader/index.ts'
 import { createReader, type FeedAuthor } from './common.ts'
 import { numberPager, nextPager } from './pagers.ts'
@@ -22,7 +23,8 @@ export const feedReader = createReader('feed', (filter, params) => {
         authors.set(post.feedId, {
           avatar: post.authorAvatar ?? null,
           feedId: post.feedId,
-          round: hasPersonAvatar(post.authorLoader),
+          handle: humanizeUrl(post.authorUrl!, post.loader),
+          round: hasPersonAvatar(post.loader),
           title: post.authorTitle!,
           url: post.authorUrl!
         })

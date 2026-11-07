@@ -6,21 +6,23 @@ import {
   type WritableAtom
 } from 'nanostores'
 
-import { getUserPostUrls } from '../account.ts'
+import { getUserPostUrls, loadAccount } from '../account.ts'
 import { NotFoundError } from '../errors.ts'
 import { type FeedValue, loadFeed } from '../feed.ts'
 import { formatDuration, formatPublishedAt, i18nFormat } from '../format.ts'
 import { createDownloadTask } from '../lib/download.ts'
-import { type Loader, loaders } from '../loader/index.ts'
+import { type Loader, type LoaderName, loaders } from '../loader/index.ts'
 import { postMessages } from '../messages/index.ts'
 import {
+  addHandles,
   changeRead,
   getPost,
   loadPost,
   loadPostByUrl,
   loadThreadPosts,
   type OriginPost,
-  type PostValue
+  type PostValue,
+  type PreviewPost
 } from '../post.ts'
 import { loadPreviewThread, loadThreadByUrl, updateThread } from '../thread.ts'
 import { type CreatedLoadedPopup, definePopup } from './common.ts'
@@ -30,25 +32,37 @@ import { type CreatedLoadedPopup, definePopup } from './common.ts'
  * when the post was already deleted from the database.
  */
 export function getPostPopupParam(
-  post: { feedId: null | string; id: string; url?: null | string } | OriginPost,
+  post:
+    | { feedId: null | string; id: string; url?: null | string }
+    | Pick<PreviewPost, 'loader' | 'origin'>,
   autoread = false
 ): string {
-  if ('feedId' in post) {
+  if ('origin' in post) {
+    let data = lz.compressToEncodedURIComponent(JSON.stringify(post.origin))
+    return `data:${post.loader}:${data}`
+  } else {
     let url = post.url && canOpenPostUrl(post.url) ? post.url : undefined
     if (autoread) {
       return `read:${url ?? post.id}`
     } else {
       return url ?? `id:${post.id}`
     }
-  } else {
-    return `data:${lz.compressToEncodedURIComponent(JSON.stringify(post))}`
   }
 }
 
-function findPostLoader(url: string): Loader | undefined {
+function isLoaderName(name: string): name is LoaderName {
+  return Object.hasOwn(loaders, name)
+}
+
+function findPostLoader(url: string): LoaderName | undefined {
   let parsed = URL.parse(url)
   if (!parsed) return undefined
-  return Object.values(loaders).find(i => i.isPostUrl?.(parsed))
+  return Object.keys(loaders)
+    .filter(isLoaderName)
+    .find(name => {
+      let current: Loader = loaders[name]
+      return current.isPostUrl?.(parsed)
+    })
 }
 
 export function canOpenPostUrl(url: string): boolean {
@@ -79,6 +93,7 @@ function startFirst(posts: PostValue[], threadId: string): PostValue[] {
 export const post = definePopup('post', async loader => {
   let $post: ReadableAtom<OriginPost | PostValue>
   let $feed: ReadableAtom<FeedValue> | undefined
+  let service: LoaderName | undefined
   let read: undefined | WritableAtom<boolean>
 
   let target = loader.replace(/^read:/, '')
@@ -96,8 +111,9 @@ export const post = definePopup('post', async loader => {
     })
     $post = $stored
   } else if (target.startsWith('https:')) {
-    let postLoader = findPostLoader(target)
-    if (!postLoader) throw new NotFoundError()
+    service = findPostLoader(target)
+    if (!service) throw new NotFoundError()
+    let postLoader: Loader = loaders[service]
     let $byUrl = atom(
       await postLoader.getPostByUrl!(
         createDownloadTask({ cache: 'read' }),
@@ -110,7 +126,9 @@ export const post = definePopup('post', async loader => {
     })
     $post = $byUrl
   } else if (loader.startsWith('data:')) {
-    let data = loader.slice(5)
+    let [, name = '', data = ''] = loader.split(':')
+    if (!isLoaderName(name)) throw new NotFoundError()
+    service = name
     let preview: OriginPost
     try {
       preview = JSON.parse(
@@ -121,12 +139,11 @@ export const post = definePopup('post', async loader => {
     }
     $post = atom(preview)
     $parts.set([preview, ...(preview.threadParts ?? [])])
-    let postLoader = preview.url ? findPostLoader(preview.url) : undefined
-    if (postLoader) {
+    let postLoader: Loader = loaders[service]
+    if (preview.url && postLoader.getPostByUrl) {
       // Preview has no parts of reposted threads
-      updating = loadPreviewThread(task, postLoader, preview.url!).then(
-        thread =>
-          thread.map(part => (part.url === preview.url ? preview : part))
+      updating = loadPreviewThread(task, postLoader, preview.url).then(thread =>
+        thread.map(part => (part.url === preview.url ? preview : part))
       )
     }
   } else {
@@ -155,6 +172,10 @@ export const post = definePopup('post', async loader => {
       ? await loadFeed(postValue.feedId)
       : undefined
     if (feedValue) $feed = atom(feedValue)
+    let account = postValue.accountId
+      ? await loadAccount(postValue.accountId)
+      : undefined
+    service = feedValue?.loader ?? account?.service
     let threadId = postValue.threadId ?? postValue.originId
     if (postValue.threadId) {
       let sourceId = postValue.feedId ?? postValue.accountId!
@@ -210,7 +231,7 @@ export const post = definePopup('post', async loader => {
         return t.afterFirst({ time: formatDuration(format, diff) })
       }
       return parts.slice(1).map(part => ({
-        ...withShown(part, shown),
+        ...addHandles(withShown(part, shown), service),
         afterFirstText: formatAfterFirst(part),
         publishedAtText: part.publishedAt
           ? formatPublishedAt(format, part.publishedAt)
@@ -227,7 +248,7 @@ export const post = definePopup('post', async loader => {
       unbindRead()
     },
     feed: $feed,
-    post: $start,
+    post: computed($start, value => addHandles(value, service)),
     publishedAt: $publishedAt,
     read,
     thread: $thread,

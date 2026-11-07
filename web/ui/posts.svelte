@@ -5,7 +5,6 @@
     getPostTitle,
     isOpenedPost,
     openedPost,
-    type OriginPost,
     type ReaderPost
   } from '@slowreader/core'
 
@@ -17,7 +16,7 @@
     list
   }: {
     autoread?: boolean
-    list: readonly (OriginPost | ReaderPost)[]
+    list: readonly ReaderPost[]
   } = $props()
 
   let links = $derived(
@@ -28,7 +27,7 @@
         href: getPopupHash(undefined, 'post', param),
         id: post.id,
         item: post,
-        variant: 'feedId' in post && post.read ? ('read' as const) : undefined
+        variant: post.read ? ('read' as const) : undefined
       }
     })
   )

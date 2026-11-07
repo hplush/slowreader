@@ -8,7 +8,6 @@
   } from '@mdi/js'
   import {
     addMessages as add,
-    collapseThreads,
     errorToMessage,
     type FeedPopup,
     formatFrequency,
@@ -16,8 +15,7 @@
     hasPersonAvatar,
     isAccountService,
     isTooFrequent,
-    organizeMessages as t,
-    toPreviewPost
+    organizeMessages as t
   } from '@slowreader/core'
 
   import Button from '../ui/button.svelte'
@@ -46,6 +44,7 @@
     followedBy,
     frequency,
     posts,
+    previews,
     site,
     userPostUrl
   } = $derived(popup)
@@ -169,11 +168,11 @@
         >
           {$t.feedPosts}
         </Label>
-        {#if $posts.list.length > 0}
+        {#if $previews.length > 0}
           <Feed
             feedUrl={popup.param}
             highlight={false}
-            posts={collapseThreads($posts.list).map(toPreviewPost)}
+            posts={$previews}
             userPostUrl={$userPostUrl}
           />
         {/if}

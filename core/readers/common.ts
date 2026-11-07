@@ -4,6 +4,7 @@ import type { ReadableAtom, WritableAtom } from 'nanostores'
 import { nextValue } from '../lib/stores.ts'
 import { slowMenu, unreadFastMenu } from '../menu.ts'
 import {
+  addHandles,
   addMediaSizes,
   changeRead,
   hasUnreadPosts,
@@ -73,6 +74,7 @@ export function createReader<Name extends ReaderName, Rest extends Extra>(
 export type FeedAuthor = {
   avatar: null | string
   feedId: string
+  handle: string
   round: boolean
   title: string
   url: string
@@ -194,7 +196,10 @@ type ReaderPostRow = Pick<PostValue, 'mediaSizes'> &
 
 function toReaderPost(row: ReaderPostRow): ReaderPost {
   let { mediaSizes, ...post } = getTables().posts.parseRow(row)
-  return { ...post, media: addMediaSizes(post.media, mediaSizes) }
+  return addHandles(
+    { ...post, media: addMediaSizes(post.media, mediaSizes) },
+    post.loader
+  )
 }
 
 /**
@@ -234,7 +239,7 @@ export function loadPostsPage(
         COALESCE(NULLIF("posts"."intro", '') <> "posts"."full", 0) AS "more",
         "feeds"."title" AS "authorTitle", "feeds"."url" AS "authorUrl",
         "feeds"."avatar" AS "authorAvatar",
-        "feeds"."loader" AS "authorLoader"
+        COALESCE("feeds"."loader", "accounts"."service") AS "loader"
       FROM "posts"
       LEFT JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
       LEFT JOIN "accounts" ON "accounts"."id" = "posts"."accountId"
@@ -315,7 +320,7 @@ export function loadPostsRange(
         COALESCE(NULLIF("posts"."intro", '') <> "posts"."full", 0) AS "more",
         "feeds"."title" AS "authorTitle", "feeds"."url" AS "authorUrl",
         "feeds"."avatar" AS "authorAvatar",
-        "feeds"."loader" AS "authorLoader"
+        COALESCE("feeds"."loader", "accounts"."service") AS "loader"
       FROM "posts"
       LEFT JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
       LEFT JOIN "accounts" ON "accounts"."id" = "posts"."accountId"

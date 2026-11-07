@@ -183,7 +183,7 @@ export type Loader = {
   getPostSource(feed: FeedValue, originId: string): Promise<unknown>
 
   /**
-   * Convert profile URL to `@handle`.
+   * Convert this loader’s profile URL to `@handle`.
    */
   getHandleFromUrl?(url: URL): string | undefined
 

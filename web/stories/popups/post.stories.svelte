@@ -176,12 +176,15 @@
   } satisfies Partial<FeedValue>
 
   const ORIGIN = getPostPopupParam({
-    full: '<p>The post from the feed, which was not added yet.</p>',
-    id: 'origin',
-    originId: 'origin',
-    publishedAt: 1600000000,
-    title: 'Post from the feed preview',
-    url: 'https://example.com/news/2'
+    loader: 'rss',
+    origin: {
+      full: '<p>The post from the feed, which was not added yet.</p>',
+      id: 'origin',
+      originId: 'origin',
+      publishedAt: 1600000000,
+      title: 'Post from the feed preview',
+      url: 'https://example.com/news/2'
+    }
   })
 
   let { Story } = defineMeta({

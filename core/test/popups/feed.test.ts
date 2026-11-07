@@ -155,6 +155,9 @@ describe('feed popup', () => {
     equal(checkLoadedPopup(popup).posts.get().hasNext, true)
     deepEqual(checkLoadedPopup(popup).posts.get().list[0]?.originId, '2')
     equal(typeof checkLoadedPopup(popup).frequency.get(), 'number')
+    let [preview] = checkLoadedPopup(popup).previews.get()
+    equal(preview?.originId, '2')
+    equal(preview.loader, 'rss')
 
     expectRequest('https://a.com/atom?page=2').andRespond(
       200,

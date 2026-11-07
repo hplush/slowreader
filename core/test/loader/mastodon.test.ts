@@ -1146,8 +1146,8 @@ describe('mastodon loader', () => {
       undefined
     )
     equal(
-      mastodon.getHandleFromUrl!(new URL('https://medium.com/@jane')),
-      undefined
+      mastodon.getHandleFromUrl!(new URL('https://chaos.social/@jane')),
+      '@jane@chaos.social'
     )
 
     expectRequest('https://other.social/api/v1/statuses/1').andRespond(

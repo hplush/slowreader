@@ -1,5 +1,10 @@
 <script lang="ts">
-  import type { OriginPost, PostValue, UserPostUrl } from '@slowreader/core'
+  import type {
+    OriginPost,
+    PostValue,
+    UserPostUrl,
+    WithHandles
+  } from '@slowreader/core'
 
   import SmallLink from '../small-link.svelte'
   import Post from './index.svelte'
@@ -11,7 +16,7 @@
     userPostUrl
   }: {
     afterFirst: string | undefined
-    post: OriginPost | PostValue
+    post: WithHandles<OriginPost | PostValue>
     publishedAt: string | undefined
     userPostUrl: UserPostUrl
   } = $props()

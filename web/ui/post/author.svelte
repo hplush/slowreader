@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { humanizeUrl, type PostAuthor, router } from '@slowreader/core'
+  import { type CardAuthor, router } from '@slowreader/core'
 
   import { waitImageDecoded } from '../../lib/image.ts'
   import { getPopupHash } from '../../stores/url-router.ts'
   import BrokenImage from '../broken-image.svelte'
 
-  let { author }: { author: PostAuthor } = $props()
+  let { author }: { author: CardAuthor } = $props()
 
   let broken = $state<null | string>()
   let loaded = $state<null | string>()
@@ -42,7 +42,7 @@
   {#if author.url}
     <span class="post-author_names">
       <span class="post-author_title">{author.title}</span>
-      <span class="post-author_handle">{humanizeUrl(author.url)}</span>
+      <span class="post-author_handle">{author.handle}</span>
     </span>
   {:else}
     <span class="post-author_title">{author.title}</span>

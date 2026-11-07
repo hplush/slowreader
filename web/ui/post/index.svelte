@@ -7,7 +7,8 @@
     type PostValue,
     sanitizeDOM,
     postMessages as t,
-    type UserPostUrl
+    type UserPostUrl,
+    type WithHandles
   } from '@slowreader/core'
 
   import FormattedText from '../formatted-text.svelte'
@@ -24,7 +25,7 @@
     repostHref,
     userPostUrl
   }: {
-    post: OriginPost | PostValue
+    post: WithHandles<OriginPost | PostValue>
     repostHref?: string
     userPostUrl: UserPostUrl
   } = $props()

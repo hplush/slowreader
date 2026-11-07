@@ -2,7 +2,7 @@ import { formatter, type Formatter } from '@nanostores/i18n'
 import type { StoreValue } from 'nanostores'
 
 import { $locale } from './i18n.ts'
-import { loaders } from './loader/index.ts'
+import { type Loader, type LoaderName, loaders } from './loader/index.ts'
 import type { organizeMessages } from './messages/index.ts'
 
 export const i18nFormat = formatter($locale)
@@ -97,13 +97,15 @@ export function formatFrequency(
   }
 }
 
-export function humanizeUrl(url: string): string {
+export function humanizeUrl(
+  url: string,
+  loader: LoaderName | undefined
+): string {
   let parsed = URL.parse(url)
-  if (parsed) {
-    for (let loader of Object.values(loaders)) {
-      let handle = loader.getHandleFromUrl?.(parsed)
-      if (handle) return handle
-    }
+  if (parsed && loader) {
+    let current: Loader = loaders[loader]
+    let handle = current.getHandleFromUrl?.(parsed)
+    if (handle) return handle
   }
   return url.replace(/^https?:\/\/(www\.)?/i, '')
 }

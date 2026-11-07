@@ -493,17 +493,21 @@ describe('post', () => {
     let size = { height: 1, width: 2 }
     let part = { id: '2', originId: '2' }
     deepEqual(
-      toPreviewPost({
-        full: 'Full',
-        id: '1',
-        intro: 'Intro',
-        media: [image],
-        mediaSizes: [size],
-        originId: '1',
-        threadParts: [part],
-        url: 'https://example.com/1'
-      }),
+      toPreviewPost(
+        {
+          full: 'Full',
+          id: '1',
+          intro: 'Intro',
+          media: [image],
+          mediaSizes: [size],
+          originId: '1',
+          threadParts: [part],
+          url: 'https://example.com/1'
+        },
+        'rss'
+      ),
       {
+        loader: 'rss',
         full: null,
         id: '1',
         intro: 'Intro',
@@ -527,19 +531,24 @@ describe('post', () => {
         url: 'https://example.com/1'
       }
     )
-    deepEqual(toPreviewPost({ id: '1', intro: 'Intro', originId: '1' }), {
-      full: null,
-      id: '1',
-      intro: 'Intro',
-      media: [],
-      more: 0,
-      origin: { id: '1', intro: 'Intro', originId: '1' },
-      originId: '1',
-      threadPosition: 1,
-      threadSize: 1,
-      url: null
-    })
-    deepEqual(toPreviewPost({ full: 'Full', id: '1', originId: '1' }), {
+    deepEqual(
+      toPreviewPost({ id: '1', intro: 'Intro', originId: '1' }, 'rss'),
+      {
+        loader: 'rss',
+        full: null,
+        id: '1',
+        intro: 'Intro',
+        media: [],
+        more: 0,
+        origin: { id: '1', intro: 'Intro', originId: '1' },
+        originId: '1',
+        threadPosition: 1,
+        threadSize: 1,
+        url: null
+      }
+    )
+    deepEqual(toPreviewPost({ full: 'Full', id: '1', originId: '1' }, 'rss'), {
+      loader: 'rss',
       full: 'Full',
       id: '1',
       intro: null,
@@ -551,6 +560,6 @@ describe('post', () => {
       threadSize: 1,
       url: null
     })
-    equal(toPreviewPost({ id: '1', originId: '1' }).full, null)
+    equal(toPreviewPost({ id: '1', originId: '1' }, 'rss').full, null)
   })
 })

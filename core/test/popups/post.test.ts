@@ -180,7 +180,7 @@ describe('post popup', () => {
 
   test('opens candidate post', async () => {
     let post: OriginPost = { id: 'post', originId: 'id', title: 'test' }
-    let data = getPostPopupParam(post)
+    let data = getPostPopupParam({ loader: 'rss', origin: post })
 
     let popup = openTestPopup('post', data)
     await waitLoading(popup.loading)
@@ -188,9 +188,13 @@ describe('post popup', () => {
     deepEqual(checkLoadedPopup(popup).read, undefined)
     equal(checkLoadedPopup(popup).feed, undefined)
 
-    let broken1 = openTestPopup('post', 'data:aaa')
+    let broken1 = openTestPopup('post', 'data:rss:aaa')
     await waitLoading(broken1.loading)
     equal(broken1.notFound, true)
+
+    let unknown = openTestPopup('post', data.replace(':rss:', ':unknown:'))
+    await waitLoading(unknown.loading)
+    equal(unknown.notFound, true)
 
     let broken2 = openTestPopup('post', 'aaa')
     await waitLoading(broken2.loading)
@@ -488,12 +492,15 @@ describe('post popup', () => {
     let popup = openTestPopup(
       'post',
       getPostPopupParam({
-        id: '1',
-        originId: '1',
-        threadParts: [
-          { id: '2', originId: '2', publishedAt: 2000 },
-          { id: '3', originId: '3' }
-        ]
+        loader: 'rss',
+        origin: {
+          id: '1',
+          originId: '1',
+          threadParts: [
+            { id: '2', originId: '2', publishedAt: 2000 },
+            { id: '3', originId: '3' }
+          ]
+        }
       })
     )
     await waitLoading(popup.loading)
@@ -536,7 +543,11 @@ describe('post popup', () => {
     deepEqual(ancestors.calls[0]!.slice(1), [url, '2'])
     deepEqual(descendants.calls[0]!.slice(1), [url, '2'])
     let loaded = checkLoadedPopup(popup)
-    deepEqual(loaded.post.get(), { author: jane, id: '1', originId: '1' })
+    deepEqual(loaded.post.get(), {
+      author: { ...jane, handle: undefined },
+      id: '1',
+      originId: '1'
+    })
     deepEqual(
       loaded.thread.get().map(post => [post.originId, post.author?.title]),
       [
@@ -567,10 +578,8 @@ describe('post popup', () => {
     let popup = openTestPopup(
       'post',
       getPostPopupParam({
-        id: 'r',
-        originId: 'r',
-        repostedBy: { title: 'Jane' },
-        url
+        loader: 'mastodon',
+        origin: { id: 'r', originId: 'r', repostedBy: { title: 'Jane' }, url }
       })
     )
     await waitLoading(popup.loading)
@@ -587,9 +596,8 @@ describe('post popup', () => {
     let rss = openTestPopup(
       'post',
       getPostPopupParam({
-        id: 'a',
-        originId: 'a',
-        url: 'https://example.com/a'
+        loader: 'rss',
+        origin: { id: 'a', originId: 'a', url: 'https://example.com/a' }
       })
     )
     await waitLoading(rss.loading)
@@ -646,7 +654,11 @@ describe('post popup', () => {
     await setTimeout(10)
     deepEqual(checkLoadedPopup(popup).thread.get(), [])
     deepEqual(checkLoadedPopup(popup).post.get(), {
-      author: { title: 'Jane', url: 'https://mastodon.social/@jane' },
+      author: {
+        handle: '@jane@mastodon.social',
+        title: 'Jane',
+        url: 'https://mastodon.social/@jane'
+      },
       full: '<p>Text</p>',
       id: 'https://mastodon.social/@jane/1',
       originId: '1',

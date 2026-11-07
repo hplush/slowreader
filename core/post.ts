@@ -5,6 +5,7 @@ import type { ReadableAtom } from 'nanostores'
 
 import { loadFeed } from './feed.ts'
 import { loadFilterChecker } from './filter.ts'
+import { humanizeUrl } from './format.ts'
 import { $locale } from './i18n.ts'
 import {
   endsWithEllipsis,
@@ -123,9 +124,9 @@ export type ReaderMedia = { size?: MediaSize } & PostMedia
  */
 export type ReaderPostWith<Media> = {
   authorAvatar?: null | string
-  authorLoader?: LoaderName
   authorTitle?: string
   authorUrl?: string
+  loader?: LoaderName
   media: Media
   threadPosition: number
   threadSize: number
@@ -152,19 +153,68 @@ export type ReaderPostWith<Media> = {
 > &
   PostCardText
 
-export type ReaderPost = ReaderPostWith<ReaderMedia[]>
+export type CardAuthor = { handle: string | undefined } & PostAuthor
+
+export type CardQuoted = { author?: CardAuthor } & Omit<QuotedPost, 'author'>
+
+export type WithHandles<Post> = {
+  [Key in keyof Post]: Key extends 'author'
+    ? CardAuthor | Exclude<Post[Key], PostAuthor>
+    : Key extends 'quoted' | 'replied'
+      ? CardQuoted | Exclude<Post[Key], QuotedPost>
+      : Post[Key]
+}
+
+function toCardAuthor(
+  author: PostAuthor,
+  loader: LoaderName | undefined
+): CardAuthor {
+  return {
+    ...author,
+    handle: author.url ? humanizeUrl(author.url, loader) : undefined
+  }
+}
+
+function toCardQuoted(
+  quoted: QuotedPost,
+  loader: LoaderName | undefined
+): CardQuoted {
+  let { author, ...rest } = quoted
+  return author ? { ...rest, author: toCardAuthor(author, loader) } : rest
+}
+
+export function addHandles<
+  Post extends {
+    author?: null | PostAuthor
+    quoted?: null | QuotedPost
+    replied?: null | QuotedPost
+  }
+>(post: Post, loader: LoaderName | undefined): WithHandles<Post> {
+  let { author, quoted, replied } = post
+  return {
+    ...post,
+    ...(author && { author: toCardAuthor(author, loader) }),
+    ...(quoted && { quoted: toCardQuoted(quoted, loader) }),
+    ...(replied && { replied: toCardQuoted(replied, loader) })
+  } as WithHandles<Post>
+}
+
+export type ReaderPost = WithHandles<ReaderPostWith<ReaderMedia[]>>
 
 /**
  * The card of not yet added feed’s post. Keeps `origin` to open the post
  * popup without the database.
  */
-export type PreviewPost = {
-  media: ReaderMedia[]
-  origin: OriginPost
-  threadPosition: number
-  threadSize: number
-} & Omit<OriginPost, 'full' | 'intro' | 'media' | 'url'> &
-  PostCardText
+export type PreviewPost = WithHandles<
+  {
+    loader: LoaderName
+    media: ReaderMedia[]
+    origin: OriginPost
+    threadPosition: number
+    threadSize: number
+  } & Omit<OriginPost, 'full' | 'intro' | 'media' | 'url'> &
+    PostCardText
+>
 
 /**
  * How much of the article the card shows, in chars of text.
@@ -391,7 +441,10 @@ export function collapseThreads(posts: readonly OriginPost[]): OriginPost[] {
   return result
 }
 
-export function toPreviewPost(origin: OriginPost): PreviewPost {
+export function toPreviewPost(
+  origin: OriginPost,
+  loader: LoaderName
+): PreviewPost {
   let url = origin.url ?? null
   let text: PostCardText = origin.intro
     ? {
@@ -401,14 +454,18 @@ export function toPreviewPost(origin: OriginPost): PreviewPost {
         url
       }
     : { full: origin.full ?? null, intro: null, more: 0, url }
-  return {
-    ...origin,
-    ...text,
-    media: addMediaSizes(origin.media, origin.mediaSizes),
-    origin,
-    threadPosition: 1,
-    threadSize: (origin.threadParts?.length ?? 0) + 1
-  }
+  return addHandles(
+    {
+      ...origin,
+      ...text,
+      loader,
+      media: addMediaSizes(origin.media, origin.mediaSizes),
+      origin,
+      threadPosition: 1,
+      threadSize: (origin.threadParts?.length ?? 0) + 1
+    },
+    loader
+  )
 }
 
 /**
