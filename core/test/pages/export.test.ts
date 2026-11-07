@@ -184,6 +184,7 @@ describe('export page', () => {
         showUsageBalance: true,
         textSize: 100,
         theme: 'system',
+        trackUsage: true,
         useQuietCursor: false,
         useReducedMotion: false
       },

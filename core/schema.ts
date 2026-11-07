@@ -301,7 +301,8 @@ export const settingsTable = defineCrdtTable('settings', {
   ),
   openWarnings: optional(boolean()),
   showSensitiveMedia: optional(boolean()),
-  showUsageBalance: optional(boolean())
+  showUsageBalance: optional(boolean()),
+  trackUsage: optional(boolean())
 })
 
 export const usagesTable = defineCrdtTable(

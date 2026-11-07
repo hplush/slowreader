@@ -36,6 +36,7 @@ import {
   postLineHeight,
   setRequestMethod,
   showUsageBalance,
+  trackUsage,
   syncedSettingsLoading,
   testAccount,
   testFeed,
@@ -124,6 +125,7 @@ describe('import page', () => {
     nightLock.set({ enabled: true, from: 22, to: 6 })
     openWarnings.set(true)
     showUsageBalance.set(false)
+    trackUsage.set(false)
     textSize.set(150)
     postFont.set('custom')
     postLineHeight.set('relaxed')
@@ -147,6 +149,7 @@ describe('import page', () => {
     nightLock.set({ enabled: false, from: 23, to: 7 })
     openWarnings.set(false)
     showUsageBalance.set(true)
+    trackUsage.set(true)
     textSize.set(100)
     postFont.set('default')
     postLineHeight.set('normal')
@@ -177,6 +180,7 @@ describe('import page', () => {
     deepEqual(nightLock.get(), { enabled: true, from: 22, to: 6 })
     equal(openWarnings.get(), true)
     equal(showUsageBalance.get(), false)
+    equal(trackUsage.get(), false)
     equal(textSize.get(), 150)
     equal(postFont.get(), 'custom')
     equal(postLineHeight.get(), 'relaxed')

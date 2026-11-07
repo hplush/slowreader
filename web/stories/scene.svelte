@@ -55,6 +55,7 @@
     testPost,
     textSize,
     theme,
+    trackUsage,
     useReducedMotion,
     waitLoading,
     welcomeSteps
@@ -230,6 +231,7 @@
     showSensitiveMedia.set(false)
     openWarnings.set(false)
     showUsageBalance.set(true)
+    trackUsage.set(true)
     fastPostsMaxAge.set(604800)
     nightLock.set({ enabled: false, from: 23, to: 4 })
     cacheMediaReading.set('all')

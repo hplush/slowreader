@@ -27,7 +27,8 @@ import {
   showSensitiveMedia,
   showUsageBalance,
   textSize,
-  theme
+  theme,
+  trackUsage
 } from '../settings.ts'
 import { isDemo } from '../welcome.ts'
 import { createPage } from './common.ts'
@@ -197,6 +198,9 @@ export const importPage = createPage('import', () => {
     }
     if (settings.showUsageBalance !== undefined) {
       showUsageBalance.set(settings.showUsageBalance)
+    }
+    if (settings.trackUsage !== undefined) {
+      trackUsage.set(settings.trackUsage)
     }
 
     let done = startProgress(

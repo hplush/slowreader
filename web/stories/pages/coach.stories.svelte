@@ -3,7 +3,8 @@
     getTables,
     nightLock,
     pages,
-    showUsageBalance
+    showUsageBalance,
+    trackUsage
   } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
@@ -32,7 +33,12 @@
 </script>
 
 <Story name="Base" asChild parameters={{ layout: 'fullscreen' }}>
-  <Scene route="coach">
+  <Scene
+    oninit={() => {
+      trackUsage.set(false)
+    }}
+    route="coach"
+  >
     <CoachPage page={pages.coach()} />
   </Scene>
 </Story>

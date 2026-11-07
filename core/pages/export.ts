@@ -23,6 +23,7 @@ import {
   showUsageBalance,
   textSize,
   theme,
+  trackUsage,
   useQuietCursor,
   useReducedMotion
 } from '../settings.ts'
@@ -179,6 +180,7 @@ export const exportPage = createPage('export', () => {
       showUsageBalance: showUsageBalance.get(),
       textSize: textSize.get(),
       theme: theme.get(),
+      trackUsage: trackUsage.get(),
       useQuietCursor: useQuietCursor.get(),
       useReducedMotion: useReducedMotion.get()
     } satisfies Settings

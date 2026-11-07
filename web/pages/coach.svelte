@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mdiScaleBalance, mdiWeatherNight } from '@mdi/js'
+  import { mdiScaleBalance, mdiTimerOutline, mdiWeatherNight } from '@mdi/js'
   import {
     type CoachPage,
     formatDuration,
@@ -8,7 +8,8 @@
     settingsMessages,
     showUsageBalance,
     solveNightTask,
-    coachMessages as t
+    coachMessages as t,
+    trackUsage
   } from '@slowreader/core'
 
   import Card from '../ui/card.svelte'
@@ -44,23 +45,30 @@
     <Card width="stretch">
       <Stack gap="m">
         <Title>{$t.usageTitle}</Title>
-        <Stack align="stretch" gap="s">
-          <ReadingNumbers
-            fast={formatDuration($i18nFormat, $usageSum.fast)}
-            legend
-            slow={formatDuration($i18nFormat, $usageSum.slow)}
-          />
-          <UsageTimeline
-            marks={$usageTimeline.marks}
-            parts={$usageTimeline.parts}
-          />
-        </Stack>
         <Switch
-          icon={mdiScaleBalance}
-          label={$t.showBalance}
-          note={$t.showBalanceNote}
-          store={showUsageBalance}
+          icon={mdiTimerOutline}
+          label={$t.trackUsage}
+          store={trackUsage}
         />
+        {#if $trackUsage}
+          <Stack align="stretch" gap="s">
+            <ReadingNumbers
+              fast={formatDuration($i18nFormat, $usageSum.fast)}
+              legend
+              slow={formatDuration($i18nFormat, $usageSum.slow)}
+            />
+            <UsageTimeline
+              marks={$usageTimeline.marks}
+              parts={$usageTimeline.parts}
+            />
+          </Stack>
+          <Switch
+            icon={mdiScaleBalance}
+            label={$t.showBalance}
+            note={$t.showBalanceNote}
+            store={showUsageBalance}
+          />
+        {/if}
       </Stack>
     </Card>
     <Card width="stretch">

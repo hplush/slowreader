@@ -14,6 +14,7 @@ import {
   postLineHeight,
   showSensitiveMedia,
   showUsageBalance,
+  trackUsage,
   textSize,
   useQuietCursor,
   useReducedMotion
@@ -63,5 +64,9 @@ describe('settings', () => {
 
   test('shows reading balance by default', () => {
     equal(showUsageBalance.get(), true)
+  })
+
+  test('tracks reading time by default', () => {
+    equal(trackUsage.get(), true)
   })
 })

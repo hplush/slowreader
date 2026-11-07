@@ -13,6 +13,7 @@ export const coachMessages = i18n('coach', {
   showBalanceNote: 'Smile near Useful and Fun menu',
   settingsLocked: params('Solve a task to change settings until {time}'),
   to: 'To',
+  trackUsage: 'Track reading time',
   unlock: 'Unlock',
   usageDayAgo: '24h ago',
   usageNow: 'now',

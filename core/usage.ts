@@ -14,6 +14,7 @@ import {
   openedDatabase,
   type UsageValue
 } from './schema.ts'
+import { trackUsage } from './settings.ts'
 
 export type { UsageValue }
 
@@ -131,10 +132,11 @@ onClient(logux => {
     let now = Date.now()
     let route = router.get()
     let next: undefined | UsageType
-    if (visible && route.route === 'slow') {
+    let tracking = visible && trackUsage.get()
+    if (tracking && route.route === 'slow') {
       next = 'slow'
     } else if (
-      visible &&
+      tracking &&
       route.route === 'fast' &&
       !nightLockState.get().locked
     ) {
@@ -152,6 +154,7 @@ onClient(logux => {
   let env = getEnvironment()
   let unbindRouter = router.subscribe(update)
   let unbindLock = nightLockState.listen(update)
+  let unbindTracking = trackUsage.listen(update)
   let unbindVisibility = env.onVisibilityChange(value => {
     visible = value
     update()
@@ -173,6 +176,7 @@ onClient(logux => {
   return () => {
     unbindCleaning()
     unbindRouter()
+    unbindTracking()
     unbindLock()
     unbindVisibility()
     unbindExit()
@@ -240,7 +244,7 @@ export const usageSum = computed(usage24hours, (sessions): UsageSum => {
  * will throw the marker to the end.
  */
 export const usageBalance = computed(usageSum, ({ fast, slow }) => {
-  if (fast + slow < 5 * 60) return 0
+  if (fast + slow < 2 * 60) return 0
   return (fast - slow) / (fast + slow)
 })
 

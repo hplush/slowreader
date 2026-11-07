@@ -9,6 +9,7 @@ import {
   lastUsage,
   nightLock,
   readUsefulRecently,
+  trackUsage,
   userId,
   type UsageValue,
   usage24hours,
@@ -73,6 +74,7 @@ describe('usage', () => {
     openRoute({ params: {}, route: 'home' })
     lastUsage.set(undefined)
     nightLock.set({ enabled: false, from: 23, to: 7 })
+    trackUsage.set(true)
     clock.set(new Date())
     mock.timers.reset()
     await cleanClient()
@@ -153,6 +155,16 @@ describe('usage', () => {
     at(MINUTE)
     openRoute({ params: {}, route: 'home' })
     equal(lastUsage.get(), undefined)
+  })
+
+  test('stops when tracking is disabled', () => {
+    openRoute({ params: {}, route: 'slow' })
+    at(MINUTE)
+    trackUsage.set(false)
+    equal(lastUsage.get()!.to, START + MINUTE)
+    at(5 * MINUTE)
+    openRoute({ hash: 'post=a', params: {}, route: 'slow' })
+    equal(lastUsage.get()!.to, START + MINUTE)
   })
 
   test('moves only the session of the visible tab', () => {

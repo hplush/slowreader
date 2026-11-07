@@ -205,6 +205,8 @@ export const openWarnings = syncedSetting('openWarnings', false)
 
 export const showUsageBalance = syncedSetting('showUsageBalance', true)
 
+export const trackUsage = syncedSetting('trackUsage', true)
+
 export const fastPostsMaxAge = syncedSetting('fastPostsMaxAge', 604800)
 
 export const nightLock = syncedSetting('nightLock', {
@@ -228,7 +230,8 @@ onClient(() =>
         nightLock,
         openWarnings,
         showSensitiveMedia,
-        showUsageBalance
+        showUsageBalance,
+        trackUsage
       ],
       syncedSettingsLoading,
       () => ({ createdAt: Math.round(Date.now() / 1000) })
@@ -251,6 +254,7 @@ export interface Settings {
   showUsageBalance: StoreValue<typeof showUsageBalance>
   textSize: StoreValue<typeof textSize>
   theme: StoreValue<typeof theme>
+  trackUsage: StoreValue<typeof trackUsage>
   useQuietCursor: StoreValue<typeof useQuietCursor>
   useReducedMotion: StoreValue<typeof useReducedMotion>
 }

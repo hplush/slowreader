@@ -2,6 +2,7 @@
   import {
     showUsageBalance,
     navbarMessages as t,
+    trackUsage,
     usageBalance,
     usageMood
   } from '@slowreader/core'
@@ -23,7 +24,7 @@
 
 <a
   class="navbar-balance"
-  class:is-hidden={!$showUsageBalance}
+  class:is-hidden={!$showUsageBalance || !$trackUsage}
   aria-label={$t[LABELS[$usageMood]]}
   href={getURL('coach')}
   title={$t[LABELS[$usageMood]]}
