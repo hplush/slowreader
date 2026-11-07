@@ -7,8 +7,8 @@ import {
   clock,
   getTables,
   lastUsage,
+  needUsefulReminder,
   nightLock,
-  readUsefulRecently,
   trackUsage,
   userId,
   type UsageValue,
@@ -292,17 +292,49 @@ describe('usage', () => {
     equal(usageMood.get(), 'good')
   })
 
-  test('knows about recent Useful reading', async t => {
+  test('reminds about Useful when Fun took more time', async t => {
     await getTables().usages.create({
-      from: START - 30 * MINUTE,
-      id: 'old',
-      to: START - 12 * MINUTE,
+      from: START - 20 * MINUTE,
+      id: 'useful',
+      to: START - 14 * MINUTE,
       type: 'slow'
     })
     clock.set(new Date(START))
-    t.after(readUsefulRecently.listen(() => {}))
+    t.after(needUsefulReminder.listen(() => {}))
     await waitFor(usage24hours, list => list?.length === 1)
-    equal(readUsefulRecently.get(), false)
+    function read(type: 'fast' | 'slow', minutes: number): void {
+      lastUsage.set({
+        created: true,
+        from: START - minutes * MINUTE,
+        id: 'last',
+        saved: START,
+        to: START,
+        type
+      })
+    }
+
+    read('fast', 2)
+    equal(needUsefulReminder.get(), false)
+
+    read('fast', 3)
+    equal(needUsefulReminder.get(), true)
+
+    trackUsage.set(false)
+    read('slow', 4)
+    equal(needUsefulReminder.get(), true)
+  })
+
+  test('does not remind about Useful after reading it', async t => {
+    await getTables().usages.create({
+      from: START - 60 * MINUTE,
+      id: 'fun',
+      to: START - 30 * MINUTE,
+      type: 'fast'
+    })
+    clock.set(new Date(START))
+    t.after(needUsefulReminder.listen(() => {}))
+    await waitFor(usage24hours, list => list?.length === 1)
+    equal(needUsefulReminder.get(), true)
 
     lastUsage.set({
       created: true,
@@ -312,9 +344,9 @@ describe('usage', () => {
       to: START - 3 * MINUTE,
       type: 'slow'
     })
-    equal(readUsefulRecently.get(), true)
+    equal(needUsefulReminder.get(), false)
 
     clock.set(new Date(START + 5 * MINUTE))
-    equal(readUsefulRecently.get(), false)
+    equal(needUsefulReminder.get(), true)
   })
 })
