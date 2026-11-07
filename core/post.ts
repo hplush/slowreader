@@ -1,7 +1,9 @@
+import { parseCrdtRows } from '@logux/client/db'
 import { formatter } from '@nanostores/i18n'
 import type { SqlStore } from '@nanostores/sql'
 import type { ReadableAtom } from 'nanostores'
 
+import { getClient } from './client.ts'
 import { loadFeed } from './feed.ts'
 import { loadFilterChecker } from './filter.ts'
 import { humanizeUrl } from './format.ts'
@@ -289,6 +291,23 @@ export function loadPostOriginIdsByFeed(feedId: string): Promise<string[]> {
   }>`SELECT "originId" FROM "posts" WHERE "feedId" = ${feedId}`.then(rows =>
     rows.map(row => row.originId)
   )
+}
+
+/**
+ * Read posts are deleted, but the source still has them. The log deletes
+ * a post with the same ID again by the tombstone, but user will see it.
+ */
+export async function withoutDeletedPosts<Post extends { id: string }>(
+  posts: Post[]
+): Promise<Post[]> {
+  if (posts.length === 0) return posts
+  let deleted = new Set<string>()
+  await getClient().log.each({ index: 'tombstone' }, action => {
+    if (action.type === 'posts/deleted') {
+      for (let [id] of parseCrdtRows(action)) deleted.add(id)
+    }
+  })
+  return posts.filter(post => !deleted.has(post.id))
 }
 
 /**

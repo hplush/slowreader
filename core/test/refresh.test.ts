@@ -270,14 +270,13 @@ describe('refresh', () => {
     deepEqual(refreshStatistics.get(), {
       errorFeeds: 0,
       errorRequests: 0,
-      foundFast: 1,
-      foundSlow: 3,
+      foundFast: 0,
+      foundSlow: 2,
       initializing: false,
       processedFeeds: 1,
       totalFeeds: 2
     })
-    deepEqual(await getPostKeys('title'), ['2', '3', '7', '8 slow'])
-    deepEqual(await getPostKeys('reading'), ['slow', 'slow', 'fast', 'slow'])
+    deepEqual(await getPostKeys('title'), ['2', '3'])
     deepEqual((await loadFeed(feedId2))!.lastOriginId, 'post2')
     deepEqual((await loadFeed(feedId2))!.lastPublishedAt, 5000)
 
@@ -293,6 +292,13 @@ describe('refresh', () => {
     ])
     await setTimeout(10)
     deepEqual(await getPostKeys('title'), ['2', '3', '6', '7', '8 slow'])
+    deepEqual(await getPostKeys('reading'), [
+      'slow',
+      'slow',
+      'fast',
+      'fast',
+      'slow'
+    ])
     deepEqual((await loadFeed(feedId2))!.lastOriginId, 'post9')
     deepEqual((await loadFeed(feedId2))!.lastPublishedAt, 9000)
     equal(finished, true)
@@ -372,7 +378,7 @@ describe('refresh', () => {
       () => rss2.promise()
     ])
     await setTimeout(10)
-    deepEqual(await getPostKeys('title'), ['4', '5', '6'])
+    deepEqual(await getPostKeys('title'), [])
 
     await deleteFeed(feedId)
     rss2.resolve([[{ originId: 'post3', title: '3' }], undefined])
@@ -382,7 +388,7 @@ describe('refresh', () => {
     deepEqual(await getPostKeys('title'), [])
   })
 
-  test('writes every page and changes feed by one action', async t => {
+  test('writes posts of all pages and feed marker together', async t => {
     let feedId = await addFeed(
       testFeed({
         lastOriginId: 'post1',
@@ -390,10 +396,10 @@ describe('refresh', () => {
         reading: 'slow'
       })
     )
-    let actions: string[] = []
+    let batches: string[][] = []
     t.after(
-      getClient().on('add', action => {
-        actions.push(action.type)
+      getClient().log.on('batch', entries => {
+        batches.push(entries.map(([action]) => action.type))
       })
     )
 
@@ -408,7 +414,7 @@ describe('refresh', () => {
     let rss2 = rss1.next()
     rss1.resolve([[{ originId: 'post4', title: '4' }], () => rss2.promise()])
     await setTimeout(10)
-    deepEqual(await getPostKeys('title'), ['4'])
+    deepEqual(await getPostKeys('title'), [])
 
     rss2.resolve([
       [
@@ -420,7 +426,7 @@ describe('refresh', () => {
     await setTimeout(10)
 
     deepEqual(await getPostKeys('title'), ['3', '4'])
-    deepEqual(actions, ['posts/created', 'posts/created', 'feeds/changed'])
+    deepEqual(batches, [['posts/created', 'feeds/changed']])
     equal((await loadFeed(feedId))!.lastOriginId, 'post4')
   })
 
@@ -521,7 +527,7 @@ describe('refresh', () => {
 
     refreshPosts()
     await setTimeout(10)
-    deepEqual(await getPostKeys('title'), ['3', '4'])
+    deepEqual(await getPostKeys('title'), [])
     stopRefreshing()
 
     refreshPosts()
@@ -982,7 +988,7 @@ describe('refresh of accounts', () => {
     })
   }
 
-  test('puts home timeline posts to feeds and account', async () => {
+  test('puts home timeline posts to feeds and account', async t => {
     let accountId = await addAccount(
       testAccount({ lastPublishedAt: 100, refreshedAt: 10 })
     )
@@ -1032,8 +1038,18 @@ describe('refresh of accounts', () => {
       }),
       by('dave', 'old', { publishedAt: 50 })
     ])
+    let batches: string[][] = []
+    t.after(
+      getClient().log.on('batch', entries => {
+        batches.push(entries.map(([action]) => action.type))
+      })
+    )
 
     await refreshPosts()
+    deepEqual(
+      batches.filter(types => types.includes('accounts/changed')),
+      [['posts/created', 'accounts/changed', 'feeds/changed']]
+    )
     equal(timeline.calls[0]![1].account.id, accountId)
     equal(timeline.calls[0]![2], 10)
     equal(rss.calls.length, 1)

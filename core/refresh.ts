@@ -33,7 +33,6 @@ import {
 } from './media-cache.ts'
 import { nightLocked } from './night-lock.ts'
 import {
-  addPost,
   deleteFastPostsBefore,
   getSortedAt,
   loadPostOriginIdsByAccount,
@@ -41,10 +40,11 @@ import {
   type NewPost,
   type OriginPost,
   type PostAuthor,
-  processOriginPost
+  processOriginPost,
+  withoutDeletedPosts
 } from './post.ts'
 import { getPostsFrequency, type PostsList } from './posts-list.ts'
-import { getTables, openedDatabase } from './schema.ts'
+import { getCrdt, getTables, openedDatabase } from './schema.ts'
 import {
   autoRefresh,
   cacheImages,
@@ -133,6 +133,7 @@ type RefreshTarget = { account: AccountValue } | { feed: FeedValue }
 let queue = createQueue<RefreshTarget>([])
 
 interface TargetRefresh {
+  adding: ({ id: string } & NewPost)[]
   /**
    * Feeds by URL for the home timeline
    */
@@ -150,8 +151,6 @@ interface TargetRefresh {
    */
   virtual: Map<string, OriginPost>
 }
-
-type Found = { fast: number; slow: number }
 
 type Marker = Pick<FeedValue, 'lastOriginId' | 'lastPublishedAt'>
 
@@ -180,14 +179,6 @@ async function getFilters(
   return filters
 }
 
-function countReading(found: Found, reading: NewPost['reading']): void {
-  if (reading === 'fast') {
-    found.fast += 1
-  } else {
-    found.slow += 1
-  }
-}
-
 function sortPage(posts: OriginPost[]): void {
   if (posts[0] && getSortedAt(posts[0])) {
     posts.sort((a, b) => {
@@ -197,20 +188,19 @@ function sortPage(posts: OriginPost[]): void {
 }
 
 /**
- * Write a single page of the feed. Returns `false` if the feed was deleted
+ * Collect a single page of the feed. Returns `false` if the feed was deleted
  * during the refresh.
  */
-async function writeFeedPage(
+async function collectFeedPage(
   state: TargetRefresh,
   feedId: string
-): Promise<false | Found> {
+): Promise<boolean> {
   let feed = await loadFeed(feedId)
   if (!feed) return false
 
-  let found = { fast: 0, slow: 0 }
   let posts = state.page
   let first = posts[0]
-  if (!first || wasAlreadyAdded(feed, first)) return found
+  if (!first || wasAlreadyAdded(feed, first)) return true
   state.newest ??= first
 
   let filters = await getFilters(state, feed.id)
@@ -227,15 +217,12 @@ async function writeFeedPage(
       readings.set(origin.originId, reading)
     }
   }
-  let adding: NewPost[] = []
   for (let origin of await linkThreads(state.task, feed, accepted)) {
     let reading = readings.get(origin.originId) ?? feed.reading
-    adding.push(processOriginPost(origin, { feedId: feed.id }, reading))
+    state.adding.push(processOriginPost(origin, { feedId: feed.id }, reading))
     state.known?.add(origin.originId)
-    countReading(found, reading)
   }
-  await addPost(adding)
-  return found
+  return true
 }
 
 /**
@@ -243,17 +230,16 @@ async function writeFeedPage(
  * to the feed, skips authors with normal feed, since the feed loads them
  * itself, and keeps the rest in the account.
  */
-async function writeAccountPage(
+async function collectAccountPage(
   state: TargetRefresh,
   accountId: string
-): Promise<false | Found> {
+): Promise<boolean> {
   let account = await loadAccount(accountId)
   if (!account) return false
 
-  let found = { fast: 0, slow: 0 }
   let posts = state.page
   let first = posts[0]
-  if (!first || wasAlreadyAdded(account, first)) return found
+  if (!first || wasAlreadyAdded(account, first)) return true
   state.newest ??= first
 
   state.feeds ??= await loadFeedsByUrls()
@@ -278,7 +264,6 @@ async function writeAccountPage(
     groups.set(key, group)
   }
 
-  let adding: NewPost[] = []
   for (let [id, [feed, accepted]] of groups) {
     let linked = await linkThreads(
       state.task,
@@ -298,25 +283,25 @@ async function writeAccountPage(
       if (feed) {
         // The feed is the author of own posts
         if (!saved.repostedBy) delete saved.author
-        adding.push(processOriginPost(saved, { feedId: feed.id }, reading))
+        state.adding.push(
+          processOriginPost(saved, { feedId: feed.id }, reading)
+        )
       } else {
         // Restored thread start has no author, but the thread has one author
         saved.author ??= authors.get(origin.threadId ?? '')
-        adding.push(processOriginPost(saved, { accountId: id }, reading))
+        state.adding.push(processOriginPost(saved, { accountId: id }, reading))
       }
       state.known?.add(origin.originId)
-      countReading(found, reading)
     }
   }
-  await addPost(adding)
-  return found
+  return true
 }
 
-function writePage(state: TargetRefresh): Promise<false | Found> {
+function collectPage(state: TargetRefresh): Promise<boolean> {
   if ('feed' in state.target) {
-    return writeFeedPage(state, state.target.feed.id)
+    return collectFeedPage(state, state.target.feed.id)
   } else {
-    return writeAccountPage(state, state.target.account.id)
+    return collectAccountPage(state, state.target.account.id)
   }
 }
 
@@ -331,14 +316,19 @@ let untouchedAccounts: string[] = []
 
 async function finishTarget(state: TargetRefresh): Promise<void> {
   let { newest, target } = state
+  let adding = await withoutDeletedPosts(state.adding)
+  let { accounts, feeds, posts } = getTables()
   if ('feed' in target) {
     let frequency = getPostsFrequency(state.pages)
     if (newest) {
-      await changeFeed(target.feed.id, {
-        frequency,
-        lastOriginId: newest.originId,
-        lastPublishedAt: getSortedAt(newest),
-        refreshedAt
+      await getCrdt().batch(() => {
+        if (adding.length > 0) void posts.create(adding)
+        void feeds.update(target.feed.id, {
+          frequency,
+          lastOriginId: newest.originId,
+          lastPublishedAt: getSortedAt(newest),
+          refreshedAt
+        })
       })
     } else {
       let key =
@@ -348,22 +338,27 @@ async function finishTarget(state: TargetRefresh): Promise<void> {
       untouched.set(key, [...(untouched.get(key) ?? []), target.feed.id])
     }
   } else {
-    if (newest) {
-      await getTables().accounts.update(target.account.id, {
-        lastOriginId: newest.originId,
-        lastPublishedAt: getSortedAt(newest),
-        refreshedAt
-      })
-    } else {
-      untouchedAccounts.push(target.account.id)
-    }
-    for (let [feedId, origin] of state.virtual) {
-      await changeFeed(feedId, {
-        lastOriginId: origin.originId,
-        lastPublishedAt: getSortedAt(origin)
-      })
-    }
+    await getCrdt().batch(() => {
+      if (adding.length > 0) void posts.create(adding)
+      if (newest) {
+        void accounts.update(target.account.id, {
+          lastOriginId: newest.originId,
+          lastPublishedAt: getSortedAt(newest),
+          refreshedAt
+        })
+      }
+      for (let [feedId, origin] of state.virtual) {
+        void feeds.update(feedId, {
+          lastOriginId: origin.originId,
+          lastPublishedAt: getSortedAt(origin)
+        })
+      }
+    })
+    if (!newest) untouchedAccounts.push(target.account.id)
   }
+  let fast = adding.filter(post => post.reading === 'fast').length
+  increaseKey(refreshStatistics, 'foundFast', fast)
+  increaseKey(refreshStatistics, 'foundSlow', adding.length - fast)
 }
 
 function loadKnown(target: RefreshTarget): Promise<string[]> {
@@ -391,20 +386,15 @@ async function processPage(
       !marker.lastPublishedAt
     )
 
-  // The marker is written only after the last page, so a failure in the middle
-  // will return to the same pages on the next refresh. Future posts are newer
-  // than the marker on every refresh, so they are found only by origin ID.
+  // Future posts are newer than the marker on every refresh,
+  // so they are found only by origin ID
   let first = state.page[0]
   if (more || (first && !wasAlreadyAdded(marker, first))) {
     state.known ??= new Set(await loadKnown(state.target))
   }
-  let found = await writePage(state)
-  if (found) {
-    increaseKey(refreshStatistics, 'foundFast', found.fast)
-    increaseKey(refreshStatistics, 'foundSlow', found.slow)
-  }
+  let exists = await collectPage(state)
 
-  if (found && more) {
+  if (exists && more) {
     return async () => {
       state.page = await state.pages.next()
       let error = state.pages.get().error
@@ -412,7 +402,7 @@ async function processPage(
       return processPage(state)
     }
   } else {
-    if (found) await finishTarget(state)
+    if (exists) await finishTarget(state)
     increaseKey(refreshStatistics, 'processedFeeds')
   }
 }
@@ -436,6 +426,7 @@ function createState(
   task: DownloadTask
 ): TargetRefresh {
   return {
+    adding: [],
     feeds: undefined,
     filters: new Map(),
     known: undefined,
@@ -464,13 +455,18 @@ export async function loadRecentPosts(
   if (error) throw error
   let state = createState({ feed }, pages, task)
   sortPage(state.page)
-  await writeFeedPage(state, feedId)
-  if (state.newest) {
-    await changeFeed(feedId, {
-      lastOriginId: state.newest.originId,
-      lastPublishedAt: getSortedAt(state.newest)
+  await collectFeedPage(state, feedId)
+  let { newest } = state
+  if (!newest) return
+  let adding = await withoutDeletedPosts(state.adding)
+  let { feeds, posts } = getTables()
+  await getCrdt().batch(() => {
+    if (adding.length > 0) void posts.create(adding)
+    void feeds.update(feedId, {
+      lastOriginId: newest.originId,
+      lastPublishedAt: getSortedAt(newest)
     })
-  }
+  })
 }
 
 /**
