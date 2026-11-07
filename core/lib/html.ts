@@ -1,6 +1,6 @@
 import createDOMPurify from 'dompurify'
 
-import { cacheImages } from '../settings.ts'
+import { cacheImages, removeTrackers } from '../settings.ts'
 import { canUseNetwork } from './network.ts'
 import { PUNCTUATION_CHARS, truncateText } from './text.ts'
 
@@ -205,9 +205,10 @@ export function mapRelativeSrcset(
 function isHidden(element: Element): boolean {
   if (element.hasAttribute('hidden')) return true
   let style = element.getAttribute('style')
-  if (style && /display\s*:\s*none|visibility\s*:\s*hidden/i.test(style)) {
-    return true
-  }
+  return !!style && /display\s*:\s*none|visibility\s*:\s*hidden/i.test(style)
+}
+
+function isTracker(element: Element): boolean {
   return (
     element.localName === 'img' &&
     /^[01](px)?$/.test(element.getAttribute('width') ?? '') &&
@@ -220,7 +221,10 @@ function getPurify(): ReturnType<typeof createDOMPurify> {
     DOMPurify = createDOMPurify(window)
     DOMPurify.addHook('uponSanitizeElement', node => {
       let element = node as Element
-      if (node.nodeType === ELEMENT_NODE && isHidden(element)) {
+      if (
+        node.nodeType === ELEMENT_NODE &&
+        (isHidden(element) || (removeTrackers.get() && isTracker(element)))
+      ) {
         element.remove()
       }
     })

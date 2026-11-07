@@ -302,6 +302,7 @@ export const settingsTable = defineCrdtTable('settings', {
     json({ enabled: boolean(), from: number(), to: number() })
   ),
   openWarnings: optional(boolean()),
+  removeTrackers: optional(boolean()),
   showSensitiveMedia: optional(boolean()),
   showUsageBalance: optional(boolean()),
   trackUsage: optional(boolean())

@@ -1,7 +1,12 @@
 <script lang="ts">
-  import { mdiAlertOutline, mdiEyeOutline } from '@mdi/js'
+  import {
+    mdiAlertOutline,
+    mdiEyeOutline,
+    mdiShieldCheckOutline
+  } from '@mdi/js'
   import {
     openWarnings,
+    removeTrackers,
     settingsMessages,
     showSensitiveMedia,
     postsMessages as t
@@ -23,6 +28,11 @@
       icon={mdiEyeOutline}
       label={$t.showSensitiveMedia}
       store={showSensitiveMedia}
+    />
+    <Switch
+      icon={mdiShieldCheckOutline}
+      label={$t.removeTrackers}
+      store={removeTrackers}
     />
   </Stack>
 </ThinPage>

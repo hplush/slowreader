@@ -1,3 +1,3 @@
 # Posts settings
 
-Content warnings and sensitive media settings moved to the new Posts page in settings.
+New Posts page in settings with content warnings, sensitive media, and a new option to keep trackers in RSS and Atom posts.

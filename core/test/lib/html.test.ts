@@ -1,9 +1,10 @@
 import { equal } from 'node:assert/strict'
-import { describe, test } from 'node:test'
+import { afterEach, describe, test } from 'node:test'
 
 import {
   parseDocument,
   parseRichTranslation,
+  removeTrackers,
   sanitizeDOM,
   truncateDOM
 } from '../../index.ts'
@@ -22,6 +23,10 @@ function sanitize(html: string): string {
 }
 
 describe('html', () => {
+  afterEach(() => {
+    removeTrackers.set(true)
+  })
+
   test('sanitizes HTML', () => {
     equal(
       sanitize(
@@ -119,6 +124,18 @@ describe('html', () => {
       ),
       '<p>Text</p><img src="https://example.com/a.gif" width="1" ' +
         'height="10" loading="eager" decoding="async">'
+    )
+  })
+
+  test('keeps tracking pixels by settings', () => {
+    removeTrackers.set(false)
+    equal(
+      sanitize(
+        '<p hidden>SEO</p>' +
+          '<img src="https://example.com/t.gif" width="1" height="1">'
+      ),
+      '<img src="https://example.com/t.gif" width="1" height="1" ' +
+        'loading="eager" decoding="async">'
     )
   })
 

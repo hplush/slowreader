@@ -35,6 +35,7 @@ import {
   type NewPost,
   nightLock,
   openWarnings,
+  removeTrackers,
   postFont,
   postLineHeight,
   setRequestMethod,
@@ -119,6 +120,7 @@ describe('import page', () => {
 
   afterEach(async () => {
     generalFastReader.set('feed')
+    removeTrackers.set(true)
     await cleanClient()
     restoreAll()
     checkAndRemoveRequestMock()
@@ -134,6 +136,7 @@ describe('import page', () => {
     cacheImages.set('never')
     nightLock.set({ enabled: true, from: 22, to: 6 })
     openWarnings.set(true)
+    removeTrackers.set(false)
     showUsageBalance.set(false)
     trackUsage.set(false)
     generalFastReader.set('list')
@@ -159,6 +162,7 @@ describe('import page', () => {
     cacheImages.set('always')
     nightLock.set({ enabled: false, from: 23, to: 7 })
     openWarnings.set(false)
+    removeTrackers.set(true)
     showUsageBalance.set(true)
     trackUsage.set(true)
     generalFastReader.set('feed')
@@ -191,6 +195,7 @@ describe('import page', () => {
     equal(cacheImages.get(), 'always')
     deepEqual(nightLock.get(), { enabled: true, from: 22, to: 6 })
     equal(openWarnings.get(), true)
+    equal(removeTrackers.get(), false)
     equal(showUsageBalance.get(), false)
     equal(trackUsage.get(), false)
     equal(generalFastReader.get(), 'list')

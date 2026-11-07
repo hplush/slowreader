@@ -44,6 +44,7 @@
     refreshErrors,
     refreshStatistics,
     refreshStatus,
+    removeTrackers,
     requestMethod,
     showSensitiveMedia,
     showUsageBalance,
@@ -232,6 +233,7 @@
     customPostFont.set('')
     showSensitiveMedia.set(false)
     openWarnings.set(false)
+    removeTrackers.set(true)
     showUsageBalance.set(true)
     trackUsage.set(true)
     fastPostsMaxAge.set(604800)

@@ -10,6 +10,7 @@ import {
   requestMethod,
   theme,
   openWarnings,
+  removeTrackers,
   postFont,
   postLineHeight,
   showSensitiveMedia,
@@ -45,6 +46,7 @@ describe('settings', () => {
 
   test('has store for content warnings settings', () => {
     equal(openWarnings.get(), false)
+    equal(removeTrackers.get(), true)
   })
 
   test('has store for fast posts lifetime', () => {

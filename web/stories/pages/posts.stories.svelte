@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-  import { openWarnings } from '@slowreader/core'
+  import { openWarnings, removeTrackers } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import PostsPage from '../../pages/posts.svelte'
@@ -15,6 +15,7 @@
   <Scene
     oninit={() => {
       openWarnings.set(true)
+      removeTrackers.set(false)
     }}
     route="posts"
   >
