@@ -21,6 +21,7 @@ export const navbarMessages = i18n('navbar', {
   interface: 'Interface',
   menu: 'Feeds & settings',
   offlineStatus: 'Offline',
+  posts: 'Posts',
   postRefreshing: 'Checking feeds for new posts…',
   receivingStatus: 'Downloading…',
   refresh: 'Check for new posts',

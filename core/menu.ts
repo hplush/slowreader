@@ -36,6 +36,7 @@ export const FEED_ROUTES = [
 export const SETTINGS_ROUTES = [
   'coach',
   'interface',
+  'posts',
   'network',
   'accounts',
   'cloud',

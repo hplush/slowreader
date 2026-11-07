@@ -55,6 +55,7 @@ export const pages = {
   import: importPage,
   interface: createSimplePage('interface'),
   menu: menuPage,
+  posts: createSimplePage('posts'),
   relogin: reloginPage,
   root: createRedirectPage('root', 'home'),
   settings: createRedirectPage('settings', 'interface'),

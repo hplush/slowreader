@@ -1,6 +1,7 @@
 <script lang="ts">
   import {
     mdiAccountMultiple,
+    mdiCardTextOutline,
     mdiCloudSync,
     mdiDatabaseOutline,
     mdiExport,
@@ -36,6 +37,7 @@
     import: mdiImport,
     interface: mdiPalette,
     network: mdiWifi,
+    posts: mdiCardTextOutline,
     storage: mdiDatabaseOutline
   } satisfies Record<OtherName, string>
 </script>

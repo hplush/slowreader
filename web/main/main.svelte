@@ -27,6 +27,7 @@
   import InterfacePage from '../pages/interface.svelte'
   import MenuPage from '../pages/menu.svelte'
   import NetworkPage from '../pages/network.svelte'
+  import PostsPage from '../pages/posts.svelte'
   import ReloginPage from '../pages/relogin.svelte'
   import SignupPage from '../pages/sign-up.svelte'
   import StartPage from '../pages/start.svelte'
@@ -101,6 +102,8 @@
     <SignupPage page={$currentPage} />
   {:else if $currentPage.route === 'interface'}
     <InterfacePage />
+  {:else if $currentPage.route === 'posts'}
+    <PostsPage />
   {:else if $currentPage.route === 'menu'}
     <MenuPage />
   {:else if $currentPage.route === 'network'}

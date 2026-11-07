@@ -31,6 +31,7 @@ export const pathRouter = createRouter({
   import: '/feeds/import',
   interface: '/settings/ui',
   menu: '/menu',
+  posts: '/settings/posts',
   relogin: '/relogin',
   root: '/',
   settings: '/settings',

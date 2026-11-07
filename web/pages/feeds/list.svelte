@@ -1,10 +1,10 @@
 <script lang="ts">
   import type { ListReader } from '@slowreader/core'
 
-  import Posts from '../../ui/posts.svelte'
+  import PostLinks from '../../ui/post-links.svelte'
 
   let { reader }: { reader: ListReader } = $props()
   let { list } = $derived(reader)
 </script>
 
-<Posts autoread list={$list} />
+<PostLinks autoread list={$list} />

@@ -1,9 +1,7 @@
 <script lang="ts">
   import {
-    mdiAlertOutline,
     mdiAnimationOutline,
     mdiButtonCursor,
-    mdiEyeOutline,
     mdiOpenInApp,
     mdiThemeLightDark,
     mdiWeatherNight,
@@ -12,13 +10,11 @@
   import {
     customPostFont,
     i18nFormat,
-    openWarnings,
     POST_FONTS,
     type PostFont,
     postFont,
     postLineHeight,
     settingsMessages,
-    showSensitiveMedia,
     interfaceMessages as t,
     textSize,
     theme,
@@ -155,19 +151,6 @@
           reverseStore={openLinksInBrowser}
         />
       {/if}
-    </Stack>
-    <Stack gap="m">
-      <Title>{$t.postsGroup}</Title>
-      <Switch
-        icon={mdiAlertOutline}
-        label={$t.openWarnings}
-        store={openWarnings}
-      />
-      <Switch
-        icon={mdiEyeOutline}
-        label={$t.showSensitiveMedia}
-        store={showSensitiveMedia}
-      />
     </Stack>
   </Stack>
 </ThinPage>

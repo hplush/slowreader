@@ -23,6 +23,7 @@ export interface Routes {
   import: {}
   interface: {}
   menu: {}
+  posts: {}
   relogin: {}
   root: {}
   settings: {}
