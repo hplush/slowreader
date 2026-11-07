@@ -1,6 +1,7 @@
 <script context="module" lang="ts">
   import { fastPostsMaxAge, hasCloud, isDemo, pages } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
+  import { atom } from 'nanostores'
 
   import StoragePage from '../../pages/storage.svelte'
   import { setMediaCacheSize } from '../environment.ts'
@@ -11,16 +12,21 @@
     title: 'Pages/Storage'
   })
 
+  // Real database size depends on the browser and breaks screenshots
+  function storagePage(): ReturnType<typeof pages.storage> {
+    return { ...pages.storage(), size: atom<number | undefined>(1_234_567) }
+  }
+
   // Page asks for the size before the scene calls `oninit`
   function withMedia(): ReturnType<typeof pages.storage> {
     setMediaCacheSize(345_678_901)
-    return pages.storage()
+    return storagePage()
   }
 </script>
 
 <Story name="Base" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene route="storage">
-    <StoragePage page={pages.storage()} />
+    <StoragePage page={storagePage()} />
   </Scene>
 </Story>
 
@@ -44,6 +50,6 @@
     }}
     route="storage"
   >
-    <StoragePage page={pages.storage()} />
+    <StoragePage page={storagePage()} />
   </Scene>
 </Story>
