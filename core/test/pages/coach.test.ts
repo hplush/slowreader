@@ -86,14 +86,14 @@ describe('coach page', () => {
       parts: [
         {
           from: noon - 2 * hour,
-          left: ((22 * hour) / (24 * hour)) * 100,
+          spaceAfter: ((1.5 * hour) / (24 * hour)) * 100,
           to: noon - 1.5 * hour,
           type: 'fast',
           width: ((0.5 * hour) / (24 * hour)) * 100
         },
         {
           from: noon - 24 * hour,
-          left: 0,
+          spaceAfter: ((21 * hour) / (24 * hour)) * 100,
           to: noon - 23 * hour,
           type: 'slow',
           width: (hour / (24 * hour)) * 100

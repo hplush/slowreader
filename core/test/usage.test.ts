@@ -15,6 +15,7 @@ import {
   usage24hours,
   usageBalance,
   usageMood,
+  usageSessions,
   usageSince
 } from '../index.ts'
 import {
@@ -147,6 +148,33 @@ describe('usage', () => {
         ['fast', 5 * MINUTE, 6 * MINUTE]
       ]
     )
+  })
+
+  test('ignores sessions shorter than 10 seconds', async t => {
+    openRoute({ params: {}, route: 'fast' })
+    at(9_000)
+    openRoute({ params: {}, route: 'slow' })
+    equal(lastUsage.get()!.type, 'slow')
+    at(9_000 + MINUTE)
+    openRoute({ params: {}, route: 'home' })
+
+    let rows = await waitUsages(list => list.length === 1)
+    deepEqual(
+      rows.map(row => [row.type, row.from - START, row.to - START]),
+      [['slow', 9_000, 9_000 + MINUTE]]
+    )
+
+    t.after(usageSessions.listen(() => {}))
+    await waitFor(usageSessions, list => list?.length === 1)
+    lastUsage.set({
+      created: false,
+      from: START + 2 * MINUTE,
+      id: 'short',
+      saved: START + 2 * MINUTE,
+      to: START + 2 * MINUTE + 9_000,
+      type: 'fast'
+    })
+    equal(usageSessions.get()!.length, 1)
   })
 
   test('does not count the hidden app', () => {

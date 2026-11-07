@@ -27,9 +27,8 @@
     {#each parts as part, index (index)}
       {@const label = describe(part)}
       <li
-        style:inset-inline-start="min({part.left}%, 100% - 3 * var(--min-size))"
-        style:z-index={parts.length - index}
-        style:width="{part.width}%"
+        style:--usage-space="{part.spaceAfter}cqi"
+        style:--usage-width="max({part.width}cqi, var(--min-size))"
         class="usage-timeline_part"
         class:is-fast={part.type === 'fast'}
         class:is-slow={part.type === 'slow'}
@@ -59,8 +58,9 @@
     }
 
     .usage-timeline_line {
-      position: relative;
-      isolation: isolate;
+      container-type: inline-size;
+      display: flex;
+      flex-direction: row-reverse;
       height: 0.75rem;
       overflow: hidden;
       background: var(--border-color);
@@ -68,17 +68,23 @@
     }
 
     .usage-timeline_part {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      box-sizing: border-box;
-      min-width: calc(3 * var(--min-size));
+      position: relative;
+      flex: 0 1 calc(var(--usage-width) + var(--usage-space));
+      min-width: var(--usage-width);
 
-      &.is-slow {
+      &::before {
+        position: absolute;
+        inset-block: 0;
+        inset-inline-start: 0;
+        width: var(--usage-width);
+        content: '';
+      }
+
+      &.is-slow::before {
         background: var(--usage-slow-color);
       }
 
-      &.is-fast {
+      &.is-fast::before {
         background: var(--usage-fast-color);
       }
     }

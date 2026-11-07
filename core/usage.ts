@@ -54,8 +54,14 @@ function warnIfOpened(error: unknown): void {
 
 let writing = Promise.resolve()
 
+function tooShort(session: UsageSession): boolean {
+  return session.to - session.from < 10_000
+}
+
 function save(usage: LastUsage): LastUsage {
-  if (usage.saved >= usage.to || !hasDatabase()) return usage
+  if (usage.saved >= usage.to || tooShort(usage) || !hasDatabase()) {
+    return usage
+  }
   let crdt = getCrdt()
   let usages = getTables().usages
   let { created, from, id, to, type } = usage
@@ -202,7 +208,9 @@ export const usageSessions = computed(
       let { from, id, to, type } = last
       sessions.push({ from, id, to, type })
     }
-    return sessions.toSorted((a, b) => a.from - b.from)
+    return sessions
+      .filter(session => !tooShort(session))
+      .toSorted((a, b) => a.from - b.from)
   }
 )
 
@@ -269,7 +277,7 @@ export const usageMood = computed(usageBalance, (balance): UsageMood => {
 
 export interface UsagePart {
   from: number
-  left: number
+  spaceAfter: number
   to: number
   type: UsageType
   width: number
@@ -302,13 +310,12 @@ export const usageTimeline = computed(
       if (left >= 25 && left <= 80) marks.push({ left, time: mark.getTime() })
       mark.setHours(mark.getHours() + 6)
     }
-    let parts = (sessions ?? []).toReversed().map(({ from, to, type }) => ({
-      from,
-      left: ((from - since) / DAY) * 100,
-      to,
-      type,
-      width: ((to - from) / DAY) * 100
-    }))
+    let next = now.getTime()
+    let parts = (sessions ?? []).toReversed().map(({ from, to, type }) => {
+      let spaceAfter = (Math.max(0, next - to) / DAY) * 100
+      next = Math.min(next, from)
+      return { from, spaceAfter, to, type, width: ((to - from) / DAY) * 100 }
+    })
     return { marks, parts }
   }
 )
