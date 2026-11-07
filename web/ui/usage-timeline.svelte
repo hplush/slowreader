@@ -28,6 +28,7 @@
       {@const label = describe(part)}
       <li
         style:inset-inline-start="min({part.left}%, 100% - 3 * var(--min-size))"
+        style:z-index={parts.length - index}
         style:width="{part.width}%"
         class="usage-timeline_part"
         class:is-fast={part.type === 'fast'}
@@ -59,6 +60,7 @@
 
     .usage-timeline_line {
       position: relative;
+      isolation: isolate;
       height: 0.75rem;
       overflow: hidden;
       background: var(--border-color);
