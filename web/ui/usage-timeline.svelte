@@ -26,16 +26,12 @@
   <ol class="usage-timeline_line" aria-label={$t.usageSessions} role="list">
     {#each parts as part, index (index)}
       {@const label = describe(part)}
-      {@const end = part.left + part.width > 99.9}
       <li
-        style:inset-inline-end={end ? '0' : undefined}
-        style:inset-inline-start={end ? undefined : `${part.left}%`}
+        style:inset-inline-start="min({part.left}%, 100% - 3 * var(--min-size))"
         style:width="{part.width}%"
         class="usage-timeline_part"
-        class:is-end={end}
         class:is-fast={part.type === 'fast'}
         class:is-slow={part.type === 'slow'}
-        class:is-start={part.left === 0}
         title={label}
       >
         <span class="sr-only">{label}</span>
@@ -75,12 +71,6 @@
       bottom: 0;
       box-sizing: border-box;
       min-width: calc(3 * var(--min-size));
-
-      /* Rounded end of the line would hide the short part there */
-      &.is-start,
-      &.is-end {
-        min-width: var(--base-radius);
-      }
 
       &.is-slow {
         background: var(--usage-slow-color);
