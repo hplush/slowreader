@@ -164,35 +164,37 @@
     {/snippet}
     {#snippet two()}
       <Card padding="no-top" variant="transparent">
-        <Note icon={mdiEyeOff} variant="good">
-          {$t.randomNote}
-          <Button
-            disabled={$signingUp}
-            icon={mdiDiceMultipleOutline}
-            onclick={() => {
-              page.regenerate()
-            }}
-            size="pill"
-            variant="secondary"
-          >
-            {$t.regenerateCredentials}
-          </Button>
-        </Note>
-        <Note icon={mdiShieldCheckOutline} variant="good">
-          {$t.privacyNote}
-          <Button
-            href="/docs/privacy"
-            icon={mdiScriptTextOutline}
-            size="pill"
-            target="_blank"
-            variant="secondary"
-          >
-            {$t.privacyPolicy}
-          </Button>
-        </Note>
-        <Note icon={mdiPiggyBankOutline} variant="neutral">
-          {$t.payWarning}
-        </Note>
+        <Stack gap="m">
+          <Note icon={mdiEyeOff} variant="good">
+            {$t.randomNote}
+            <Button
+              disabled={$signingUp}
+              icon={mdiDiceMultipleOutline}
+              onclick={() => {
+                page.regenerate()
+              }}
+              size="pill"
+              variant="secondary"
+            >
+              {$t.regenerateCredentials}
+            </Button>
+          </Note>
+          <Note icon={mdiShieldCheckOutline} variant="good">
+            {$t.privacyNote}
+            <Button
+              href="/docs/privacy"
+              icon={mdiScriptTextOutline}
+              size="pill"
+              target="_blank"
+              variant="secondary"
+            >
+              {$t.privacyPolicy}
+            </Button>
+          </Note>
+          <Note icon={mdiPiggyBankOutline} variant="neutral">
+            {$t.payWarning}
+          </Note>
+        </Stack>
       </Card>
     {/snippet}
   </TwoOptionsPage>

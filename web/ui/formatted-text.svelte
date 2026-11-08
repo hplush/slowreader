@@ -2,13 +2,19 @@
   /* We escape and have XSS tests */
   /* eslint svelte/no-at-html-tags: "off" */
 
-  import { canOpenMention, openPopup, sanitizeDOM } from '@slowreader/core'
+  import {
+    canOpenMention,
+    isMediaCached,
+    openPopup,
+    sanitizeDOM
+  } from '@slowreader/core'
   import { mount, unmount } from 'svelte'
   import type { Attachment } from 'svelte/attachments'
   import { on } from 'svelte/events'
 
   import { waitImageDecoded } from '../lib/image.ts'
   import BrokenImage from './broken-image.svelte'
+  import ClickToLoad from './click-to-load.svelte'
 
   let {
     html,
@@ -28,7 +34,7 @@
     let content =
       typeof html === 'object' ? html.cloneNode(true) : sanitizeDOM(html ?? '')
     node.replaceChildren(...content.childNodes)
-    let broken: ReturnType<typeof mount>[] = []
+    let mounted = new Set<ReturnType<typeof mount>>()
     function showBroken(image: HTMLImageElement): void {
       if (image.classList.contains('emoji')) {
         image.replaceWith(image.alt)
@@ -43,11 +49,11 @@
         box.style.aspectRatio = `${width} / ${height}`
       }
       image.replaceWith(box)
-      broken.push(
+      mounted.add(
         mount(BrokenImage, { props: { alt: image.alt }, target: box })
       )
     }
-    node.querySelectorAll('img').forEach(image => {
+    function watchLoading(image: HTMLImageElement): void {
       if (image.complete) {
         if (image.naturalWidth === 0) showBroken(image)
         return
@@ -60,6 +66,59 @@
       on(image, 'error', () => {
         showBroken(image)
       })
+    }
+    function restoreSources(image: HTMLImageElement): void {
+      let elements = [
+        image,
+        ...(image.closest('picture')?.querySelectorAll('source') ?? [])
+      ]
+      for (let element of elements) {
+        for (let attr of ['src', 'srcset']) {
+          let value = element.getAttribute(`data-${attr}`)
+          if (value === null) continue
+          element.setAttribute(attr, value)
+          element.removeAttribute(`data-${attr}`)
+        }
+      }
+      watchLoading(image)
+    }
+    function showClickToLoad(image: HTMLImageElement, url: string): void {
+      let box = document.createElement('span')
+      box.className = 'formatted-text_click-to-load'
+      image.replaceWith(box)
+      function showImage(): void {
+        if (!box.isConnected) return
+        mounted.delete(clickToLoad)
+        void unmount(clickToLoad)
+        box.replaceWith(image)
+        restoreSources(image)
+      }
+      let clickToLoad = mount(ClickToLoad, {
+        props: {
+          alt: image.alt,
+          height: Number(image.getAttribute('height')) || undefined,
+          onload() {
+            showImage()
+            image.tabIndex = -1
+            image.focus({ preventScroll: true })
+          },
+          url,
+          width: Number(image.getAttribute('width')) || undefined
+        },
+        target: box
+      })
+      mounted.add(clickToLoad)
+      void isMediaCached(url).then(cached => {
+        if (cached) showImage()
+      })
+    }
+    node.querySelectorAll('img').forEach(image => {
+      let url = image.getAttribute('data-src')
+      if (url) {
+        showClickToLoad(image, url)
+      } else {
+        watchLoading(image)
+      }
     })
     node.querySelectorAll('a').forEach(link => {
       let href = link.getAttribute('href')
@@ -85,7 +144,7 @@
       }
     })
     return () => {
-      for (let component of broken) void unmount(component)
+      for (let component of mounted) void unmount(component)
     }
   }
 </script>
@@ -156,6 +215,12 @@
         margin: 0;
         vertical-align: -0.25em;
       }
+    }
+
+    .formatted-text_click-to-load {
+      display: flex;
+      justify-content: center;
+      margin: 0.625em auto;
     }
 
     .formatted-text_broken {

@@ -5,7 +5,8 @@
     GENERAL_CATEGORY,
     navigate,
     pages,
-    type PostValue
+    type PostValue,
+    saveDataMode
   } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
@@ -516,6 +517,29 @@
         url: 'https://mastodon.social/@Mastodon'
       }
     ]}
+    posts={MASTODON}
+    route={{ params: { category: GENERAL_CATEGORY }, route: 'fast' }}
+  >
+    <FeedsPage page={pages.fast()} />
+  </Scene>
+</Story>
+
+<Story name="Feed Save Data" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    accounts={[{ id: 'account-me' }]}
+    feeds={[
+      {
+        avatar: imgExample,
+        id: 'mastodon',
+        loader: 'mastodon',
+        reading: 'fast',
+        title: 'Mastodon',
+        url: 'https://mastodon.social/@Mastodon'
+      }
+    ]}
+    oninit={() => {
+      saveDataMode.set('on')
+    }}
     posts={MASTODON}
     route={{ params: { category: GENERAL_CATEGORY }, route: 'fast' }}
   >

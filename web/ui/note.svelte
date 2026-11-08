@@ -64,10 +64,6 @@
       &.is-warning {
         @mixin background var(--note-warning-background);
       }
-
-      & + & {
-        margin-top: 0.625rem;
-      }
     }
 
     .note_icon {

@@ -46,6 +46,7 @@
     refreshStatus,
     removeTrackers,
     requestMethod,
+    saveDataMode,
     showSensitiveMedia,
     showUsageBalance,
     signOut,
@@ -244,6 +245,7 @@
     autoRefresh.set('never')
     cacheImages.set('always')
     cacheVideos.set('never')
+    saveDataMode.set('auto')
     setMediaCacheSize(0)
     setNetworkType({ saveData: false, type: 'free' })
     setPasskeySupport(true)

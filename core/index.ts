@@ -18,7 +18,12 @@ export * from './lib/download.ts'
 export * from './lib/html.ts'
 export * from './lib/network.ts'
 export * from './lib/pagination.ts'
-export { type Loadable, subscribeUntil, waitLoading } from './lib/stores.ts'
+export {
+  type Loadable,
+  subscribeUntil,
+  switchOf,
+  waitLoading
+} from './lib/stores.ts'
 export * from './lib/validators.ts'
 export * from './loader.ts'
 export * from './loader/index.ts'

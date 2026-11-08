@@ -11,6 +11,7 @@ import {
   loadFeed,
   loaders,
   loadPosts,
+  saveDataMode,
   testFeed,
   updateFeedData
 } from '../index.ts'
@@ -33,6 +34,7 @@ describe('feed', () => {
   })
 
   afterEach(async () => {
+    saveDataMode.set('auto')
     await cleanClient()
     restoreAll()
     checkAndRemoveRequestMock()
@@ -162,6 +164,14 @@ describe('feed', () => {
     equal(await getAvatar(feedId), 'https://a.com/blog/logo.png')
 
     await updateFeedData(feedId)
+  })
+
+  test('does not update feed data in Save Data mode', async () => {
+    let feedId = await addFeed(
+      testFeed({ avatar: 'https://a.com/old.png', loader: 'rss' })
+    )
+    saveDataMode.set('on')
+    equal(await updateFeedData(feedId), 'https://a.com/old.png')
   })
 
   test('prefers SVG icon from the site', async () => {

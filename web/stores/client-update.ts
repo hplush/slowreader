@@ -1,10 +1,17 @@
+import { saveData } from '@slowreader/core'
 import { atom } from 'nanostores'
 
 import type { ToServiceWorker } from '../main/sw.ts'
 
 // `undefined` when no service worker controls the page
 export const clientUpdate = atom<
-  'available' | 'checking' | 'latest' | 'offline' | 'updating' | undefined
+  | 'available'
+  | 'checking'
+  | 'latest'
+  | 'offline'
+  | 'unchecked'
+  | 'updating'
+  | undefined
 >()
 
 let registration: ServiceWorkerRegistration | undefined
@@ -34,8 +41,12 @@ export async function checkClientUpdate(): Promise<void> {
 }
 
 async function startClientUpdates(): Promise<void> {
-  clientUpdate.set('checking')
-  await checkClientUpdate()
+  if (saveData.get()) {
+    clientUpdate.set(registration?.waiting ? 'available' : 'unchecked')
+  } else {
+    clientUpdate.set('checking')
+    await checkClientUpdate()
+  }
 }
 
 export async function registerServiceWorker(): Promise<void> {

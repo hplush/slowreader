@@ -5,6 +5,7 @@ import {
   addFeed,
   addPost,
   cacheImages,
+  cacheMediaOnRequest,
   cacheMediaReading,
   cacheVideos,
   canDetectNetwork,
@@ -17,14 +18,15 @@ import {
   getDatabase,
   getEnvironment,
   HTTPStatusError,
+  isMediaCached,
   loadPost,
   mediaErrors,
   mediaProgress,
   mediaStatistics,
-  type NetworkTypeDetector,
   refreshPosts,
   refreshStatus,
   refreshTotalProgress,
+  saveDataMode,
   setupEnvironment,
   signOut,
   stopRefreshing,
@@ -39,6 +41,7 @@ import {
   expectWarning,
   getTestEnvironment,
   mockRequest,
+  setTestNetwork,
   startClient,
   waitUntil
 } from './utils.ts'
@@ -53,6 +56,7 @@ describe('media cache', () => {
     cacheMediaReading.set('all')
     cacheImages.set('always')
     cacheVideos.set('never')
+    saveDataMode.set('auto')
     await cleanClient()
     checkAndRemoveRequestMock()
   })
@@ -250,11 +254,7 @@ describe('media cache', () => {
   })
 
   test('respects network type', async () => {
-    let network: ReturnType<NetworkTypeDetector> = {
-      saveData: false,
-      type: 'paid'
-    }
-    setupEnvironment({ ...getTestEnvironment(), networkType: () => network })
+    setTestNetwork({ saveData: false, type: 'paid' })
     equal(canDetectNetwork(), true)
     await addPost(
       testPost({ media: [{ type: 'image', url: 'https://img.com/1.jpg' }] })
@@ -264,11 +264,11 @@ describe('media cache', () => {
     await syncMediaCache()
     deepEqual(await cached(), [])
 
-    network = { saveData: true, type: 'free' }
+    setTestNetwork({ saveData: true, type: 'free' })
     await syncMediaCache()
     deepEqual(await cached(), [])
 
-    network = { saveData: false, type: 'paid' }
+    setTestNetwork({ saveData: false, type: 'paid' })
     cacheImages.set('always')
     expectRequest('https://img.com/1.jpg').andRespond(200, '1')
     await syncMediaCache()
@@ -277,6 +277,35 @@ describe('media cache', () => {
     cacheImages.set('free')
     await syncMediaCache()
     deepEqual(await cached(), ['https://img.com/1.jpg'])
+  })
+
+  test('does not download media in Save Data mode', async () => {
+    saveDataMode.set('on')
+    await addPost(
+      testPost({ media: [{ type: 'image', url: 'https://img.com/1.jpg' }] })
+    )
+    await syncMediaCache()
+    deepEqual(await cached(), [])
+  })
+
+  test('caches media on request', async () => {
+    saveDataMode.set('on')
+    equal(await isMediaCached('https://img.com/1.jpg'), false)
+
+    let image = expectRequest('https://img.com/1.jpg')
+    image.andRespond(200, '1')
+    await cacheMediaOnRequest('https://img.com/1.jpg')
+    deepEqual(image.sent().headers, { Accept: 'image/*' })
+    equal(await isMediaCached('https://img.com/1.jpg'), true)
+
+    let video = expectRequest('https://img.com/1.mp4')
+    video.andRespond(200, '1')
+    await cacheMediaOnRequest('https://img.com/1.mp4', true)
+    deepEqual(video.sent().headers, { Accept: 'video/*' })
+    deepEqual(await cached(), [
+      'https://img.com/1.jpg',
+      'https://img.com/1.mp4'
+    ])
   })
 
   test('falls back to always on unknown network', async () => {

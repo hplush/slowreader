@@ -4,7 +4,11 @@ import { i18n } from '../../i18n.ts'
 
 export const postMessages = i18n('post', {
   afterFirst: params('{time} after'),
+  downloadImage: 'Download image',
+  downloadSensitive: 'Download & show',
+  sensitiveMedia: 'Sensitive media',
   hideWarning: 'Hide',
+  playVideo: 'Play video',
   poll: 'Poll options',
   quoteMissing: 'Quoted post is unavailable',
   quoteOfQuote: 'Quote…',

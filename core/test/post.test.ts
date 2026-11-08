@@ -25,17 +25,18 @@ import {
   getPostTitle,
   cacheImages,
   sanitizeDOM,
-  setupEnvironment,
+  saveDataMode,
   slowPostsCount,
   testFeed,
   testPost,
-  toPreviewPost
+  toPreviewPost,
+  waitsClick
 } from '../index.ts'
 import {
   cleanClient,
   setTestUser,
   setupNodeDom,
-  getTestEnvironment,
+  setTestNetwork,
   startClient,
   waitFor
 } from './utils.ts'
@@ -81,6 +82,27 @@ describe('post', () => {
     deepEqual(getMediaOutsideText([a, b, c], text, true), [c])
   })
 
+  test('waits click for media in Save Data mode', () => {
+    let image = { type: 'image', url: 'https://example.com/a.jpg' }
+    let video = { type: 'video/mp4', url: 'https://example.com/a.mp4' }
+    let audio = { type: 'audio/mpeg', url: 'https://example.com/a.mp3' }
+    let loaded = new Set(['https://example.com/a.mp4'])
+    equal(waitsClick(image, true, new Set()), true)
+    equal(waitsClick(image, false, new Set()), false)
+    equal(waitsClick(video, true, new Set()), true)
+    equal(waitsClick(video, true, loaded), false)
+    equal(waitsClick(audio, true, new Set()), false)
+  })
+
+  test('finds text media in Save Data mode', () => {
+    saveDataMode.set('on')
+    let a = { fromText: true, type: 'image', url: 'https://example.com/a.jpg' }
+    let b = { type: 'image', url: 'https://example.com/b.jpg' }
+    let text = sanitizeDOM('<img src="https://example.com/a.jpg">')
+    saveDataMode.set('auto')
+    deepEqual(getMediaOutsideText([a, b], text, false), [b])
+  })
+
   test('preloads images by the setting', () => {
     let post = {
       full: null,
@@ -99,20 +121,11 @@ describe('post', () => {
 
     cacheImages.set('free')
     equal(loading(), 'eager')
-    setupEnvironment({
-      ...getTestEnvironment(),
-      networkType: () => ({ saveData: false, type: 'paid' })
-    })
+    setTestNetwork({ saveData: false, type: 'paid' })
     equal(loading(), 'lazy')
-    setupEnvironment({
-      ...getTestEnvironment(),
-      networkType: () => ({ saveData: false, type: 'free' })
-    })
+    setTestNetwork({ saveData: false, type: 'free' })
     equal(loading(), 'eager')
-    setupEnvironment({
-      ...getTestEnvironment(),
-      networkType: () => ({ saveData: true, type: 'free' })
-    })
+    setTestNetwork({ saveData: true, type: 'free' })
     equal(loading(), 'lazy')
     cacheImages.set('always')
   })

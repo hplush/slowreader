@@ -75,6 +75,7 @@ export {
   getTestEnvironment,
   mockRequest,
   openRoute,
+  setTestNetwork,
   setTestVisibility,
   testHistory,
   testOAuthPages,

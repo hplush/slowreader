@@ -6,6 +6,7 @@
     type Popup,
     popups,
     type PostValue,
+    saveDataMode,
     showSensitiveMedia
   } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
@@ -313,6 +314,64 @@
         },
         reading: 'slow',
         url: 'https://example.com/news/3'
+      }
+    ]}
+  >
+    {#if popup}
+      <LoadedPopup {popup}>
+        {#snippet loaded(loadedPopup)}
+          <PostPopupComponent popup={loadedPopup} />
+        {/snippet}
+      </LoadedPopup>
+    {/if}
+  </Scene>
+</Story>
+
+<Story name="Save Data" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    feeds={[FEED]}
+    oninit={() => {
+      saveDataMode.set('on')
+      open()()
+    }}
+    posts={[
+      {
+        feedId: 'feed',
+        full:
+          `<p>Images wait for the click ${EMOJI}</p>` +
+          `<img src="${new URL(imgExample, location.href).href}" ` +
+          'width="640" height="160" ' +
+          'alt="Wide example image">',
+        media: [
+          { alt: 'Chart of the release', type: 'image', url: imgExample },
+          { type: 'image', url: emojiExample },
+          {
+            alt: 'Movie scene',
+            sensitive: true,
+            type: 'image',
+            url: `${imgExample}#sensitive`
+          },
+          {
+            alt: 'Video',
+            poster: imgExample,
+            type: 'video',
+            url: 'https://example.com/video.mp4'
+          },
+          {
+            alt: 'GIF',
+            poster: imgExample,
+            type: 'video;mode=gif',
+            url: 'https://example.com/gif.mp4'
+          }
+        ],
+        mediaSizes: [{ bytes: 245_000, height: 480, width: 1920 }],
+        preview: {
+          image: imgExample,
+          title: 'Link title',
+          url: 'https://example.com/article'
+        },
+        reading: 'slow',
+        url: 'https://example.com/news/4'
       }
     ]}
   >

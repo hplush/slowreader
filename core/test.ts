@@ -4,7 +4,12 @@ import { delay } from 'nanodelay'
 import { atom, computed } from 'nanostores'
 
 import type { Credentials } from './auth.ts'
-import type { CachedMedia, Environment, PasskeySignal } from './environment.ts'
+import type {
+  CachedMedia,
+  Environment,
+  Network,
+  PasskeySignal
+} from './environment.ts'
 import { type RequestMethod, setRequestMethod } from './request.ts'
 import {
   type BaseRoute,
@@ -61,6 +66,18 @@ let testVisible = atom(true)
 
 let testExitListeners = new Set<() => void>()
 
+let testNetwork = atom<Network>({
+  saveData: undefined,
+  type: undefined
+})
+
+/**
+ * Change network, like on enabling Save Data in the system.
+ */
+export function setTestNetwork(network: Network): void {
+  testNetwork.set(network)
+}
+
 /**
  * Show or hide the app, like on switching to another browser tab.
  */
@@ -107,6 +124,7 @@ export function openRoute(route: TestRoute | undefined, replace = false): void {
 
 export function getTestEnvironment(): Environment {
   testVisible.set(true)
+  testNetwork.set({ saveData: undefined, type: undefined })
   testExitListeners.clear()
   testSession = undefined
   testSignals = []
@@ -150,6 +168,9 @@ export function getTestEnvironment(): Environment {
         for (let url of urls) media.delete(url)
         return Promise.resolve()
       },
+      has(url) {
+        return Promise.resolve(media.has(url))
+      },
       keys() {
         return Promise.resolve([...media.keys()])
       },
@@ -164,15 +185,15 @@ export function getTestEnvironment(): Environment {
         return Promise.resolve(total)
       }
     },
-    networkType() {
-      return { saveData: undefined, type: undefined }
-    },
     oauthRedirect: 'http://127.0.0.1:2553/settings/accounts',
     onExit(listener) {
       testExitListeners.add(listener)
       return () => {
         testExitListeners.delete(listener)
       }
+    },
+    onNetwork(listener) {
+      return testNetwork.subscribe(listener)
     },
     onVisibilityChange(listener) {
       return testVisible.subscribe(listener)

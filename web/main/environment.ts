@@ -2,8 +2,8 @@
 
 import { windowPersistentEvents } from '@nanostores/persistent'
 import {
+  type Network,
   type NetworkType,
-  type NetworkTypeDetector,
   printWarning,
   setLayoutType,
   setProxyAsRequestMethod,
@@ -56,7 +56,7 @@ effect(usedRequestMethod, method => {
   }
 })
 
-export const detectNetworkType: NetworkTypeDetector = () => {
+function detectNetwork(): Network {
   let type: NetworkType
   let saveData: boolean | undefined
 
@@ -107,12 +107,21 @@ setupEnvironment({
   loadEncryptionKey,
   locale,
   mediaCache,
-  networkType: detectNetworkType,
   oauthRedirect: location.origin + getURL('accounts'),
   onExit(listener) {
     window.addEventListener('pagehide', listener)
     return () => {
       window.removeEventListener('pagehide', listener)
+    }
+  },
+  onNetwork(listener) {
+    function update(): void {
+      listener(detectNetwork())
+    }
+    update()
+    navigator.connection?.addEventListener('change', update)
+    return () => {
+      navigator.connection?.removeEventListener('change', update)
     }
   },
   onVisibilityChange(listener) {

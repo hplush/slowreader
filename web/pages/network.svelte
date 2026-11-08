@@ -2,12 +2,16 @@
   import {
     mdiAirplane,
     mdiCancel,
+    mdiCellphoneCog,
     mdiCheckAll,
+    mdiDownload,
+    mdiDownloadOff,
     mdiFire,
     mdiGaugeLow,
     mdiLockOpenOutline,
     mdiPuzzle,
     mdiSignal,
+    mdiSignalCellular3,
     mdiWifi
   } from '@mdi/js'
   import {
@@ -16,11 +20,16 @@
     cacheMediaReading,
     cacheVideos,
     canDetectNetwork,
+    canDetectSaveData,
     extensionState,
     layoutType,
     type NetworkUse,
     requestMethod,
+    saveData,
+    saveDataMode,
+    type SaveDataMode,
     settingsMessages,
+    switchOf,
     networkMessages as t,
     usedRequestMethod
   } from '@slowreader/core'
@@ -33,10 +42,34 @@
   import RadioList from '../ui/radio-list.svelte'
   import Radio from '../ui/radio.svelte'
   import Stack from '../ui/stack.svelte'
+  import Switch from '../ui/switch.svelte'
   import ThinPage from '../ui/thin-page.svelte'
   import Title from '../ui/title.svelte'
 
   let wifi = canDetectNetwork()
+  let system = canDetectSaveData()
+
+  let saveDataValues = $derived(
+    (
+      [
+        ['on', $t.saveDataOn, mdiDownloadOff],
+        ['paid', $t.saveDataPaid, mdiSignalCellular3],
+        ['auto', $t.saveDataAuto, mdiCellphoneCog],
+        ['off', $t.saveDataOff, mdiDownload]
+      ] satisfies [SaveDataMode, string, string][]
+    ).filter(([value]) => {
+      return (system || value !== 'auto') && (wifi || value !== 'paid')
+    })
+  )
+
+  let saveDataOn = switchOf(saveDataMode, 'on', 'off')
+  let autoRefreshOn = switchOf(autoRefresh, 'always', 'never')
+
+  function shownSaveDataMode(value: SaveDataMode): SaveDataMode {
+    if (!system && value === 'auto') return 'off'
+    if (!wifi && value === 'paid') return 'off'
+    return value
+  }
 
   let downloadValues = $derived(
     (
@@ -100,21 +133,50 @@
       {/if}
     </Stack>
     <Stack gap="m">
+      <Title>{$t.saveData}</Title>
+      {#if saveDataValues.length > 2}
+        <Radio
+          label={$t.saveDataLabel}
+          onchange={value => {
+            saveDataMode.set(value)
+          }}
+          size="wide"
+          value={shownSaveDataMode($saveDataMode)}
+          values={saveDataValues}
+        />
+      {:else}
+        <Switch label={$t.saveDataLabel} store={saveDataOn} />
+      {/if}
+    </Stack>
+    <Stack gap="m">
       <Title>{$t.refreshGroup}</Title>
-      <Radio
-        label={$t.autoRefresh}
-        onchange={value => {
-          autoRefresh.set(value)
-        }}
-        size="wide"
-        value={shownNetworkUse($autoRefresh)}
-        values={downloadValues}
-      />
+      {#if wifi}
+        <Radio
+          label={$t.autoRefresh}
+          onchange={value => {
+            autoRefresh.set(value)
+          }}
+          size="wide"
+          value={$autoRefresh}
+          values={downloadValues}
+        />
+      {:else}
+        <Switch label={$t.autoRefresh} store={autoRefreshOn} />
+      {/if}
     </Stack>
     <Stack gap="m">
       <Title>{$t.offlineGroup}</Title>
-      {#if $clientUpdate}
-        <Note icon={mdiAirplane} variant="good">{$t.offline}</Note>
+      {#if $clientUpdate || $saveData}
+        <Stack gap="s">
+          {#if $clientUpdate}
+            <Note icon={mdiAirplane} variant="good">{$t.offline}</Note>
+          {/if}
+          {#if $saveData}
+            <Note icon={mdiDownloadOff} variant="neutral">
+              {$t.saveDataCache}
+            </Note>
+          {/if}
+        </Stack>
       {/if}
       <Radio
         label={$t.cacheMediaReading}

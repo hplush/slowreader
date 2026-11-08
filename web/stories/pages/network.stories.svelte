@@ -4,7 +4,8 @@
     cacheMediaReading,
     cacheVideos,
     extensionState,
-    requestMethod
+    requestMethod,
+    saveDataMode
   } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
@@ -41,6 +42,7 @@
       cacheMediaReading.set('slow')
       cacheVideos.set('free')
       autoRefresh.set('always')
+      saveDataMode.set('on')
     }}
     route="network"
   >

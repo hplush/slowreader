@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { PostPreview } from '@slowreader/core'
+  import { type PostPreview, saveData } from '@slowreader/core'
 
   import { waitImageDecoded } from '../../lib/image.ts'
   import BrokenImage from '../broken-image.svelte'
@@ -8,30 +8,31 @@
 
   let broken = $state<null | string>()
   let loaded = $state<null | string>()
+  let image = $derived($saveData ? undefined : preview.image)
 </script>
 
 <a class="post-preview" href={preview.url} rel="noopener" target="_blank">
-  {#if preview.image && broken === preview.image}
+  {#if image && broken === image}
     <span class="post-preview_image is-broken">
       <BrokenImage />
     </span>
-  {:else if preview.image}
+  {:else if image}
     <img
       class="post-preview_image"
-      class:is-loading={loaded !== preview.image}
+      class:is-loading={loaded !== image}
       alt=""
       decoding="async"
       loading="lazy"
       onerror={() => {
-        broken = preview.image
+        broken = image
       }}
       onload={async event => {
-        let src = preview.image
+        let src = image
         await waitImageDecoded(event.currentTarget)
         loaded = src
       }}
       referrerpolicy="no-referrer"
-      src={preview.image}
+      src={image}
     />
   {/if}
   <span class="post-preview_text">

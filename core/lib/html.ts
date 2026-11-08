@@ -1,7 +1,7 @@
 import createDOMPurify from 'dompurify'
 
 import { cacheImages, removeTrackers } from '../settings.ts'
-import { canUseNetwork } from './network.ts'
+import { canUseNetwork, isSaveData } from './network.ts'
 import { PUNCTUATION_CHARS, truncateText } from './text.ts'
 
 const ALLOWED_TAGS = [
@@ -277,6 +277,30 @@ function removeRelativeUrls(node: Element): void {
   }
 }
 
+function moveToData(element: Element, attr: string): void {
+  let value = element.getAttribute(attr)
+  if (value === null) return
+  element.setAttribute(`data-${attr}`, value)
+  element.removeAttribute(attr)
+}
+
+function delayMediaLoading(node: Element): void {
+  for (let image of node.querySelectorAll('img')) {
+    if (image.classList.contains('emoji')) {
+      image.replaceWith(image.getAttribute('alt') ?? '')
+    } else {
+      moveToData(image, 'src')
+      moveToData(image, 'srcset')
+    }
+  }
+  for (let source of node.querySelectorAll('picture source')) {
+    moveToData(source, 'srcset')
+  }
+  for (let video of node.querySelectorAll('video')) {
+    video.removeAttribute('poster')
+  }
+}
+
 export function sanitizeDOM(html: string): Element {
   let node = getPurify().sanitize(html, {
     ALLOW_ARIA_ATTR: false,
@@ -333,6 +357,7 @@ export function sanitizeDOM(html: string): Element {
     image.setAttribute('loading', loading)
     image.setAttribute('decoding', 'async')
   }
+  if (isSaveData()) delayMediaLoading(node)
   return node
 }
 

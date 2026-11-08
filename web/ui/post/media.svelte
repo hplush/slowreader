@@ -1,15 +1,20 @@
 <script lang="ts">
   import { mdiEyeOutline } from '@mdi/js'
   import {
+    isMediaCached,
     type ReaderMedia,
+    saveData,
     showSensitiveMedia,
-    postMessages as t
+    postMessages as t,
+    waitsClick
   } from '@slowreader/core'
+  import type { Attachment } from 'svelte/attachments'
   import { SvelteSet } from 'svelte/reactivity'
 
   import { waitImageDecoded } from '../../lib/image.ts'
   import BrokenImage from '../broken-image.svelte'
   import Button from '../button.svelte'
+  import ClickToLoad from '../click-to-load.svelte'
 
   let {
     media,
@@ -18,13 +23,36 @@
 
   let broken = new SvelteSet<string>()
   let loaded = new SvelteSet<string>()
+  let downloaded = new SvelteSet<string>()
   let revealed = $state(false)
-  let hidden = $derived(
-    !revealed &&
-      !warningClicked &&
-      !$showSensitiveMedia &&
-      media.some(item => item.sensitive)
+  let clicked = $state<string>()
+
+  function focusClicked(url: string): Attachment<HTMLElement> {
+    return element => {
+      if (clicked !== url) return
+      element.tabIndex = -1
+      element.focus({ preventScroll: true })
+    }
+  }
+  let sensitiveShown = $derived(
+    revealed || warningClicked || $showSensitiveMedia
   )
+
+  let hidden = $derived(
+    !sensitiveShown &&
+      media.some(
+        item => item.sensitive && !waitsClick(item, $saveData, downloaded)
+      )
+  )
+
+  $effect(() => {
+    if (!$saveData) return
+    for (let item of media) {
+      void isMediaCached(item.url).then(cached => {
+        if (cached) downloaded.add(item.url)
+      })
+    }
+  })
 </script>
 
 {#snippet sources(item: ReaderMedia)}
@@ -38,7 +66,24 @@
   <div class="post-media" class:is-hidden={hidden}>
     <div class="post-media_list" inert={hidden}>
       {#each media as item, index (`${item.url}${index}`)}
-        {#if item.type.startsWith('image') && broken.has(item.url)}
+        {#if waitsClick(item, $saveData, downloaded)}
+          <ClickToLoad
+            alt={item.alt}
+            bytes={item.size?.approximate ? undefined : item.size?.bytes}
+            height={item.size?.height}
+            onload={() => {
+              if (item.sensitive) revealed = true
+              clicked = item.url
+              downloaded.add(item.url)
+            }}
+            play={item.type.startsWith('video') &&
+              !item.type.endsWith(';mode=gif')}
+            sensitive={!!item.sensitive && !sensitiveShown}
+            url={item.url}
+            video={!item.type.startsWith('image')}
+            width={item.size?.width}
+          />
+        {:else if item.type.startsWith('image') && broken.has(item.url)}
           <span
             style:width={item.size?.width && `${item.size.width}px`}
             style:aspect-ratio={item.size?.width &&
@@ -52,6 +97,7 @@
           <img
             class="post-media_item"
             class:is-loading={!loaded.has(item.url)}
+            {@attach focusClicked(item.url)}
             alt={item.alt ?? ''}
             decoding="async"
             height={item.size?.height}
@@ -70,6 +116,7 @@
         {:else if item.type.endsWith(';mode=gif')}
           <video
             class="post-media_item"
+            {@attach focusClicked(item.url)}
             aria-label={item.alt}
             autoplay
             disablepictureinpicture
@@ -87,11 +134,13 @@
           <!-- svelte-ignore a11y_media_has_caption: feeds have no captions -->
           <video
             class="post-media_item"
+            {@attach focusClicked(item.url)}
             aria-label={item.alt}
+            autoplay={clicked === item.url}
             controls
             height={item.size?.height}
             playsinline
-            poster={item.poster}
+            poster={$saveData ? undefined : item.poster}
             preload="none"
             title={item.alt}
             width={item.size?.width}

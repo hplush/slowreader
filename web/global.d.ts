@@ -18,7 +18,7 @@ interface Navigator {
       }
     | undefined
   connection:
-    | {
+    | ({
         saveData?: boolean
         type?:
           | 'bluetooth'
@@ -29,7 +29,7 @@ interface Navigator {
           | 'unknown'
           | 'wifi'
           | 'wimax'
-      }
+      } & EventTarget)
     | undefined
 }
 

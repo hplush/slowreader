@@ -23,11 +23,9 @@ interface DatabaseCreator {
 
 export type NetworkType = 'free' | 'paid' | 'unknown' | undefined
 
-export interface NetworkTypeDetector {
-  (): {
-    saveData: boolean | undefined
-    type: NetworkType
-  }
+export interface Network {
+  saveData: boolean | undefined
+  type: NetworkType
 }
 
 type NormalizeParams<Params> = {
@@ -107,6 +105,7 @@ export interface CachedMedia {
 export interface MediaCache {
   clear(): Promise<void>
   delete(urls: string[]): Promise<void>
+  has(url: string): Promise<boolean>
   keys(): Promise<string[]>
   put(url: string, response: Response): Promise<CachedMedia>
   size(): Promise<number>
@@ -187,9 +186,10 @@ export interface Environment {
   mediaCache: MediaCache
 
   /**
-   * Detect network type to not download images over expensive tariff.
+   * Call the listener with the current network and on every change
+   * to not download images over expensive tariff or with Save Data.
    */
-  networkType: NetworkTypeDetector
+  onNetwork(listener: (network: Network) => void): () => void
 
   /**
    * URL of the Accounts page, where OAuth returns after the sign in.
@@ -331,9 +331,9 @@ export function setupEnvironment<Router extends BaseRouter>(
     loadEncryptionKey: env.loadEncryptionKey,
     locale: env.locale,
     mediaCache: env.mediaCache,
-    networkType: env.networkType,
     oauthRedirect: env.oauthRedirect,
     onExit: env.onExit,
+    onNetwork: env.onNetwork,
     onVisibilityChange: env.onVisibilityChange,
     openOAuthPage: env.openOAuthPage,
     openRoute: env.openRoute,

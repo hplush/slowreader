@@ -13,6 +13,7 @@
     type AboutPage,
     getEnvironment,
     getIssueURL,
+    saveData,
     settingsMessages,
     aboutMessages as t
   } from '@slowreader/core'
@@ -34,9 +35,12 @@
 
   let { page }: { page: AboutPage } = $props()
   let debug = $derived(addDebugInfo(undefined, page.appVersion))
+  let checkByClick = $derived(
+    $clientUpdate === 'unchecked' || ($saveData && $clientUpdate === 'checking')
+  )
 
   onMount(() => {
-    void checkClientUpdate()
+    if (!saveData.get()) void checkClientUpdate()
   })
 </script>
 
@@ -50,7 +54,17 @@
       <Output label={$t.version} value={page.appVersion}>
         <Version value={page.appVersion} />
       </Output>
-      {#if $clientUpdate === 'latest'}
+      {#if checkByClick}
+        <Button
+          icon={mdiRefresh}
+          loader={$clientUpdate === 'checking'}
+          onclick={checkClientUpdate}
+          size="wide"
+          variant="secondary"
+        >
+          {$t.checkUpdates}
+        </Button>
+      {:else if $clientUpdate === 'latest'}
         <Button
           href={`https://slowreader.app/releases/${page.appVersion}`}
           icon={mdiGift}

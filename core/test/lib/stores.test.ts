@@ -2,7 +2,7 @@ import { atom, cleanStores } from 'nanostores'
 import { deepEqual, equal } from 'node:assert/strict'
 import { describe, test } from 'node:test'
 
-import { subscribeUntil } from '../../index.ts'
+import { subscribeUntil, switchOf } from '../../index.ts'
 import { storeFromColumn } from '../../lib/stores.ts'
 
 describe('stores', () => {
@@ -55,5 +55,27 @@ describe('stores', () => {
     cleanStores($follow)
     $follow.set(true)
     deepEqual(changes, [false])
+  })
+
+  test('shows two setting values as boolean', t => {
+    let setting = atom<'always' | 'free' | 'never'>('free')
+    let toggle = switchOf(setting, 'always', 'never')
+    let changes: boolean[] = []
+    let unbind = toggle.subscribe(value => {
+      changes.push(value)
+    })
+    t.after(() => {
+      unbind()
+      cleanStores(toggle)
+    })
+
+    toggle.set(false)
+    equal(setting.get(), 'free')
+
+    toggle.set(true)
+    equal(setting.get(), 'always')
+
+    setting.set('never')
+    deepEqual(changes, [false, true, false])
   })
 })

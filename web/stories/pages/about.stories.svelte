@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-  import { pages } from '@slowreader/core'
+  import { pages, saveDataMode } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import AboutPage from '../../pages/about.svelte'
@@ -86,6 +86,20 @@
       installation.set('installed')
       safariBrowser.set(false)
       clientUpdate.set('updating')
+    }}
+    route="about"
+  >
+    <AboutPage page={pages.about()} />
+  </Scene>
+</Story>
+
+<Story name="Save Data" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      installation.set('installed')
+      safariBrowser.set(false)
+      saveDataMode.set('on')
+      clientUpdate.set('latest')
     }}
     route="about"
   >

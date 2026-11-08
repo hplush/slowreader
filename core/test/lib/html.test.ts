@@ -6,11 +6,14 @@ import {
   parseRichTranslation,
   removeTrackers,
   sanitizeDOM,
+  saveDataMode,
+  setupEnvironment,
   truncateDOM
 } from '../../index.ts'
-import { setupNodeDom } from '../utils.ts'
+import { getTestEnvironment, setupNodeDom } from '../utils.ts'
 
 setupNodeDom()
+setupEnvironment(getTestEnvironment())
 
 function truncate(html: string, min: number, max: number): string {
   let body = parseDocument(html).body
@@ -25,6 +28,7 @@ function sanitize(html: string): string {
 describe('html', () => {
   afterEach(() => {
     removeTrackers.set(true)
+    saveDataMode.set('auto')
   })
 
   test('sanitizes HTML', () => {
@@ -172,6 +176,33 @@ describe('html', () => {
         'preload="none"></audio>' +
         '<img src="https://example.com/a.jpg" loading="eager" ' +
         'decoding="async">'
+    )
+  })
+
+  test('delays media loading in Save Data mode', () => {
+    saveDataMode.set('on')
+    let node = sanitizeDOM(
+      '<picture><source srcset="https://a.com/1.avif">' +
+        '<img src="https://a.com/1.jpg" srcset="https://a.com/2.jpg 2x">' +
+        '</picture>' +
+        '<img src="https://a.com/3.jpg">' +
+        '<img class="emoji" src="https://a.com/e.png" alt=":)">' +
+        '<video poster="https://a.com/p.jpg" src="https://a.com/v.mp4"></video>'
+    )
+    equal(node.querySelectorAll('[src^="https://a.com/"]').length, 1)
+    equal(node.querySelectorAll('[srcset], [poster], .emoji').length, 0)
+    let [first, second] = node.querySelectorAll('img')
+    equal(first!.getAttribute('data-src'), 'https://a.com/1.jpg')
+    equal(first!.getAttribute('data-srcset'), 'https://a.com/2.jpg 2x')
+    equal(second!.getAttribute('data-src'), 'https://a.com/3.jpg')
+    equal(
+      node.querySelector('source')!.getAttribute('data-srcset'),
+      'https://a.com/1.avif'
+    )
+    equal(node.textContent, ':)')
+    equal(
+      node.querySelector('video')!.getAttribute('src'),
+      'https://a.com/v.mp4'
     )
   })
 

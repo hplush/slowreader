@@ -548,6 +548,18 @@ export function getPostIntro(
   return [intro, more]
 }
 
+export function waitsClick(
+  media: PostMedia,
+  saveData: boolean,
+  loaded: ReadonlySet<string>
+): boolean {
+  return (
+    saveData &&
+    !loaded.has(media.url) &&
+    (media.type.startsWith('image') || media.type.startsWith('video'))
+  )
+}
+
 /**
  * Text cut from the article shows only some of its images, but the rest
  * should not fill the card.
@@ -559,7 +571,9 @@ export function getMediaOutsideText(
 ): ReaderMedia[] {
   if (cut) return media.filter(i => !i.fromText)
   let shown = new Set(
-    [...text.querySelectorAll('img')].map(i => i.getAttribute('src'))
+    [...text.querySelectorAll('img')].map(i => {
+      return i.getAttribute('src') ?? i.getAttribute('data-src')
+    })
   )
   return media.filter(i => !shown.has(i.url))
 }

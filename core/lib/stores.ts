@@ -174,3 +174,24 @@ export function storeFromColumn<Row extends object, Column extends keyof Row>(
   })
   return $value
 }
+
+/**
+ * Boolean view of two values of the setting for `<Switch>`.
+ */
+export function switchOf<Value extends string>(
+  store: WritableAtom<Value>,
+  on: Value,
+  off: Value
+): WritableAtom<boolean> {
+  let result = atom(store.get() === on)
+  let setResult = result.set
+  onMount(result, () => {
+    return store.subscribe(value => {
+      setResult(value === on)
+    })
+  })
+  result.set = value => {
+    if (value !== (store.get() === on)) store.set(value ? on : off)
+  }
+  return result
+}

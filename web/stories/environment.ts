@@ -6,7 +6,7 @@ import {
   clock,
   getEnvironment,
   nightLock,
-  type NetworkTypeDetector,
+  type Network,
   type RequestMethod,
   type RouteName,
   setLayoutType,
@@ -62,8 +62,8 @@ export function answerNightTaskWrong(route: RouteName): void {
 
 export const persistentStore = {}
 
-export function setNetworkType(network: ReturnType<NetworkTypeDetector>): void {
-  networkType = network
+export function setNetworkType(value: Network): void {
+  network.set(value)
 }
 
 export function setMediaCacheSize(size: number): void {
@@ -76,10 +76,7 @@ export function setPasskeySupport(support: boolean): void {
 
 let mediaCacheSize = 0
 
-let networkType: ReturnType<NetworkTypeDetector> = {
-  saveData: false,
-  type: 'free'
-}
+let network = atom<Network>({ saveData: false, type: 'free' })
 
 effect([mobileMedia, tabletMedia], (mobile, tablet) => {
   if (mobile) {
@@ -117,8 +114,8 @@ setupEnvironment({
       return Promise.resolve(mediaCacheSize)
     }
   },
-  networkType() {
-    return networkType
+  onNetwork(listener) {
+    return network.subscribe(listener)
   },
   openRoute(page) {
     baseRouter.set({ ...page, hash: stringifyPopups(page.popups) })

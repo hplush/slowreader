@@ -17,7 +17,6 @@ import {
   deleteFeed,
   fastPostsMaxAge,
   lastRefresh,
-  type NetworkTypeDetector,
   nightLock,
   syncedSettingsLoading,
   getClient,
@@ -40,8 +39,8 @@ import {
   refreshProgress,
   refreshStatistics,
   refreshStatus,
+  saveDataMode,
   setRequestMethod,
-  setupEnvironment,
   stopRefreshing,
   testAccount,
   testFeed,
@@ -55,8 +54,8 @@ import {
   startClient,
   expectRequest,
   expectWarning,
-  getTestEnvironment,
   mockRequest,
+  setTestNetwork,
   setupNodeDom,
   throws
 } from './utils.ts'
@@ -1326,6 +1325,7 @@ describe('auto refresh', () => {
   afterEach(async () => {
     fastPostsMaxAge.set(604800)
     autoRefresh.set('never')
+    saveDataMode.set('auto')
     lastRefresh.set(0)
     nightLock.set({ enabled: false, from: 23, to: 4 })
     refreshStatistics.set({ ...DEFAULT_REFRESH_STATISTICS })
@@ -1350,11 +1350,7 @@ describe('auto refresh', () => {
   })
 
   test('respects network type on auto refresh', async () => {
-    let network: ReturnType<NetworkTypeDetector> = {
-      saveData: false,
-      type: 'paid'
-    }
-    setupEnvironment({ ...getTestEnvironment(), networkType: () => network })
+    setTestNetwork({ saveData: false, type: 'paid' })
     await addFeed(testFeed({ loader: 'rss', url: 'https://one.com/' }))
     let load = spyOn(loaders.rss, 'getPosts', () => {
       return createPostsList(() => Promise.resolve([[], undefined]))
@@ -1364,8 +1360,23 @@ describe('auto refresh', () => {
     await refreshPosts({ auto: true })
     equal(load.callCount, 0)
 
-    network = { saveData: false, type: 'free' }
+    setTestNetwork({ saveData: false, type: 'free' })
     await refreshPosts({ auto: true })
+    equal(load.callCount, 1)
+  })
+
+  test('does not auto refresh in Save Data mode', async () => {
+    await addFeed(testFeed({ loader: 'rss', url: 'https://one.com/' }))
+    let load = spyOn(loaders.rss, 'getPosts', () => {
+      return createPostsList(() => Promise.resolve([[], undefined]))
+    })
+    autoRefresh.set('always')
+    saveDataMode.set('on')
+
+    await refreshPosts({ auto: true })
+    equal(load.callCount, 0)
+
+    await refreshPosts()
     equal(load.callCount, 1)
   })
 

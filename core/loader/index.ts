@@ -1,6 +1,7 @@
 import { getEnvironment } from '../environment.ts'
 import { isRemoteError } from '../errors.ts'
 import type { DownloadTask, TextResponse } from '../lib/download.ts'
+import { isSaveData } from '../lib/network.ts'
 import type { AccountValue } from '../schema.ts'
 import { atom } from './atom.ts'
 import { bluesky } from './bluesky.ts'
@@ -71,16 +72,13 @@ export async function getLoaderForText(
   return false
 }
 
-/**
- * Network and service errors are ignored, since the saved feed’s title
- * and avatar are still good.
- */
 export async function tryLoadFeedData(
   task: DownloadTask,
   loader: LoaderName,
   url: string,
   opts?: { account?: AccountValue; response?: TextResponse }
 ): Promise<FeedData | undefined> {
+  if (isSaveData()) return undefined
   try {
     return await loaders[loader].loadFeedData(task, url, opts)
   } catch (e) {

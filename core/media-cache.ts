@@ -3,6 +3,7 @@ import { atom, computed, effect, map } from 'nanostores'
 
 import { type CachedMedia, getEnvironment } from './environment.ts'
 import { HTTPStatusError } from './errors.ts'
+import { createDownloadTask } from './lib/download.ts'
 import { canUseNetwork } from './lib/network.ts'
 import { createQueue } from './lib/queue.ts'
 import { increaseKey } from './lib/stores.ts'
@@ -441,6 +442,25 @@ export async function syncMediaCache(): Promise<void> {
   } finally {
     await saveSizes(found)
   }
+}
+
+export function isMediaCached(url: string): Promise<boolean> {
+  return getEnvironment().mediaCache.has(url)
+}
+
+/**
+ * User already paid for the bytes, so the file is kept for offline even
+ * in Save Data mode.
+ */
+export async function cacheMediaOnRequest(
+  url: string,
+  video = false
+): Promise<void> {
+  let task = createDownloadTask({ tries: 1 })
+  let response = await task.request(url, {
+    headers: { Accept: video ? 'video/*' : 'image/*' }
+  })
+  await getEnvironment().mediaCache.put(url, response)
 }
 
 export function stopMediaCache(): void {

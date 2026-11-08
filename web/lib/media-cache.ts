@@ -47,6 +47,10 @@ export const mediaCache: MediaCache = {
     let cache = await caches.open(MEDIA_CACHE)
     await Promise.all(urls.map(url => cache.delete(url)))
   },
+  async has(url) {
+    let cache = await caches.open(MEDIA_CACHE)
+    return !!(await cache.match(url))
+  },
   async keys() {
     let cache = await caches.open(MEDIA_CACHE)
     return (await cache.keys()).map(request => request.url)
