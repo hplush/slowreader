@@ -98,7 +98,7 @@ export const cacheVideos = persistentAtom<NetworkUse>(
 
 export const autoRefresh = persistentAtom<NetworkUse>(
   'slowreader:autoRefresh',
-  'never'
+  'always'
 )
 
 export const lastRefresh = persistentAtom<number>('slowreader:lastRefresh', 0, {

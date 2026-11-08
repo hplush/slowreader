@@ -1340,6 +1340,7 @@ describe('auto refresh', () => {
       return createPostsList(() => Promise.resolve([[], undefined]))
     })
 
+    autoRefresh.set('never')
     await refreshPosts({ auto: true })
     equal(load.callCount, 0)
 

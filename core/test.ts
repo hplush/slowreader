@@ -130,7 +130,9 @@ export function getTestEnvironment(): Environment {
   testSignals = []
   testHistory = []
   testOAuthPages = []
-  let persistentStore: Record<string, string> = {}
+  let persistentStore: Record<string, string> = {
+    'slowreader:autoRefresh': 'never'
+  }
   let savedKey: CryptoKey | undefined
   let media = new Map<string, CachedMedia>()
 

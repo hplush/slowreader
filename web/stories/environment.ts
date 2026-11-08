@@ -60,7 +60,7 @@ export function answerNightTaskWrong(route: RouteName): void {
   })
 }
 
-export const persistentStore = {}
+export const persistentStore = { 'slowreader:autoRefresh': 'never' }
 
 export function setNetworkType(value: Network): void {
   network.set(value)
