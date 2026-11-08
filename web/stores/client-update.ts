@@ -69,8 +69,13 @@ export async function updateClient(): Promise<void> {
   let waiting = registration?.waiting
   if (waiting) {
     clientUpdate.set('updating')
-    // Every tab reloads on `controllerchange`
-    waiting.postMessage('skipWaiting' satisfies ToServiceWorker)
+    // Browser ignores the message while the old worker loads any image
+    // and does not retry after it. Every tab reloads on `controllerchange`.
+    let skipWaiting = (): void => {
+      waiting.postMessage('skipWaiting' satisfies ToServiceWorker)
+    }
+    skipWaiting()
+    setInterval(skipWaiting, 1000)
   } else {
     location.reload()
   }
