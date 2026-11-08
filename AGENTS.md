@@ -52,6 +52,7 @@ In all interactions, plans, and commit messages, be extremely concise and sacrif
 ## Testing
 
 - At the end of the file changing run `pnpm quick`. Fix issues only in files changed by you.
+- After adding a page or do a refactoring call `pnpm size`.
 - Run specific test by `pnpm bnt path/to/test.test.ts -t 'test name'`.
 - Never put cleanup as last lines of a test: failed assertion skips it and breaks next tests or freezes the run. Use `afterEach()` or `t.after()` right after the setup. Helpers must restore state before an assertion.
 - Add story to `web/stories/` for every new UI state.
