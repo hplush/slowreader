@@ -1,7 +1,14 @@
 <script lang="ts">
-  import { mdiAccount, mdiChevronRight, mdiLogin } from '@mdi/js'
+  import {
+    mdiAccount,
+    mdiChevronLeft,
+    mdiChevronRight,
+    mdiLogin,
+    mdiShieldCheckOutline
+  } from '@mdi/js'
   import {
     type AccountsPage,
+    addMessages,
     getPopupId,
     router,
     settingsMessages,
@@ -17,6 +24,7 @@
   import Input from '../ui/input.svelte'
   import Links from '../ui/links.svelte'
   import Loader from '../ui/loader.svelte'
+  import Note from '../ui/note.svelte'
   import Stack from '../ui/stack.svelte'
   import ThinPage from '../ui/thin-page.svelte'
   import Title from '../ui/title.svelte'
@@ -84,57 +92,65 @@
   >
     <Form loading={$submitting} onsubmit={page.submit}>
       <Stack align="center" gap="xl">
-        <Title center>
-          {$t[`${$step.service}Title`]}
-        </Title>
-        <Stack gap="s">
-          <Input
-            autocomplete="off"
-            disabled={$submitting}
-            errorId={$error ? 'accounts-error' : undefined}
-            label={$t[`${$step.field}Field`]}
-            required
-            bind:value={$input}
-          />
-          {#if $error}
-            <Error id="accounts-error">{$error}</Error>
-          {/if}
-          {#if $step.service === 'mastodon'}
-            <Stack gap="s" row wrap>
-              {#each page.mastodonServers as server (server)}
-                <Button
-                  disabled={$submitting}
-                  onclick={() => {
-                    page.signInTo(server)
-                  }}
-                  size="pill"
-                  variant="secondary"
-                >
-                  {server}
-                </Button>
-              {/each}
+        <Stack align="center" gap="xl">
+          <Title center>
+            {$t[`${$step.service}Title`]}
+          </Title>
+          <Stack gap="l">
+            <Stack gap="s">
+              <Input
+                autocomplete="off"
+                disabled={$submitting}
+                errorId={$error ? 'accounts-error' : undefined}
+                label={$t[`${$step.field}Field`]}
+                required
+                bind:value={$input}
+              />
+              {#if $error}
+                <Error id="accounts-error">{$error}</Error>
+              {/if}
+              {#if $step.service === 'mastodon'}
+                <Stack gap="s" row wrap>
+                  {#each page.mastodonServers as server (server)}
+                    <Button
+                      disabled={$submitting}
+                      onclick={() => {
+                        page.signInTo(server)
+                      }}
+                      size="pill"
+                      variant="secondary"
+                    >
+                      {server}
+                    </Button>
+                  {/each}
+                </Stack>
+              {/if}
             </Stack>
-          {/if}
+            <Stack gap="s" row>
+              <Button
+                disabled={$submitting}
+                icon={mdiChevronLeft}
+                onclick={page.cancel}
+                size="wide"
+                variant="plain-secondary"
+              >
+                {$t.cancel}
+              </Button>
+              <Button
+                icon={mdiLogin}
+                loader={$submitting ? $t.authorizing : undefined}
+                size="wide"
+                type="submit"
+                variant="main"
+              >
+                {$t.signIn}
+              </Button>
+            </Stack>
+          </Stack>
         </Stack>
-        <Stack gap="s" row>
-          <Button
-            disabled={$submitting}
-            onclick={page.cancel}
-            size="wide"
-            variant="plain-secondary"
-          >
-            {$t.cancel}
-          </Button>
-          <Button
-            icon={mdiLogin}
-            loader={$submitting ? $t.authorizing : undefined}
-            size="wide"
-            type="submit"
-            variant="main"
-          >
-            {$t.signIn}
-          </Button>
-        </Stack>
+        <Note icon={mdiShieldCheckOutline} title={$t.safeTitle} variant="good">
+          {$t.safeDesc({ service: $addMessages[`${$step.service}Loader`] })}
+        </Note>
       </Stack>
     </Form>
   </ThinPage>

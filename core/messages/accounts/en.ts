@@ -1,3 +1,5 @@
+import { params } from '@nanostores/i18n'
+
 import { i18n } from '../../i18n.ts'
 
 export const accountsMessages = i18n('accounts', {
@@ -22,6 +24,10 @@ export const accountsMessages = i18n('accounts', {
   oldMastodon:
     'Your server runs Mastodon older than 4.3. Ask its admin to update it.',
   pageTitle: 'Accounts',
+  safeDesc: params(
+    'Our server can’t use your {service} account. We’re open source, so anyone can check.'
+  ),
+  safeTitle: 'Your sign-in stays on your devices',
   serverField: 'Server or your handle',
   signIn: 'Sign in',
   signInAgain: 'Sign in again',

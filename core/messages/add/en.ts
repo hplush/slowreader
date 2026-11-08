@@ -2,7 +2,7 @@ import { i18n } from '../../i18n.ts'
 
 export const addMessages = i18n('add', {
   atomLoader: 'Atom',
-  blueskyLoader: 'BlueSky',
+  blueskyLoader: 'Bluesky',
   invalidUrl: 'There seems to be a mistake in the URL. Please check it.',
   jsonFeedLoader: 'JSON Feed',
   mastodonLoader: 'Mastodon',
