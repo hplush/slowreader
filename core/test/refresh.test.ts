@@ -669,6 +669,33 @@ describe('refresh', () => {
     deepEqual(feed!.lastPublishedAt, 6000)
   })
 
+  test('fills empty last published time without new posts', async () => {
+    let feedId = await addFeed(
+      testFeed({ lastOriginId: 'post2', url: 'https://one.com/' })
+    )
+    spyOn(loaders.rss, 'getPosts', () => {
+      return createPostsList(() => {
+        return Promise.resolve([
+          [
+            { originId: 'post1', publishedAt: 1000, title: '1' },
+            { originId: 'post2', publishedAt: 2000, title: '2' }
+          ],
+          undefined
+        ])
+      })
+    })
+
+    refreshPosts()
+    await setTimeout(10)
+    equal(refreshStatus.get(), 'done')
+    deepEqual(await getPostKeys('title'), [])
+
+    let feed = await loadFeed(feedId)
+    deepEqual(feed!.lastOriginId, 'post2')
+    deepEqual(feed!.lastPublishedAt, 2000)
+    ok(feed!.refreshedAt)
+  })
+
   test('sorts posts', async () => {
     let feedId = await addFeed(
       testFeed({

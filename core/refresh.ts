@@ -320,6 +320,8 @@ async function finishTarget(state: TargetRefresh): Promise<void> {
   let { accounts, feeds, posts } = getTables()
   if ('feed' in target) {
     let frequency = getPostsFrequency(state.pages)
+    let first = state.page[0]
+    let lastPublishedAt = first && getSortedAt(first)
     if (newest) {
       await getCrdt().batch(() => {
         if (adding.length > 0) void posts.create(adding)
@@ -329,6 +331,12 @@ async function finishTarget(state: TargetRefresh): Promise<void> {
           lastPublishedAt: getSortedAt(newest),
           refreshedAt
         })
+      })
+    } else if (!target.feed.lastPublishedAt && lastPublishedAt) {
+      await feeds.update(target.feed.id, {
+        frequency,
+        lastPublishedAt,
+        refreshedAt
       })
     } else {
       let key =
