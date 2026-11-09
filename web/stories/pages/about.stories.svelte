@@ -99,7 +99,7 @@
       installation.set('installed')
       safariBrowser.set(false)
       saveDataMode.set('on')
-      clientUpdate.set('latest')
+      clientUpdate.set('unchecked')
     }}
     route="about"
   >
