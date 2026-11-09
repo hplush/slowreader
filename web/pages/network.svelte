@@ -2,16 +2,13 @@
   import {
     mdiAirplane,
     mdiCancel,
-    mdiCellphoneCog,
     mdiCheckAll,
-    mdiDownload,
     mdiDownloadOff,
     mdiFire,
     mdiGaugeLow,
     mdiLockOpenOutline,
     mdiPuzzle,
     mdiSignal,
-    mdiSignalCellular3,
     mdiWifi
   } from '@mdi/js'
   import {
@@ -52,11 +49,11 @@
   let saveDataValues = $derived(
     (
       [
-        ['on', $t.saveDataOn, mdiDownloadOff],
-        ['paid', $t.saveDataPaid, mdiSignalCellular3],
-        ['auto', $t.saveDataAuto, mdiCellphoneCog],
-        ['off', $t.saveDataOff, mdiDownload]
-      ] satisfies [SaveDataMode, string, string][]
+        ['on', $t.saveDataOn],
+        ['paid', $t.saveDataPaid],
+        ['auto', $t.saveDataAuto],
+        ['off', $t.saveDataOff]
+      ] satisfies [SaveDataMode, string][]
     ).filter(([value]) => {
       return (system || value !== 'auto') && (wifi || value !== 'paid')
     })
