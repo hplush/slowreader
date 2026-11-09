@@ -93,7 +93,7 @@ type UnreadCount = {
 type UnreadCounts = { fast: Map<string, number>; slow: Map<string, number> }
 
 /**
- * Sorted `[id, title]` pairs of categories or of feeds of a single category.
+ * Sorted `[id, title]` pairs of categories or of feeds.
  */
 type Sorted = [string, string][]
 
@@ -107,17 +107,18 @@ type Sorted = [string, string][]
  */
 interface MenuState {
   /**
-   * Category of the account. Account’s posts are always fast.
+   * Category and reading of the account. Account’s own posts are always fast.
    */
-  accounts: Record<string, string>
+  accounts: Record<string, [categoryId: string, reading: 'fast' | 'slow']>
   avatars: Record<string, string>
   categories: Sorted
   /**
-   * Feeds with `reading: 'fast'`.
+   * Feeds without own category or reading take them from the account.
    */
-  fast: Record<string, true>
-  feedOf: Record<string, string>
-  feeds: Record<string, Sorted>
+  feedAccount: Record<string, string>
+  feedCategory: Record<string, string>
+  feedReading: Record<string, 'fast' | 'slow'>
+  feeds: Sorted
   filters: Record<string, [feedId: string, action: FilterValue['action']]>
   round: Record<string, true>
 }
@@ -126,9 +127,10 @@ const EMPTY: MenuState = {
   accounts: {},
   avatars: {},
   categories: [],
-  fast: {},
-  feedOf: {},
-  feeds: {},
+  feedAccount: {},
+  feedCategory: {},
+  feedReading: {},
+  feeds: [],
   filters: {},
   round: {}
 }
@@ -139,7 +141,7 @@ const REDUCER = 'slowreader:menu'
  * Increase it on any change in the reducer’s logic or in `MenuState`
  * to rebuild the menu from the log.
  */
-const VERSION = 4
+const VERSION = 5
 
 /**
  * The server re-sends the actions, which the client did not confirm as
@@ -175,6 +177,24 @@ function rename(list: Sorted, id: string, title: string): Sorted {
   }
 }
 
+/**
+ * Returns `true` if the record was changed.
+ */
+function setOrDelete<Value>(
+  record: Record<string, Value>,
+  id: string,
+  value: null | undefined | Value
+): boolean {
+  if (value === null || value === undefined) {
+    if (!(id in record)) return false
+    delete record[id]
+  } else {
+    if (record[id] === value) return false
+    record[id] = value
+  }
+  return true
+}
+
 function createMenuReducer(logux: CrossTabClient): StorageReducer<MenuState> {
   let reducer = createStorageReducer<MenuState>(
     logux,
@@ -198,17 +218,25 @@ function createMenuReducer(logux: CrossTabClient): StorageReducer<MenuState> {
   reducer.type(accountsTable.created, (state, action) => {
     let accounts = { ...state.accounts }
     for (let [id, fields] of parseCrdtRows(action)) {
-      accounts[id] = fields.categoryId ?? GENERAL_CATEGORY
+      accounts[id] = [
+        fields.categoryId ?? GENERAL_CATEGORY,
+        fields.reading ?? 'fast'
+      ]
     }
     return { ...state, accounts }
   })
 
   reducer.type(accountsTable.changed, (state, action) => {
-    let { categoryId } = action.fields
-    if (typeof categoryId === 'undefined') return state
+    let { categoryId, reading } = action.fields
+    if (typeof categoryId === 'undefined' && typeof reading === 'undefined') {
+      return state
+    }
     let accounts = { ...state.accounts }
     for (let [id] of parseCrdtRows(action)) {
-      if (accounts[id]) accounts[id] = categoryId
+      let account = accounts[id]
+      if (account) {
+        accounts[id] = [categoryId ?? account[0], reading ?? account[1]]
+      }
     }
     return { ...state, accounts }
   })
@@ -247,28 +275,34 @@ function createMenuReducer(logux: CrossTabClient): StorageReducer<MenuState> {
 
   reducer.type(feedsTable.created, (state, action) => {
     let avatars = { ...state.avatars }
-    let fast = { ...state.fast }
-    let feedOf = { ...state.feedOf }
-    let feeds = { ...state.feeds }
+    let feedAccount = { ...state.feedAccount }
+    let feedCategory = { ...state.feedCategory }
+    let feedReading = { ...state.feedReading }
+    let feeds = state.feeds
     let round = { ...state.round }
     for (let [id, fields] of parseCrdtRows(action)) {
-      let category = fields.categoryId!
-      feeds[category] = insert(feeds[category] ?? [], id, fields.title)
-      feedOf[id] = category
-      if (fields.reading === 'fast') fast[id] = true
+      feeds = insert(feeds, id, fields.title)
+      setOrDelete(feedAccount, id, fields.accountId)
+      setOrDelete(feedCategory, id, fields.categoryId)
+      setOrDelete(feedReading, id, fields.reading)
+      setOrDelete(avatars, id, fields.avatar)
       if (hasPersonAvatar(fields.loader)) round[id] = true
-      if (fields.avatar) {
-        avatars[id] = fields.avatar
-      } else {
-        delete avatars[id]
-      }
     }
-    return { ...state, avatars, fast, feedOf, feeds, round }
+    return {
+      ...state,
+      avatars,
+      feedAccount,
+      feedCategory,
+      feedReading,
+      feeds,
+      round
+    }
   })
 
   reducer.type(feedsTable.changed, (state, action) => {
-    let { avatar, categoryId, reading, title } = action.fields
+    let { accountId, avatar, categoryId, reading, title } = action.fields
     if (
+      typeof accountId === 'undefined' &&
       typeof avatar === 'undefined' &&
       typeof categoryId === 'undefined' &&
       typeof reading === 'undefined' &&
@@ -278,66 +312,56 @@ function createMenuReducer(logux: CrossTabClient): StorageReducer<MenuState> {
     }
     let changed = false
     let avatars = { ...state.avatars }
-    let fast = { ...state.fast }
-    let feedOf = { ...state.feedOf }
-    let feeds = { ...state.feeds }
+    let feedAccount = { ...state.feedAccount }
+    let feedCategory = { ...state.feedCategory }
+    let feedReading = { ...state.feedReading }
+    let feeds = state.feeds
     for (let [id] of parseCrdtRows(action)) {
-      let from = feedOf[id]
-      if (typeof from === 'undefined') continue
-      if (avatar && avatars[id] !== avatar) {
-        avatars[id] = avatar
-        changed = true
-      } else if (avatar === null && avatars[id]) {
-        delete avatars[id]
-        changed = true
+      if (!feeds.some(item => item[0] === id)) continue
+      if (typeof accountId !== 'undefined') {
+        changed = setOrDelete(feedAccount, id, accountId) || changed
       }
-      if (reading === 'fast' && !fast[id]) {
-        fast[id] = true
-        changed = true
-      } else if (reading === 'slow' && fast[id]) {
-        delete fast[id]
-        changed = true
+      if (typeof avatar !== 'undefined') {
+        changed = setOrDelete(avatars, id, avatar) || changed
       }
-      let list = feeds[from]!
-      if (typeof categoryId !== 'undefined' && categoryId !== from) {
-        let index = list.findIndex(item => item[0] === id)
-        feeds[from] = list.toSpliced(index, 1)
-        feedOf[id] = categoryId
-        feeds[categoryId] = insert(
-          feeds[categoryId] ?? [],
-          id,
-          title ?? list[index]![1]
-        )
-        changed = true
-      } else if (typeof title !== 'undefined') {
-        let renamed = rename(list, id, title)
-        if (renamed !== list) {
-          feeds[from] = renamed
-          changed = true
-        }
+      if (typeof categoryId !== 'undefined') {
+        changed = setOrDelete(feedCategory, id, categoryId) || changed
       }
+      if (typeof reading !== 'undefined') {
+        changed = setOrDelete(feedReading, id, reading) || changed
+      }
+      if (typeof title !== 'undefined') feeds = rename(feeds, id, title)
     }
-    return changed ? { ...state, avatars, fast, feedOf, feeds } : state
+    if (!changed && feeds === state.feeds) return state
+    return { ...state, avatars, feedAccount, feedCategory, feedReading, feeds }
   })
 
   reducer.type(feedsTable.deleted, (state, action) => {
-    let changed = false
     let avatars = { ...state.avatars }
-    let fast = { ...state.fast }
-    let feedOf = { ...state.feedOf }
-    let feeds = { ...state.feeds }
+    let feedAccount = { ...state.feedAccount }
+    let feedCategory = { ...state.feedCategory }
+    let feedReading = { ...state.feedReading }
+    let feeds = state.feeds
     let round = { ...state.round }
     for (let [id] of parseCrdtRows(action)) {
-      let from = feedOf[id]
-      if (typeof from === 'undefined') continue
-      feeds[from] = remove(feeds[from]!, id)
+      feeds = remove(feeds, id)
       delete avatars[id]
-      delete feedOf[id]
-      delete fast[id]
+      delete feedAccount[id]
+      delete feedCategory[id]
+      delete feedReading[id]
       delete round[id]
-      changed = true
     }
-    return changed ? { ...state, avatars, fast, feedOf, feeds, round } : state
+    return feeds === state.feeds
+      ? state
+      : {
+          ...state,
+          avatars,
+          feedAccount,
+          feedCategory,
+          feedReading,
+          feeds,
+          round
+        }
   })
 
   reducer.type(filtersTable.created, (state, action) => {
@@ -401,15 +425,29 @@ const GENERAL: [string, string] = [GENERAL_CATEGORY, '']
  * feeds/categories/filters changes, not on every read post.
  */
 function buildTree(state: MenuState): MenuTree {
-  let fastFeeds = new Set(Object.keys(state.fast))
+  let byCategory = new Map<string, [feeds: Sorted, hasFast: boolean]>()
+  for (let item of state.feeds) {
+    let id = item[0]
+    let account = state.accounts[state.feedAccount[id] ?? '']
+    let categoryId = state.feedCategory[id] ?? account?.[0] ?? GENERAL_CATEGORY
+    let group = byCategory.get(categoryId) ?? [[], false]
+    group[0].push(item)
+    if ((state.feedReading[id] ?? account?.[1] ?? 'fast') === 'fast') {
+      group[1] = true
+    }
+    byCategory.set(categoryId, group)
+  }
   for (let id in state.filters) {
-    let filter = state.filters[id]!
-    if (filter[1] === 'fast') fastFeeds.add(filter[0])
+    let [feedId, action] = state.filters[id]!
+    if (action !== 'fast') continue
+    for (let group of byCategory.values()) {
+      if (group[0].some(item => item[0] === feedId)) group[1] = true
+    }
   }
 
   let accountsByCategory = new Map<string, string[]>()
   for (let accountId in state.accounts) {
-    let categoryId = state.accounts[accountId]!
+    let categoryId = state.accounts[accountId]![0]
     accountsByCategory.set(categoryId, [
       ...(accountsByCategory.get(categoryId) ?? []),
       accountId
@@ -421,14 +459,12 @@ function buildTree(state: MenuState): MenuTree {
   let slow: [MenuItem, MenuFeed[]][] = []
   let sources = new Map<string, string[]>()
   for (let [id, title] of categories) {
-    let list = state.feeds[id] ?? []
+    let [list, hasFast] = byCategory.get(id) ?? [[], false]
     let accounts = accountsByCategory.get(id) ?? []
     if (list.length === 0 && accounts.length === 0) continue
     let category = { id, title }
     sources.set(id, [...list.map(feed => feed[0]), ...accounts])
-    if (accounts.length > 0 || list.some(feed => fastFeeds.has(feed[0]))) {
-      fast.push(category)
-    }
+    if (accounts.length > 0 || hasFast) fast.push(category)
     if (list.length === 0) continue
     slow.push([
       category,

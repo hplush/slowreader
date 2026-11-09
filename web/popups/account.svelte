@@ -8,6 +8,7 @@
   import {
     type AccountPopup,
     getPopupId,
+    organizeMessages as organize,
     accountsMessages as t
   } from '@slowreader/core'
 
@@ -18,6 +19,7 @@
   import Note from '../ui/note.svelte'
   import Output from '../ui/output.svelte'
   import Popup from '../ui/popup.svelte'
+  import Radio from '../ui/radio.svelte'
   import Stack from '../ui/stack.svelte'
   import Switch from '../ui/switch.svelte'
 
@@ -47,11 +49,23 @@
         <Output font="normal" label={$t.name} value={row.title} />
       </Stack>
       <Output label={$t.handle} value={row.handle} />
-      <CategorySelect
-        onchange={popup.changeCategory}
-        value={row.categoryId}
-        values={$categories}
-      />
+      <Stack row="if-fits">
+        <Radio
+          label={$t.feedsType}
+          onchange={popup.changeReading}
+          size="wide"
+          value={row.reading}
+          values={[
+            ['slow', $organize.slow],
+            ['fast', $organize.fast]
+          ]}
+        />
+        <CategorySelect
+          onchange={popup.changeCategory}
+          value={row.categoryId}
+          values={$categories}
+        />
+      </Stack>
       <Switch label={$t.follow} note={$t.followNote} store={popup.follow} />
       {#if row.expired}
         <Note icon={mdiAccountAlert} variant="warning">

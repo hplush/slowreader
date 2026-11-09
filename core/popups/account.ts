@@ -35,6 +35,9 @@ export const account = definePopup('account', async id => {
     changeCategory(categoryId: string): Promise<void> {
       return changeAccount(id, { categoryId })
     },
+    changeReading(reading: 'fast' | 'slow'): Promise<void> {
+      return changeAccount(id, { reading })
+    },
     destroy() {
       task.destroy()
     },

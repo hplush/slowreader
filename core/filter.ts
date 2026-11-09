@@ -1,3 +1,4 @@
+import { getFeedReading } from './feed.ts'
 import { type PostContent, recalcPostsReading } from './post.ts'
 import {
   type FeedValue,
@@ -73,8 +74,11 @@ export function importFilters(filters: NewFilter[]): Promise<string[]> {
 }
 
 export async function addFilterForFeed(feed: FeedValue): Promise<string> {
+  let account = feed.accountId
+    ? await getTables().accounts.get(feed.accountId)
+    : undefined
   return addFilter({
-    action: feed.reading === 'fast' ? 'slow' : 'fast',
+    action: getFeedReading(feed, account) === 'fast' ? 'slow' : 'fast',
     feedId: feed.id,
     query: ''
   })

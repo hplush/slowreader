@@ -1,7 +1,10 @@
 <script lang="ts">
   import {
+    mdiAccount,
     mdiAlertCircleOutline,
     mdiChevronDown,
+    mdiFire,
+    mdiFood,
     mdiOpenInNew,
     mdiPlusCircleOutline,
     mdiTrashCanOutline
@@ -43,8 +46,10 @@
     feed,
     followedBy,
     frequency,
+    owner,
     posts,
     previews,
+    reading,
     site,
     userPostUrl
   } = $derived(popup)
@@ -54,7 +59,7 @@
 
 <Popup
   id={getPopupId(popup.name, popup.param)}
-  reading={subscribed ? ($feed?.reading ?? 'fast') : undefined}
+  reading={subscribed ? $reading : undefined}
 >
   {#snippet header()}
     {#if !subscribed}
@@ -118,28 +123,7 @@
       </Note>
     {/if}
     {#if subscribed}
-      <Stack row>
-        <Radio
-          label={$t.type}
-          onchange={reading => {
-            popup.change({ reading })
-          }}
-          size="wide"
-          value={$feed ? $feed.reading : 'fast'}
-          values={[
-            ['slow', $t.slow],
-            ['fast', $t.fast]
-          ]}
-        />
-        <CategorySelect
-          onchange={categoryId => {
-            popup.change({ categoryId })
-          }}
-          value={subscribed.categoryId}
-          values={$categories}
-        />
-      </Stack>
-      {#if popup.accounts.length > 0}
+      {#snippet accountSelect()}
         <Select
           label={$t.account}
           onchange={accountId => {
@@ -151,8 +135,55 @@
             ...popup.accounts.map(i => [i.id, i.handle] as [string, string])
           ]}
         />
-      {:else if isAccountService(popup.loader)}
-        <Status label={$t.account}>{$t.anonymous}</Status>
+      {/snippet}
+      {#snippet typeRadio(
+        values: ['account' | 'fast' | 'slow', string, string][]
+      )}
+        <Radio
+          label={$t.type}
+          onchange={value => {
+            popup.change({ reading: value === 'account' ? null : value })
+          }}
+          size="wide"
+          value={$feed?.reading ?? ($owner ? 'account' : 'fast')}
+          {values}
+        />
+      {/snippet}
+      {#if $owner}
+        {@render typeRadio([
+          ['account', $t.accountReading, mdiAccount],
+          ['slow', $t.slow, mdiFire],
+          ['fast', $t.fast, mdiFood]
+        ])}
+        <Stack row="if-fits">
+          <CategorySelect
+            onchange={categoryId => {
+              popup.change({ categoryId: categoryId || null })
+            }}
+            value={$feed?.categoryId ?? ''}
+            values={[['', $t.sameAsAccount], ...$categories]}
+          />
+          {@render accountSelect()}
+        </Stack>
+      {:else}
+        <Stack row="if-fits">
+          {@render typeRadio([
+            ['slow', $t.slow, mdiFire],
+            ['fast', $t.fast, mdiFood]
+          ])}
+          <CategorySelect
+            onchange={categoryId => {
+              popup.change({ categoryId })
+            }}
+            value={$feed?.categoryId ?? ''}
+            values={$categories}
+          />
+        </Stack>
+        {#if popup.accounts.length > 0}
+          {@render accountSelect()}
+        {:else if isAccountService(popup.loader)}
+          <Status label={$t.account}>{$t.anonymous}</Status>
+        {/if}
       {/if}
     {/if}
     <Stack gap="s">

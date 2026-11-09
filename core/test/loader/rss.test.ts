@@ -36,7 +36,7 @@ async function loadAvatar(
   task: DownloadTask,
   url: string
 ): Promise<string | undefined> {
-  return (await loaders.rss.loadFeedData(task, url, { response })).avatar
+  return (await loaders.rss.loadFeedData(task, url, { response }))?.avatar
 }
 
 describe('rss loader', () => {

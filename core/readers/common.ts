@@ -242,7 +242,8 @@ export function loadPostsPage(
         COALESCE("feeds"."loader", "accounts"."service") AS "loader"
       FROM "posts"
       LEFT JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
-      LEFT JOIN "accounts" ON "accounts"."id" = "posts"."accountId"
+      LEFT JOIN "accounts"
+        ON "accounts"."id" = COALESCE("posts"."accountId", "feeds"."accountId")
       WHERE "posts"."reading" = ${filter.reading} AND "posts"."read" = 0
         AND "posts"."merged" = 0
         AND COALESCE("feeds"."categoryId", "accounts"."categoryId")
@@ -323,7 +324,8 @@ export function loadPostsRange(
         COALESCE("feeds"."loader", "accounts"."service") AS "loader"
       FROM "posts"
       LEFT JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
-      LEFT JOIN "accounts" ON "accounts"."id" = "posts"."accountId"
+      LEFT JOIN "accounts"
+        ON "accounts"."id" = COALESCE("posts"."accountId", "feeds"."accountId")
       WHERE "posts"."reading" = ${filter.reading} AND "posts"."merged" = 0
         AND COALESCE("feeds"."categoryId", "accounts"."categoryId")
           = ${filter.categoryId}
@@ -377,7 +379,8 @@ export function loadPostsAbove(
     return getCrdt().select<PostCursor>`
       SELECT "posts"."sortedAt", "posts"."id" FROM "posts"
       LEFT JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
-      LEFT JOIN "accounts" ON "accounts"."id" = "posts"."accountId"
+      LEFT JOIN "accounts"
+        ON "accounts"."id" = COALESCE("posts"."accountId", "feeds"."accountId")
       WHERE "posts"."reading" = ${filter.reading} AND "posts"."read" = 0
         AND "posts"."merged" = 0
         AND COALESCE("feeds"."categoryId", "accounts"."categoryId")
@@ -422,7 +425,8 @@ export function loadPageCursors(
           ROW_NUMBER() OVER "reading" AS "row"
         FROM "posts"
         LEFT JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
-        LEFT JOIN "accounts" ON "accounts"."id" = "posts"."accountId"
+        LEFT JOIN "accounts"
+          ON "accounts"."id" = COALESCE("posts"."accountId", "feeds"."accountId")
         WHERE "posts"."reading" = ${filter.reading} AND "posts"."read" = 0
           AND "posts"."merged" = 0
           AND COALESCE("feeds"."categoryId", "accounts"."categoryId")
@@ -464,7 +468,8 @@ export function loadReadPostIds(filter: PostFilter): Promise<string[]> {
     rows = getCrdt().select`
       SELECT "posts"."id" FROM "posts"
       LEFT JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
-      LEFT JOIN "accounts" ON "accounts"."id" = "posts"."accountId"
+      LEFT JOIN "accounts"
+        ON "accounts"."id" = COALESCE("posts"."accountId", "feeds"."accountId")
       WHERE "posts"."reading" = ${filter.reading} AND "posts"."read" = 1
         AND COALESCE("feeds"."categoryId", "accounts"."categoryId")
           = ${filter.categoryId}
@@ -495,7 +500,8 @@ export function trackReadPosts(
   if (filter.categoryId) {
     $read = getTables().posts.select`
       LEFT JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
-      LEFT JOIN "accounts" ON "accounts"."id" = "posts"."accountId"
+      LEFT JOIN "accounts"
+        ON "accounts"."id" = COALESCE("posts"."accountId", "feeds"."accountId")
       WHERE "posts"."reading" = ${filter.reading} AND "posts"."read" = 1
         AND COALESCE("feeds"."categoryId", "accounts"."categoryId")
           = ${filter.categoryId}

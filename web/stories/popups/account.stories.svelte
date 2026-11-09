@@ -33,6 +33,9 @@
       changeCategory() {
         return Promise.resolve()
       },
+      changeReading() {
+        return Promise.resolve()
+      },
       destroy() {},
       error: undefined,
       follow: atom(account.follow ?? false),

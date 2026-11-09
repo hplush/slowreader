@@ -105,11 +105,14 @@ interface MastodonStatus {
   replies_count?: number
   sensitive: boolean
   spoiler_text: string
+  tags?: { name: string }[]
   uri: string
   url: null | string
 }
 
 const PROFILE = /^\/(?:@|users\/)([^/]+)\/?$/
+
+const TAG = /^\/tags\/([^/]+)\/?$/
 
 const POST = /^\/(@[^/]+)\/(\d+)\/?$/
 
@@ -543,6 +546,43 @@ async function lookupProfile(
   }
 }
 
+async function lookupTag(
+  task: DownloadTask,
+  url: string
+): Promise<{ title: string; url: string }> {
+  let { origin } = new URL(url)
+  let response = await task.text(origin + tagApi(getTagName(url)!))
+  let tag = response.parseJson()
+  if (!isObject(tag) || typeof tag.name !== 'string') {
+    throw new ParseError('Mastodon tag is wrong', response.text)
+  }
+  return toTag(origin, tag.name)
+}
+
+async function loadTagPage(
+  task: DownloadTask,
+  origin: string,
+  name: string,
+  maxId?: string
+): Promise<PostsListResult> {
+  let statuses = parseStatusList(
+    await task.text(
+      `${origin}/api/v1/timelines/tag/${encodeURIComponent(name)}?limit=40` +
+        (maxId ? `&max_id=${maxId}` : '')
+    )
+  )
+  let last = statuses[statuses.length - 1]
+  let shown = statuses.filter(status => !isReplyToOthers(status))
+  let posts = await parseStatuses(task, origin, shown)
+  return [
+    posts.map((post, index) => ({
+      author: toAuthor(shown[index]!.account),
+      ...post
+    })),
+    last ? () => loadTagPage(task, origin, name, last.id) : undefined
+  ]
+}
+
 async function loadPage(
   task: DownloadTask,
   origin: string,
@@ -697,27 +737,118 @@ function isReplyToOthers(status: MastodonStatus): boolean {
   )
 }
 
+function parseAccountList(response: TextResponse): MastodonAccount[] {
+  let accounts = response.parseJson()
+  if (!Array.isArray(accounts) || !accounts.every(isObject)) {
+    throw new ParseError('Mastodon accounts are not an array', response.text)
+  }
+  return accounts as unknown as MastodonAccount[]
+}
+
+function getNextPath(response: TextResponse): string | undefined {
+  let next = response.headers
+    .get('Link')
+    ?.split(',')
+    .find(link => link.includes('rel="next"'))
+    ?.match(/<([^>]+)>/)?.[1]
+  if (!next) return undefined
+  let url = new URL(next)
+  return url.pathname + url.search
+}
+
+type Tag = { url: string } & PostAuthor
+
+/**
+ * Hashtag is a feed of posts by not followed authors too.
+ */
+function toTag(origin: string, name: string): Tag {
+  return {
+    title: `#${name}`,
+    url: `${origin}/tags/${encodeURIComponent(name.toLowerCase())}`
+  }
+}
+
+function tagApi(name: string): string {
+  return `/api/v1/tags/${encodeURIComponent(name)}`
+}
+
+function getTagName(url: string): string | undefined {
+  let name = new URL(url).pathname.match(TAG)?.[1]
+  return name ? decodeURIComponent(name) : undefined
+}
+
+/**
+ * Servers before Mastodon 4.0 have no followed hashtags.
+ */
+async function loadFollowedTags(
+  task: DownloadTask,
+  auth: AccountAuth
+): Promise<Tag[]> {
+  let tags: Tag[] = []
+  let path: string | undefined = '/api/v1/followed_tags?limit=200'
+  try {
+    while (path) {
+      let response = await requestByAccount(task, auth, path)
+      let list = response.parseJson()
+      if (!Array.isArray(list)) {
+        throw new ParseError('Mastodon followed tags are wrong', response.text)
+      }
+      for (let tag of list) {
+        if (isObject(tag) && typeof tag.name === 'string') {
+          tags.push(toTag(auth.account.server, tag.name))
+        }
+      }
+      path = getNextPath(response)
+    }
+  } catch (e) {
+    if (HTTPStatusError.is(e, [404])) return []
+    throw e
+  }
+  return tags
+}
+
+function findFollowedTag(
+  status: MastodonStatus,
+  tags: Map<string, Tag>
+): Tag | undefined {
+  if (status.reblog) return undefined
+  for (let tag of status.tags ?? []) {
+    let followed = tags.get(tag.name.toLowerCase())
+    if (followed) return followed
+  }
+  return undefined
+}
+
 async function loadTimelinePage(
   task: DownloadTask,
   auth: AccountAuth,
-  maxId?: string
+  maxId?: string,
+  followedTags?: Map<string, Tag>
 ): Promise<PostsListResult> {
-  let statuses = parseStatusList(
-    await requestByAccount(
+  let [statuses, tags] = await Promise.all([
+    requestByAccount(
       task,
       auth,
       '/api/v1/timelines/home?limit=40' + (maxId ? `&max_id=${maxId}` : '')
-    )
-  )
+    ).then(parseStatusList),
+    followedTags ??
+      loadFollowedTags(task, auth).then(
+        list =>
+          new Map(list.map(tag => [tag.title.slice(1).toLowerCase(), tag]))
+      )
+  ])
   let last = statuses[statuses.length - 1]
   let shown = statuses.filter(status => !isReplyToOthers(status))
   let posts = await parseStatuses(task, auth.account.server, shown)
   return [
-    posts.map((post, index) => ({
-      author: toAuthor(shown[index]!.account),
-      ...post
-    })),
-    last ? () => loadTimelinePage(task, auth, last.id) : undefined
+    posts.map((post, index) => {
+      let status = shown[index]!
+      let origin: ParsedPost = { author: toAuthor(status.account), ...post }
+      let followedTag = findFollowedTag(status, tags)
+      if (followedTag) origin.followedTag = followedTag
+      return origin
+    }),
+    last ? () => loadTimelinePage(task, auth, last.id, tags) : undefined
   ]
 }
 
@@ -791,8 +922,34 @@ let mastodonAccount: AccountLoader<MastodonSignIn> = {
   firstField: 'server',
 
   async follow(task, auth, url) {
+    let tag = getTagName(url)
+    if (tag) {
+      await requestByAccount(task, auth, `${tagApi(tag)}/follow`, 'POST')
+      return
+    }
     let id = await findAuthorId(task, auth, url)
     await requestByAccount(task, auth, `/api/v1/accounts/${id}/follow`, 'POST')
+  },
+
+  async getFollows(task, auth) {
+    let own = await requestByAccount(
+      task,
+      auth,
+      '/api/v1/accounts/verify_credentials'
+    )
+    let json = own.parseJson()
+    if (!isObject(json)) {
+      throw new ParseError('Mastodon account is wrong', own.text)
+    }
+    let authors: PostAuthor[] = []
+    let path: string | undefined =
+      `/api/v1/accounts/${readString(json, 'id')}/following?limit=80`
+    while (path) {
+      let response = await requestByAccount(task, auth, path)
+      authors.push(...parseAccountList(response).map(toAuthor))
+      path = getNextPath(response)
+    }
+    return [...authors, ...(await loadFollowedTags(task, auth))]
   },
 
   getUserPostUrl(server, url) {
@@ -806,6 +963,12 @@ let mastodonAccount: AccountLoader<MastodonSignIn> = {
   },
 
   async isFollowing(task, auth, url) {
+    let tag = getTagName(url)
+    if (tag) {
+      let response = await requestByAccount(task, auth, tagApi(tag))
+      let json = response.parseJson()
+      return isObject(json) && json.following === true
+    }
     let id = await findAuthorId(task, auth, url)
     let response = await requestByAccount(
       task,
@@ -853,6 +1016,11 @@ let mastodonAccount: AccountLoader<MastodonSignIn> = {
   },
 
   async unfollow(task, auth, url) {
+    let tag = getTagName(url)
+    if (tag) {
+      await requestByAccount(task, auth, `${tagApi(tag)}/unfollow`, 'POST')
+      return
+    }
     let id = await findAuthorId(task, auth, url)
     await requestByAccount(
       task,
@@ -875,10 +1043,15 @@ export const mastodon: Loader = {
   },
 
   async getLoaderData(task, url) {
+    if (getTagName(url)) return undefined
     return JSON.stringify({ id: (await loadAccount(task, url)).id })
   },
 
   getPosts(task, url, text, refreshedAt, loaderData) {
+    let tag = getTagName(url)
+    if (tag) {
+      return createPostsList(() => loadTagPage(task, new URL(url).origin, tag))
+    }
     return createPostsList(async () => {
       let id =
         readLoaderData(loaderData, 'id') ?? (await loadAccount(task, url)).id
@@ -976,6 +1149,7 @@ export const mastodon: Loader = {
   },
 
   async detectFeed(text, task, url) {
+    if (getTagName(url)) return lookupTag(task, url).catch(() => false)
     if (!isProfile(text, url)) {
       if (!PROFILE.test(new URL(url).pathname)) return false
       // Pleroma has no ActivityPub link in HTML
@@ -1001,6 +1175,7 @@ export const mastodon: Loader = {
   },
 
   async loadFeedData(task, url, opts = {}) {
+    if (getTagName(url)) return undefined
     return toFeedData(
       opts.account
         ? await loadOwnAccount({

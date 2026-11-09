@@ -2,8 +2,10 @@ import type { SqlStore, SqlStoreValue } from '@nanostores/sql'
 import { nanoid } from 'nanoid'
 import { computed, type ReadableAtom } from 'nanostores'
 
+import { getFeedCategory } from './feed.ts'
 import { commonMessages as t } from './messages/index.ts'
 import {
+  type AccountValue,
   type CategoryChanges,
   type CategoryValue,
   type FeedValue,
@@ -111,7 +113,8 @@ export async function deleteCategory(categoryId: string): Promise<void> {
 
 export function feedsByCategory(
   categories: CategoryValue[],
-  feeds: FeedValue[]
+  feeds: FeedValue[],
+  accounts: AccountValue[]
 ): FeedsByCategory {
   let allCategories = categories.toSorted((a, b) => {
     return a.title.localeCompare(b.title)
@@ -127,10 +130,14 @@ export function feedsByCategory(
   }
 
   for (let feed of feeds) {
-    if (feed.categoryId === GENERAL_CATEGORY) {
+    let categoryId = getFeedCategory(
+      feed,
+      accounts.find(i => i.id === feed.accountId)
+    )
+    if (categoryId === GENERAL_CATEGORY) {
       general.push(feed)
-    } else if (categories.some(i => i.id === feed.categoryId)) {
-      byId[feed.categoryId]!.push(feed)
+    } else if (categories.some(i => i.id === categoryId)) {
+      byId[categoryId]!.push(feed)
     }
   }
 

@@ -238,6 +238,69 @@ describe('menu', () => {
     deepEqual(unreadFastMenu.get(), [])
   })
 
+  test('takes category and reading of feeds from account', async () => {
+    keepMount(fastMenu)
+    keepMount(slowMenu)
+    await waitLoading(menuLoading)
+
+    let idA = await addCategory({ title: 'A' })
+    let idB = await addCategory({ title: 'B' })
+    let accountId = await addAccount(
+      testAccount({ categoryId: idA, reading: 'slow' })
+    )
+    let other = await addAccount(
+      testAccount({ categoryId: idB, reading: 'slow' })
+    )
+    let feed = await addFeed(
+      testFeed({ accountId, categoryId: null, reading: null, title: 'Feed' })
+    )
+    await addPost(testPost({ feedId: feed, reading: 'slow' }))
+    deepEqual(fastMenu.get(), [
+      { id: idA, title: 'A' },
+      { id: idB, title: 'B' }
+    ])
+    deepEqual(slowMenu.get(), [
+      [{ id: idA, title: 'A' }, [[{ id: feed, title: 'Feed' }, 1]]]
+    ])
+
+    await changeAccount(accountId, { categoryId: idB })
+    deepEqual(slowMenu.get(), [
+      [{ id: idB, title: 'B' }, [[{ id: feed, title: 'Feed' }, 1]]]
+    ])
+
+    await changeFeed(feed, { categoryId: idA })
+    deepEqual(slowMenu.get(), [
+      [{ id: idA, title: 'A' }, [[{ id: feed, title: 'Feed' }, 1]]]
+    ])
+
+    await changeFeed(feed, { accountId: other, categoryId: null })
+    deepEqual(slowMenu.get(), [
+      [{ id: idB, title: 'B' }, [[{ id: feed, title: 'Feed' }, 1]]]
+    ])
+    let sorted = slowMenu.get()
+    await changeFeed(feed, { accountId: other, avatar: null, reading: null })
+    equal(slowMenu.get(), sorted)
+
+    await deleteAccount(accountId)
+    await deleteAccount(other)
+    deepEqual(fastMenu.get(), [GENERAL])
+  })
+
+  test('shows category of fast account feeds in fast menu', async () => {
+    keepMount(fastMenu)
+    await waitLoading(menuLoading)
+
+    let category = await addCategory({ title: 'A' })
+    let accountId = await addAccount(testAccount({ reading: 'slow' }))
+    await addFeed(testFeed({ accountId, categoryId: category, reading: null }))
+    deepEqual(fastMenu.get(), [GENERAL])
+
+    await changeAccount(accountId, { reading: 'fast' })
+    deepEqual(fastMenu.get(), [GENERAL, { id: category, title: 'A' }])
+    await changeAccount(accountId, { title: 'Other' })
+    deepEqual(fastMenu.get(), [GENERAL, { id: category, title: 'A' }])
+  })
+
   test('ignores posts with a broken reading', async () => {
     keepMount(slowMenu)
     await waitLoading(menuLoading)
@@ -503,14 +566,15 @@ describe('menu', () => {
     setTestUser(false)
     setupEnvironment(getTestEnvironment())
     let storage = getEnvironment().persistentStore
-    storage['logux:reducer:slowreader:menu'] = '4'
+    storage['logux:reducer:slowreader:menu'] = '5'
     storage['slowreader:menu'] = JSON.stringify({
       accounts: {},
       avatars: {},
       categories: [['category', 'From Storage']],
-      fast: { feed: true },
-      feedOf: { feed: 'category' },
-      feeds: { category: [['feed', 'Feed']] },
+      feedAccount: {},
+      feedCategory: { feed: 'category' },
+      feedReading: { feed: 'fast' },
+      feeds: [['feed', 'Feed']],
       filters: {},
       round: {}
     })
@@ -623,7 +687,7 @@ describe('menu', () => {
       // before the reducer got them
       let storage = getEnvironment().persistentStore
       delete storage['slowreader:menu']
-      storage['logux:reducer:slowreader:menu'] = '4'
+      storage['logux:reducer:slowreader:menu'] = '5'
       setTestUser()
       keepMount(fastMenu)
       keepMount(slowMenu)
@@ -633,7 +697,7 @@ describe('menu', () => {
       deepEqual(slowMenu.get(), [
         [{ id: category, title: 'A' }, [[{ id: feed, title: 'Feed' }, 1]]]
       ])
-      equal(storage['logux:reducer:slowreader:menu'], '4')
+      equal(storage['logux:reducer:slowreader:menu'], '5')
     } finally {
       await cleanClient()
       await setTimeout(100)

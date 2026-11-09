@@ -257,8 +257,9 @@
     feeds={[
       {
         accountId: 'account-work',
+        categoryId: null,
         loader: 'mastodon',
-        reading: 'slow',
+        reading: null,
         url: 'https://mastodon.social/@jane'
       }
     ]}

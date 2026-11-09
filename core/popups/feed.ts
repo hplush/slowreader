@@ -19,6 +19,8 @@ import {
   changeFeed,
   deleteFeed,
   type FeedValue,
+  getFeedCategory,
+  getFeedReading,
   getFeedsByUrl,
   loadFeed,
   loadFeedByUrl,
@@ -168,7 +170,7 @@ export const feed = definePopup('feed', async url => {
    * Follow and unfollow on the service before changing anything locally,
    * since offline the service will keep the old state.
    */
-  async function onService(cb: () => Promise<void>): Promise<boolean> {
+  async function callAccountApi(cb: () => Promise<void>): Promise<boolean> {
     $accountError.set(undefined)
     try {
       await cb()
@@ -180,6 +182,10 @@ export const feed = definePopup('feed', async url => {
   }
 
   let $feed = atom<FeedValue | undefined>(existing)
+
+  let $owner = computed([$feed, $followedBy], (created, followedBy) =>
+    created ? accounts.find(i => i.id === created.accountId) : followedBy
+  )
 
   let feedUrl = existing?.url ?? (candidate ? candidate.url : url)
 
@@ -225,10 +231,8 @@ export const feed = definePopup('feed', async url => {
     if (!account || !candidate) return undefined
     let feedId = await addVirtualFeed(account, {
       avatar: $avatar.get(),
-      categoryId: account.categoryId,
       loader: candidate.name,
       originTitle: candidate.title,
-      reading: 'fast',
       title: candidate.title,
       url: candidate.url,
       ...changes
@@ -270,12 +274,17 @@ export const feed = definePopup('feed', async url => {
     let account = accounts.find(i => i.id === created?.accountId) ?? followedBy
     $deleting.set(true)
     try {
-      if (account) {
-        let unfollowed = await onService(() =>
-          unfollowByAccount(accountTask, account, feedUrl)
-        )
-        if (!unfollowed) return
-      }
+      // Follows sync would create the feed again by another account
+      let unfollowed = await callAccountApi(async () => {
+        if (account) await unfollowByAccount(accountTask, account, feedUrl)
+        for (let other of accounts) {
+          if (other === account || other.expired) continue
+          if (await isFollowingByAccount(accountTask, other, feedUrl)) {
+            await unfollowByAccount(accountTask, other, feedUrl)
+          }
+        }
+      })
+      if (!unfollowed) return
       if (created) {
         await deleteFeed(created.id)
       } else if (followedBy) {
@@ -293,7 +302,7 @@ export const feed = definePopup('feed', async url => {
     if (found) {
       let account = accounts.find(i => i.follow)
       if (account) {
-        let followed = await onService(() =>
+        let followed = await callAccountApi(() =>
           followByAccount(accountTask, account, found.url)
         )
         if (!followed) return
@@ -318,14 +327,19 @@ export const feed = definePopup('feed', async url => {
     )
     let next = accounts.find(i => i.id === accountId)
     if (prev === next) return
-    let changed = await onService(async () => {
+    let changed = await callAccountApi(async () => {
       if (next) await followByAccount(accountTask, next, feedUrl)
       if (prev) await unfollowByAccount(accountTask, prev, feedUrl)
     })
     if (!changed) return
     created ??= await createVirtualFeed()
     if (!created) return
-    await changeFeed(created.id, { accountId: next?.id ?? null })
+    let changes: FeedChanges = { accountId: next?.id ?? null }
+    if (prev && !next) {
+      changes.categoryId = getFeedCategory(created, prev)
+      changes.reading = getFeedReading(created, prev)
+    }
+    await changeFeed(created.id, changes)
     if (next && !prev) {
       await loadRecentPosts(created.id, accountTask).catch(() => {})
     }
@@ -354,6 +368,7 @@ export const feed = definePopup('feed', async url => {
     },
     feed: $feed,
     followedBy: $followedBy,
+    owner: $owner,
     frequency: computed(posts, () => getPostsFrequency(posts)),
     loader: service,
     posts,
@@ -361,6 +376,9 @@ export const feed = definePopup('feed', async url => {
       collapseThreads(value.list).map(i => toPreviewPost(i, service))
     ),
     remove,
+    reading: computed([$feed, $owner], (created, owner) =>
+      getFeedReading(created ?? { reading: null }, owner)
+    ),
     rename,
     site: $site,
     title,

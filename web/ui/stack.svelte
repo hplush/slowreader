@@ -24,7 +24,7 @@
     padding?: 'xl'
     reading?: 'fast' | 'slow'
     role?: 'menu' | 'menuitem'
-    row?: boolean
+    row?: 'if-fits' | boolean
     width?: 'auto' | 'stretch'
     wrap?: boolean
   } = $props()
@@ -53,7 +53,8 @@
   class:is-justify-start={justify === 'start'}
   class:is-non-comfort-mode={reading === 'fast'}
   class:is-padding-xl={padding === 'xl'}
-  class:is-row={row}
+  class:is-row={row === true}
+  class:is-row-if-fits={row === 'if-fits'}
   class:is-width-auto={width === 'auto'}
   class:is-width-stretch={width === 'stretch'}
   class:is-wrap={wrap}
@@ -126,6 +127,11 @@
       &.is-row {
         flex-direction: row;
         padding: 0 var(--stack-padding);
+      }
+
+      &.is-row-if-fits {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
       }
 
       &.is-padding-xl {

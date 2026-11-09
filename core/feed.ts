@@ -14,6 +14,7 @@ import {
 } from './post.ts'
 import type { PostsList } from './posts-list.ts'
 import {
+  type AccountValue,
   type FeedChanges,
   type FeedValue,
   GENERAL_CATEGORY,
@@ -21,11 +22,26 @@ import {
   getTables,
   hasDatabase,
   openedDatabase,
-  type NewFeed
+  type NewFeed,
+  type PostValue
 } from './schema.ts'
 import { linkThreads } from './thread.ts'
 
 export type { FeedValue, NewFeed }
+
+export function getFeedReading(
+  feed: Pick<FeedValue, 'reading'>,
+  account: Pick<AccountValue, 'reading'> | undefined
+): PostValue['reading'] {
+  return feed.reading ?? account?.reading ?? 'fast'
+}
+
+export function getFeedCategory(
+  feed: Pick<FeedValue, 'categoryId'>,
+  account: Pick<AccountValue, 'categoryId'> | undefined
+): string {
+  return feed.categoryId ?? account?.categoryId ?? GENERAL_CATEGORY
+}
 
 export function getFeed(feedId: string): SqlStore<FeedValue | undefined> {
   return getTables().feeds.row(feedId)
@@ -73,7 +89,13 @@ export function loadFeedsByUrls(): Promise<Map<string, FeedByUrl>> {
 
 export function loadFeedsByCategory(categoryId: string): Promise<FeedValue[]> {
   return getTables().feeds.load`
-    WHERE "categoryId" = ${categoryId} ORDER BY "title"
+    WHERE COALESCE(
+      "categoryId",
+      (SELECT "categoryId" FROM "accounts"
+        WHERE "accounts"."id" = "feeds"."accountId"),
+      ${GENERAL_CATEGORY}
+    ) = ${categoryId}
+    ORDER BY "title"
   `
 }
 
@@ -105,7 +127,7 @@ export async function changeFeed(
   changes: FeedChanges
 ): Promise<void> {
   await getTables().feeds.update(feedId, changes)
-  if (changes.reading) {
+  if (changes.reading !== undefined) {
     await Promise.all([feedId].flat().map(id => recalcPostsReading(id)))
   }
 }
@@ -159,7 +181,9 @@ export async function addCandidate(
       .flatMap(({ threadParts, ...start }) => [start, ...(threadParts ?? [])])
   )
   await addPost(
-    linked.map(origin => processOriginPost(origin, { feedId }, feed.reading))
+    linked.map(origin =>
+      processOriginPost(origin, { feedId }, feed.reading ?? 'fast')
+    )
   )
   return feedId
 }

@@ -58,3 +58,15 @@
     <FeedsByCategoriesPage page={pages.feedsByCategories()} />
   </Scene>
 </Story>
+
+<Story name="Syncing Follows" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    categories={[{ id: 'code', title: 'Code' }]}
+    feeds={FEEDS}
+    oninit={() => {
+      pages.feedsByCategories().sync.set('syncing')
+    }}
+  >
+    <FeedsByCategoriesPage page={pages.feedsByCategories()} />
+  </Scene>
+</Story>

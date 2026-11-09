@@ -1135,6 +1135,35 @@ let blueskyAccount: AccountLoader<BlueskySignIn> = {
     })
   },
 
+  async getFollows(task, auth) {
+    let authors: PostAuthor[] = []
+    let cursor: string | undefined
+    do {
+      let response = await requestByAccount(
+        task,
+        auth,
+        'app.bsky.graph.getFollows?limit=100' +
+          `&actor=${encodeURIComponent(getActor(auth.account.url))}` +
+          (cursor ? `&cursor=${encodeURIComponent(cursor)}` : '')
+      )
+      let data = response.parseJson()
+      if (
+        !isObject(data) ||
+        !Array.isArray(data.follows) ||
+        !data.follows.every(isObject)
+      ) {
+        throw new ParseError('Bluesky follows are not an array', response.text)
+      }
+      let follows = data.follows as unknown as BlueskyProfile[]
+      authors.push(...follows.map(toAuthor))
+      cursor =
+        follows.length > 0 && typeof data.cursor === 'string'
+          ? data.cursor
+          : undefined
+    } while (cursor)
+    return authors
+  },
+
   getTimeline(task, auth, refreshedAt) {
     return createPostsList(() =>
       loadTimelinePage(task, auth, createPdsFinder(task), refreshedAt)

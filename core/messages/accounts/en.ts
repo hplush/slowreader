@@ -11,6 +11,7 @@ export const accountsMessages = i18n('accounts', {
   cancel: 'Cancel',
   deleteAccount: 'Delete account',
   deleteConfirm: 'Delete this account from Slow Reader?',
+  feedsType: 'Type of feeds',
   follow: 'Use for new subscriptions',
   followNote: 'Follow authors on the service by this account',
   handle: 'Handle',

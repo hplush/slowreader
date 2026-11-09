@@ -1,7 +1,7 @@
 import type { FeedValue } from '../feed.ts'
 import type { DownloadTask, TextResponse } from '../lib/download.ts'
 import { isAbsoluteUrl, mapRelativeSrcset, parseDocument } from '../lib/html.ts'
-import type { OriginPost, ParsedPost, PostMedia } from '../post.ts'
+import type { OriginPost, ParsedPost, PostAuthor, PostMedia } from '../post.ts'
 import type { PostsList, PostsListResult } from '../posts-list.ts'
 import type { AccountCredentials, AccountValue, NewAccount } from '../schema.ts'
 
@@ -108,9 +108,12 @@ export interface AccountLoader<Data = unknown> {
 
   follow(task: DownloadTask, auth: AccountAuth, url: string): Promise<void>
 
+  getFollows(task: DownloadTask, auth: AccountAuth): Promise<PostAuthor[]>
+
   /**
    * Home timeline from the newest post. Every post has `author`.
    * Replies to other authors are skipped like in profile feeds.
+   * Posts of followed hashtags have `followedTag`.
    */
   getTimeline(
     task: DownloadTask,
@@ -246,13 +249,14 @@ export type Loader = {
    * Load feed’s title and avatar from its source. Social loaders return
    * author’s profile, and with user’s account they load own profile, which
    * some servers hide from guests. Pass `response` if the feed was already
-   * downloaded.
+   * downloaded. `undefined` if the source has no title and avatar, like
+   * hashtag, to keep the saved ones.
    */
   loadFeedData(
     task: DownloadTask,
     url: string,
     opts?: { account?: AccountValue; response?: TextResponse }
-  ): Promise<FeedData>
+  ): Promise<FeedData | undefined>
 
   /**
    * It detects that URL is 100% for this loader.

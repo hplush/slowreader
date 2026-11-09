@@ -43,7 +43,7 @@ async function loadAvatar(
   task: DownloadTask,
   url: string
 ): Promise<string | undefined> {
-  return (await loaders.jsonFeed.loadFeedData(task, url, { response })).avatar
+  return (await loaders.jsonFeed.loadFeedData(task, url, { response }))?.avatar
 }
 
 describe('json feed loader', () => {
@@ -247,7 +247,7 @@ describe('json feed loader', () => {
         await loaders.jsonFeed.loadFeedData(task, 'https://example.com/', {
           response: exampleJson(jsonStub)
         })
-      ).title,
+      )?.title,
       jsonStub.title
     )
   })

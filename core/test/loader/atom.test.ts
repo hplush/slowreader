@@ -39,7 +39,7 @@ async function loadAvatar(
   task: DownloadTask,
   url: string
 ): Promise<string | undefined> {
-  return (await loaders.atom.loadFeedData(task, url, { response })).avatar
+  return (await loaders.atom.loadFeedData(task, url, { response }))?.avatar
 }
 
 describe('atom loader', () => {

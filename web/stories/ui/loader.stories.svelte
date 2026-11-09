@@ -44,6 +44,9 @@
   <Section height={100} width={100}>
     <Loader />
   </Section>
+  <Section>
+    <Loader finished />
+  </Section>
 </Story>
 
 <Story name="Dark" asChild parameters={{ themes: { themeOverride: 'dark' } }}>

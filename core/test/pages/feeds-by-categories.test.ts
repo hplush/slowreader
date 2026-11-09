@@ -1,14 +1,21 @@
+import { restoreAll, spyOn } from 'nanospy'
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
+import { setTimeout } from 'node:timers/promises'
 
 import {
+  addAccount,
   addCategory,
   addFeed,
+  changeAccount,
   deleteCategory,
   GENERAL_CATEGORY,
   getGeneralCategory,
+  loadAccount,
   loadCategory,
   loadFeed,
+  loaders,
+  testAccount,
   testFeed,
   waitLoading
 } from '../../index.ts'
@@ -25,6 +32,7 @@ describe('feeds by categories page', () => {
   })
 
   afterEach(async () => {
+    restoreAll()
     await cleanClient()
   })
 
@@ -97,5 +105,46 @@ describe('feeds by categories page', () => {
       [getGeneralCategory(), [await loadFeed(feed1), await loadFeed(feed2)]],
       [await loadCategory(idB), [await loadFeed(feed3)]]
     ])
+  })
+
+  test('syncs follows and shows account feeds', async () => {
+    let category = await addCategory({ title: 'A' })
+    let accountId = await addAccount(testAccount({ categoryId: category }))
+    await addAccount(testAccount({ expired: true }))
+    let virtual = await addFeed(
+      testFeed({ accountId, categoryId: null, title: '1' })
+    )
+    let { promise, resolve } =
+      Promise.withResolvers<{ title: string; url: string }[]>()
+    let follows = spyOn(loaders.mastodon.account!, 'getFollows', () => promise)
+
+    let page = openPage({ params: {}, route: 'feedsByCategories' })
+    equal(page.sync.get(), 'checking')
+    await waitLoading(page.loading)
+    equal(page.sync.get(), 'syncing')
+    deepEqual(page.groups.get(), [
+      [await loadCategory(category), [await loadFeed(virtual)]]
+    ])
+
+    resolve([{ title: '1', url: (await loadFeed(virtual))!.url }])
+    await promise
+    await setTimeout(10)
+    equal(page.sync.get(), 'done')
+    equal(follows.callCount, 1)
+
+    openPage({ params: {}, route: 'welcome' })
+    page = openPage({ params: {}, route: 'feedsByCategories' })
+    await waitLoading(page.loading)
+    equal(page.sync.get(), 'none')
+    equal(follows.callCount, 1)
+
+    let syncedAt = (await loadAccount(accountId))!.followsSyncedAt!
+    await changeAccount(accountId, { followsSyncedAt: syncedAt - 86400 })
+    openPage({ params: {}, route: 'welcome' })
+    page = openPage({ params: {}, route: 'feedsByCategories' })
+    await waitLoading(page.loading)
+    equal(page.sync.get(), 'syncing')
+    await setTimeout(10)
+    equal(follows.callCount, 2)
   })
 })

@@ -39,6 +39,8 @@ const PROFILE =
 
 const API = 'https://mastodon.social/api/v1'
 
+const NEWS = { title: '#News', url: 'https://mastodon.social/tags/news' }
+
 function profile(
   url: string,
   html = PROFILE
@@ -620,6 +622,54 @@ describe('mastodon loader', () => {
         broken
       ).loading
     }
+  })
+
+  test('loads hashtag feed', async () => {
+    let { mastodon } = loaders
+    let task = createDownloadTask()
+    let url = 'https://mastodon.social/tags/News'
+
+    expectRequest(`${API}/tags/News`).andRespond(
+      200,
+      JSON.stringify({ name: 'News' }),
+      'application/json'
+    )
+    deepEqual(await mastodon.detectFeed(profile(url), task, url), NEWS)
+
+    expectRequest(`${API}/tags/News`).andRespond(404)
+    equal(await mastodon.detectFeed(profile(url), task, url), false)
+
+    expectRequest(`${API}/tags/News`).andRespond(200, '[]', 'application/json')
+    equal(await mastodon.detectFeed(profile(url), task, url), false)
+
+    equal(await mastodon.loadFeedData(task, url), undefined)
+    equal(await mastodon.getLoaderData!(task, url), undefined)
+
+    expectRequest(`${API}/timelines/tag/News?limit=40`).andRespond(
+      200,
+      JSON.stringify([
+        status('1', { account: account('bob') }),
+        status('2', {
+          account: account('bob'),
+          in_reply_to_account_id: 'alice-id',
+          in_reply_to_id: 'other'
+        })
+      ]),
+      'application/json'
+    )
+    let posts = mastodon.getPosts(task, url)
+    await posts.loading
+    deepEqual(
+      posts.get().list.map(post => [post.originId, post.author?.title]),
+      [['1', 'BOB']]
+    )
+    expectRequest(`${API}/timelines/tag/News?limit=40&max_id=2`).andRespond(
+      200,
+      '[]',
+      'application/json'
+    )
+    await posts.next()
+    equal(posts.get().hasNext, false)
   })
 
   test('adds custom emoji', async () => {
@@ -1275,8 +1325,16 @@ describe('mastodon account', () => {
         created_at: '2026-02-01T00:00:00.000Z',
         language: 'fr',
         reblog: status('5', { account: account('bob'), language: 'de' })
+      }),
+      status('6', { account: account('alice'), tags: [{ name: 'News' }] }),
+      status('7', {
+        reblog: status('8', {
+          account: account('bob'),
+          tags: [{ name: 'news' }]
+        })
       })
     ])
+    respond(`${API}/followed_tags?limit=200`, [{ name: 'News' }, {}])
     let posts = signedIn.getTimeline(createDownloadTask(), auth)
     await posts.loading
     checkToken(first)
@@ -1288,20 +1346,107 @@ describe('mastodon account', () => {
           post.author?.title,
           post.repostedBy?.title,
           post.selfReplyTo,
-          post.lang
+          post.lang,
+          post.followedTag?.url
         ]),
       [
-        ['1', 'BOB', undefined, undefined, 'en'],
-        ['3', 'BOB', undefined, '1', undefined],
-        ['5', 'BOB', 'JANE', undefined, 'de']
+        ['1', 'BOB', undefined, undefined, 'en', undefined],
+        ['3', 'BOB', undefined, '1', undefined, undefined],
+        ['5', 'BOB', 'JANE', undefined, 'de', undefined],
+        ['6', 'ALICE', undefined, undefined, undefined, NEWS.url],
+        ['8', 'BOB', 'JANE', undefined, undefined, undefined]
       ]
     )
     equal(posts.get().hasNext, true)
 
-    respond(`${API}/timelines/home?limit=40&max_id=4`, [])
+    respond(`${API}/timelines/home?limit=40&max_id=7`, [])
     await posts.next()
-    equal(posts.get().list.length, 3)
+    equal(posts.get().list.length, 5)
     equal(posts.get().hasNext, false)
+  })
+
+  test('ignores followed tags on old servers', async () => {
+    respond(`${API}/timelines/home?limit=40`, [
+      status('1', { account: account('bob'), tags: [{ name: 'news' }] })
+    ])
+    expectRequest(`${API}/followed_tags?limit=200`).andRespond(404)
+    let posts = signedIn.getTimeline(createDownloadTask(), auth)
+    await posts.loading
+    equal(posts.get().list[0]?.followedTag, undefined)
+  })
+
+  test('validates followed tags', async () => {
+    respond(`${API}/timelines/home?limit=40`, [])
+    respond(`${API}/followed_tags?limit=200`, {})
+    let posts = signedIn.getTimeline(createDownloadTask(), auth)
+    await posts.loading
+    equal(posts.get().error?.name, 'ParseError')
+  })
+
+  test('loads follows', async () => {
+    let task = createDownloadTask()
+    let own = respond(`${API}/accounts/verify_credentials`, { id: 'me' })
+    expectRequest(`${API}/accounts/me/following?limit=80`).andRespond(
+      200,
+      JSON.stringify([account('bob')]),
+      'application/json',
+      {
+        Link:
+          `<${API}/accounts/me/following?limit=80&max_id=2>; rel="next", ` +
+          `<${API}/accounts/me/following?limit=80&since_id=3>; rel="prev"`
+      }
+    )
+    respond(`${API}/accounts/me/following?limit=80&max_id=2`, [
+      account('alice', { avatar: '', display_name: '' })
+    ])
+    expectRequest(`${API}/followed_tags?limit=200`).andRespond(
+      200,
+      JSON.stringify([{ name: 'News' }]),
+      'application/json',
+      { Link: `<${API}/followed_tags?limit=200&max_id=1>; rel="next"` }
+    )
+    respond(`${API}/followed_tags?limit=200&max_id=1`, [{ name: 'Пиво' }])
+    deepEqual(await signedIn.getFollows(task, auth), [
+      {
+        avatar: 'https://mastodon.social/bob.png',
+        title: 'BOB',
+        url: 'https://mastodon.social/@bob'
+      },
+      { title: 'alice', url: 'https://mastodon.social/@alice' },
+      NEWS,
+      {
+        title: '#Пиво',
+        url: `https://mastodon.social/tags/${encodeURIComponent('пиво')}`
+      }
+    ])
+    checkToken(own)
+
+    respond(`${API}/accounts/verify_credentials`, [])
+    let error = await throws(() => signedIn.getFollows(task, auth))
+    equal(error.name, 'ParseError')
+
+    respond(`${API}/accounts/verify_credentials`, { id: 'me' })
+    respond(`${API}/accounts/me/following?limit=80`, {})
+    error = await throws(() => signedIn.getFollows(task, auth))
+    equal(error.name, 'ParseError')
+  })
+
+  test('follows and unfollows hashtags', async () => {
+    let task = createDownloadTask()
+    let tag = respond(`${API}/tags/news`, { following: true, name: 'news' })
+    equal(await signedIn.isFollowing(task, auth, NEWS.url), true)
+    checkToken(tag)
+
+    respond(`${API}/tags/news`, { name: 'news' })
+    equal(await signedIn.isFollowing(task, auth, NEWS.url), false)
+
+    let follow = respond(`${API}/tags/news/follow`, {})
+    await signedIn.follow(task, auth, NEWS.url)
+    equal(follow.sent().method, 'POST')
+
+    let unfollow = respond(`${API}/tags/news/unfollow`, {})
+    await signedIn.unfollow(task, auth, NEWS.url)
+    equal(unfollow.sent().method, 'POST')
   })
 
   test('follows and unfollows authors', async () => {

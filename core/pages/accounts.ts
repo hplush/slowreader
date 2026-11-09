@@ -4,10 +4,12 @@ import {
   addAccount,
   continueAccountSignIn,
   getAccounts,
+  loadAccounts,
   openAccountSignInPage,
   returnToAccountSignIn,
   signInErrorToMessage,
-  startAccountSignIn
+  startAccountSignIn,
+  syncFollows
 } from '../account.ts'
 import { busyDuring } from '../busy.ts'
 import { getEnvironment } from '../environment.ts'
@@ -47,7 +49,9 @@ export const accountsPage = createPage('accounts', () => {
     service: AccountService,
     step: Extract<SignInStep<unknown>, { type: 'done' }>
   ): Promise<void> {
+    let known = await loadAccounts(service)
     let accountId = await addAccount({ ...step.account, service })
+    if (!known.some(i => i.id === accountId)) void syncFollows(service)
     open({ type: 'list' })
     navigate({
       params: {},

@@ -2,15 +2,21 @@ import type { SqlStore, SqlStoreValue } from '@nanostores/sql'
 import { delay } from 'nanodelay'
 import { computed, type ReadableAtom } from 'nanostores'
 
-import { getClient } from './client.ts'
+import { getClient, onClient } from './client.ts'
 import { getEnvironment } from './environment.ts'
-import { errorToMessage, NetworkError, UserFacingError } from './errors.ts'
-import { addFeed, type NewFeed } from './feed.ts'
+import {
+  errorToMessage,
+  isRemoteError,
+  NetworkError,
+  UserFacingError
+} from './errors.ts'
+import { addFeed, deleteFeed, type NewFeed } from './feed.ts'
 import { createDownloadTask, type DownloadTask } from './lib/download.ts'
+import { getStableId } from './lib/stable-id.ts'
 import type { AccountAuth, SignInAnswer, SignInStep } from './loader/common.ts'
 import { loaders, tryLoadFeedData } from './loader/index.ts'
 import { accountsMessages } from './messages/index.ts'
-import { recalcPostsReading } from './post.ts'
+import { type PostAuthor, recalcPostsReading } from './post.ts'
 import {
   ACCOUNT_SERVICES,
   type AccountChanges,
@@ -110,15 +116,36 @@ export async function updateAccountProfile(
   }
 }
 
+/**
+ * Another account of the service takes the feeds, and the follows sync
+ * keeps only feeds of the authors, which other accounts follow.
+ */
 export async function deleteAccount(accountId: string): Promise<void> {
   let tables = getTables()
-  await tables.posts.deleteWhere`
-    "accountId" = ${accountId} OR "feedId" IN (
-      SELECT "id" FROM "feeds" WHERE "accountId" = ${accountId}
+  let account = await loadAccount(accountId)
+  let feeds = await tables.feeds.load`WHERE "accountId" = ${accountId}`
+  let heir =
+    account && feeds.length > 0
+      ? (await loadAccounts(account.service)).find(i => i.id !== accountId)
+      : undefined
+  await tables.posts.deleteWhere`"accountId" = ${accountId}`
+  if (heir) {
+    await tables.feeds.update(
+      feeds.map(feed => feed.id),
+      { accountId: heir.id }
     )
-  `
-  await tables.feeds.deleteWhere`"accountId" = ${accountId}`
-  return tables.accounts.delete(accountId)
+  } else {
+    await tables.posts.deleteWhere`
+      "feedId" IN (SELECT "id" FROM "feeds" WHERE "accountId" = ${accountId})
+    `
+    await tables.feeds.deleteWhere`"accountId" = ${accountId}`
+  }
+  await tables.accounts.delete(accountId)
+  if (heir) {
+    // Running sync loaded feeds before they were moved to the heir
+    await followsSyncing.get(heir.service)
+    await syncFollows(heir.service)
+  }
 }
 
 /**
@@ -219,6 +246,28 @@ export async function deleteAccountPostsBy(
 }
 
 /**
+ * Feed of the author or hashtag, which account updates by timeline loading,
+ * not direct feed request.
+ *
+ * ID is taken from the URL, so other devices and accounts will create
+ * the same feed instead of a duplicate.
+ */
+export function toVirtualFeed(
+  account: AccountValue,
+  author: { url: string } & PostAuthor
+): { id: string } & NewFeed {
+  return {
+    accountId: account.id,
+    avatar: author.avatar,
+    id: getStableId(`feed ${author.url}`),
+    loader: account.service,
+    originTitle: author.title,
+    title: author.title,
+    url: author.url
+  }
+}
+
+/**
  * User changed the author, which the account follows without a feed.
  * The new feed takes author’s posts from the account.
  */
@@ -226,7 +275,11 @@ export async function addVirtualFeed(
   account: AccountValue,
   fields: NewFeed
 ): Promise<string> {
-  let feedId = await addFeed({ ...fields, accountId: account.id })
+  let feedId = await addFeed({
+    id: getStableId(`feed ${fields.url}`),
+    ...fields,
+    accountId: account.id
+  })
   let posts = getTables().posts
   await posts.updateWhere({ accountId: null, feedId })`
     "accountId" = ${account.id} AND COALESCE(
@@ -239,6 +292,115 @@ export async function addVirtualFeed(
   `
   await recalcPostsReading(feedId)
   return feedId
+}
+
+let followsSyncing = new Map<AccountService, Promise<void>>()
+
+onClient(() => () => {
+  followsSyncing.clear()
+})
+
+/**
+ * Follows are synced once per day on any device.
+ */
+export function needFollowsSync(account: AccountValue): boolean {
+  if (account.expired) return false
+  let now = Math.round(Date.now() / 1000)
+  return !account.followsSyncedAt || now - account.followsSyncedAt >= 86400
+}
+
+/**
+ * Feeds of the service’s accounts show the authors, which these accounts
+ * follow on the service. Feed of unfollowed author moves to another account,
+ * which follows the author, or is deleted with posts.
+ *
+ * Feeds are deleted only if follows of every account were loaded, since
+ * the account with unknown follows could follow the author.
+ */
+async function loadFollows(
+  service: AccountService,
+  task: DownloadTask
+): Promise<void> {
+  let tables = getTables()
+  let [accounts, feeds] = await Promise.all([
+    loadAccounts(service),
+    tables.feeds.load``
+  ])
+  let owners = new Set(feeds.map(feed => feed.accountId))
+  let followers = new Map<string, AccountValue[]>()
+  let authors = new Map<string, { url: string } & PostAuthor>()
+  let synced = new Set<string>()
+  let complete = true
+  for (let account of accounts) {
+    if (account.expired) {
+      complete = false
+      continue
+    }
+    let follows: PostAuthor[]
+    try {
+      follows = await loaders[service].account!.getFollows(
+        task,
+        getAccountAuth(account)
+      )
+    } catch (e) {
+      if (!isRemoteError(e)) throw e
+      complete = false
+      continue
+    }
+    // Broken answer must not delete all feeds
+    if (follows.length === 0 && owners.has(account.id)) {
+      complete = false
+      continue
+    }
+    synced.add(account.id)
+    for (let author of follows) {
+      if (!author.url) continue
+      if (!authors.has(author.url)) {
+        authors.set(author.url, { ...author, url: author.url })
+      }
+      followers.set(author.url, [...(followers.get(author.url) ?? []), account])
+    }
+  }
+
+  let byUrl = new Set(feeds.map(feed => feed.url))
+  await tables.feeds.create(
+    [...authors.values()]
+      .filter(author => !byUrl.has(author.url))
+      .map(author => toVirtualFeed(followers.get(author.url)![0]!, author))
+  )
+  for (let feed of feeds) {
+    if (!feed.accountId || !synced.has(feed.accountId)) continue
+    let list = followers.get(feed.url) ?? []
+    if (list.some(account => account.id === feed.accountId)) continue
+    if (list[0]) {
+      await tables.feeds.update(feed.id, { accountId: list[0].id })
+    } else if (complete) {
+      await deleteFeed(feed.id)
+    }
+  }
+  await tables.accounts.update([...synced], {
+    followsSyncedAt: Math.round(Date.now() / 1000)
+  })
+}
+
+/**
+ * Offline or expired account will be synced again on the next call.
+ */
+export function syncFollows(
+  service: AccountService,
+  task = createDownloadTask()
+): Promise<void> {
+  let running = followsSyncing.get(service)
+  if (running) return running
+  let sync = loadFollows(service, task)
+    .catch((e: unknown) => {
+      if (!isRemoteError(e)) getEnvironment().warn(e)
+    })
+    .finally(() => {
+      followsSyncing.delete(service)
+    })
+  followsSyncing.set(service, sync)
+  return sync
 }
 
 /**
@@ -394,10 +556,12 @@ export function testAccount(account: Partial<AccountValue> = {}): AccountValue {
     },
     expired: false,
     follow: false,
+    followsSyncedAt: null,
     handle: `@user${testAccountId}@mastodon.social`,
     id: `account-${testAccountId}`,
     lastOriginId: null,
     lastPublishedAt: null,
+    reading: 'fast',
     refreshedAt: null,
     server: 'https://mastodon.social',
     service: 'mastodon',

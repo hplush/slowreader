@@ -22,12 +22,14 @@
   import { reportLoader, commonMessages as t } from '@slowreader/core'
 
   let {
+    finished = false,
     label = $t.loading,
     size = 'normal',
     track = 'unnamed',
     value,
     variant = 'auto'
   }: {
+    finished?: boolean
     label?: string
     size?: 'normal' | 'wide'
     track?: string
@@ -39,6 +41,7 @@
 <progress
   class="loader"
   class:is-accent={variant === 'accent'}
+  class:is-finished={finished}
   class:is-wide={size === 'wide'}
   {@attach syncPhase}
   {@attach progress => {
@@ -62,6 +65,11 @@
 
     .loader.is-wide {
       min-width: 100%;
+    }
+
+    /* Keeps the space to not move the content after the loading */
+    .loader.is-finished {
+      visibility: hidden;
     }
 
     @media (prefers-reduced-motion: reduce) {

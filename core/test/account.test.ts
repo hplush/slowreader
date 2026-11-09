@@ -1,3 +1,4 @@
+import { restoreAll, type Spy, spyOn } from 'nanospy'
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
@@ -15,13 +16,18 @@ import {
   isAccountService,
   loadAccount,
   loadAccounts,
+  loaders,
   loadFeeds,
   loadPosts,
+  NetworkError,
+  needFollowsSync,
+  type PostAuthor,
+  syncFollows,
   testAccount,
   testFeed,
   testPost
 } from '../index.ts'
-import { cleanClient, startClient, waitFor } from './utils.ts'
+import { cleanClient, expectWarning, startClient, waitFor } from './utils.ts'
 
 describe('account', () => {
   beforeEach(() => {
@@ -29,8 +35,33 @@ describe('account', () => {
   })
 
   afterEach(async () => {
+    restoreAll()
     await cleanClient()
   })
+
+  function feedsState(): Promise<[string, null | string][]> {
+    return loadFeeds().then(feeds =>
+      feeds
+        .map((i): [string, null | string] => [i.url, i.accountId])
+        .toSorted((a, b) => a[0].localeCompare(b[0]))
+    )
+  }
+
+  function author(name: string): { title: string; url: string } {
+    return { title: name, url: `https://${name}.social/@${name}` }
+  }
+
+  function profile(name: string): string {
+    return author(name).url
+  }
+
+  function spyFollows(
+    follows: Record<string, PostAuthor[] | Promise<PostAuthor[]>>
+  ): Spy<NonNullable<typeof loaders.mastodon.account>['getFollows']> {
+    return spyOn(loaders.mastodon.account!, 'getFollows', (task, auth) => {
+      return Promise.resolve(follows[auth.account.id] ?? [])
+    })
+  }
 
   test('loads accounts by service', async () => {
     let mastodon = await addAccount(testAccount({ title: 'B' }))
@@ -68,6 +99,131 @@ describe('account', () => {
     deepEqual(
       (await loadPosts()).map(i => i.originId),
       ['normal']
+    )
+  })
+
+  test('syncs follows of all accounts of the service', async () => {
+    let a = await addAccount(testAccount())
+    let b = await addAccount(testAccount())
+    let c = await addAccount(testAccount({ service: 'bluesky' }))
+    let alice = await addFeed(testFeed({ accountId: a, url: profile('alice') }))
+    let bob = await addFeed(testFeed({ accountId: a, url: profile('bob') }))
+    await addFeed(testFeed({ accountId: a, url: profile('carol') }))
+    await addFeed(testFeed({ accountId: b, url: profile('dave') }))
+    await addFeed(testFeed({ url: profile('erin') }))
+    await addFeed(testFeed({ accountId: c, url: profile('gina') }))
+    await addPost([
+      testPost({ feedId: alice, originId: 'alice' }),
+      testPost({ feedId: bob, originId: 'bob' })
+    ])
+    let follows = spyFollows({
+      [a]: [
+        author('alice'),
+        author('alice'),
+        author('dave'),
+        author('erin'),
+        { avatar: 'https://frank.social/a.png', ...author('frank') },
+        { title: 'No URL' }
+      ],
+      [b]: [author('carol'), author('dave')]
+    })
+
+    let account = (await loadAccount(a))!
+    equal(needFollowsSync(account), true)
+    let sync = syncFollows('mastodon')
+    equal(syncFollows('mastodon'), sync)
+    await sync
+    equal(follows.callCount, 2)
+
+    deepEqual(await feedsState(), [
+      [profile('alice'), a],
+      [profile('carol'), b],
+      [profile('dave'), b],
+      [profile('erin'), null],
+      [profile('frank'), a],
+      [profile('gina'), c]
+    ])
+    deepEqual(
+      (await loadPosts()).map(i => i.originId),
+      ['alice']
+    )
+    let frank = (await loadFeeds()).find(i => i.url === profile('frank'))!
+    deepEqual(
+      [
+        frank.avatar,
+        frank.categoryId,
+        frank.loader,
+        frank.reading,
+        frank.title
+      ],
+      ['https://frank.social/a.png', null, 'mastodon', null, 'frank']
+    )
+
+    let synced = (await loadAccount(a))!
+    equal(needFollowsSync(synced), false)
+    equal(needFollowsSync((await loadAccount(b))!), false)
+    equal(needFollowsSync((await loadAccount(c))!), true)
+    equal(
+      needFollowsSync({
+        ...synced,
+        followsSyncedAt: synced.followsSyncedAt! - 86400
+      }),
+      true
+    )
+    equal(needFollowsSync({ ...account, expired: true }), false)
+  })
+
+  test('keeps feeds if follows of some account are unknown', async () => {
+    let a = await addAccount(testAccount())
+    let b = await addAccount(testAccount())
+    let expired = await addAccount(testAccount({ expired: true }))
+    await addFeed(testFeed({ accountId: a, url: profile('alice') }))
+    await addFeed(testFeed({ accountId: b, url: profile('bob') }))
+    let state = await feedsState()
+
+    spyFollows({ [a]: [author('carol')], [b]: [] })
+    await syncFollows('mastodon')
+    deepEqual(await feedsState(), [...state, [profile('carol'), a]])
+    equal((await loadAccount(a))!.followsSyncedAt === null, false)
+    equal((await loadAccount(b))!.followsSyncedAt, null)
+    equal((await loadAccount(expired))!.followsSyncedAt, null)
+
+    restoreAll()
+    await changeAccount(expired, { expired: false })
+    let follows = spyFollows({ [a]: [author('carol')] })
+    follows.nextResult(
+      Promise.reject(new NetworkError(new TypeError('offline')))
+    )
+    await syncFollows('mastodon')
+    equal((await loadFeeds()).length, 3)
+
+    let bug = new Error('bug')
+    follows.nextResult(Promise.reject(bug))
+    await expectWarning(() => syncFollows('mastodon'), [bug])
+  })
+
+  test('gives feeds of deleted account to another account', async () => {
+    let a = await addAccount(testAccount())
+    let b = await addAccount(testAccount())
+    await addAccount(testAccount({ service: 'bluesky' }))
+    let alice = await addFeed(testFeed({ accountId: a, url: profile('alice') }))
+    let bob = await addFeed(testFeed({ accountId: a, url: profile('bob') }))
+    await addPost([
+      testPost({ feedId: alice, originId: 'alice' }),
+      testPost({ feedId: bob, originId: 'bob' }),
+      testPost({ accountId: a, feedId: null, originId: 'own' })
+    ])
+    spyFollows({
+      [a]: [author('alice'), author('bob')],
+      [b]: [author('alice')]
+    })
+
+    await deleteAccount(a)
+    equal(await loadAccount(a), undefined)
+    deepEqual(await feedsState(), [[profile('alice'), b]])
+    deepEqual(
+      (await loadPosts()).map(i => i.originId),
+      ['alice']
     )
   })
 

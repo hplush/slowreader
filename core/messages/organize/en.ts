@@ -4,6 +4,7 @@ import { i18n } from '../../i18n.ts'
 
 export const organizeMessages = i18n('organize', {
   account: 'Account',
+  accountReading: 'Account’s',
   addFeed: 'Subscribe',
   anonymous: 'Anonymous',
   byCategoryTitle: 'By category',
@@ -36,7 +37,9 @@ export const organizeMessages = i18n('organize', {
   morePosts: 'More posts',
   openWebsite: 'Open website',
   renameCategory: 'Rename category',
+  sameAsAccount: 'Same as account',
   slow: 'Useful',
+  syncingFollows: 'Loading your follows…',
   title: 'Feed name',
   tooFrequent: 'Feed posts too often',
   type: 'Feed type'

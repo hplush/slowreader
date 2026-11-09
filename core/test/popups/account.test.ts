@@ -94,6 +94,8 @@ describe('account popup', () => {
     let categoryId = await addCategory({ title: 'Social' })
     await popup.changeCategory(categoryId)
     equal((await getTables().accounts.get(id))?.categoryId, categoryId)
+    await popup.changeReading('fast')
+    equal((await getTables().accounts.get(id))?.reading, 'fast')
 
     unbindFollow()
     await popup.remove()

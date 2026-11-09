@@ -1445,6 +1445,52 @@ describe('bluesky account', () => {
     )
   }
 
+  test('loads follows', async () => {
+    let { auth } = createAuth()
+    function follows(cursor?: string): string {
+      return xrpc(
+        auth,
+        'app.bsky.graph.getFollows?limit=100' +
+          `&actor=${encodeURIComponent('did:plc:me')}` +
+          (cursor ? `&cursor=${cursor}` : '')
+      )
+    }
+    let first = respond(follows(), {
+      cursor: 'c1',
+      follows: [
+        {
+          avatar: 'https://cdn.bsky.app/bob.jpg',
+          did: 'did:plc:bob',
+          displayName: 'Bob',
+          handle: 'bob.bsky.social'
+        }
+      ]
+    })
+    respond(follows('c1'), {
+      cursor: 'c2',
+      follows: [{ did: 'did:plc:alice', handle: 'alice.bsky.social' }]
+    })
+    respond(follows('c2'), { cursor: 'c3', follows: [] })
+    deepEqual(await signedIn.getFollows(createDownloadTask(), auth), [
+      {
+        avatar: 'https://cdn.bsky.app/bob.jpg',
+        title: 'Bob',
+        url: 'https://bsky.app/profile/bob.bsky.social'
+      },
+      {
+        title: 'alice.bsky.social',
+        url: 'https://bsky.app/profile/alice.bsky.social'
+      }
+    ])
+    equal(getProof(first).authorization, 'DPoP access')
+
+    respond(follows(), { follows: {} })
+    let error = await throws(() =>
+      signedIn.getFollows(createDownloadTask(), auth)
+    )
+    equal(error.name, 'ParseError')
+  })
+
   test('loads home timeline', async () => {
     let { auth } = createAuth()
     let first = respond(timeline(auth), {

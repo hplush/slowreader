@@ -1,6 +1,7 @@
 import { restoreAll, spyOn } from 'nanospy'
 import { deepEqual, equal, ok } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
+import { setTimeout } from 'node:timers/promises'
 
 import {
   type AccountsPage,
@@ -237,9 +238,18 @@ function startBluesky(input: string): AccountsPage {
 }
 
 describe('accounts page', () => {
+  let follows: ReturnType<typeof spyOn>
+
   beforeEach(() => {
     startClient()
     mockRequest()
+    // Sync must not write to the database after the test
+    follows = spyOn(
+      loaders.mastodon.account!,
+      'getFollows',
+      () => new Promise(() => {})
+    )
+    spyOn(loaders.bluesky.account!, 'getFollows', () => new Promise(() => {}))
   })
 
   afterEach(async () => {
@@ -367,9 +377,11 @@ describe('accounts page', () => {
       },
       expired: false,
       follow: true,
+      followsSyncedAt: null,
       handle: '@user@social.example.com',
       lastOriginId: null,
       lastPublishedAt: null,
+      reading: 'fast',
       refreshedAt: null,
       server: 'https://social.example.com',
       service: 'mastodon',
@@ -401,6 +413,7 @@ describe('accounts page', () => {
     let [first] = await loadAccounts()
     equal(first!.title, 'user')
     equal(first!.avatar, null)
+    await waitUntil(() => follows.callCount === 1)
 
     await startMastodon('social.example.com', false)
     await returnFromMastodon({
@@ -413,6 +426,8 @@ describe('accounts page', () => {
     equal(updated.length, 1)
     equal(updated[0]!.id, first!.id)
     equal(updated[0]!.title, 'New Name')
+    await setTimeout(10)
+    equal(follows.callCount, 1)
 
     await startMastodon('social.example.com', false)
     await returnFromMastodon({
@@ -627,9 +642,11 @@ describe('accounts page', () => {
         },
         expired: false,
         follow: true,
+        followsSyncedAt: null,
         handle: '@user.bsky.social',
         lastOriginId: null,
         lastPublishedAt: null,
+        reading: 'fast',
         refreshedAt: null,
         server: 'https://pds.example.com',
         service: 'bluesky',

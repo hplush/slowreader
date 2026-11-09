@@ -9,6 +9,7 @@ import {
   addFeed,
   addPost,
   canOpenMention,
+  changeAccount,
   changeFeed,
   closeLastPopup,
   commonMessages,
@@ -560,7 +561,9 @@ describe('feed popup with accounts', () => {
   test('creates virtual feed on changes of followed author', async () => {
     spyPosts()
     let categoryId = await addCategory({ title: 'Social' })
-    let accountId = await addAccount(testAccount({ categoryId }))
+    let accountId = await addAccount(
+      testAccount({ categoryId, reading: 'slow' })
+    )
     spyOn(account, 'isFollowing', () => Promise.resolve(true))
     await addPost([
       authorPost(accountId, '1'),
@@ -580,12 +583,15 @@ describe('feed popup with accounts', () => {
     ])
 
     let popup = await openAuthor()
-    await popup.change({ reading: 'slow' })
+    equal(popup.owner.get()?.id, accountId)
+    equal(popup.reading.get(), 'slow')
+    await popup.change({ reading: 'fast' })
+    equal(popup.reading.get(), 'fast')
 
     let [feed] = await loadFeeds()
     equal(feed!.accountId, accountId)
-    equal(feed!.categoryId, categoryId)
-    equal(feed!.reading, 'slow')
+    equal(feed!.categoryId, null)
+    equal(feed!.reading, 'fast')
     equal(feed!.title, 'Jane')
     equal(feed!.url, AUTHOR)
     equal(popup.feed.get()?.id, feed!.id)
@@ -597,13 +603,22 @@ describe('feed popup with accounts', () => {
     deepEqual(
       posts.map(i => [i.originId, i.feedId, i.accountId, i.reading]),
       [
-        ['1', feed!.id, null, 'slow'],
-        ['2', feed!.id, null, 'slow'],
+        ['1', feed!.id, null, 'fast'],
+        ['2', feed!.id, null, 'fast'],
         ['3', null, accountId, 'fast']
       ]
     )
     equal(posts[0]!.author, null)
     equal(posts[1]!.author?.title, 'Other')
+
+    await popup.change({ reading: null })
+    equal(popup.reading.get(), 'slow')
+    deepEqual(
+      (await loadPostsByFeed(feed!.id)).map(i => i.reading),
+      ['slow', 'slow']
+    )
+    await changeAccount(accountId, { reading: 'fast' })
+    equal((await loadFeed(feed!.id))!.reading, null)
   })
 
   test('renames followed author', async () => {
@@ -617,7 +632,7 @@ describe('feed popup with accounts', () => {
 
     await popup.rename('My Jane')
     equal((await loadFeeds())[0]!.title, 'My Jane')
-    equal((await loadFeeds())[0]!.reading, 'fast')
+    equal((await loadFeeds())[0]!.reading, null)
   })
 
   test('follows by default account on subscribing', async () => {
@@ -722,7 +737,10 @@ describe('feed popup with accounts', () => {
 
   test('changes account of followed author', async () => {
     spyPosts()
-    let a = await addAccount(testAccount({ title: 'A' }))
+    let categoryId = await addCategory({ title: 'Social' })
+    let a = await addAccount(
+      testAccount({ categoryId, reading: 'fast', title: 'A' })
+    )
     spyOn(account, 'isFollowing', () => Promise.resolve(true))
     let unfollows = spyOn(account, 'unfollow', () => Promise.resolve())
     let popup = await openAuthor()
@@ -731,16 +749,23 @@ describe('feed popup with accounts', () => {
     equal(unfollows.calls[0]![1].account.id, a)
     let [feed] = await loadFeeds()
     equal(feed!.accountId, null)
+    equal(feed!.categoryId, categoryId)
     equal(feed!.reading, 'fast')
   })
 
-  test('unsubscribes virtual feed', async () => {
+  test('unsubscribes virtual feed on every account', async () => {
     spyPosts()
     let accountId = await addAccount(testAccount())
+    let other = await addAccount(testAccount())
+    let notFollowing = await addAccount(testAccount())
+    await addAccount(testAccount({ expired: true }))
     let feedId = await addFeed(
       testFeed({ accountId, loader: 'mastodon', url: AUTHOR })
     )
     await addPost(testPost({ feedId }))
+    let checks = spyOn(account, 'isFollowing', (task, auth) => {
+      return Promise.resolve(auth.account.id === other)
+    })
     let unfollows = spyOn(account, 'unfollow', () => Promise.resolve())
     let popup = await openAuthor()
 
@@ -748,7 +773,17 @@ describe('feed popup with accounts', () => {
     equal(popup.deleting.get(), true)
     await removing
     equal(popup.deleting.get(), false)
-    equal(unfollows.calls[0]![2], AUTHOR)
+    deepEqual(
+      unfollows.calls.map(call => [call[1].account.id, call[2]]),
+      [
+        [accountId, AUTHOR],
+        [other, AUTHOR]
+      ]
+    )
+    deepEqual(
+      checks.calls.map(call => call[1].account.id).toSorted(),
+      [notFollowing, other].toSorted()
+    )
     deepEqual(await loadFeeds(), [])
     deepEqual(await loadPosts(), [])
   })

@@ -4,7 +4,8 @@ import {
   type AccountValue,
   getAccountAuth,
   loadAccount,
-  loadAccounts
+  loadAccounts,
+  toVirtualFeed
 } from './account.ts'
 import { onClient, waitSyncOrOffline } from './client.ts'
 import { getEnvironment } from './environment.ts'
@@ -13,9 +14,11 @@ import {
   type FeedByUrl,
   type FeedValue,
   getFeedLatestPosts,
+  getFeedReading,
   loadFeed,
   loadFeedsByUrls,
-  loadFeedsForRefresh
+  loadFeedsForRefresh,
+  type NewFeed
 } from './feed.ts'
 import { type FilterChecker, loadFilterChecker } from './filter.ts'
 import { createDownloadTask, type DownloadTask } from './lib/download.ts'
@@ -204,6 +207,10 @@ async function collectFeedPage(
   state.newest ??= first
 
   let filters = await getFilters(state, feed.id)
+  let feedReading = getFeedReading(
+    feed,
+    feed.accountId ? await loadAccount(feed.accountId) : undefined
+  )
   let readings = new Map<string, NewPost['reading']>()
   let accepted: OriginPost[] = []
   for (let origin of posts) {
@@ -211,14 +218,14 @@ async function collectFeedPage(
       break
     }
     if (state.known?.has(origin.originId)) continue
-    let reading = filters(origin) ?? feed.reading
+    let reading = filters(origin) ?? feedReading
     if (reading !== 'delete') {
       accepted.push(origin)
       readings.set(origin.originId, reading)
     }
   }
   for (let origin of await linkThreads(state.task, feed, accepted)) {
-    let reading = readings.get(origin.originId) ?? feed.reading
+    let reading = readings.get(origin.originId) ?? feedReading
     state.adding.push(processOriginPost(origin, { feedId: feed.id }, reading))
     state.known?.add(origin.originId)
   }
@@ -226,9 +233,9 @@ async function collectFeedPage(
 }
 
 /**
- * Home timeline puts posts of authors with virtual feed of this account
- * to the feed, skips authors with normal feed, since the feed loads them
- * itself, and keeps the rest in the account.
+ * Home timeline puts posts to the virtual feeds of this account and creates
+ * them for new authors. It skips authors with normal feed, since the feed
+ * loads them itself. User’s own posts stay in the account.
  */
 async function collectAccountPage(
   state: TargetRefresh,
@@ -245,24 +252,49 @@ async function collectAccountPage(
   state.feeds ??= await loadFeedsByUrls()
   let groups = new Map<string, [FeedByUrl | undefined, OriginPost[]]>()
   let readings = new Map<string, NewPost['reading']>()
+  let created: NewFeed[] = []
   for (let origin of posts) {
     if (wasAlreadyAdded(account, origin)) break
     if (state.known?.has(origin.originId)) continue
-    let url = origin.repostedBy?.url ?? origin.author?.url
+    let author = origin.repostedBy ?? origin.author
+    let url = author?.url
     let feed = url ? state.feeds.get(url) : undefined
+    let own = url === account.url
+    if (!feed && !own && origin.followedTag) {
+      author = origin.followedTag
+      url = origin.followedTag.url
+      feed = state.feeds.get(origin.followedTag.url)
+    }
+    if (!feed && url && !own) {
+      let virtual = toVirtualFeed(account, { ...author!, url })
+      created.push(virtual)
+      feed = {
+        accountId: account.id,
+        id: virtual.id,
+        loader: account.service,
+        reading: null,
+        url
+      }
+      state.feeds.set(url, feed)
+    }
     if (feed && feed.accountId !== account.id) continue
     let reading: NewPost['reading'] | 'delete' = 'fast'
     if (feed) {
-      reading = (await getFilters(state, feed.id))(origin) ?? feed.reading
+      reading =
+        (await getFilters(state, feed.id))(origin) ??
+        getFeedReading(feed, account)
       if (reading === 'delete') continue
       if (!state.virtual.has(feed.id)) state.virtual.set(feed.id, origin)
     }
     readings.set(origin.originId, reading)
     let key = feed?.id ?? account.id
     let group = groups.get(key) ?? [feed, []]
-    group[1].push(origin)
+    let saved = { ...origin }
+    delete saved.followedTag
+    group[1].push(saved)
     groups.set(key, group)
   }
+  await getTables().feeds.create(created)
 
   for (let [id, [feed, accepted]] of groups) {
     let linked = await linkThreads(
@@ -278,17 +310,19 @@ async function collectAccountPage(
       }
     }
     for (let origin of linked) {
-      let reading = readings.get(origin.originId) ?? feed?.reading ?? 'fast'
+      let reading =
+        readings.get(origin.originId) ??
+        (feed ? getFeedReading(feed, account) : 'fast')
       let saved = { ...origin }
+      // Restored thread start has no author, but the thread has one author
+      saved.author ??= authors.get(origin.threadId ?? '')
       if (feed) {
-        // The feed is the author of own posts
-        if (!saved.repostedBy) delete saved.author
+        // The feed is the author of own posts, but not of hashtag’s posts
+        if (saved.author?.url === feed.url) delete saved.author
         state.adding.push(
           processOriginPost(saved, { feedId: feed.id }, reading)
         )
       } else {
-        // Restored thread start has no author, but the thread has one author
-        saved.author ??= authors.get(origin.threadId ?? '')
         state.adding.push(processOriginPost(saved, { accountId: id }, reading))
       }
       state.known?.add(origin.originId)

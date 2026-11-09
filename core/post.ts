@@ -4,7 +4,7 @@ import type { SqlStore } from '@nanostores/sql'
 import type { ReadableAtom } from 'nanostores'
 
 import { getClient } from './client.ts'
-import { loadFeed } from './feed.ts'
+import { getFeedReading, loadFeed } from './feed.ts'
 import { loadFilterChecker } from './filter.ts'
 import { humanizeUrl } from './format.ts'
 import { $locale } from './i18n.ts'
@@ -14,6 +14,7 @@ import {
   stripHTML,
   truncateDOM
 } from './lib/html.ts'
+import { getStableId } from './lib/stable-id.ts'
 import { truncateText } from './lib/text.ts'
 import type { LoaderName } from './loader/index.ts'
 import {
@@ -46,6 +47,11 @@ export type {
 
 export type ParsedPost = {
   author?: PostAuthor
+  /**
+   * Home timeline shows it by this followed hashtag, the author could be
+   * not followed. Not saved to the database.
+   */
+  followedTag?: { url: string } & PostAuthor
   full?: string
   /**
    * Post is not a reply and has replies. Loader’s hint to not ask for parts
@@ -341,7 +347,8 @@ export function hasUnreadPosts(
     rows = crdt.select`
       SELECT "posts"."id" FROM "posts"
       LEFT JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
-      LEFT JOIN "accounts" ON "accounts"."id" = "posts"."accountId"
+      LEFT JOIN "accounts"
+        ON "accounts"."id" = COALESCE("posts"."accountId", "feeds"."accountId")
       WHERE "posts"."reading" = ${reading} AND "posts"."read" = 0
         AND "posts"."merged" = 0
         AND COALESCE("feeds"."categoryId", "accounts"."categoryId")
@@ -399,27 +406,10 @@ export async function changeRead(
   })
 }
 
-/**
- * Stable ID is generated from post to prevent post duplicates.
- *
- * The hash is cyrb53. `crypto.subtle.digest()` hashes better, but it is async.
- */
 export function getPostId(sourceId: string, origin: OriginPost): string {
-  let key = `${sourceId} ${origin.originId || origin.url || origin.id}`
-  let hash1 = 0xdeadbeef
-  let hash2 = 0x41c6ce57
-  for (let i = 0; i < key.length; i++) {
-    let code = key.charCodeAt(i)
-    hash1 = Math.imul(hash1 ^ code, 2654435761)
-    hash2 = Math.imul(hash2 ^ code, 1597334677)
-  }
-  hash1 =
-    Math.imul(hash1 ^ (hash1 >>> 16), 2246822507) ^
-    Math.imul(hash2 ^ (hash2 >>> 13), 3266489909)
-  hash2 =
-    Math.imul(hash2 ^ (hash2 >>> 16), 2246822507) ^
-    Math.imul(hash1 ^ (hash1 >>> 13), 3266489909)
-  return (4294967296 * (2097151 & hash2) + (hash1 >>> 0)).toString(36)
+  return getStableId(
+    `${sourceId} ${origin.originId || origin.url || origin.id}`
+  )
 }
 
 /**
@@ -602,15 +592,17 @@ export async function recalcPostsReading(feedId: string): Promise<void> {
   let feed = await loadFeed(feedId)
   if (!feed) return
 
-  let [filters, posts] = await Promise.all([
+  let [filters, posts, account] = await Promise.all([
     loadFilterChecker(feedId),
-    loadPostsByFeed(feedId)
+    loadPostsByFeed(feedId),
+    feed.accountId ? getTables().accounts.get(feed.accountId) : undefined
   ])
+  let feedReading = getFeedReading(feed, account)
 
   let fast: string[] = []
   let slow: string[] = []
   for (let post of posts) {
-    let reading = filters(post) ?? feed.reading
+    let reading = filters(post) ?? feedReading
     if (reading === 'delete' || reading === post.reading) continue
     if (reading === 'fast') {
       fast.push(post.id)

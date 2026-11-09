@@ -22,6 +22,7 @@ import {
   getClient,
   loadAccount,
   loadFeed,
+  loadFeeds,
   loadPosts,
   loadRecentPosts,
   type OriginPost,
@@ -964,6 +965,8 @@ describe('refresh', () => {
 
 const BOB = 'https://bob.social/@bob'
 
+const NEWS = { title: '#news', url: 'https://mastodon.social/tags/news' }
+
 describe('refresh of accounts', () => {
   beforeEach(async () => {
     mockRequest()
@@ -1016,7 +1019,12 @@ describe('refresh of accounts', () => {
 
   test('puts home timeline posts to feeds and account', async t => {
     let accountId = await addAccount(
-      testAccount({ lastPublishedAt: 100, refreshedAt: 10 })
+      testAccount({
+        lastPublishedAt: 100,
+        reading: 'fast',
+        refreshedAt: 10,
+        url: 'https://me.social/@me'
+      })
     )
     let virtual = await addFeed(
       testFeed({
@@ -1056,6 +1064,9 @@ describe('refresh of accounts', () => {
       by('bob', 'b2', { full: 'spam', publishedAt: 290 }),
       by('carol', 'c1', { publishedAt: 280 }),
       by('erin', 'e1', { publishedAt: 275 }),
+      by('gina', 'g1', { followedTag: NEWS, publishedAt: 274 }),
+      by('bob', 'b3', { followedTag: NEWS, publishedAt: 273 }),
+      by('me', 'm1', { followedTag: NEWS, publishedAt: 272 }),
       by('dave', 'd1', { publishedAt: 250, selfReplyTo: 'd0' }),
       by('frank', 'f1', {
         publishedAt: 100,
@@ -1074,21 +1085,45 @@ describe('refresh of accounts', () => {
     await refreshPosts()
     deepEqual(
       batches.filter(types => types.includes('accounts/changed')),
-      [['posts/created', 'accounts/changed', 'feeds/changed']]
+      [
+        [
+          'posts/created',
+          'accounts/changed',
+          'feeds/changed',
+          'feeds/changed',
+          'feeds/changed'
+        ]
+      ]
     )
     equal(timeline.calls[0]![1].account.id, accountId)
     equal(timeline.calls[0]![2], 10)
     equal(rss.calls.length, 1)
     equal(mastodonFeeds.calls.length, 0)
-    deepEqual(refreshStatistics.get(), {
-      errorFeeds: 0,
-      errorRequests: 0,
-      foundFast: 2,
-      foundSlow: 2,
-      initializing: false,
-      processedFeeds: 2,
-      totalFeeds: 2
-    })
+
+    let feeds = await loadFeeds()
+    let dave = feeds.find(i => i.url === 'https://dave.social/@dave')!
+    deepEqual(
+      {
+        accountId: dave.accountId,
+        categoryId: dave.categoryId,
+        loader: dave.loader,
+        reading: dave.reading,
+        title: dave.title
+      },
+      {
+        accountId,
+        categoryId: null,
+        loader: 'mastodon',
+        reading: null,
+        title: 'dave'
+      }
+    )
+    let news = feeds.find(i => i.url === NEWS.url)!
+    deepEqual(
+      [news.accountId, news.categoryId, news.reading, news.title],
+      [accountId, null, null, '#news']
+    )
+    equal(feeds.length, 5)
 
     let posts = await loadSorted()
     deepEqual(
@@ -1102,9 +1137,12 @@ describe('refresh of accounts', () => {
       ]),
       [
         ['b1', virtual, null, 'slow', null, null],
-        ['d0', null, accountId, 'fast', 'dave', 'd0'],
-        ['d1', null, accountId, 'fast', 'dave', 'd0'],
-        ['f1', virtual, null, 'slow', 'frank', null]
+        ['b3', virtual, null, 'slow', null, null],
+        ['d0', dave.id, null, 'fast', null, 'd0'],
+        ['d1', dave.id, null, 'fast', null, 'd0'],
+        ['f1', virtual, null, 'slow', 'frank', null],
+        ['g1', news.id, null, 'fast', 'gina', null],
+        ['m1', null, accountId, 'fast', 'me', null]
       ]
     )
 
