@@ -1,7 +1,12 @@
 import type { FeedValue } from '../feed.ts'
 import type { DownloadTask, TextResponse } from '../lib/download.ts'
 import { isAbsoluteUrl, mapRelativeSrcset, parseDocument } from '../lib/html.ts'
-import type { OriginPost, ParsedPost, PostAuthor, PostMedia } from '../post.ts'
+import type {
+  LoadedAuthor,
+  OriginPost,
+  ParsedPost,
+  PostMedia
+} from '../post.ts'
 import type { PostsList, PostsListResult } from '../posts-list.ts'
 import type { AccountCredentials, AccountValue, NewAccount } from '../schema.ts'
 
@@ -108,7 +113,7 @@ export interface AccountLoader<Data = unknown> {
 
   follow(task: DownloadTask, auth: AccountAuth, url: string): Promise<void>
 
-  getFollows(task: DownloadTask, auth: AccountAuth): Promise<PostAuthor[]>
+  getFollows(task: DownloadTask, auth: AccountAuth): Promise<LoadedAuthor[]>
 
   /**
    * Home timeline from the newest post. Every post has `author`.
@@ -158,6 +163,11 @@ export type Loader = {
    * Data to save in the feed and to pass to `getPosts()` on refresh.
    */
   getLoaderData?(task: DownloadTask, url: string): Promise<string | undefined>
+
+  /**
+   * Author’s ID at the source, which does not change with feed’s URL.
+   */
+  getOriginId?(loaderData: string): string | undefined
 
   /**
    * Extracts the feed's posts.

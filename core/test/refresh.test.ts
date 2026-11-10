@@ -1179,6 +1179,73 @@ describe('refresh of accounts', () => {
     equal(account!.lastPublishedAt, 300)
   })
 
+  test('finds Bluesky feed by DID after handle change', async () => {
+    let accountId = await addAccount(
+      testAccount({ service: 'bluesky', url: 'https://bsky.app/profile/me' })
+    )
+    let alice = await addFeed(
+      testFeed({
+        accountId,
+        loader: 'bluesky',
+        loaderData: '{"did":"did:plc:alice"}',
+        url: 'https://bsky.app/profile/alice.old'
+      })
+    )
+    let renamed = {
+      loaderData: '{"did":"did:plc:alice"}',
+      title: 'Alice',
+      url: 'https://bsky.app/profile/alice.new'
+    }
+    let bob = {
+      loaderData: '{"did":"did:plc:bob"}',
+      title: 'Bob',
+      url: 'https://bsky.app/profile/bob'
+    }
+    spyOn(loaders.bluesky.account!, 'getTimeline', () => {
+      return createPostsList(() =>
+        Promise.resolve([
+          [
+            { author: renamed, originId: 'a1', publishedAt: 300 },
+            {
+              author: bob,
+              originId: 'b1',
+              publishedAt: 100,
+              repostedBy: renamed,
+              sortedAt: 290
+            },
+            { author: bob, originId: 'b2', publishedAt: 280 }
+          ],
+          undefined
+        ])
+      )
+    })
+
+    await refreshPosts()
+    let feeds = await loadFeeds()
+    let created = feeds.find(i => i.url === bob.url)!
+    deepEqual(
+      feeds
+        .toSorted((a, b) => a.id.localeCompare(b.id))
+        .map(i => [i.id, i.url, i.loaderData]),
+      [
+        [
+          alice,
+          'https://bsky.app/profile/alice.old',
+          '{"did":"did:plc:alice"}'
+        ],
+        [created.id, bob.url, bob.loaderData]
+      ].toSorted((a, b) => a[0]!.localeCompare(b[0]!))
+    )
+    deepEqual(
+      (await loadSorted()).map(i => [i.originId, i.feedId, i.author]),
+      [
+        ['a1', alice, null],
+        ['b1', alice, { title: 'Bob', url: bob.url }],
+        ['b2', created.id, null]
+      ]
+    )
+  })
+
   test('loads every timeline page', async () => {
     let accountId = await addAccount(testAccount({ lastPublishedAt: 100 }))
     spyTimeline(

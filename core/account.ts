@@ -10,18 +10,19 @@ import {
   NetworkError,
   UserFacingError
 } from './errors.ts'
-import { addFeed, deleteFeed, type NewFeed } from './feed.ts'
+import { addFeed, deleteFeed, type FeedValue, type NewFeed } from './feed.ts'
 import { createDownloadTask, type DownloadTask } from './lib/download.ts'
 import { getStableId } from './lib/stable-id.ts'
 import type { AccountAuth, SignInAnswer, SignInStep } from './loader/common.ts'
-import { loaders, tryLoadFeedData } from './loader/index.ts'
+import { getOriginKey, loaders, tryLoadFeedData } from './loader/index.ts'
 import { accountsMessages } from './messages/index.ts'
-import { type PostAuthor, recalcPostsReading } from './post.ts'
+import { type LoadedAuthor, recalcPostsReading } from './post.ts'
 import {
   ACCOUNT_SERVICES,
   type AccountChanges,
   type AccountService,
   type AccountValue,
+  type FeedChanges,
   GENERAL_CATEGORY,
   getCrdt,
   getTables,
@@ -254,13 +255,14 @@ export async function deleteAccountPostsBy(
  */
 export function toVirtualFeed(
   account: AccountValue,
-  author: { url: string } & PostAuthor
+  author: { url: string } & LoadedAuthor
 ): { id: string } & NewFeed {
   return {
     accountId: account.id,
     avatar: author.avatar,
     id: getStableId(`feed ${author.url}`),
     loader: account.service,
+    loaderData: author.loaderData,
     originTitle: author.title,
     title: author.title,
     url: author.url
@@ -328,7 +330,7 @@ async function loadFollows(
   ])
   let owners = new Set(feeds.map(feed => feed.accountId))
   let followers = new Map<string, AccountValue[]>()
-  let authors = new Map<string, { url: string } & PostAuthor>()
+  let authors = new Map<string, { url: string } & LoadedAuthor>()
   let synced = new Set<string>()
   let complete = true
   for (let account of accounts) {
@@ -336,7 +338,7 @@ async function loadFollows(
       complete = false
       continue
     }
-    let follows: PostAuthor[]
+    let follows: LoadedAuthor[]
     try {
       follows = await loaders[service].account!.getFollows(
         task,
@@ -355,22 +357,44 @@ async function loadFollows(
     synced.add(account.id)
     for (let author of follows) {
       if (!author.url) continue
-      if (!authors.has(author.url)) {
-        authors.set(author.url, { ...author, url: author.url })
-      }
-      followers.set(author.url, [...(followers.get(author.url) ?? []), account])
+      let key = getOriginKey(service, author.loaderData) ?? author.url
+      if (!authors.has(key)) authors.set(key, { ...author, url: author.url })
+      followers.set(key, [...(followers.get(key) ?? []), account])
     }
   }
 
-  let byUrl = new Set(feeds.map(feed => feed.url))
-  await tables.feeds.create(
-    [...authors.values()]
-      .filter(author => !byUrl.has(author.url))
-      .map(author => toVirtualFeed(followers.get(author.url)![0]!, author))
-  )
+  let byKey = new Map<string, FeedValue>()
+  for (let feed of feeds) {
+    byKey.set(feed.url, feed)
+    let key = getOriginKey(feed.loader, feed.loaderData)
+    if (key) byKey.set(key, feed)
+  }
+  let feedKeys = new Map<string, string>()
+  let created: ({ id: string } & NewFeed)[] = []
+  for (let [key, author] of authors) {
+    let feed = byKey.get(key) ?? byKey.get(author.url)
+    if (!feed) {
+      created.push(toVirtualFeed(followers.get(key)![0]!, author))
+      continue
+    }
+    feedKeys.set(feed.id, key)
+    let changes: FeedChanges = {}
+    if (feed.url !== author.url) {
+      changes.url = author.url
+      changes.originTitle = author.title
+      if (feed.title === feed.originTitle) changes.title = author.title
+    }
+    if (!feed.loaderData && author.loaderData) {
+      changes.loaderData = author.loaderData
+    }
+    if (Object.keys(changes).length > 0) {
+      await tables.feeds.update(feed.id, changes)
+    }
+  }
+  await tables.feeds.create(created)
   for (let feed of feeds) {
     if (!feed.accountId || !synced.has(feed.accountId)) continue
-    let list = followers.get(feed.url) ?? []
+    let list = followers.get(feedKeys.get(feed.id) ?? '') ?? []
     if (list.some(account => account.id === feed.accountId)) continue
     if (list[0]) {
       await tables.feeds.update(feed.id, { accountId: list[0].id })

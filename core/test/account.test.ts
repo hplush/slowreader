@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, test } from 'node:test'
 import {
   addAccount,
   addFeed,
+  addFilter,
   addPost,
   changeAccount,
   deleteAccount,
@@ -18,6 +19,7 @@ import {
   loadAccounts,
   loaders,
   loadFeeds,
+  loadFilters,
   loadPosts,
   NetworkError,
   needFollowsSync,
@@ -171,6 +173,92 @@ describe('account', () => {
       true
     )
     equal(needFollowsSync({ ...account, expired: true }), false)
+  })
+
+  test('keeps Bluesky feed after handle change', async () => {
+    let accountId = await addAccount(
+      testAccount({ service: 'bluesky', url: 'https://bsky.app/profile/me' })
+    )
+    let alice = await addFeed(
+      testFeed({
+        accountId,
+        categoryId: 'people',
+        loader: 'bluesky',
+        loaderData: '{"did":"did:plc:alice"}',
+        originTitle: 'Alice',
+        reading: 'slow',
+        title: 'Alice',
+        url: 'https://bsky.app/profile/alice.old'
+      })
+    )
+    let bob = await addFeed(
+      testFeed({
+        accountId,
+        loader: 'bluesky',
+        originTitle: 'Bob',
+        title: 'My Bob',
+        url: 'https://bsky.app/profile/bob'
+      })
+    )
+    await addPost(testPost({ feedId: alice, originId: 'a1' }))
+    await addFilter({ action: 'delete', feedId: alice, query: 'spam' })
+    spyOn(loaders.bluesky.account!, 'getFollows', () => {
+      return Promise.resolve([
+        {
+          loaderData: '{"did":"did:plc:alice"}',
+          title: 'Alice New',
+          url: 'https://bsky.app/profile/alice.new'
+        },
+        {
+          loaderData: '{"did":"did:plc:bob"}',
+          title: 'Bob',
+          url: 'https://bsky.app/profile/bob'
+        }
+      ])
+    })
+
+    await syncFollows('bluesky')
+    deepEqual(
+      (await loadFeeds())
+        .toSorted((a, b) => a.url.localeCompare(b.url))
+        .map(i => [
+          i.id,
+          i.url,
+          i.title,
+          i.originTitle,
+          i.loaderData,
+          i.categoryId,
+          i.reading
+        ]),
+      [
+        [
+          alice,
+          'https://bsky.app/profile/alice.new',
+          'Alice New',
+          'Alice New',
+          '{"did":"did:plc:alice"}',
+          'people',
+          'slow'
+        ],
+        [
+          bob,
+          'https://bsky.app/profile/bob',
+          'My Bob',
+          'Bob',
+          '{"did":"did:plc:bob"}',
+          '__general',
+          'fast'
+        ]
+      ]
+    )
+    deepEqual(
+      (await loadPosts()).map(i => [i.originId, i.feedId]),
+      [['a1', alice]]
+    )
+    deepEqual(
+      (await loadFilters()).map(i => i.feedId),
+      [alice]
+    )
   })
 
   test('keeps feeds if follows of some account are unknown', async () => {

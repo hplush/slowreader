@@ -35,6 +35,19 @@ export function hasPersonAvatar(loader: string | undefined): boolean {
   return !!found?.isProfileUrl
 }
 
+/**
+ * Map key of the feed, which does not change with feed’s URL.
+ */
+export function getOriginKey(
+  loader: LoaderName,
+  loaderData: null | string | undefined
+): string | undefined {
+  if (!loaderData) return undefined
+  let found: Loader = loaders[loader]
+  let id = found.getOriginId?.(loaderData)
+  return id ? `${loader} ${id}` : undefined
+}
+
 export interface FeedLoader {
   loader: Loader
   name: LoaderName

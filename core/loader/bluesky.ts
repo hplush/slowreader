@@ -21,6 +21,7 @@ import {
 } from '../lib/oauth.ts'
 import { accountsMessages as t } from '../messages/index.ts'
 import type {
+  LoadedAuthor,
   MediaSize,
   ParsedPost,
   PostAuthor,
@@ -243,6 +244,13 @@ function toAuthor(profile: BlueskyProfile): PostAuthor {
   }
   if (profile.avatar) author.avatar = profile.avatar
   return author
+}
+
+function toLoadedAuthor(profile: BlueskyProfile): LoadedAuthor {
+  return {
+    ...toAuthor(profile),
+    loaderData: JSON.stringify({ did: profile.did })
+  }
 }
 
 function getFacetLink(facet: BlueskyFacet): string | undefined {
@@ -992,10 +1000,14 @@ async function loadTimelinePage(
     await Promise.all(
       page.feed
         .filter(item => !isReplyToOthers(item))
-        .map(async item => ({
-          author: toAuthor(item.post.author),
-          ...(await parseItem(task, item, findPds))
-        }))
+        .map(async item => {
+          let post = await parseItem(task, item, findPds)
+          post.author = toLoadedAuthor(item.post.author)
+          if (item.reason?.$type === 'app.bsky.feed.defs#reasonRepost') {
+            post.repostedBy = toLoadedAuthor(item.reason.by)
+          }
+          return post
+        })
     ),
     next &&
     page.feed.length > 0 &&
@@ -1136,7 +1148,7 @@ let blueskyAccount: AccountLoader<BlueskySignIn> = {
   },
 
   async getFollows(task, auth) {
-    let authors: PostAuthor[] = []
+    let authors: LoadedAuthor[] = []
     let cursor: string | undefined
     do {
       let response = await requestByAccount(
@@ -1155,7 +1167,7 @@ let blueskyAccount: AccountLoader<BlueskySignIn> = {
         throw new ParseError('Bluesky follows are not an array', response.text)
       }
       let follows = data.follows as unknown as BlueskyProfile[]
-      authors.push(...follows.map(toAuthor))
+      authors.push(...follows.map(toLoadedAuthor))
       cursor =
         follows.length > 0 && typeof data.cursor === 'string'
           ? data.cursor
@@ -1248,6 +1260,10 @@ export const bluesky: Loader = {
     let post = url.pathname.match(POST)
     if (url.hostname !== 'bsky.app' || !post) return []
     return [`${APP}/profile/${post[1]}`]
+  },
+
+  getOriginId(loaderData) {
+    return readLoaderData(loaderData, 'did')
   },
 
   async getLoaderData(task, url) {

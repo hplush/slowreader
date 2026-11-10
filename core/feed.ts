@@ -4,7 +4,12 @@ import { effect } from 'nanostores'
 
 import { onClient } from './client.ts'
 import { createDownloadTask, type TextResponse } from './lib/download.ts'
-import { type FeedLoader, loaders, tryLoadFeedData } from './loader/index.ts'
+import {
+  type FeedLoader,
+  getOriginKey,
+  loaders,
+  tryLoadFeedData
+} from './loader/index.ts'
 import {
   addPost,
   collapseThreads,
@@ -79,12 +84,20 @@ export type FeedByUrl = Pick<
 >
 
 /**
- * Home timeline puts posts to feeds by author’s URL.
+ * Home timeline puts posts to feeds by author’s origin key or URL.
  */
-export function loadFeedsByUrls(): Promise<Map<string, FeedByUrl>> {
-  return getCrdt().select<FeedByUrl>`
-      SELECT "id", "url", "accountId", "loader", "reading" FROM "feeds"
-    `.then(rows => new Map(rows.map(row => [row.url, row])))
+export async function loadFeedsByUrls(): Promise<Map<string, FeedByUrl>> {
+  let rows = await getCrdt().select<Pick<FeedValue, 'loaderData'> & FeedByUrl>`
+    SELECT "id", "url", "accountId", "loader", "loaderData", "reading"
+    FROM "feeds"
+  `
+  let feeds = new Map<string, FeedByUrl>()
+  for (let { loaderData, ...feed } of rows) {
+    feeds.set(feed.url, feed)
+    let key = getOriginKey(feed.loader, loaderData)
+    if (key) feeds.set(key, feed)
+  }
+  return feeds
 }
 
 export function loadFeedsByCategory(categoryId: string): Promise<FeedValue[]> {

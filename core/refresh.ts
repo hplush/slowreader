@@ -25,7 +25,7 @@ import { createDownloadTask, type DownloadTask } from './lib/download.ts'
 import { canUseNetwork } from './lib/network.ts'
 import { createQueue, type QueueCallback } from './lib/queue.ts'
 import { increaseKey, waitLoading } from './lib/stores.ts'
-import { loaders } from './loader/index.ts'
+import { getOriginKey, loaders } from './loader/index.ts'
 import {
   DEFAULT_MEDIA_STATISTICS,
   mediaErrors,
@@ -40,6 +40,7 @@ import {
   getSortedAt,
   loadPostOriginIdsByAccount,
   loadPostOriginIdsByFeed,
+  type LoadedAuthor,
   type NewPost,
   type OriginPost,
   type PostAuthor,
@@ -232,6 +233,12 @@ async function collectFeedPage(
   return true
 }
 
+function withoutLoaderData(author: LoadedAuthor): PostAuthor {
+  let saved = { ...author }
+  delete saved.loaderData
+  return saved
+}
+
 /**
  * Home timeline puts posts to the virtual feeds of this account and creates
  * them for new authors. It skips authors with normal feed, since the feed
@@ -253,14 +260,20 @@ async function collectAccountPage(
   let groups = new Map<string, [FeedByUrl | undefined, OriginPost[]]>()
   let readings = new Map<string, NewPost['reading']>()
   let created: NewFeed[] = []
+  let renamed = new Map<string, string>()
   for (let origin of posts) {
     if (wasAlreadyAdded(account, origin)) break
     if (state.known?.has(origin.originId)) continue
     let author = origin.repostedBy ?? origin.author
     let url = author?.url
-    let feed = url ? state.feeds.get(url) : undefined
+    let originKey = getOriginKey(account.service, author?.loaderData)
+    let feed =
+      (originKey && state.feeds.get(originKey)) ||
+      (url ? state.feeds.get(url) : undefined)
+    if (feed && url && feed.url !== url) renamed.set(feed.id, url)
     let own = url === account.url
     if (!feed && !own && origin.followedTag) {
+      originKey = undefined
       author = origin.followedTag
       url = origin.followedTag.url
       feed = state.feeds.get(origin.followedTag.url)
@@ -276,6 +289,7 @@ async function collectAccountPage(
         url
       }
       state.feeds.set(url, feed)
+      if (originKey) state.feeds.set(originKey, feed)
     }
     if (feed && feed.accountId !== account.id) continue
     let reading: NewPost['reading'] | 'delete' = 'fast'
@@ -291,6 +305,8 @@ async function collectAccountPage(
     let group = groups.get(key) ?? [feed, []]
     let saved = { ...origin }
     delete saved.followedTag
+    if (saved.author) saved.author = withoutLoaderData(saved.author)
+    if (saved.repostedBy) saved.repostedBy = withoutLoaderData(saved.repostedBy)
     group[1].push(saved)
     groups.set(key, group)
   }
@@ -318,7 +334,10 @@ async function collectAccountPage(
       saved.author ??= authors.get(origin.threadId ?? '')
       if (feed) {
         // The feed is the author of own posts, but not of hashtag’s posts
-        if (saved.author?.url === feed.url) delete saved.author
+        let url = saved.author?.url
+        if (url === feed.url || url === renamed.get(feed.id)) {
+          delete saved.author
+        }
         state.adding.push(
           processOriginPost(saved, { feedId: feed.id }, reading)
         )

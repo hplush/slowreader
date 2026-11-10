@@ -45,8 +45,14 @@ export type {
   QuotedPost
 }
 
+/**
+ * Account finds author’s feed by `loaderData` after the URL change.
+ * Not saved to the database.
+ */
+export type LoadedAuthor = { loaderData?: string } & PostAuthor
+
 export type ParsedPost = {
-  author?: PostAuthor
+  author?: LoadedAuthor
   /**
    * Home timeline shows it by this followed hashtag, the author could be
    * not followed. Not saved to the database.
@@ -69,7 +75,7 @@ export type ParsedPost = {
   publishedAt?: number
   quoted?: QuotedPost
   replied?: QuotedPost
-  repostedBy?: PostAuthor
+  repostedBy?: LoadedAuthor
   /**
    * Repost of not the first post of the author’s thread. Not saved
    * to the database.

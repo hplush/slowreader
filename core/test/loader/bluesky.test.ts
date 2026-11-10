@@ -1474,14 +1474,17 @@ describe('bluesky account', () => {
     deepEqual(await signedIn.getFollows(createDownloadTask(), auth), [
       {
         avatar: 'https://cdn.bsky.app/bob.jpg',
+        loaderData: '{"did":"did:plc:bob"}',
         title: 'Bob',
         url: 'https://bsky.app/profile/bob.bsky.social'
       },
       {
+        loaderData: '{"did":"did:plc:alice"}',
         title: 'alice.bsky.social',
         url: 'https://bsky.app/profile/alice.bsky.social'
       }
     ])
+    equal(loaders.bluesky.getOriginId?.('{"did":"did:plc:bob"}'), 'did:plc:bob')
     equal(getProof(first).authorization, 'DPoP access')
 
     respond(follows(), { follows: {} })
@@ -1533,13 +1536,31 @@ describe('bluesky account', () => {
         .list.map(item => [
           item.originId,
           item.author?.title,
+          item.author?.loaderData,
           item.repostedBy?.title,
+          item.repostedBy?.loaderData,
           item.sortedAt,
           item.lang
         ]),
       [
-        [uri('bob', '1'), 'BOB', undefined, undefined, 'pt-BR'],
-        [uri('bob', '3'), 'BOB', 'JANE', 1769904000, undefined]
+        [
+          uri('bob', '1'),
+          'BOB',
+          '{"did":"did:plc:bob"}',
+          undefined,
+          undefined,
+          undefined,
+          'pt-BR'
+        ],
+        [
+          uri('bob', '3'),
+          'BOB',
+          '{"did":"did:plc:bob"}',
+          'JANE',
+          '{"did":"did:plc:jane"}',
+          1769904000,
+          undefined
+        ]
       ]
     )
     equal(posts.get().hasNext, true)
