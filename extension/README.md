@@ -13,7 +13,8 @@ _See the [full architecture guide](../README.md) first._
   - [Chrome](#chrome)
   - [Firefox](#firefox)
   - [Safari](#safari)
-- [Host Access](#host-access)
+- [Permissions](#permissions)
+  - [Host Access](#host-access)
 - [Security](#security)
 - [Using the Extension in the Main Application](#using-the-extension-in-the-main-application)
 - [Publishing](#publishing)
@@ -87,15 +88,16 @@ xcrun safari-web-extension-converter extension/dist/local/safari
 
 Then in Xcode run the generated app and enable the extension in `Safari` → `Settings` → `Extensions`. Turn on `Allow unsigned extensions` in the develop menu for development builds.
 
-## Host Access
+## Permissions
 
-The extension asks for `*://*/*` since feeds live on any host.
+- `*://*/*` access to all sites: up make network requests and download feed updates. By default the browser lets a web app read only own website.
+- `webRequest` to detect permanent redirects on making `fetch()` (by default browsers follows redirects, but hides their statuses).
 
-Chrome grants it on the install. Firefox shows it in the install prompt since Firefox 127, but not for a temporary add-on, and the user can revoke it later. Safari asks per site and grants nothing by default. The background opens the options page right after the install when the access is missing.
+### Host Access
 
-The user can also revoke the access later, or grant it only for a day in Safari. The background re-checks the access on every failed request and answers `restricted`, so the app switches back to the proxy and shows the note again instead of blaming the feed.
+Chrome grants it on the install. Firefox shows it in the install prompt since Firefox 127, but not for a temporary add-on. Safari asks per site and grants nothing by default. The background opens the options page right after the install when the access is missing.
 
-Without access `fetch()` fails on every feed. To avoid silent errors, the background answers the app with `granted: false`, the app falls back to the proxy and shows the button to open the options page, where the user can grant access back.
+The user can revoke the access later, or grant it only for a day in Safari. Without access `fetch()` fails on every feed, so the background re-checks the access on every failed request and answers `restricted`. The app switches back to the proxy and shows the button to open the options page, instead of blaming the feed.
 
 ## Security
 
@@ -104,8 +106,6 @@ The `*://*/*` access is wide, so the background limits what the app can ask for:
 - Only `GET` and `HEAD` to `http:` and `https:` URLs.
 - `credentials: 'omit'`, so the request never carries the user’s cookies. The extension reads feeds as an anonymous visitor, and XSS on the app’s page can’t use it to read the user’s private pages on other sites.
 - Only `Accept`, `Accept-Language`, `If-Modified-Since`, and `If-None-Match` from the app’s headers. Add the header here when a loader needs a new one.
-
-The extension asks for no other permission: no `scripting`, `tabs`, `cookies`, or `webRequest`. It can’t read the user’s other tabs or inject anything into them, and the content script runs only on the app’s own origin.
 
 ## Using the Extension in the Main Application
 
@@ -129,6 +129,8 @@ window.addEventListener('message', event => {
 ```
 
 Every request takes an ID to match the answer, and the app can abort it by the same ID.
+
+The `fetched` answer has `url` after redirects and `redirected` flag. If every redirect was 301 or 308, `headers` has `X-Slowreader-Permanent: 1`.
 
 See possible messages in [types API](./api.ts) and the client’s side in [`web/main/extension.ts`](../web/main/extension.ts).
 

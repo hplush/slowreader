@@ -54,7 +54,9 @@ describe('proxy', () => {
       await setTimeout(parseInt(queryParams.stall))
       res.end('b')
     } else if (queryParams.redirectTo) {
-      res.writeHead(302, { Location: queryParams.redirectTo })
+      res.writeHead(parseInt(queryParams.status ?? '302'), {
+        Location: queryParams.redirectTo
+      })
       res.end()
     } else if (queryParams.emptyHost) {
       res.writeHead(302, { Location: 'http:///?redirected=1' })
@@ -249,6 +251,33 @@ describe('proxy', () => {
     equal(response.status, 200)
     equal(parsedResponse.request.requestPath, '/final')
     equal(parsedResponse.request.queryParams.redirected, '1')
+  })
+
+  test('reports final URL and permanent redirect', async () => {
+    function redirect(to: string, status: number): string {
+      return `${targetUrl}?redirectTo=${encodeURIComponent(to)}&status=${status}`
+    }
+    let final = `${targetUrl}/final?cacheControl=max-age=60`
+
+    let permanent = redirect(redirect(final, 308), 301)
+    for (let i = 0; i < 2; i++) {
+      let response = await request(encodeURIComponent(permanent))
+      equal(response.status, 200)
+      equal(response.headers.get('X-Slowreader-Url'), final)
+      equal(response.headers.get('X-Slowreader-Permanent'), '1')
+      await response.text()
+    }
+
+    let temporary = await request(
+      encodeURIComponent(redirect(redirect(final, 302), 301))
+    )
+    equal(temporary.headers.get('X-Slowreader-Url'), final)
+    equal(temporary.headers.get('X-Slowreader-Permanent'), null)
+    await temporary.text()
+
+    let direct = await request(final)
+    equal(direct.headers.get('X-Slowreader-Url'), null)
+    await direct.text()
   })
 
   test('fixes redirects with empty host', async () => {
@@ -825,6 +854,7 @@ describe('proxy', () => {
     equal(
       response.headers.get('Access-Control-Expose-Headers'),
       'Retry-After, RateLimit-Reset, X-Rate-Limit-Reset, ' +
+        'X-Slowreader-Permanent, X-Slowreader-Url, ' +
         'x-slowreader-request, x-slowreader-response'
     )
     match(response.headers.get('x-slowreader-request')!, /^GET /)

@@ -12,6 +12,11 @@ function getURL(server: Server): string {
 }
 
 let target = createServer((req, res) => {
+  if (req.url === '/old') {
+    res.writeHead(301, { Location: '/new' })
+    res.end()
+    return
+  }
   res.writeHead(200, {
     'Content-Type': 'text/plain',
     'X-Custom': 'value'
@@ -55,6 +60,16 @@ describe('proxy', () => {
     equal(response.status, 200)
     equal(await response.text(), 'hello')
     equal(response.url, targetUrl)
+    equal(response.redirected, false)
+  })
+
+  test('takes final URL from proxy', async () => {
+    setProxyAsRequestMethod(proxyUrl + '/')
+    let response = await request(`${targetUrl}/old`, { headers: origin })
+    equal(await response.text(), 'hello')
+    equal(response.url, `${targetUrl}/new`)
+    equal(response.redirected, true)
+    equal(response.headers.get('X-Slowreader-Permanent'), '1')
   })
 
   test('sets origin for Node.js scripts', async () => {

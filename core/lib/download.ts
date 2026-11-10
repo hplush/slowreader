@@ -53,6 +53,7 @@ export interface TextResponse {
  */
 export interface DownloadTask {
   destroy(): void
+  redirects: Map<string, { permanent: boolean; url: string }>
   request: typeof request
   text(...args: Parameters<typeof request>): Promise<TextResponse>
 }
@@ -228,6 +229,7 @@ export function createDownloadTask(
   let controller = new AbortController()
   let cached: string[] = []
   return {
+    redirects: new Map(),
     destroy() {
       for (let url of cached) cache.delete(url)
       controller.abort()
@@ -274,6 +276,12 @@ export function createDownloadTask(
       if (taskOpts.cache === 'write') {
         cached.push(url)
         cache.set(url, response.clone())
+      }
+      if (response.redirected) {
+        this.redirects.set(url, {
+          permanent: response.headers.get('X-Slowreader-Permanent') === '1',
+          url: response.url
+        })
       }
       return response
     },

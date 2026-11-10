@@ -36,7 +36,9 @@ export function setProxyAsRequestMethod(
     })
     if (debug) debug(response.headers)
 
-    Object.defineProperty(response, 'url', { value: url })
+    let final = response.headers.get('X-Slowreader-Url')
+    Object.defineProperty(response, 'url', { value: final ?? url })
+    Object.defineProperty(response, 'redirected', { value: !!final })
     return response
   })
 }

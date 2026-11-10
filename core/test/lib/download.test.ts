@@ -1,4 +1,4 @@
-import { equal, rejects, throws } from 'node:assert/strict'
+import { deepEqual, equal, rejects, throws } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -131,6 +131,35 @@ describe('download', () => {
     task.destroy()
     sendText?.('Done')
     await rejects(response2, (e: Error) => e.name === 'AbortError')
+  })
+
+  test('remembers redirects', async () => {
+    let task = createDownloadTask()
+    setRequestMethod(url => {
+      let response = new Response('', {
+        headers: url.endsWith('/temporary')
+          ? {}
+          : { 'X-Slowreader-Permanent': '1' }
+      })
+      Object.defineProperty(response, 'redirected', { value: true })
+      Object.defineProperty(response, 'url', { value: `${url}/new` })
+      return Promise.resolve(response)
+    })
+    await task.request('https://a.com/permanent')
+    await task.request('https://a.com/temporary')
+    deepEqual(
+      [...task.redirects],
+      [
+        [
+          'https://a.com/permanent',
+          { permanent: true, url: 'https://a.com/permanent/new' }
+        ],
+        [
+          'https://a.com/temporary',
+          { permanent: false, url: 'https://a.com/temporary/new' }
+        ]
+      ]
+    )
   })
 
   test('parses XML content', () => {

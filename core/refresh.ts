@@ -9,6 +9,7 @@ import {
 } from './account.ts'
 import { onClient, waitSyncOrOffline } from './client.ts'
 import { getEnvironment } from './environment.ts'
+import { cleanFeedRedirects, trackFeedRedirect } from './feed-redirects.ts'
 import {
   changeFeed,
   type FeedByUrl,
@@ -601,6 +602,7 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
     refreshStatus.set('start')
     return
   }
+  cleanFeedRedirects(feeds)
   let maxAge = fastPostsMaxAge.get()
   if (maxAge > 0) await deleteFastPostsBefore(refreshedAt - maxAge)
   let targets: RefreshTarget[] = [
@@ -622,6 +624,7 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
         if (pages.get().isLoading) await pages.loading
         let error = pages.get().error
         if (error) throw error
+        if ('feed' in target) await trackFeedRedirect(target.feed, task)
         return processPage(createState(target, pages, task))
       }
     },

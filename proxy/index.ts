@@ -151,7 +151,9 @@ function allowCors(req: IncomingMessage, res: ServerResponse): void {
     )
     res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET')
     res.setHeader('Access-Control-Allow-Origin', req.headers.origin)
-    let exposed = 'Retry-After, RateLimit-Reset, X-Rate-Limit-Reset'
+    let exposed =
+      'Retry-After, RateLimit-Reset, X-Rate-Limit-Reset, ' +
+      'X-Slowreader-Permanent, X-Slowreader-Url'
     if (req.headers['x-slowreader-debug']) {
       exposed += ', x-slowreader-request, x-slowreader-response'
     }
@@ -429,6 +431,7 @@ export function createProxy(
         }
         let targetResponse = await load(parsedUrl.hostname)
         let redirects = 0
+        let permanent = true
         while (
           REDIRECTS.has(targetResponse.statusCode!) &&
           targetResponse.headers.location
@@ -437,6 +440,8 @@ export function createProxy(
             throw new BadRequestError('Too many redirects')
           }
           redirects += 1
+          let status = targetResponse.statusCode
+          if (status !== 301 && status !== 308) permanent = false
           // Draining lets the agent keep the connection for the next request
           targetResponse.resume()
           targetUrl = resolveLocation(
@@ -468,6 +473,11 @@ export function createProxy(
         for (let header of PASSED_HEADERS) {
           let value = targetResponse.headers[header.toLowerCase()]
           if (typeof value === 'string') responseHeaders[header] = value
+        }
+        // Mark to detect RSS feed move to the new URL
+        if (redirects > 0) {
+          responseHeaders['X-Slowreader-Url'] = targetUrl
+          if (permanent) responseHeaders['X-Slowreader-Permanent'] = '1'
         }
         if (debug) {
           responseHeaders['x-slowreader-request'] =

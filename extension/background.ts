@@ -12,6 +12,46 @@ function toBase64(bytes: Uint8Array): string {
   return btoa(binary)
 }
 
+interface Redirect {
+  at: number
+  from: string
+  permanent: boolean
+  to: string
+}
+
+/** `fetch()` follows redirects, but hides their statuses. The app moves
+ * the feed only after the permanent redirect. */
+let redirects = new Map<string, Redirect>()
+
+chrome.webRequest.onBeforeRedirect.addListener(
+  details => {
+    let now = Date.now()
+    for (let [id, redirect] of redirects) {
+      if (now - redirect.at > 60_000) redirects.delete(id)
+    }
+    let previous = redirects.get(details.requestId)
+    let status = details.statusCode
+    redirects.set(details.requestId, {
+      at: now,
+      from: previous?.from ?? details.url,
+      permanent:
+        previous?.permanent !== false && (status === 301 || status === 308),
+      to: details.redirectUrl
+    })
+  },
+  { tabId: -1, urls: ['*://*/*'] }
+)
+
+function wasPermanent(from: string, to: string): boolean {
+  for (let [id, redirect] of redirects) {
+    if (redirect.from === from && redirect.to === to) {
+      redirects.delete(id)
+      return redirect.permanent
+    }
+  }
+  return false
+}
+
 /** Firefox and Safari grant no host access on the install, and without it
  * the extension is invisible for the app. */
 chrome.runtime.onInstalled.addListener(() => {
@@ -64,9 +104,13 @@ chrome.runtime.onConnect.addListener(port => {
           method: message.method,
           signal: AbortSignal.any([aborter.signal, AbortSignal.timeout(30000)])
         })
+        let headers = [...response.headers]
+        if (response.redirected && wasPermanent(url.href, response.url)) {
+          headers.push(['x-slowreader-permanent', '1'])
+        }
         send({
           body: toBase64(new Uint8Array(await response.arrayBuffer())),
-          headers: [...response.headers],
+          headers,
           redirected: response.redirected,
           status: response.status,
           type: 'fetched',
