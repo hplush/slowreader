@@ -3,11 +3,13 @@ import type { Database, SqlStore } from '@nanostores/sql'
 import { effect } from 'nanostores'
 
 import { onClient } from './client.ts'
+import { isRemoteError } from './errors.ts'
 import { createDownloadTask, type TextResponse } from './lib/download.ts'
 import {
   type FeedLoader,
   getOriginKey,
   loaders,
+  type MovedFeed,
   tryLoadFeedData
 } from './loader/index.ts'
 import {
@@ -135,6 +137,50 @@ export async function deleteFeed(feedId: string): Promise<void> {
   return getTables().feeds.delete(feedId)
 }
 
+/**
+ * Feed of the new URL could already exist, so returns ID of the feed,
+ * which now has the posts.
+ */
+export async function moveFeed(
+  feed: FeedValue,
+  moved: MovedFeed
+): Promise<string> {
+  let tables = getTables()
+  let existing = await loadFeedByUrl(moved.url)
+  if (existing && existing.id !== feed.id) {
+    await tables.posts.updateWhere({ feedId: existing.id })`
+      "feedId" = ${feed.id}
+    `
+    await tables.filters.updateWhere({ feedId: existing.id })`
+      "feedId" = ${feed.id}
+    `
+    // Home timeline creates the feed with default settings
+    if (existing.accountId) {
+      let settings: FeedChanges = {
+        categoryId: feed.categoryId,
+        fastReader: feed.fastReader,
+        reading: feed.reading,
+        slowReader: feed.slowReader
+      }
+      if (feed.title !== feed.originTitle) settings.title = feed.title
+      await changeFeed(existing.id, settings)
+    } else {
+      await recalcPostsReading(existing.id)
+    }
+    await deleteFeed(feed.id)
+    return existing.id
+  }
+  let changes: FeedChanges = {
+    avatar: moved.avatar ?? null,
+    loaderData: moved.loaderData ?? null,
+    originTitle: moved.title,
+    url: moved.url
+  }
+  if (feed.title === feed.originTitle) changes.title = moved.title
+  await changeFeed(feed.id, changes)
+  return feed.id
+}
+
 export async function changeFeed(
   feedId: string[] | string,
   changes: FeedChanges
@@ -242,6 +288,19 @@ export function updateFeedData(
       })
       // Keep the saved data, if the feed is offline
       if (!data) return feed.avatar ?? undefined
+      // Follows sync moves feeds of accounts
+      if (data.moved && !feed.accountId) {
+        let moved = await loaders[feed.loader]
+          .getMovedTo?.(task, feed.url)
+          .catch((e: unknown) => {
+            if (!isRemoteError(e)) throw e
+            return undefined
+          })
+        if (moved && hasDatabase() && (await loadFeed(feedId))) {
+          await moveFeed(feed, moved)
+          return moved.avatar
+        }
+      }
       let changes: FeedChanges = {}
       let avatar = data.avatar ?? null
       if (avatar !== feed.avatar) changes.avatar = avatar

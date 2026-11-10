@@ -51,6 +51,7 @@ interface MastodonAccount {
   display_name: string
   emojis?: MastodonEmoji[]
   id: string
+  moved?: MastodonAccount | null
   url: string
   username: string
 }
@@ -1042,6 +1043,22 @@ export const mastodon: Loader = {
     return [`${url.origin}/${post[1]}`]
   },
 
+  async getMovedTo(task, url) {
+    if (getTagName(url)) return undefined
+    let account = await loadAccount(task, url)
+    if (!account.moved) return undefined
+    for (let step = 0; step < 5 && account.moved; step++) {
+      let next = URL.parse(account.moved.url)
+      if (!next || !PROFILE.test(next.pathname)) return undefined
+      account = await loadAccount(task, next.href)
+    }
+    if (account.moved) return undefined
+    return {
+      ...toFeedData(account),
+      loaderData: JSON.stringify({ id: account.id })
+    }
+  },
+
   async getLoaderData(task, url) {
     if (getTagName(url)) return undefined
     return JSON.stringify({ id: (await loadAccount(task, url)).id })
@@ -1176,14 +1193,18 @@ export const mastodon: Loader = {
 
   async loadFeedData(task, url, opts = {}) {
     if (getTagName(url)) return undefined
-    return toFeedData(
-      opts.account
-        ? await loadOwnAccount({
-            accessToken: opts.account.credentials.accessToken,
-            server: opts.account.server
-          })
-        : await loadAccount(task, url)
-    )
+    if (opts.account) {
+      return toFeedData(
+        await loadOwnAccount({
+          accessToken: opts.account.credentials.accessToken,
+          server: opts.account.server
+        })
+      )
+    }
+    let account = await loadAccount(task, url)
+    let data: FeedData = toFeedData(account)
+    if (account.moved) data.moved = true
+    return data
   },
 
   getHandleFromUrl(url) {

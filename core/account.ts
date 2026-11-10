@@ -6,11 +6,18 @@ import { getClient, onClient } from './client.ts'
 import { getEnvironment } from './environment.ts'
 import {
   errorToMessage,
+  HTTPStatusError,
   isRemoteError,
   NetworkError,
   UserFacingError
 } from './errors.ts'
-import { addFeed, deleteFeed, type FeedValue, type NewFeed } from './feed.ts'
+import {
+  addFeed,
+  deleteFeed,
+  type FeedValue,
+  moveFeed,
+  type NewFeed
+} from './feed.ts'
 import { createDownloadTask, type DownloadTask } from './lib/download.ts'
 import { getStableId } from './lib/stable-id.ts'
 import type { AccountAuth, SignInAnswer, SignInStep } from './loader/common.ts'
@@ -370,13 +377,9 @@ async function loadFollows(
     if (key) byKey.set(key, feed)
   }
   let feedKeys = new Map<string, string>()
-  let created: ({ id: string } & NewFeed)[] = []
   for (let [key, author] of authors) {
     let feed = byKey.get(key) ?? byKey.get(author.url)
-    if (!feed) {
-      created.push(toVirtualFeed(followers.get(key)![0]!, author))
-      continue
-    }
+    if (!feed) continue
     feedKeys.set(feed.id, key)
     let changes: FeedChanges = {}
     if (feed.url !== author.url) {
@@ -391,9 +394,40 @@ async function loadFollows(
       await tables.feeds.update(feed.id, changes)
     }
   }
-  await tables.feeds.create(created)
+
+  // Mastodon makes followers follow the new account of the moved author
+  let keyByUrl = new Map([...authors].map(([key, i]) => [i.url, key]))
+  let skipped = new Set<string>()
   for (let feed of feeds) {
     if (!feed.accountId || !synced.has(feed.accountId)) continue
+    if (feedKeys.has(feed.id)) continue
+    let moved
+    try {
+      moved = await loaders[feed.loader].getMovedTo?.(task, feed.url)
+    } catch (e) {
+      if (!isRemoteError(e)) throw e
+      // Account was deleted, not moved
+      if (!HTTPStatusError.is(e, [404, 410])) skipped.add(feed.id)
+      continue
+    }
+    if (!moved) continue
+    let key = keyByUrl.get(moved.url)
+    if (!key) continue
+    if ((await moveFeed(feed, moved)) === feed.id) {
+      feedKeys.set(feed.id, key)
+    } else {
+      skipped.add(feed.id)
+    }
+  }
+  let claimed = new Set(feedKeys.values())
+  await tables.feeds.create(
+    [...authors]
+      .filter(([key]) => !claimed.has(key))
+      .map(([key, author]) => toVirtualFeed(followers.get(key)![0]!, author))
+  )
+  for (let feed of feeds) {
+    if (!feed.accountId || !synced.has(feed.accountId)) continue
+    if (skipped.has(feed.id)) continue
     let list = followers.get(feedKeys.get(feed.id) ?? '') ?? []
     if (list.some(account => account.id === feed.accountId)) continue
     if (list[0]) {

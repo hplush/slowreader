@@ -25,9 +25,15 @@ export interface FeedData {
    * Only social profiles have it.
    */
   handle?: string
+  /**
+   * Author moved to another account, which `getMovedTo()` returns.
+   */
+  moved?: true
   title: string
   url: string
 }
+
+export type MovedFeed = { loaderData?: string } & FeedData
 
 /**
  * Account’s fields, which the loader got from the service after the sign in.
@@ -163,6 +169,12 @@ export type Loader = {
    * Data to save in the feed and to pass to `getPosts()` on refresh.
    */
   getLoaderData?(task: DownloadTask, url: string): Promise<string | undefined>
+
+  /**
+   * New account of the author, who moved to another server.
+   * `undefined` if the author did not move.
+   */
+  getMovedTo?(task: DownloadTask, url: string): Promise<MovedFeed | undefined>
 
   /**
    * Author’s ID at the source, which does not change with feed’s URL.

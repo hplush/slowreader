@@ -5,13 +5,19 @@ import { isSaveData } from '../lib/network.ts'
 import type { AccountValue } from '../schema.ts'
 import { atom } from './atom.ts'
 import { bluesky } from './bluesky.ts'
-import type { AccountAuth, DetectedFeed, FeedData, Loader } from './common.ts'
+import type {
+  AccountAuth,
+  DetectedFeed,
+  FeedData,
+  Loader,
+  MovedFeed
+} from './common.ts'
 import { jsonFeed } from './json-feed.ts'
 import { mastodon } from './mastodon.ts'
 import { rss } from './rss.ts'
 import { rss1 } from './rss1.ts'
 
-export type { AccountAuth, DetectedFeed, Loader }
+export type { AccountAuth, DetectedFeed, Loader, MovedFeed }
 
 export const loaders = {
   atom,

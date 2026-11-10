@@ -166,6 +166,58 @@ describe('feed', () => {
     await updateFeedData(feedId)
   })
 
+  test('switches feed to new account of moved author', async () => {
+    let feedId = await addFeed(
+      testFeed({
+        loader: 'mastodon',
+        originTitle: 'Ann',
+        title: 'Ann',
+        url: 'https://one.social/@ann'
+      })
+    )
+    let moved = {
+      acct: 'ann',
+      avatar: 'https://two.social/ann.png',
+      display_name: 'Ann Two',
+      id: 'ann-2',
+      url: 'https://two.social/@ann',
+      username: 'ann'
+    }
+    let old = JSON.stringify({ ...moved, id: 'ann-1', moved })
+    let failed = await addFeed(
+      testFeed({ loader: 'mastodon', url: 'https://one.social/@ann' })
+    )
+    expectRequest(
+      'https://one.social/api/v1/accounts/lookup?acct=ann'
+    ).andRespond(200, old, 'application/json')
+    expectRequest(
+      'https://one.social/api/v1/accounts/lookup?acct=ann'
+    ).andRespond(500)
+    equal(await updateFeedData(failed), 'https://two.social/ann.png')
+    equal((await loadFeed(failed))!.url, 'https://one.social/@ann')
+
+    for (let i = 0; i < 2; i++) {
+      expectRequest(
+        'https://one.social/api/v1/accounts/lookup?acct=ann'
+      ).andRespond(200, old, 'application/json')
+    }
+    expectRequest(
+      'https://two.social/api/v1/accounts/lookup?acct=ann'
+    ).andRespond(200, JSON.stringify(moved), 'application/json')
+
+    equal(await updateFeedData(feedId), 'https://two.social/ann.png')
+    let feed = (await loadFeed(feedId))!
+    deepEqual(
+      [feed.url, feed.loaderData, feed.title, feed.avatar],
+      [
+        'https://two.social/@ann',
+        '{"id":"ann-2"}',
+        'Ann Two',
+        'https://two.social/ann.png'
+      ]
+    )
+  })
+
   test('does not update feed data in Save Data mode', async () => {
     let feedId = await addFeed(
       testFeed({ avatar: 'https://a.com/old.png', loader: 'rss' })

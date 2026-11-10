@@ -5,6 +5,7 @@ import {
   type AccountAuth,
   createDownloadTask,
   createTextResponse,
+  type Loader,
   loaders,
   NotFoundError,
   ParseError,
@@ -318,6 +319,68 @@ describe('mastodon loader', () => {
         url: 'https://mastodon.social/@bob'
       }
     )
+  })
+
+  test('finds new account of moved author', async () => {
+    let task = createDownloadTask()
+    let { getMovedTo } = loaders.mastodon as Required<Loader>
+    function lookup(origin: string, body: object): void {
+      expectRequest(`${origin}/api/v1/accounts/lookup?acct=ann`).andRespond(
+        200,
+        JSON.stringify(body),
+        'application/json'
+      )
+    }
+    let second = {
+      ...account('ann'),
+      id: 'ann-2',
+      url: 'https://two.social/@ann'
+    }
+    let third = {
+      ...account('ann'),
+      avatar: '',
+      display_name: 'Ann',
+      id: 'ann-3',
+      url: 'https://three.social/@ann'
+    }
+
+    lookup('https://mastodon.social', account('ann', { moved: second }))
+    deepEqual(
+      await loaders.mastodon.loadFeedData(task, 'https://mastodon.social/@ann'),
+      {
+        avatar: 'https://mastodon.social/ann.png',
+        handle: '@ann@mastodon.social',
+        moved: true,
+        title: 'ANN',
+        url: 'https://mastodon.social/@ann'
+      }
+    )
+
+    lookup('https://mastodon.social', account('ann', { moved: second }))
+    lookup('https://two.social', { ...second, moved: third })
+    lookup('https://three.social', { ...third, moved: null })
+    deepEqual(await getMovedTo(task, 'https://mastodon.social/@ann'), {
+      avatar: undefined,
+      handle: '@ann@three.social',
+      loaderData: '{"id":"ann-3"}',
+      title: 'Ann',
+      url: 'https://three.social/@ann'
+    })
+
+    lookup('https://mastodon.social', account('ann'))
+    equal(await getMovedTo(task, 'https://mastodon.social/@ann'), undefined)
+
+    lookup(
+      'https://mastodon.social',
+      account('ann', { moved: { ...second, url: 'https://two.social/' } })
+    )
+    equal(await getMovedTo(task, 'https://mastodon.social/@ann'), undefined)
+
+    let loop = account('ann', { moved: account('ann') })
+    for (let i = 0; i < 6; i++) lookup('https://mastodon.social', loop)
+    equal(await getMovedTo(task, 'https://mastodon.social/@ann'), undefined)
+
+    equal(await getMovedTo(task, NEWS.url), undefined)
   })
 
   test('finds profile from post', () => {

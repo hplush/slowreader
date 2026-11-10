@@ -14,14 +14,17 @@ import {
   getUserPostUrl,
   getUserPostUrls,
   hasAccountPostsBy,
+  HTTPStatusError,
   isAccountService,
   loadAccount,
   loadAccounts,
+  type Loader,
   loaders,
   loadFeeds,
   loadFilters,
   loadPosts,
   NetworkError,
+  type MovedFeed,
   needFollowsSync,
   type PostAuthor,
   syncFollows,
@@ -32,8 +35,16 @@ import {
 import { cleanClient, expectWarning, startClient, waitFor } from './utils.ts'
 
 describe('account', () => {
+  let moves: Record<string, Error | MovedFeed> = {}
+
   beforeEach(() => {
     startClient()
+    moves = {}
+    spyOn(loaders.mastodon as Required<Loader>, 'getMovedTo', (task, url) => {
+      let moved = moves[url]
+      if (moved instanceof Error) return Promise.reject(moved)
+      return Promise.resolve(moved)
+    })
   })
 
   afterEach(async () => {
@@ -259,6 +270,145 @@ describe('account', () => {
       (await loadFilters()).map(i => i.feedId),
       [alice]
     )
+  })
+
+  test('keeps feed of moved author', async () => {
+    let accountId = await addAccount(testAccount())
+    let ann = await addFeed(
+      testFeed({
+        accountId,
+        categoryId: 'people',
+        loader: 'mastodon',
+        originTitle: 'ann',
+        reading: 'slow',
+        title: 'ann',
+        url: profile('ann')
+      })
+    )
+    await addPost(testPost({ feedId: ann, originId: 'a1' }))
+    spyFollows({ [accountId]: [author('ann2'), author('bob')] })
+    moves = {
+      [profile('ann')]: {
+        avatar: 'https://ann2.social/a.png',
+        loaderData: '{"id":"2"}',
+        title: 'Ann',
+        url: profile('ann2')
+      }
+    }
+
+    await syncFollows('mastodon')
+    deepEqual(await feedsState(), [
+      [profile('ann2'), accountId],
+      [profile('bob'), accountId]
+    ])
+    let feed = (await loadFeeds()).find(i => i.id === ann)!
+    deepEqual(
+      [
+        feed.avatar,
+        feed.categoryId,
+        feed.loaderData,
+        feed.originTitle,
+        feed.reading,
+        feed.title
+      ],
+      [
+        'https://ann2.social/a.png',
+        'people',
+        '{"id":"2"}',
+        'Ann',
+        'slow',
+        'Ann'
+      ]
+    )
+    deepEqual(
+      (await loadPosts()).map(i => [i.originId, i.feedId]),
+      [['a1', ann]]
+    )
+  })
+
+  test('merges feed of moved author with feed from timeline', async () => {
+    let accountId = await addAccount(testAccount())
+    let old = await addFeed(
+      testFeed({
+        accountId,
+        categoryId: 'people',
+        loader: 'mastodon',
+        originTitle: 'ann',
+        reading: 'slow',
+        title: 'Ann',
+        url: profile('ann')
+      })
+    )
+    let timeline = await addFeed(
+      testFeed({
+        accountId,
+        loader: 'mastodon',
+        reading: null,
+        url: profile('ann2')
+      })
+    )
+    await addPost([
+      testPost({ feedId: old, originId: 'old' }),
+      testPost({ feedId: timeline, originId: 'new' })
+    ])
+    await addFilter({ action: 'delete', feedId: old, query: 'spam' })
+    spyFollows({ [accountId]: [author('ann2')] })
+    moves = { [profile('ann')]: author('ann2') }
+
+    await syncFollows('mastodon')
+    let feeds = await loadFeeds()
+    deepEqual(
+      feeds.map(i => [i.id, i.url, i.categoryId, i.reading, i.title]),
+      [[timeline, profile('ann2'), 'people', 'slow', 'Ann']]
+    )
+    deepEqual(
+      (await loadPosts())
+        .toSorted((a, b) => a.originId.localeCompare(b.originId))
+        .map(i => [i.originId, i.feedId]),
+      [
+        ['new', timeline],
+        ['old', timeline]
+      ]
+    )
+    deepEqual(
+      (await loadFilters()).map(i => i.feedId),
+      [timeline]
+    )
+  })
+
+  test('keeps feed if move check failed', async () => {
+    let accountId = await addAccount(testAccount())
+    await addFeed(
+      testFeed({ accountId, loader: 'mastodon', url: profile('ann') })
+    )
+    await addFeed(
+      testFeed({ accountId, loader: 'mastodon', url: profile('dan') })
+    )
+    await addFeed(
+      testFeed({ accountId, loader: 'mastodon', url: profile('eve') })
+    )
+    spyFollows({ [accountId]: [author('bob')] })
+    moves = {
+      [profile('ann')]: new HTTPStatusError(
+        500,
+        profile('ann'),
+        '',
+        new Headers()
+      ),
+      [profile('dan')]: new HTTPStatusError(
+        404,
+        profile('dan'),
+        '',
+        new Headers()
+      ),
+      [profile('eve')]: author('moved-unfollowed')
+    }
+
+    await syncFollows('mastodon')
+    deepEqual(await feedsState(), [
+      [profile('ann'), accountId],
+      [profile('bob'), accountId]
+    ])
   })
 
   test('keeps feeds if follows of some account are unknown', async () => {
