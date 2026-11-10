@@ -16,6 +16,8 @@ import {
   deletePasskeyAction,
   deleteSessionAction,
   deleteUser,
+  refreshLock,
+  refreshUnlock,
   renamePasskeyAction,
   SUBPROTOCOL
 } from '@slowreader/api'
@@ -45,7 +47,9 @@ const SERVER_ACTIONS = [
   deletePasskeyAction,
   renamePasskeyAction,
   deleteSessionAction,
-  deleteUser
+  deleteUser,
+  refreshLock,
+  refreshUnlock
 ]
 
 /**

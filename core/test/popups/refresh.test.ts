@@ -1,7 +1,13 @@
 import { equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
-import { closeAllPopups, refreshStatus } from '../../index.ts'
+import {
+  closeAllPopups,
+  isRefreshing,
+  refreshRequested,
+  refreshStatus,
+  stopRefreshing
+} from '../../index.ts'
 import { cleanClient, startClient, openTestPopup } from '../utils.ts'
 
 describe('refresh popup', () => {
@@ -26,6 +32,19 @@ describe('refresh popup', () => {
     refreshStatus.set('done')
     equal(refreshStatus.get(), 'done')
 
+    closeAllPopups()
+  })
+
+  test('starts refresh requested by icon', () => {
+    refreshRequested.set(true)
+    openTestPopup('refresh', '1')
+    equal(refreshRequested.get(), false)
+    equal(isRefreshing.get(), true)
+    stopRefreshing()
+
+    refreshRequested.set(true)
+    equal(isRefreshing.get(), true)
+    stopRefreshing()
     closeAllPopups()
   })
 })

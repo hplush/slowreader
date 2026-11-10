@@ -48,6 +48,11 @@ import {
   withoutDeletedPosts
 } from './post.ts'
 import { getPostsFrequency, type PostsList } from './posts-list.ts'
+import {
+  refreshLock,
+  releaseRefreshLock,
+  requestRefreshLock
+} from './refresh-lock.ts'
 import { getCrdt, getTables, openedDatabase } from './schema.ts'
 import {
   autoRefresh,
@@ -86,11 +91,21 @@ export const refreshErrors = atom<RefreshError[]>([])
 export type refreshStatusValue =
   | 'done'
   | 'error'
+  | 'other'
   | 'refreshing'
   | 'refreshingError'
   | 'start'
 
 export const refreshStatus = atom<refreshStatusValue>('start')
+
+refreshLock.listen(lock => {
+  let status = refreshStatus.get()
+  if (lock === 'other' && !status.startsWith('refreshing')) {
+    refreshStatus.set('other')
+  } else if (lock !== 'other' && status === 'other') {
+    refreshStatus.set('start')
+  }
+})
 
 export const isRefreshing = computed(refreshStatus, icon => {
   return icon.startsWith('refreshing')
@@ -106,13 +121,13 @@ export const refreshProgress = computed(refreshStatistics, stats => {
   }
 })
 
-export type RefreshTotalProgress = {
-  stage: 'media' | 'onlyPosts' | 'posts'
-  value: number
-}
+export type RefreshTotalProgress =
+  | { stage: 'media' | 'onlyPosts' | 'posts'; value: number }
+  | { stage: 'other' | 'waiting' }
 
 export const refreshTotalProgress = computed(
   [
+    refreshStatus,
     refreshStatistics,
     refreshProgress,
     mediaProgress,
@@ -120,8 +135,18 @@ export const refreshTotalProgress = computed(
     cacheImages,
     cacheVideos
   ],
-  (stats, feeds, media, reading, images, videos): RefreshTotalProgress => {
-    let checked = stats.totalFeeds === 0 && !stats.initializing ? 1 : feeds
+  (
+    status,
+    stats,
+    feeds,
+    media,
+    reading,
+    images,
+    videos
+  ): RefreshTotalProgress => {
+    if (status === 'other') return { stage: 'other' }
+    if (stats.initializing) return { stage: 'waiting' }
+    let checked = stats.totalFeeds === 0 ? 1 : feeds
     if (reading === 'none' || (images === 'never' && videos === 'never')) {
       return { stage: 'onlyPosts', value: checked }
     } else if (checked < 1) {
@@ -554,6 +579,14 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
   // Other device could already load these posts and move feed markers
   await waitSyncOrOffline()
   if (!isRefreshing.get()) return
+  if (!(await requestRefreshLock(stopRefreshing))) {
+    refreshStatus.set(refreshLock.get() === 'other' ? 'other' : 'start')
+    return
+  }
+  if (!isRefreshing.get()) {
+    releaseRefreshLock()
+    return
+  }
 
   refreshedAt = Math.round(Date.now() / 1000)
   untouched = new Map()
@@ -564,6 +597,7 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
     loadAccounts()
   ])
   if (auto && (nightLocked.get() || feeds.length + accounts.length === 0)) {
+    releaseRefreshLock()
     refreshStatus.set('start')
     return
   }
@@ -622,6 +656,8 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
   if (untouchedAccounts.length > 0) {
     await getTables().accounts.update(untouchedAccounts, { refreshedAt })
   }
+  // Every device caches own media
+  releaseRefreshLock()
 
   if (isRefreshing.get()) {
     try {
@@ -651,6 +687,7 @@ onClient(() =>
 export function stopRefreshing(): void {
   if (!isRefreshing.get()) return
   refreshStatus.set('start')
+  releaseRefreshLock()
   queue.stop()
   stopMediaCache()
 }

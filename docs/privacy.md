@@ -20,6 +20,7 @@ The server needs some data unencrypted to sync your devices. This is all the une
 - your devices’ browser and OS names and last use, so you can sign out a lost device;
 - when you created the account;
 - when, from which device, and how much encrypted data your devices send.
+- when your devices check for new posts, so only one device does it at a time.
 
 Sync can’t work without this data, so there is no way to have a cloud account with less data.
 
@@ -69,4 +70,4 @@ If you email us, we use your email address and message only to answer you. We de
 
 ## Changes
 
-We may change this policy at any time. Check this page for the latest version. Last change: November 4, 2026. See <a href="https://github.com/hplush/slowreader/commits/main/docs/privacy.md" target="_blank">the history of changes</a> of this policy.
+We may change this policy at any time. Check this page for the latest version. Last change: November 10, 2026. See <a href="https://github.com/hplush/slowreader/commits/main/docs/privacy.md" target="_blank">the history of changes</a> of this policy.

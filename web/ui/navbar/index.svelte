@@ -5,14 +5,14 @@
     isRefreshing,
     layoutType,
     menuSlider,
-    refreshPosts,
+    refreshRequested,
     refreshStatus,
     refreshTotalProgress,
     router,
     syncStatusType,
     navbarMessages as t
   } from '@slowreader/core'
-  import { onMount, tick } from 'svelte'
+  import { onMount } from 'svelte'
 
   import { getPopupHash, getURL } from '../../stores/url-router.ts'
   import Announce from '../announce.svelte'
@@ -32,15 +32,6 @@
     }
   })
 
-  function moveFocusBack(): void {
-    tick().then(() => {
-      let button = document.querySelector<HTMLAnchorElement>(
-        '.navbar-button[aria-current="page"]'
-      )
-      if (button) button.tabIndex = 0
-    })
-  }
-
   let nothingCurrent = $derived(
     !isOtherRoute($router) &&
       $router.route !== 'slow' &&
@@ -56,7 +47,7 @@
 >
   <div class="navbar_main" aria-orientation="horizontal" role="menu">
     <div class="navbar_refresh">
-      {#if $isRefreshing}
+      {#if $isRefreshing || $refreshStatus === 'other'}
         <NavbarButton
           name={$t.refresh}
           anchor="refresh"
@@ -79,10 +70,10 @@
         <NavbarButton
           name={$t.refresh}
           anchor="refresh"
+          href={getPopupHash($router, 'refresh', '1')}
           icon={$refreshStatus === 'done' ? mdiCheckCircleOutline : mdiRefresh}
           onclick={() => {
-            refreshPosts()
-            moveFocusBack()
+            refreshRequested.set(true)
           }}
           size="icon"
         />

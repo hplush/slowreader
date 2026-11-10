@@ -1,11 +1,13 @@
 <script lang="ts">
   import {
+    refreshMessages,
     type RefreshTotalProgress,
     reportLoader,
     navbarMessages as t
   } from '@slowreader/core'
 
-  let { stage, value }: RefreshTotalProgress = $props()
+  let progress: RefreshTotalProgress = $props()
+  let value = $derived('value' in progress ? progress.value : undefined)
 
   const RADIUS = 4.8
   const CIRCUMFERENCE = 2 * Math.PI * RADIUS
@@ -13,11 +15,14 @@
 
 <svg
   class="navbar-progress"
-  class:is-media={stage === 'media'}
-  class:is-posts={stage === 'posts'}
+  class:is-media={progress.stage === 'media'}
+  class:is-posts={progress.stage === 'posts'}
+  class:is-spinning={value === undefined}
   {@attach () => reportLoader('refresh')}
-  aria-label={$t.postRefreshing}
-  aria-valuenow={value * 100}
+  aria-label={progress.stage === 'other'
+    ? $refreshMessages.other
+    : $t.postRefreshing}
+  aria-valuenow={value === undefined ? undefined : value * 100}
   role="progressbar"
   viewBox="0 0 12 12"
 >
@@ -29,7 +34,7 @@
     r={RADIUS}
     stroke-width="1.3"
   />
-  {#key stage}
+  {#key progress.stage}
     <circle
       class="navbar-progress_circle"
       cx="6"
@@ -37,7 +42,7 @@
       fill="none"
       r={RADIUS}
       stroke-dasharray={CIRCUMFERENCE}
-      stroke-dashoffset={CIRCUMFERENCE - value * CIRCUMFERENCE}
+      stroke-dashoffset={CIRCUMFERENCE - (value ?? 0.25) * CIRCUMFERENCE}
       stroke-width="1.3"
     />
   {/key}
@@ -65,6 +70,24 @@
 
     .navbar-progress.is-media .navbar-progress_circle:first-child {
       stroke: var(--loader-middle);
+    }
+
+    .navbar-progress.is-spinning .navbar-progress_circle:last-child {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: --navbar-progress-spin 1.5s linear infinite;
+    }
+
+    @keyframes --navbar-progress-spin {
+      to {
+        transform: rotate(1turn);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .navbar-progress.is-spinning .navbar-progress_circle:last-child {
+        animation: none;
+      }
     }
   }
 </style>

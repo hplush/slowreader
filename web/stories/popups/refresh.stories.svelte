@@ -48,6 +48,16 @@
   </Scene>
 </Story>
 
+<Story name="Another Device" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      refreshStatus.set('other')
+    }}
+  >
+    <RefreshPopup />
+  </Scene>
+</Story>
+
 <Story name="Saving Media" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {

@@ -12,6 +12,7 @@ import authModule from './modules/auth.ts'
 import eventsModule from './modules/events.ts'
 import healthModule from './modules/health.ts'
 import passkeysModule from './modules/passkeys.ts'
+import refreshModule from './modules/refresh.ts'
 import sessionsModule from './modules/sessions.ts'
 import syncModule from './modules/sync.ts'
 import usersModule from './modules/users.ts'
@@ -78,6 +79,7 @@ export function buildTestServer(
   healthModule(server)
   usersModule(server)
   passkeysModule(server)
+  refreshModule(server)
   sessionsModule(server)
   syncModule(server)
   eventsModule(server, 'T'.repeat(32))

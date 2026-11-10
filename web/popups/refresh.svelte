@@ -12,6 +12,7 @@
     refreshPosts,
     refreshProgress,
     refreshStatistics,
+    refreshStatus,
     router,
     stopRefreshing,
     storageMessages,
@@ -43,12 +44,21 @@
         {$t.stop}
       </Button>
     {:else}
-      <Button icon={mdiRefresh} onclick={() => refreshPosts()}>
+      <Button
+        disabled={$refreshStatus === 'other'}
+        icon={mdiRefresh}
+        onclick={() => refreshPosts()}
+      >
         {$t.start}
       </Button>
     {/if}
   {/snippet}
-  {#if $refreshStatistics.totalFeeds === 0 && !$isRefreshing}
+  {#if $refreshStatus === 'other'}
+    <Stack gap="s">
+      <Label>{$t.other}</Label>
+      <Loader size="wide" track="refresh-popup" />
+    </Stack>
+  {:else if $refreshStatistics.totalFeeds === 0 && !$isRefreshing}
     <Stack align="center" gap="xl">
       <PageIcon path={mdiRefresh} />
     </Stack>

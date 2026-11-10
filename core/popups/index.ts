@@ -13,7 +13,7 @@ export { canOpenMention, type FeedPopup } from './feed.ts'
 export type { PasskeyPopup } from './passkey.ts'
 export type { PostPopup } from './post.ts'
 export { canOpenPostUrl, getPostPopupParam } from './post.ts'
-export type { RefreshPopup } from './refresh.ts'
+export { type RefreshPopup, refreshRequested } from './refresh.ts'
 export type { SessionPopup } from './session.ts'
 
 export const popups = {

@@ -106,6 +106,7 @@
     feeds={FEEDS}
     oninit={() => {
       syncStatus.set('synchronizedAfterWait')
+      refreshStatus.set('other')
       showUsageBalance.set(false)
     }}
     posts={POSTS}
