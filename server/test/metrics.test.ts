@@ -34,6 +34,21 @@ async function setDevice(
     .where(eq(sessions.userId, userId))
 }
 
+async function addSession(
+  userId: string,
+  device: string,
+  usedAt: string
+): Promise<void> {
+  let id = `${userId}${device}`
+  await db.insert(sessions).values({
+    device,
+    id,
+    tokenHash: id,
+    usedAt: sql.raw(`now() - interval '${usedAt}'`),
+    userId
+  })
+}
+
 describe('server metrics', () => {
   afterEach(async () => {
     await cleanAllTables()
@@ -74,6 +89,10 @@ describe('server metrics', () => {
     })
     await setDevice('0000000000000000', 'Chrome|Linux', '40 days')
     await setDevice('0000000000000001', 'Fire"fox\\\n|Windows', '1 hour')
+    await addSession('0000000000000001', 'Safari|iOS', '5 days')
+    await addSession('0000000000000001', 'Chrome|Android', '5 days')
+    await addSession('0000000000000001', 'Firefox|Linux', '5 days')
+    await addSession('0000000000000003', 'Safari|iOS', '5 days')
     eventCounts.set('fatal-crash', 2)
 
     let response = await request(server, `Bearer ${TOKEN}`)
@@ -86,20 +105,34 @@ describe('server metrics', () => {
         '# TYPE slowreader_daily_users gauge\n' +
         'slowreader_daily_users 2\n' +
         '# TYPE slowreader_monthly_users gauge\n' +
-        'slowreader_monthly_users 3\n' +
+        'slowreader_monthly_users 4\n' +
         '# TYPE slowreader_online_users gauge\n' +
         'slowreader_online_users 1\n' +
         '# TYPE slowreader_monthly_users_by_passkeys gauge\n' +
-        'slowreader_monthly_users_by_passkeys{passkeys="0"} 2\n' +
+        'slowreader_monthly_users_by_passkeys{passkeys="0"} 3\n' +
         'slowreader_monthly_users_by_passkeys{passkeys="1"} 1\n' +
         'slowreader_monthly_users_by_passkeys{passkeys="2"} 0\n' +
         'slowreader_monthly_users_by_passkeys{passkeys="3+"} 0\n' +
+        '# TYPE slowreader_monthly_users_by_clients gauge\n' +
+        'slowreader_monthly_users_by_clients{clients="1"} 2\n' +
+        'slowreader_monthly_users_by_clients{clients="2"} 0\n' +
+        'slowreader_monthly_users_by_clients{clients="3"} 0\n' +
+        'slowreader_monthly_users_by_clients{clients="4+"} 1\n' +
+        '# TYPE slowreader_monthly_users_by_platforms gauge\n' +
+        'slowreader_monthly_users_by_platforms{platforms="both"} 1\n' +
+        'slowreader_monthly_users_by_platforms{platforms="desktop"} 1\n' +
+        'slowreader_monthly_users_by_platforms{platforms="mobile"} 1\n' +
         '# TYPE slowreader_monthly_sessions_by_browser gauge\n' +
-        'slowreader_monthly_sessions_by_browser{browser="Chrome"} 1\n' +
+        'slowreader_monthly_sessions_by_browser{browser="Chrome"} 2\n' +
         'slowreader_monthly_sessions_by_browser{browser="Fire\\"fox\\\\\\n"} 1\n' +
+        'slowreader_monthly_sessions_by_browser{browser="Firefox"} 1\n' +
+        'slowreader_monthly_sessions_by_browser{browser="Safari"} 2\n' +
         '# TYPE slowreader_monthly_sessions_by_system gauge\n' +
+        'slowreader_monthly_sessions_by_system{system="Android"} 1\n' +
+        'slowreader_monthly_sessions_by_system{system="Linux"} 1\n' +
         'slowreader_monthly_sessions_by_system{system="Other"} 1\n' +
         'slowreader_monthly_sessions_by_system{system="Windows"} 1\n' +
+        'slowreader_monthly_sessions_by_system{system="iOS"} 2\n' +
         '# TYPE slowreader_events_total counter\n' +
         'slowreader_events_total{name="fatal-crash"} 2\n'
     )

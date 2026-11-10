@@ -46,12 +46,30 @@ async function collectAnalytics(server: AppServer): Promise<AnalyticsStats> {
   let monthly = new Set(online)
   let browsers: Record<string, number> = {}
   let systems: Record<string, number> = {}
+  let userSessions: Record<string, number> = {}
+  let userPlatforms = new Map<string, Set<'desktop' | 'mobile'>>()
   for (let session of recent) {
     monthly.add(session.userId)
     if (session.today) daily.add(session.userId)
     let [browser, os] = session.device.split('|')
     increase(browsers, browser || 'Other')
     increase(systems, os || 'Other')
+    increase(userSessions, session.userId)
+    let platforms = userPlatforms.get(session.userId) ?? new Set()
+    platforms.add(os === 'Android' || os === 'iOS' ? 'mobile' : 'desktop')
+    userPlatforms.set(session.userId, platforms)
+  }
+  let clients: AnalyticsStats['clients'] = { '1': 0, '2': 0, '3': 0, '4+': 0 }
+  for (let amount of Object.values(userSessions)) {
+    increase(clients, amount >= 4 ? '4+' : String(amount))
+  }
+  let platforms: AnalyticsStats['platforms'] = {
+    both: 0,
+    desktop: 0,
+    mobile: 0
+  }
+  for (let types of userPlatforms.values()) {
+    increase(platforms, types.size > 1 ? 'both' : [...types][0]!)
   }
   let perUser = new Map(keys.map(i => [i.userId, i.value]))
   let distribution: AnalyticsStats['passkeys'] = {
@@ -66,10 +84,12 @@ async function collectAnalytics(server: AppServer): Promise<AnalyticsStats> {
   }
   return {
     browsers,
+    clients,
     dau: daily.size,
     mau: monthly.size,
     online: online.size,
     passkeys: distribution,
+    platforms,
     systems,
     users: total[0]!.value
   }
@@ -104,6 +124,18 @@ export default (server: AppServer, token = config.analyticsToken): void => {
           'gauge',
           stats.passkeys,
           'passkeys'
+        ) +
+        formatMetric(
+          'slowreader_monthly_users_by_clients',
+          'gauge',
+          stats.clients,
+          'clients'
+        ) +
+        formatMetric(
+          'slowreader_monthly_users_by_platforms',
+          'gauge',
+          stats.platforms,
+          'platforms'
         ) +
         formatMetric(
           'slowreader_monthly_sessions_by_browser',
