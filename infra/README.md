@@ -60,7 +60,7 @@ nftables blocks `slowreader-proxy` user from loopback, private networks, and Het
 - Container health check kills an unhealthy container and systemd restarts it.
 - Kernel panics and lockups reboot the server. systemd pings `softdog` watchdog, since Hetzner VM has no watchdog device.
 - `unattended-upgrades` installs updates from Ubuntu, Ubuntu Pro, and Caddy repository every day. `needrestart` restarts services.
-- `reboot-if-needed.timer` reboots at 05:00 UTC only if Livepatch can’t protect the running kernel.
+- `reboot-if-needed.timer` reboots at 05:00 UTC if Livepatch tell than it can’t protect the running kernel, or we had a security update needs a reboot.
 - Grafana alerts on failed `/health` for a full freeze. Reset the server in Hetzner console.
 
 ### Metrics

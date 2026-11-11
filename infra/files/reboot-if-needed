@@ -1,10 +1,31 @@
 #!/bin/bash
-# Reboot only if Livepatch can't protect the running kernel. Every new kernel
-# package creates /run/reboot-required, so we can't trust only it.
+# Reboot if a security update needs it or Livepatch can't protect the running
+# kernel. Every update of kernel creates /run/reboot-required, but bug fixes
+# can wait.
 
 set -euo pipefail
 
 [ -f /run/reboot-required ] || exit 0
+
+has_security_update() {
+  local pkg version
+  [ -f /run/reboot-required.pkgs ] || return 1
+  while read -r pkg; do
+    version=$(dpkg-query -W -f='${Version}' "$pkg" 2> /dev/null) || continue
+    if apt-cache madison "$pkg" \
+      | awk -F ' [|] ' -v version="$version" \
+        '$2 == version && $3 ~ /-security/ { found = 1 } END { exit !found }'; then
+      return 0
+    fi
+  done < <(sort -u /run/reboot-required.pkgs)
+  return 1
+}
+
+# Livepatch doesn't cover every kernel CVE
+if has_security_update; then
+  echo "Security update needs the reboot, rebooting"
+  exec systemctl reboot
+fi
 
 # Broken Livepatch means that nothing patches the kernel
 if ! STATUS=$(/snap/bin/canonical-livepatch status --format json); then
