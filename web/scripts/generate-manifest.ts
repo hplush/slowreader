@@ -3,6 +3,8 @@
 // to Content-Security-Policy, so the page can run only these files,
 // and `integrity` in HTML and import map checks their content.
 // Also put precached files with hashes and app routes to the service worker.
+// TDLib files are cached on the first use: only users with Telegram account
+// need these megabytes.
 
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
@@ -51,6 +53,19 @@ function getCommit(): string {
   )
 }
 
+function hashAssets(patterns: string[], exclude: string[]): string {
+  return JSON.stringify(
+    Object.fromEntries(
+      globSync(patterns, { cwd: DIST, exclude })
+        .toSorted()
+        .map(file => [
+          `/${file.replace(/\/index\.html$/, '')}`,
+          sha256(readFileSync(join(DIST, file)))
+        ])
+    )
+  )
+}
+
 function replace(code: string, from: string, to: string): string {
   if (!code.includes(from)) throw new Error(`No ${from} in sw.js`)
   return code.replaceAll(from, to)
@@ -87,38 +102,29 @@ for (let page of findDistFiles('**/*.html')) {
 }
 
 let sw = readFileSync(join(DIST, 'sw.js'), 'utf8')
+let lazy = ['assets/telegram-worker-*.js', 'assets/td_wasm-*.{js,wasm}']
+sw = replace(sw, 'SW_LAZY_ASSETS', hashAssets(lazy, []))
 sw = replace(
   sw,
   'SW_ASSETS',
-  JSON.stringify(
-    Object.fromEntries(
-      globSync(
-        [
-          'app.html',
-          'apple-touch-icon.png',
-          'assets/**/*.*',
-          'docs/**/index.html',
-          'favicon.ico',
-          'icon*.{png,svg}',
-          'landing/*.{css,js,png,svg,woff2}',
-          'manifest.webmanifest'
-        ],
-        {
-          cwd: DIST,
-          exclude: [
-            '**/*.{map,woff}',
-            'docs/branding/**',
-            'landing/dev-*.css',
-            'landing/releases-*.css'
-          ]
-        }
-      )
-        .toSorted()
-        .map(file => [
-          `/${file.replace(/\/index\.html$/, '')}`,
-          sha256(readFileSync(join(DIST, file)))
-        ])
-    )
+  hashAssets(
+    [
+      'app.html',
+      'apple-touch-icon.png',
+      'assets/**/*.*',
+      'docs/**/index.html',
+      'favicon.ico',
+      'icon*.{png,svg}',
+      'landing/*.{css,js,png,svg,woff2}',
+      'manifest.webmanifest'
+    ],
+    [
+      '**/*.{map,woff}',
+      'docs/branding/**',
+      'landing/dev-*.css',
+      'landing/releases-*.css',
+      ...lazy
+    ]
   )
 )
 sw = replace(sw, 'SW_COMMIT', JSON.stringify(commit))

@@ -3,6 +3,7 @@
 // scripts/generate-manifest.ts replaces them after the build
 declare const SW_ASSETS: Record<string, string>
 declare const SW_COMMIT: string
+declare const SW_LAZY_ASSETS: Record<string, string>
 declare const SW_ROUTES: RegExp
 
 export type ToServiceWorker = 'skipWaiting'
@@ -38,6 +39,8 @@ interface ServiceWorkerScope {
 let worker = self as unknown as ServiceWorkerScope
 let assets = SW_ASSETS
 let commit = SW_COMMIT
+// Big files only for part of users, like Telegram’s library
+let lazyAssets = SW_LAZY_ASSETS
 
 async function fromCache(url: string): Promise<Response> {
   let cache = await caches.open(commit)
@@ -46,6 +49,37 @@ async function fromCache(url: string): Promise<Response> {
   // Worker takes its location from the response URL, and SQLite’s OPFS
   // worker needs the query of the request there
   return new Response(cached.body, cached)
+}
+
+async function fromCacheOrSave(url: string): Promise<Response> {
+  let cache = await caches.open(commit)
+  if (!(await cache.match(url))) {
+    let response = await fetch(url, { integrity: lazyAssets[url] })
+    if (!response.ok) return response
+    await cache.put(url, response)
+  }
+  return fromCache(url)
+}
+
+/**
+ * App update should not make user download megabytes again. Only names
+ * in `/assets/` have a hash of the content, so the same URL is the same file.
+ */
+async function keepLazyAssets(old: string[]): Promise<void> {
+  let cache = await caches.open(commit)
+  await Promise.all(
+    old.map(async name => {
+      let previous = await caches.open(name)
+      await Promise.all(
+        Object.keys(lazyAssets)
+          .filter(url => url.startsWith('/assets/'))
+          .map(async url => {
+            let cached = await previous.match(url)
+            if (cached) await cache.put(url, cached)
+          })
+      )
+    })
+  )
 }
 
 /**
@@ -114,11 +148,9 @@ worker.addEventListener('install', event => {
 worker.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(async names => {
-      await Promise.all(
-        names
-          .filter(i => i !== commit && i !== MEDIA_CACHE)
-          .map(i => caches.delete(i))
-      )
+      let old = names.filter(i => i !== commit && i !== MEDIA_CACHE)
+      await keepLazyAssets(old)
+      await Promise.all(old.map(i => caches.delete(i)))
       await worker.clients.claim()
     })
   )
@@ -140,6 +172,8 @@ worker.addEventListener('fetch', event => {
     event.respondWith(fetch(request).catch(() => fromCache('/app.html')))
   } else if (assets[url.pathname]) {
     event.respondWith(fromCache(url.pathname))
+  } else if (lazyAssets[url.pathname]) {
+    event.respondWith(fromCacheOrSave(url.pathname))
   } else if (navigate && isAppRoute(url.pathname)) {
     event.respondWith(fromCache('/app.html'))
   }
