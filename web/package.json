@@ -82,6 +82,7 @@
     "@nanostores/persistent": "1.3.5",
     "@nanostores/router": "2.0.1",
     "@nanostores/sql": "0.8.0",
+    "@slowreader/api": "workspace:*",
     "@slowreader/core": "workspace:*",
     "@slowreader/extension": "workspace:*",
     "@sqlite.org/sqlite-wasm": "3.54.1-build1",

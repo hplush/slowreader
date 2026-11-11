@@ -10,6 +10,7 @@ export type Config = {
   proxyMaxMediaSize: number
   proxyOrigin: string | undefined
   staging: boolean
+  telegram: { apiHash: string; apiId: number } | undefined
   webOrigin: string
 }
 
@@ -31,6 +32,20 @@ function getDefaultWebOrigin(env: Config['env']): string {
   } else {
     return 'http://127.0.0.1:2553'
   }
+}
+
+function getTelegram(
+  from: Record<string, string | undefined>
+): Config['telegram'] {
+  let id = from.TELEGRAM_API_ID
+  let hash = from.TELEGRAM_API_HASH
+  if (!id && !hash) return undefined
+  if (!id || !/^\d+$/.test(id) || !hash || !/^[\da-f]{32}$/.test(hash)) {
+    throw new Error(
+      'Set both TELEGRAM_API_ID and TELEGRAM_API_HASH from my.telegram.org'
+    )
+  }
+  return { apiHash: hash, apiId: Number(id) }
 }
 
 export function getConfig(from: Record<string, string | undefined>): Config {
@@ -57,6 +72,7 @@ export function getConfig(from: Record<string, string | undefined>): Config {
       : DEFAULT_PROXY_CONFIG.maxMediaSize,
     proxyOrigin,
     staging: !!from.STAGING,
+    telegram: getTelegram(from),
     webOrigin
   }
 }

@@ -36,7 +36,11 @@ function hashInline(pattern: string, tag: RegExp): string[] {
   return [...hashes].toSorted()
 }
 
-function buildNginxConfig(selfHosted: boolean, webOrigin: string): string {
+function buildNginxConfig(
+  selfHosted: boolean,
+  webOrigin: string,
+  telegramApp: string | undefined
+): string {
   let manifest = JSON.parse(
     readFileSync('/var/www/manifest.json', 'utf8')
   ) as Manifest
@@ -95,6 +99,22 @@ function buildNginxConfig(selfHosted: boolean, webOrigin: string): string {
       '    real_ip_recursive on;\n\n'
   }
 
+  // Every server registers own app ID, so it is not in the repository
+  if (telegramApp) {
+    rules +=
+      '    location = /telegram-app.json {\n' +
+      // Only browsers send it, so scanners do not get the app ID by URL
+      '      if ($http_sec_fetch_site != "same-origin") {\n' +
+      '        return 404;\n' +
+      '      }\n' +
+      '      default_type application/json;\n' +
+      '      add_header Cache-Control "no-store";\n' +
+      '      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload";\n' +
+      '      add_header X-Content-Type-Options "nosniff";\n' +
+      `      return 200 '"${telegramApp}"';\n` +
+      '    }\n\n'
+  }
+
   if (selfHosted) {
     // Self-hosted server has no landing, so the app opens on /
     conf = replace(
@@ -134,8 +154,15 @@ function start(
   }
 }
 
-function startNginx(selfHosted: boolean, webOrigin: string): void {
-  writeFileSync('/tmp/nginx.conf', buildNginxConfig(selfHosted, webOrigin))
+function startNginx(
+  selfHosted: boolean,
+  webOrigin: string,
+  telegramApp: string | undefined
+): void {
+  writeFileSync(
+    '/tmp/nginx.conf',
+    buildNginxConfig(selfHosted, webOrigin, telegramApp)
+  )
   start(
     '/usr/bin/nginx',
     ['-c', '/tmp/nginx.conf', '-e', '/dev/stderr', '-g', 'daemon off;'],
@@ -168,7 +195,12 @@ if (process.argv[2] === 'manifest') {
   startSandboxed(fileURLToPath(import.meta.resolve('@slowreader/proxy/server')))
 } else if (role === 'app' || role === '') {
   let { config } = await import('./lib/config.ts')
-  startNginx(role === '', config.webOrigin)
+  let { encodeTelegramApp } = await import('@slowreader/api')
+  startNginx(
+    role === '',
+    config.webOrigin,
+    config.telegram && encodeTelegramApp(config.telegram)
+  )
   process.env.LOGUX_HOST = '127.0.0.1'
   process.env.PORT = '2554'
   let data = config.db.startsWith('file://')

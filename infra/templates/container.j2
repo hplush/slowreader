@@ -11,6 +11,10 @@ EnvironmentFile=/etc/containers/slowreader/{{ name }}.env
 {% if name == 'slowreader-app' %}
 Secret=database_url,type=env,target=DATABASE_URL
 Secret=analytics_token,type=env,target=ANALYTICS_TOKEN
+{% if telegram_secrets.results | rejectattr('rc', 'equalto', 0) | list | length == 0 %}
+Secret=telegram_api_id,type=env,target=TELEGRAM_API_ID
+Secret=telegram_api_hash,type=env,target=TELEGRAM_API_HASH
+{% endif %}
 Volume=/run/postgresql:/run/postgresql:ro
 # nginx keeps request bodies and proxied answers there
 Tmpfs=/var/lib/nginx/tmp

@@ -150,6 +150,17 @@
     mode: '0755'
   loop: '{{ users.results }}'
 
+# Telegram is optional, and container can’t start with a missing secret
+- name: Check Telegram secrets
+  ansible.builtin.command: podman-as slowreader-app secret exists {{ item }}
+  register: telegram_secrets
+  changed_when: false
+  failed_when: false
+  check_mode: false
+  loop:
+    - telegram_api_id
+    - telegram_api_hash
+
 - name: Install Quadlet units
   ansible.builtin.template:
     src: container.j2

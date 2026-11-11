@@ -51,7 +51,7 @@ SSH accepts only hardware keys from [`verifier/allowed_signers`](../verifier/all
 
 Quadlet units in `/etc/containers/systemd/users/` run blue and green containers of each service, like `slowreader-app-blue`, from local images like `localhost/slowreader:slowreader-app-blue`. Containers can’t change their files or use any root rights (read-only file system without Linux capabilities).
 
-`Pull=never` stops Podman from downloading images: only `deploy-service` puts verified images there. App gets `DATABASE_URL` and `ANALYTICS_TOKEN` from Podman secrets of `slowreader-app` user and connects to PostgreSQL by Unix socket.
+`Pull=never` stops Podman from downloading images: only `deploy-service` puts verified images there. App gets `DATABASE_URL`, `ANALYTICS_TOKEN`, and optional `TELEGRAM_API_ID` with `TELEGRAM_API_HASH` from Podman secrets of `slowreader-app` user and connects to PostgreSQL by Unix socket.
 
 nftables blocks `slowreader-proxy` user from loopback, private networks, and Hetzner metadata, so the proxy can’t load our internal services.
 
@@ -208,7 +208,7 @@ pgBackRest can restore to the latest change or to any minute in the last 2 weeks
 ### Lost Server
 
 1. Create a new server by Setup section below up to the first Ansible run. Use a [Primary IP](https://docs.hetzner.com/cloud/servers/primary-ips/overview/) of the old server to keep DNS, or change A and AAAA records.
-2. Create secrets by Secrets section, but in step 6 use Scaleway keys and the passphrase from the password manager instead of the new one.
+2. Create secrets by Secrets section, but in step 6 use Scaleway keys and the passphrase from the password manager instead of the new one, and by Telegram section with the same app ID.
 3. Restore the database by steps 2–4 of Restore Database section above. It brings back the old database password, so repeat step 3 of Secrets section after it. `podman secret create` needs `--replace` there.
 4. Run Ansible again and deploy the latest release.
 
@@ -349,6 +349,25 @@ Ansible skips parts, which need secrets, until you create them on the server.
    sudo systemctl start pgbackrest@full.service
    sudo systemctl start restore-test.service
    ```
+
+### Telegram
+
+Telegram accounts need our own app ID. Without it the web client hides Telegram. The app ID is not a secret from users, since every web client gets it by `/telegram-app.json`, but it must stay out of the repository: forks and self-hosters must not use ours.
+
+1. Sign in to [my.telegram.org](https://my.telegram.org) by the phone number of a dedicated Telegram account, not a personal one. Telegram gives only one app ID per phone number.
+2. Open **API development tools** and create an application with `Slow Reader` title, `slowreader` short name, `https://slowreader.app` URL, and **Web** platform. The name can’t have the word “Telegram”.
+3. Keep the page with `api_id` and `api_hash` open. The same page shows them again later.
+4. Connect to the server `./infra/scripts/ssh.sh` and paste them into these commands, which don’t save them to the shell history:
+
+   ```sh
+   read -rs ID
+   read -rs HASH
+   printf %s "$ID" | sudo podman-as slowreader-app secret create telegram_api_id -
+   printf %s "$HASH" | sudo podman-as slowreader-app secret create telegram_api_hash -
+   unset ID HASH
+   ```
+
+To change the app ID add `--replace` to `secret create` and restart the container.
 
 ### Grafana
 

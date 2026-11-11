@@ -658,6 +658,9 @@ importers:
       '@nanostores/sql':
         specifier: 0.8.0
         version: 0.8.0(@electric-sql/pglite@0.5.15)(@sqlite.org/sqlite-wasm@3.54.1-build1)(nanostores@1.5.5)
+      '@slowreader/api':
+        specifier: workspace:*
+        version: link:../api
       '@slowreader/core':
         specifier: workspace:*
         version: link:../core

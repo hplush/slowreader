@@ -91,9 +91,31 @@ describe('server config', () => {
         proxyMaxMediaSize: 50 * 1024 * 1024,
         proxyOrigin: '^http:\\/\\/slowreader.app$',
         staging: false,
+        telegram: undefined,
         webOrigin: 'https://slowreader.app'
       }
     )
+  })
+
+  test('checks Telegram app ID', () => {
+    let TELEGRAM_API_HASH = 'a1'.repeat(16)
+    deepEqual(
+      getConfig({ TELEGRAM_API_HASH, TELEGRAM_API_ID: '12' }).telegram,
+      {
+        apiHash: TELEGRAM_API_HASH,
+        apiId: 12
+      }
+    )
+    for (let wrong of [
+      { TELEGRAM_API_ID: '12' },
+      { TELEGRAM_API_HASH },
+      { TELEGRAM_API_HASH, TELEGRAM_API_ID: 'app' },
+      { TELEGRAM_API_HASH: 'short', TELEGRAM_API_ID: '12' }
+    ]) {
+      throws(() => {
+        getConfig(wrong)
+      }, /TELEGRAM_API_ID and TELEGRAM_API_HASH/)
+    }
   })
 
   test('sets web origin', () => {

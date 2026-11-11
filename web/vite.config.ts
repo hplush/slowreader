@@ -1,8 +1,14 @@
+import { encodeTelegramApp } from '@slowreader/api'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import { existsSync, readFileSync } from 'node:fs'
 import { extname, join, normalize } from 'node:path'
 import sharp from 'sharp'
-import { defineConfig, type PreviewServer, type ViteDevServer } from 'vite'
+import {
+  defineConfig,
+  loadEnv,
+  type PreviewServer,
+  type ViteDevServer
+} from 'vite'
 
 import { getAppRoutes } from './stores/url-router.ts'
 import { allFeatures } from './vite/lightningcss.ts'
@@ -92,6 +98,33 @@ function landing(server: ViteDevServer): void {
       }
     } else {
       next()
+    }
+  })
+}
+
+// Production server gives Telegram app ID by server/entrypoint.ts
+function telegramApp(server: ViteDevServer): void {
+  let env = loadEnv('development', join(import.meta.dirname, '..'), 'TELEGRAM_')
+  server.middlewares.use((req, res, next) => {
+    if (req.url !== '/telegram-app.json') {
+      next()
+    } else if (
+      env.TELEGRAM_API_ID &&
+      env.TELEGRAM_API_HASH &&
+      req.headers['sec-fetch-site'] === 'same-origin'
+    ) {
+      res.setHeader('Content-Type', 'application/json')
+      res.end(
+        JSON.stringify(
+          encodeTelegramApp({
+            apiHash: env.TELEGRAM_API_HASH,
+            apiId: Number(env.TELEGRAM_API_ID)
+          })
+        )
+      )
+    } else {
+      res.statusCode = 404
+      res.end()
     }
   })
 }
@@ -198,6 +231,10 @@ export default defineConfig(() => ({
         })
       },
       name: 'csp'
+    },
+    {
+      configureServer: telegramApp,
+      name: 'telegram-app'
     },
     {
       configureServer: landing,

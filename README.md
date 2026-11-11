@@ -331,6 +331,7 @@ The build is reproducible: anyone can build the same image from the same commit 
 - `PROXY_MAX_MEDIA_SIZE`: max size in MB of images and videos, which the proxy loads for offline reading. 100 by default.
 - `PORT`: HTTP port to listen.
 - `ANALYTICS_TOKEN`: at least 32 symbols to enable [usage metrics](./server/README.md#metrics).
+- `TELEGRAM_API_ID` and `TELEGRAM_API_HASH`: your own app ID from [my.telegram.org](https://my.telegram.org) to enable Telegram accounts. Without them the web client hides Telegram.
 
 ### Environments
 
