@@ -150,7 +150,7 @@ async function startMastodon(
   register = true
 ): Promise<AccountsPage> {
   let page = openPage({ params: {}, route: 'accounts' })
-  page.add('mastodon')
+  openRoute({ params: { service: 'mastodon' }, route: 'accounts' })
   page.input.set(input)
   respond(
     'https://social.example.com/.well-known/oauth-authorization-server',
@@ -215,7 +215,7 @@ async function returnFromMastodon(
 
 function startBluesky(input: string): AccountsPage {
   let page = openPage({ params: {}, route: 'accounts' })
-  page.add('bluesky')
+  openRoute({ params: { service: 'bluesky' }, route: 'accounts' })
   page.input.set(input)
   respond(
     'https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle' +
@@ -261,7 +261,7 @@ describe('accounts page', () => {
   test('signs in to Mastodon by handle', async () => {
     let page = openPage({ params: {}, route: 'accounts' })
     equal(page.step.get().type, 'list')
-    page.add('mastodon')
+    openRoute({ params: { service: 'mastodon' }, route: 'accounts' })
     deepEqual(page.step.get(), {
       field: 'server',
       service: 'mastodon',
@@ -446,9 +446,31 @@ describe('accounts page', () => {
     )
   })
 
+  test('opens sign in form by URL', () => {
+    let page = openPage({ params: { service: 'bluesky' }, route: 'accounts' })
+    deepEqual(page.step.get(), {
+      field: 'handle',
+      service: 'bluesky',
+      type: 'form'
+    })
+    page.input.set('@user')
+
+    openRoute({ params: { service: 'mastodon' }, route: 'accounts' })
+    deepEqual(page.step.get(), {
+      field: 'server',
+      service: 'mastodon',
+      type: 'form'
+    })
+    equal(page.input.get(), '')
+
+    // Back button
+    openRoute({ params: {}, route: 'accounts' })
+    equal(page.step.get().type, 'list')
+  })
+
   test('checks Mastodon server', async () => {
     let page = openPage({ params: {}, route: 'accounts' })
-    page.add('mastodon')
+    openRoute({ params: { service: 'mastodon' }, route: 'accounts' })
 
     page.input.set('not a server')
     await page.submit()
@@ -463,7 +485,8 @@ describe('accounts page', () => {
     equal(page.step.get().type, 'list')
     equal(page.error.get(), undefined)
     equal(page.input.get(), '')
-    page.add('mastodon')
+    deepEqual(testHistory.at(-1), { hash: '', params: {}, route: 'accounts' })
+    openRoute({ params: { service: 'mastodon' }, route: 'accounts' })
 
     page.input.set('localhost')
     await page.submit()
@@ -690,7 +713,7 @@ describe('accounts page', () => {
 
   test('checks Bluesky handle', async () => {
     let page = openPage({ params: {}, route: 'accounts' })
-    page.add('bluesky')
+    openRoute({ params: { service: 'bluesky' }, route: 'accounts' })
     deepEqual(page.step.get(), {
       field: 'handle',
       service: 'bluesky',
@@ -899,7 +922,7 @@ describe('accounts page', () => {
     })
 
     let page = openPage({ params: {}, route: 'accounts' })
-    page.add('mastodon')
+    openRoute({ params: { service: 'mastodon' }, route: 'accounts' })
     page.input.set('first')
     await page.submit()
     deepEqual(page.step.get(), {

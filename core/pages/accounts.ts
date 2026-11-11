@@ -20,7 +20,7 @@ import { POPULAR_MASTODON_SERVERS } from '../loader/mastodon.ts'
 import { accountsMessages as t } from '../messages/index.ts'
 import { navigate, router } from '../router.ts'
 import type { AccountService } from '../schema.ts'
-import { createPage } from './common.ts'
+import { createPage, routeParam } from './common.ts'
 
 export type AccountsStep =
   | { field: SignInField; service: AccountService; type: 'form' }
@@ -32,6 +32,7 @@ export const accountsPage = createPage('accounts', () => {
   let $input = atom('')
   let $step = atom<AccountsStep>({ type: 'list' })
   let $submitting = atom(false)
+  let $service = routeParam('accounts', 'service')
 
   /**
    * Data of the loader between form fields.
@@ -53,11 +54,22 @@ export const accountsPage = createPage('accounts', () => {
     let accountId = await addAccount({ ...step.account, service })
     if (!known.some(i => i.id === accountId)) void syncFollows(service)
     open({ type: 'list' })
-    navigate({
-      params: {},
-      popups: [{ param: accountId, popup: 'account' }],
-      route: 'accounts'
-    })
+    navigate(
+      {
+        params: {},
+        popups: [{ param: accountId, popup: 'account' }],
+        route: 'accounts'
+      },
+      // Back button should not return to the form of the finished sign in
+      !!$service.get()
+    )
+  }
+
+  function showList(): void {
+    open({ type: 'list' })
+    if ($service.get()) {
+      navigate({ params: {}, popups: [], route: 'accounts' }, true)
+    }
   }
 
   /**
@@ -90,7 +102,7 @@ export const accountsPage = createPage('accounts', () => {
       /* node:coverage ignore next 6 */
       let callback = await openAccountSignInPage(service, step)
       if (callback === undefined) {
-        open({ type: 'list' })
+        showList()
       } else {
         await finishReturn(callback)
       }
@@ -120,6 +132,18 @@ export const accountsPage = createPage('accounts', () => {
     }
   }
 
+  let unbindService = $service.subscribe(service => {
+    if (service) {
+      open({
+        field: loaders[service].account!.firstField,
+        service,
+        type: 'form'
+      })
+    } else {
+      open({ type: 'list' })
+    }
+  })
+
   // Web returns from the service by opening the page again
   let hash = env.baseRouter.get()?.hash.replace(/^#/, '') ?? ''
   if (/(^|&)(code|error)=/.test(hash)) {
@@ -130,25 +154,20 @@ export const accountsPage = createPage('accounts', () => {
 
   return {
     accounts: getAccounts(),
-    add(service: AccountService): void {
-      open({
-        field: loaders[service].account!.firstField,
-        service,
-        type: 'form'
-      })
-    },
     cancel(): void {
-      open({ type: 'list' })
+      showList()
     },
     error: $error,
-    exit() {},
+    exit() {
+      unbindService()
+    },
     input: $input,
     mastodonServers: POPULAR_MASTODON_SERVERS,
     /**
      * ID of the account in the opened popup.
      */
     opened: computed(router, route => route.popups[0]?.param),
-    params: {},
+    params: { service: $service },
     signInTo(server: string): Promise<void> {
       $input.set(server)
       return submit()

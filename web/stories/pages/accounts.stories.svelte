@@ -58,7 +58,11 @@
 <Story name="Mastodon Server" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {
-      pages.accounts().add('mastodon')
+      pages.accounts().step.set({
+        field: 'server',
+        service: 'mastodon',
+        type: 'form'
+      })
       pages.accounts().input.set('mastodon.example')
       pages.accounts().error.set(accountsMessages.get().oldMastodon)
     }}
@@ -71,7 +75,11 @@
 <Story name="Bluesky Handle" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {
-      pages.accounts().add('bluesky')
+      pages.accounts().step.set({
+        field: 'handle',
+        service: 'bluesky',
+        type: 'form'
+      })
       pages.accounts().input.set('@sitnik.bsky.social')
       pages.accounts().submitting.set(true)
     }}

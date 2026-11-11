@@ -2,11 +2,12 @@ import { atom, computed, effect, type ReadableAtom } from 'nanostores'
 
 import { getEnvironment, onEnvironment } from './environment.ts'
 import { type Fatal, fatalReasons } from './errors.ts'
+import { ACCOUNT_SERVICES, type AccountService } from './schema.ts'
 import { userId } from './settings.ts'
 
 export interface Routes {
   about: {}
-  accounts: {}
+  accounts: { service?: AccountService }
   add: { url?: string }
   cloud: {}
   coach: {}
@@ -103,6 +104,8 @@ function validParams(
 ): boolean {
   if (route === 'fatal' && typeof params.reason !== 'undefined') {
     return fatalReasons.some(i => i === params.reason)
+  } else if (route === 'accounts' && typeof params.service !== 'undefined') {
+    return ACCOUNT_SERVICES.some(i => i === params.service)
   } else if (
     (route === 'fast' || route === 'slow') &&
     typeof params.from !== 'undefined'

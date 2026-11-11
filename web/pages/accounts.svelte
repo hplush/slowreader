@@ -15,7 +15,7 @@
     accountsMessages as t
   } from '@slowreader/core'
 
-  import { getPopupHash } from '../stores/url-router.ts'
+  import { getPopupHash, getURL } from '../stores/url-router.ts'
   import Button from '../ui/button.svelte'
   import Error from '../ui/error.svelte'
   import Form from '../ui/form.svelte'
@@ -64,19 +64,18 @@
         <Title>{$t.addTitle}</Title>
         <Stack gap="s">
           <Button
+            href={getURL({
+              params: { service: 'mastodon' },
+              route: 'accounts'
+            })}
             icon={brandMastodon}
-            onclick={() => {
-              page.add('mastodon')
-            }}
             size="wide"
           >
             {$t.addMastodon}
           </Button>
           <Button
+            href={getURL({ params: { service: 'bluesky' }, route: 'accounts' })}
             icon={brandBluesky}
-            onclick={() => {
-              page.add('bluesky')
-            }}
             size="wide"
           >
             {$t.addBluesky}

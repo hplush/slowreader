@@ -134,6 +134,20 @@ describe('router', () => {
       popups: [],
       route: 'fatal'
     })
+
+    openRoute({ params: { service: 'bluesky' }, route: 'accounts' })
+    deepEqual(router.get(), {
+      params: { service: 'bluesky' },
+      popups: [],
+      route: 'accounts'
+    })
+
+    openRoute({ params: { service: 'unknown' }, route: 'accounts' })
+    deepEqual(router.get(), {
+      params: { reason: 'notFound' },
+      popups: [],
+      route: 'fatal'
+    })
   })
 
   test('has helpers for popups', () => {
