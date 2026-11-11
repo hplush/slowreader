@@ -24,7 +24,7 @@ export const networkMessages = i18n('network', {
     'faster, and nobody in the middle knows what you read.',
   installExtension: 'Install the extension',
   pageTitle: 'Network',
-  refreshGroup: 'New posts',
+  refreshGroup: 'Auto-refresh',
   requestsGroup: 'Connection',
   saveData: 'Save Data',
   saveDataAuto: 'Auto',
