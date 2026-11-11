@@ -643,14 +643,14 @@ describe('accounts page', () => {
     let proofKey = decodeJwt(
       new Headers(token.sent().headers).get('DPoP')!.split('.')[0]!
     ) as { jwk: JsonWebKey }
-    equal(account!.credentials.dpopKey!.x, proofKey.jwk.x)
-    ok(account!.credentials.dpopKey!.d)
-    let expiresIn = account!.credentials.expiresAt! - Date.now() / 1000
+    equal(account!.credentials!.dpopKey!.x, proofKey.jwk.x)
+    ok(account!.credentials!.dpopKey!.d)
+    let expiresIn = account!.credentials!.expiresAt! - Date.now() / 1000
     ok(expiresIn > 3590 && expiresIn <= 3601)
     deepEqual(
       fields({
         ...account!,
-        credentials: { ...account!.credentials, dpopKey: null, expiresAt: 0 }
+        credentials: { ...account!.credentials!, dpopKey: null, expiresAt: 0 }
       }),
       {
         avatar: null,
@@ -708,7 +708,7 @@ describe('accounts page', () => {
     let [account] = await loadAccounts()
     equal(account!.title, 'User')
     equal(account!.avatar, 'https://cdn.example.com/avatar.jpg')
-    equal(account!.credentials.expiresAt, undefined)
+    equal(account!.credentials!.expiresAt, undefined)
   })
 
   test('checks Bluesky handle', async () => {

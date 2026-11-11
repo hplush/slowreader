@@ -173,9 +173,9 @@ export function getAccountAuth(account: AccountValue): AccountAuth {
       }
       let synced = await loadAccount(account.id)
       if (
-        !synced ||
+        !synced?.credentials ||
         synced.credentials.refreshToken ===
-          auth.account.credentials.refreshToken
+          auth.account.credentials?.refreshToken
       ) {
         return undefined
       }

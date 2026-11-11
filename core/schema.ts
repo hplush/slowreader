@@ -87,7 +87,7 @@ export const accountsTable = defineCrdtTable(
   {
     avatar: optional(string()),
     categoryId: string({ default: GENERAL_CATEGORY }),
-    credentials: json(credentialsShape),
+    credentials: optional(json(credentialsShape)),
     expired: boolean({ default: false }),
     follow: boolean({ default: false }),
     followsSyncedAt: optional(bigint()),

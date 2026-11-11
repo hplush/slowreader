@@ -1655,7 +1655,7 @@ describe('bluesky account', () => {
     equal(saved[0]!.accessToken, 'access2')
     equal(saved[0]!.refreshToken, 'refresh2')
     equal(saved[0]!.dpopKey, dpopKey)
-    equal(auth.account.credentials.accessToken, 'access2')
+    equal(auth.account.credentials!.accessToken, 'access2')
   })
 
   test('refreshes token on wrong token error', async () => {
@@ -1667,7 +1667,7 @@ describe('bluesky account', () => {
     await posts.loading
     equal(posts.get().error, undefined)
     equal(getProof(retry).authorization, 'DPoP access2')
-    equal(auth.account.credentials.expiresAt, undefined)
+    equal(auth.account.credentials!.expiresAt, undefined)
   })
 
   test('takes token from another device', async () => {

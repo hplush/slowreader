@@ -1571,4 +1571,14 @@ describe('mastodon account', () => {
     error = await throws(() => signedIn.isFollowing(task, auth, url))
     equal(error.name, ParseError.name)
   })
+
+  test('does not work without credentials', async () => {
+    let error = await throws(async () => {
+      await signedIn.getFollows(createDownloadTask(), {
+        ...auth,
+        account: testAccount({ credentials: null })
+      })
+    })
+    equal(error.message, 'mastodon account has no credentials')
+  })
 })

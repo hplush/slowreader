@@ -504,7 +504,7 @@ describe('account', () => {
     let accountId = await addAccount(testAccount())
     let auth = getAccountAuth((await loadAccount(accountId))!)
     let credentials = {
-      ...auth.account.credentials,
+      ...auth.account.credentials!,
       accessToken: 'new',
       refreshToken: 'refresh1'
     }

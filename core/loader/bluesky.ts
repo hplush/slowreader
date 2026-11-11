@@ -39,6 +39,7 @@ import {
   type FeedData,
   findDocumentLinks,
   findMetaProperty,
+  getCredentials,
   isObject,
   type Loader,
   readLoaderData,
@@ -880,7 +881,7 @@ function toCredentials(
 }
 
 async function refreshTokens(auth: AccountAuth): Promise<void> {
-  let { credentials } = auth.account
+  let credentials = getCredentials(auth.account)
   let token: Record<string, unknown>
   try {
     token = await dpopPost(
@@ -930,13 +931,13 @@ async function requestByAccount(
   body?: object,
   retried: { nonce?: true; token?: true } = {}
 ): Promise<TextResponse> {
-  let { credentials, server } = auth.account
+  let credentials = getCredentials(auth.account)
   let now = Math.round(Date.now() / 1000)
   if (!retried.token && credentials.expiresAt && credentials.expiresAt < now) {
     await refreshTokens(auth)
     return requestByAccount(task, auth, path, body, { ...retried, token: true })
   }
-  let url = `${server}/xrpc/${path}`
+  let url = `${auth.account.server}/xrpc/${path}`
   let method = body ? 'POST' : 'GET'
   let { origin } = new URL(url)
   let headers: Record<string, string> = {

@@ -305,6 +305,13 @@ export type Loader = {
   isProfileUrl?(url: URL): boolean
 }
 
+export function getCredentials(account: AccountValue): AccountCredentials {
+  if (!account.credentials) {
+    throw new Error(`${account.service} has no credentials`)
+  }
+  return account.credentials
+}
+
 export function isObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
 }

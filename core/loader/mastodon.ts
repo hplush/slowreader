@@ -30,6 +30,7 @@ import {
   type FeedData,
   findDocumentLinks,
   findMetaProperty,
+  getCredentials,
   getUpdatedAt,
   isObject,
   type Loader,
@@ -718,10 +719,14 @@ function requestByAccount(
   path: string,
   method = 'GET'
 ): Promise<TextResponse> {
-  let { credentials, server } = auth.account
   return task.text(
-    `${server}${path}`,
-    { headers: { Authorization: `Bearer ${credentials.accessToken}` }, method },
+    `${auth.account.server}${path}`,
+    {
+      headers: {
+        Authorization: `Bearer ${getCredentials(auth.account).accessToken}`
+      },
+      method
+    },
     true
   )
 }
@@ -1196,7 +1201,7 @@ export const mastodon: Loader = {
     if (opts.account) {
       return toFeedData(
         await loadOwnAccount({
-          accessToken: opts.account.credentials.accessToken,
+          accessToken: getCredentials(opts.account).accessToken,
           server: opts.account.server
         })
       )
