@@ -153,7 +153,7 @@ export const rss1: Loader = {
     }
   },
 
-  detectFeed(text) {
+  detectFeedInPage(text) {
     let channel = findChild(findRoot(text), 'channel')
     if (channel) {
       return { title: findChild(channel, 'title')?.textContent ?? '' }

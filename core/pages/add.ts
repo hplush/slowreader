@@ -9,11 +9,14 @@ import {
   type TextResponse
 } from '../lib/download.ts'
 import {
+  checkUrl,
   type FeedLoader,
-  getLoaderForText,
+  findFeed,
+  type Loader,
   type LoaderName,
   loaders,
-  tryLoadFeedData
+  tryLoadFeedData,
+  type UrlCheck
 } from '../loader/index.ts'
 import { navigate, setPopups } from '../router.ts'
 import { createPage, routeParam } from './common.ts'
@@ -245,6 +248,11 @@ export const addPage = createPage('add', () => {
     }, [])
   }
 
+  function hideWorseLinks(loader: Loader, response: TextResponse): void {
+    let worse = loader.getWorseLinksFromText?.(response) ?? []
+    $worse.set([...$worse.get(), ...worse.map(toLinkKey)])
+  }
+
   /**
    * Adds a possible feed URL, its meta and type, to the list of possible URLs.
    */
@@ -262,7 +270,8 @@ export const addPage = createPage('add', () => {
   async function addLink(
     task: DownloadTask,
     url: string,
-    deep = false
+    deep = false,
+    check?: UrlCheck
   ): Promise<void> {
     url = url.trim()
     if (url === '') return
@@ -303,31 +312,37 @@ export const addPage = createPage('add', () => {
 
     $links.setKey(url, { state: 'loading' })
     try {
-      let response
+      let response: TextResponse | undefined
+      let found: false | FeedLoader
       try {
-        response = await task.text(url)
+        ;({ feed: found, response } = await findFeed(task, url, check))
       } catch (e) {
         unloadable(e)
         return
       }
-      let byText = await getLoaderForText(response, task, url)
-      if (byText) {
-        let worse = byText.loader.getWorseLinksFromText?.(response) ?? []
-        $worse.set([...$worse.get(), ...worse.map(toLinkKey)])
-      }
-      if (!deep) {
-        let links = getLinksFromText(response).filter(
-          i => !$worse.get().includes(toLinkKey(i))
-        )
-        if (links.length > 0) {
-          await Promise.all(links.map(i => addLink(task, i, true)))
-        } else if (!byText && $candidates.get().length === 0) {
-          let suggested = getSuggestedLinksFromText(response)
-          await Promise.all(suggested.map(i => addLink(task, i, true)))
+      if (response) {
+        if (found) hideWorseLinks(found.loader, response)
+        if (!deep) {
+          let all = getLinksFromText(response).map(link => {
+            return { asked: checkUrl(task, link), link }
+          })
+          // Sure loader will not download its link to find worse copies there
+          for (let { asked } of all) {
+            if (asked.sure) hideWorseLinks(loaders[asked.name], response)
+          }
+          let links = all.filter(i => !$worse.get().includes(toLinkKey(i.link)))
+          if (links.length > 0) {
+            await Promise.all(
+              links.map(i => addLink(task, i.link, true, i.asked))
+            )
+          } else if (!found && $candidates.get().length === 0) {
+            let suggested = getSuggestedLinksFromText(response)
+            await Promise.all(suggested.map(i => addLink(task, i, true)))
+          }
         }
       }
-      if (byText) {
-        addCandidate(url, byText)
+      if (found) {
+        addCandidate(url, found)
       } else {
         $links.setKey(url, { state: 'unknown' })
       }

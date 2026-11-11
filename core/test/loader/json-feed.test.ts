@@ -80,7 +80,10 @@ describe('json feed loader', () => {
 
   test('detects own URLs', () => {
     equal(
-      typeof loaders.jsonFeed.isMineUrl(new URL('https://dev.to/')),
+      typeof loaders.jsonFeed.isMineUrl(
+        new URL('https://dev.to/'),
+        createDownloadTask()
+      ),
       'undefined'
     )
   })
@@ -270,7 +273,7 @@ describe('json feed loader', () => {
 
   test('detects titles', async () => {
     deepEqual(
-      loaders.jsonFeed.detectFeed(
+      loaders.jsonFeed.detectFeedInPage(
         exampleJson(jsonStub),
         createDownloadTask(),
         'https://example.com/'
@@ -278,7 +281,7 @@ describe('json feed loader', () => {
       { title: 'Some JSON Feed title' }
     )
     deepEqual(
-      loaders.jsonFeed.detectFeed(
+      loaders.jsonFeed.detectFeedInPage(
         exampleJson({
           author: {
             name: 'name',
@@ -305,7 +308,7 @@ describe('json feed loader', () => {
       })
     )
     deepEqual(
-      loaders.jsonFeed.detectFeed(
+      loaders.jsonFeed.detectFeedInPage(
         exampleJson({
           author: {
             name: 'name',
@@ -324,7 +327,7 @@ describe('json feed loader', () => {
 
   test('detects content type by content', () => {
     deepEqual(
-      loaders.jsonFeed.detectFeed(
+      loaders.jsonFeed.detectFeedInPage(
         createTextResponse(
           JSON.stringify({
             items: [],

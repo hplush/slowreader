@@ -57,7 +57,13 @@ describe('rss loader', () => {
   })
 
   test('detects own URLs', () => {
-    equal(typeof loaders.rss.isMineUrl(new URL('https://dev.to/')), 'undefined')
+    equal(
+      typeof loaders.rss.isMineUrl(
+        new URL('https://dev.to/'),
+        createDownloadTask()
+      ),
+      'undefined'
+    )
   })
 
   test('detects links', () => {
@@ -258,7 +264,7 @@ describe('rss loader', () => {
 
   test('detects titles', async () => {
     deepEqual(
-      loaders.rss.detectFeed(
+      loaders.rss.detectFeedInPage(
         exampleRss(
           `<?xml version="1.0"?>
           <rss version="2.0">
@@ -273,7 +279,7 @@ describe('rss loader', () => {
       { title: 'Test 1 XSS' }
     )
     deepEqual(
-      loaders.rss.detectFeed(
+      loaders.rss.detectFeedInPage(
         exampleRss('<rss version="2.0"></rss>'),
         createDownloadTask(),
         'https://example.com/'
@@ -288,7 +294,7 @@ describe('rss loader', () => {
 
   test('detects content type by content', () => {
     deepEqual(
-      loaders.rss.detectFeed(
+      loaders.rss.detectFeedInPage(
         createTextResponse('<rss><channel><title>A</title></channel></rss>', {
           headers: new Headers({ 'Content-Type': `text/html` })
         }),
@@ -298,7 +304,7 @@ describe('rss loader', () => {
       { title: 'A' }
     )
     deepEqual(
-      loaders.rss.detectFeed(
+      loaders.rss.detectFeedInPage(
         createTextResponse(
           '<?xml version="1.0" encoding="UTF-8"?> ' +
             '<rss><channel><title>B</title></channel></rss>'
@@ -312,7 +318,7 @@ describe('rss loader', () => {
 
   test('ignores text & comment nodes when probing', () => {
     deepEqual(
-      loaders.rss.detectFeed(
+      loaders.rss.detectFeedInPage(
         exampleRss(
           `<?xml-stylesheet type="text/xsl" href="/nope"?>
           <rss version="2.0">

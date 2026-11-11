@@ -61,34 +61,71 @@ export interface FeedLoader {
   url: string
 }
 
-/**
- * Decides which loader to use for the given feed response.
- */
-export async function getLoaderForText(
-  response: TextResponse,
-  task: DownloadTask,
+function toFeedLoader(
+  name: LoaderName,
+  detected: DetectedFeed,
   url: string
-): Promise<false | FeedLoader> {
-  let names = Object.keys(loaders) as LoaderName[]
-  for (let name of names) {
-    if (loaders[name].isMineUrl(new URL(url)) !== false) {
-      let detected: false | DetectedFeed
-      try {
-        detected = await loaders[name].detectFeed(response, task, url)
-      } catch {
-        detected = false
-      }
-      if (detected !== false) {
-        return {
-          loader: loaders[name],
-          name,
-          title: detected.title.trim() || new URL(response.url).hostname,
-          url: detected.url ?? response.url
-        }
+): FeedLoader {
+  return {
+    loader: loaders[name],
+    name,
+    title: detected.title.trim() || new URL(url).hostname,
+    url: detected.url ?? url
+  }
+}
+
+export type UrlCheck =
+  | { feed: Promise<false | FeedLoader>; name: LoaderName; sure: true }
+  | { names: LoaderName[]; sure: false }
+
+/**
+ * Asks loaders about the URL without downloading it. A sure loader already
+ * started the request to its API. Others need the page.
+ */
+export function checkUrl(task: DownloadTask, url: string): UrlCheck {
+  let parsed = URL.parse(url)
+  let names: LoaderName[] = []
+  if (parsed) {
+    for (let name of Object.keys(loaders) as LoaderName[]) {
+      let answer = loaders[name].isMineUrl(parsed, task)
+      if (answer) {
+        let feed = answer.then(detected => {
+          return detected ? toFeedLoader(name, detected, url) : false
+        })
+        // Caller can drop the check of a link, which it will not add
+        feed.catch(() => {})
+        return { feed, name, sure: true }
+      } else if (answer !== false) {
+        names.push(name)
       }
     }
   }
-  return false
+  return { names, sure: false }
+}
+
+/**
+ * Finds the feed by the URL. It downloads the URL as a page only
+ * if no loader is sure by the URL alone.
+ */
+export async function findFeed(
+  task: DownloadTask,
+  url: string,
+  check = checkUrl(task, url)
+): Promise<{ feed: false | FeedLoader; response: TextResponse | undefined }> {
+  if (check.sure) return { feed: await check.feed, response: undefined }
+  let response = await task.text(url)
+  for (let name of check.names) {
+    let detected: false | DetectedFeed
+    try {
+      detected = await loaders[name].detectFeedInPage(response, task, url)
+    } catch {
+      detected = false
+    }
+    if (detected !== false) {
+      return { feed: toFeedLoader(name, detected, response.url), response }
+    }
+  }
+  return { feed: false, response }
 }
 
 export async function tryLoadFeedData(

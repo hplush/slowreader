@@ -11,10 +11,10 @@ import {
   currentPage,
   deleteFeed,
   errorToMessage,
+  findFeed,
   generateCredentials,
   getCrdt,
   getDatabase,
-  getLoaderForText,
   type ImportPage,
   isDemo,
   isRemoteError,
@@ -136,8 +136,7 @@ for (let [title, feeds] of Object.entries(sources)) {
   for (let feed of feeds) {
     let url = feed.url
     try {
-      let response = await task.text(feed.url)
-      let candidate = await getLoaderForText(response, task, feed.url)
+      let { feed: candidate, response } = await findFeed(task, feed.url)
       if (!candidate) {
         warning(`Skipped ${feed.url}: unknown`)
         continue

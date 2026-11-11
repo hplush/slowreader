@@ -147,7 +147,7 @@ export const rss: Loader = {
     }
   },
 
-  detectFeed(text) {
+  detectFeedInPage(text) {
     let document = text.parseXml()
     if (document.firstElementChild?.nodeName === 'rss') {
       return {

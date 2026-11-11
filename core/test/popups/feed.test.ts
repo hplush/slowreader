@@ -329,15 +329,35 @@ describe('feed popup', () => {
     equal(checkLoadedPopup(popup).avatar.get(), 'https://a.com/new.png')
   })
 
+  test('does not download profile of unknown author', async () => {
+    expectRequest(
+      'https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=a.com'
+    ).andRespond(400)
+    let unknown = openTestPopup('feed', 'https://bsky.app/profile/a.com')
+    await waitLoading(unknown.loading)
+    equal(unknown.notFound, true)
+
+    closeLastPopup()
+    expectRequest(
+      'https://mastodon.social/api/v1/accounts/lookup?acct=jane'
+    ).andRespond(404)
+    await expectWarning(async () => {
+      let missing = openTestPopup('feed', 'https://mastodon.social/@jane')
+      await waitLoading(missing.loading)
+      equal(missing.notFound, true)
+    }, [])
+  })
+
   test('finds existing feed by normalized URL', async () => {
     let feedId = await addFeed(
       testFeed({ loader: 'mastodon', url: 'https://mastodon.social/@jane' })
     )
-    expectRequest('https://mastodon.social/@Jane/').andRespond(
+    expectRequest(
+      'https://mastodon.social/api/v1/accounts/lookup?acct=Jane'
+    ).andRespond(
       200,
-      '<!DOCTYPE html><html><head>' +
-        '<meta content="Jane (@jane@mastodon.social)" property="og:title">' +
-        '</head></html>'
+      JSON.stringify({ acct: 'jane', display_name: 'Jane', id: '1' }),
+      'application/json'
     )
     let popup = openTestPopup('feed', 'https://mastodon.social/@Jane/')
     await waitLoading(popup.loading)
@@ -486,11 +506,12 @@ describe('feed popup with accounts', () => {
   }
 
   async function openAuthor(): Promise<FeedPopup> {
-    expectRequest(AUTHOR).andRespond(
+    expectRequest(
+      'https://mastodon.social/api/v1/accounts/lookup?acct=jane'
+    ).andRespond(
       200,
-      '<!DOCTYPE html><html><head>' +
-        '<meta content="Jane (@jane@mastodon.social)" property="og:title">' +
-        '</head></html>'
+      JSON.stringify({ acct: 'jane', display_name: 'Jane', id: '1' }),
+      'application/json'
     )
     let popup = openTestPopup('feed', AUTHOR)
     await waitLoading(popup.loading)

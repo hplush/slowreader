@@ -30,7 +30,7 @@ import { createDownloadTask, type TextResponse } from '../lib/download.ts'
 import { waitSql } from '../lib/stores.ts'
 import {
   type FeedLoader,
-  getLoaderForText,
+  findFeed,
   hasPersonAvatar,
   loaders,
   tryLoadFeedData
@@ -104,20 +104,18 @@ export const feed = definePopup('feed', async url => {
   let task = createDownloadTask({ cache: 'read' })
   let feedsStore = getFeedsByUrl(await findFeedUrl(url))
   let categoriesStore = getCategories()
-  let downloading = task.text(url)
+  let response: TextResponse | undefined
+  let candidate: false | FeedLoader | undefined
+  let parsing = findFeed(task, url).then(found => {
+    response = found.response
+    candidate = found.feed
+  })
   let [$feeds] = await Promise.all([
     waitSql(feedsStore),
     waitSql(categoriesStore)
   ])
 
   let existing = $feeds.get().value[0]
-  let response: TextResponse | undefined
-  let candidate: false | FeedLoader | undefined
-
-  let parsing = downloading.then(async downloaded => {
-    response = downloaded
-    candidate = await getLoaderForText(response, task, url)
-  })
 
   if (!existing) {
     await parsing
@@ -132,7 +130,7 @@ export const feed = definePopup('feed', async url => {
   if (existing) {
     posts = createPostsList(async () => {
       await parsing
-      if (!candidate || !response) return [[], undefined]
+      if (!candidate) return [[], undefined]
       return addThreadStarts(
         task,
         candidate.loader,
@@ -142,7 +140,7 @@ export const feed = definePopup('feed', async url => {
     })
   } else {
     await parsing
-    if (!candidate || !response) throw new NotFoundError()
+    if (!candidate) throw new NotFoundError()
     posts = createPostsList(
       addThreadStarts(
         task,

@@ -824,4 +824,26 @@ describe('import page', () => {
       'https://a.com/feed'
     ])
   })
+
+  test('does not download the page of a social profile', async () => {
+    let page = openPage({
+      params: {},
+      route: 'import'
+    })
+    expectRequest(
+      'https://mastodon.social/api/v1/accounts/lookup?acct=jane'
+    ).andRespond(404)
+    page.importFile(
+      file(
+        'opml',
+        '<opml version="2.0"><body>' +
+          '<outline text="A" type="rss" xmlUrl="https://mastodon.social/@jane" />' +
+          '</body></opml>'
+      )
+    )
+    await waitLoading(busy)
+    deepEqual(page.feedErrors.get(), [
+      ['https://mastodon.social/@jane', 'unloadable']
+    ])
+  })
 })

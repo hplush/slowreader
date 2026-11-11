@@ -261,7 +261,7 @@ export type Loader = {
    * The `url` is the requested URL, since the `response` could come
    * from a redirect. Loader can return canonical `url` of the feed.
    */
-  detectFeed(
+  detectFeedInPage(
     response: TextResponse,
     task: DownloadTask,
     url: string
@@ -281,14 +281,18 @@ export type Loader = {
   ): Promise<FeedData | undefined>
 
   /**
-   * It detects that URL is 100% for this loader.
+   * Only for loaders of services with exact URLs, like `bsky.app/profile/name`
+   * for Bluesky. Other loaders, like RSS, always return `undefined`.
    *
-   * For instance, YouTube loader will return true for youtube.com links.
-   *
-   * It is not used right now because there is no way to detect RSS/Atom link
-   * just by URL.
+   * If the URL is 100% loader’s feed, it asks the service’s API and returns
+   * a promise of the feed, or of `false` for unknown author. Nobody downloads
+   * such URL as a page. It returns `false`, if the URL is 100% not loader’s
+   * feed. It returns `undefined`, if only the page can tell.
    */
-  isMineUrl(url: URL): false | string | undefined
+  isMineUrl(
+    url: URL,
+    task: DownloadTask
+  ): false | Promise<false | DetectedFeed> | undefined
 
   /**
    * Can `getPostByUrl()` load this URL.

@@ -92,23 +92,31 @@ describe('mastodon loader', () => {
     checkAndRemoveRequestMock()
   })
 
-  test('detects own URLs', () => {
+  test('detects own URLs', async () => {
     let { mastodon } = loaders
-    equal(mastodon.isMineUrl(new URL('https://mastodon.social/@jane')), 'jane')
-    equal(
-      mastodon.isMineUrl(new URL('https://mastodon.social/@jane/1')),
-      undefined
-    )
-    equal(mastodon.isMineUrl(new URL('https://example.com/@jane')), undefined)
-    equal(
-      mastodon.isMineUrl(new URL('https://mastodon.social/users/jane')),
-      'jane'
-    )
-    equal(
-      mastodon.isMineUrl(new URL('https://example.com/users/jane')),
-      undefined
-    )
-    equal(mastodon.isMineUrl(new URL('https://example.com/feed')), false)
+    let task = createDownloadTask()
+    function isMine(url: string): ReturnType<typeof mastodon.isMineUrl> {
+      return mastodon.isMineUrl(new URL(url), task)
+    }
+    equal(isMine('https://mastodon.social/@jane/1'), undefined)
+    equal(isMine('https://example.com/@jane'), undefined)
+    equal(isMine('https://example.com/users/jane'), undefined)
+    equal(isMine('https://example.com/feed'), false)
+
+    for (let url of [
+      'https://mastodon.social/@jane',
+      'https://mastodon.social/users/jane'
+    ]) {
+      expectRequest(`${API}/accounts/lookup?acct=jane`).andRespond(
+        200,
+        JSON.stringify(account('jane', { display_name: 'Jane Doe' })),
+        'application/json'
+      )
+      deepEqual(await isMine(url), {
+        title: 'Jane Doe',
+        url: 'https://mastodon.social/@jane'
+      })
+    }
   })
 
   test('detects profiles', async () => {
@@ -119,7 +127,7 @@ describe('mastodon loader', () => {
       html?: string,
       requested = url
     ): Promise<false | DetectedFeed> {
-      return mastodon.detectFeed(profile(url, html), task, requested)
+      return mastodon.detectFeedInPage(profile(url, html), task, requested)
     }
 
     deepEqual(await detect('https://mastodon.social/@jane'), {
@@ -130,6 +138,15 @@ describe('mastodon loader', () => {
       title: 'Jane Doe',
       url: 'https://mastodon.social/@jane'
     })
+    expectRequest(`${API}/accounts/lookup?acct=Jane`).andRespond(
+      200,
+      JSON.stringify(account('jane', { display_name: 'Jane Doe' })),
+      'application/json'
+    )
+    deepEqual(
+      await mastodon.isMineUrl(new URL('https://mastodon.social/@Jane/'), task),
+      await detect('https://mastodon.social/@Jane/')
+    )
     deepEqual(await detect('https://example.com/@jane'), {
       title: 'Jane Doe',
       url: 'https://example.com/@jane@mastodon.social'
@@ -697,13 +714,13 @@ describe('mastodon loader', () => {
       JSON.stringify({ name: 'News' }),
       'application/json'
     )
-    deepEqual(await mastodon.detectFeed(profile(url), task, url), NEWS)
+    deepEqual(await mastodon.detectFeedInPage(profile(url), task, url), NEWS)
 
     expectRequest(`${API}/tags/News`).andRespond(404)
-    equal(await mastodon.detectFeed(profile(url), task, url), false)
+    equal(await mastodon.detectFeedInPage(profile(url), task, url), false)
 
     expectRequest(`${API}/tags/News`).andRespond(200, '[]', 'application/json')
-    equal(await mastodon.detectFeed(profile(url), task, url), false)
+    equal(await mastodon.detectFeedInPage(profile(url), task, url), false)
 
     equal(await mastodon.loadFeedData(task, url), undefined)
     equal(await mastodon.getLoaderData!(task, url), undefined)
@@ -806,7 +823,7 @@ describe('mastodon loader', () => {
     )
 
     deepEqual(
-      await loaders.mastodon.detectFeed(
+      await loaders.mastodon.detectFeedInPage(
         profile(
           'https://mastodon.social/@jane',
           PROFILE.replace('Jane Doe (', 'Jane :verified: Doe (')

@@ -49,7 +49,10 @@ describe('rss1 loader', () => {
   })
 
   test('detects own URLs', () => {
-    equal(loaders.rss1.isMineUrl(new URL('https://dev.to/')), undefined)
+    equal(
+      loaders.rss1.isMineUrl(new URL('https://dev.to/'), createDownloadTask()),
+      undefined
+    )
   })
 
   test('detects links', () => {
@@ -101,7 +104,7 @@ describe('rss1 loader', () => {
 
   test('detects titles', async () => {
     deepEqual(
-      loaders.rss1.detectFeed(
+      loaders.rss1.detectFeedInPage(
         exampleRdf(`
           <channel rdf:about="https://example.com/">
             <title>Blog <b>XSS</b></title>
@@ -113,7 +116,7 @@ describe('rss1 loader', () => {
       { title: 'Blog XSS' }
     )
     deepEqual(
-      loaders.rss1.detectFeed(
+      loaders.rss1.detectFeedInPage(
         exampleRdf('<channel rdf:about="https://example.com/"></channel>'),
         createDownloadTask(),
         'https://example.com/index.rdf'

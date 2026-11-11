@@ -1,8 +1,8 @@
 import {
   createDownloadTask,
   enableTestTime,
+  findFeed,
   generateCredentials,
-  getLoaderForText,
   HTTPStatusError,
   pages,
   printWarning,
@@ -116,21 +116,20 @@ export async function fetchAndParsePosts(
 ): Promise<void> {
   try {
     let task = createDownloadTask()
-    let response = await task.text(url)
-    if (badSource && response.status >= 400) {
+    let { feed: candidate, response } = await findFeed(task, url)
+    if (badSource && response && response.status >= 400) {
       semiSuccess(url, `${response.status}`)
       return
     }
     if (
       badSource &&
-      response.redirected &&
+      response?.redirected &&
       response.contentType === 'text/html' &&
       response.text.toLocaleLowerCase().includes('<html')
     ) {
       semiSuccess(url, `redirect to HTML`)
       return
     }
-    let candidate = await getLoaderForText(response, task, url)
     if (!candidate) {
       report(`Can not found loader for feed ${url}`)
       return

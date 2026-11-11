@@ -1165,7 +1165,7 @@ export const mastodon: Loader = {
     return findDocumentLinks(text, 'application/rss+xml')
   },
 
-  async detectFeed(text, task, url) {
+  async detectFeedInPage(text, task, url) {
     if (getTagName(url)) return lookupTag(task, url).catch(() => false)
     if (!isProfile(text, url)) {
       if (!PROFILE.test(new URL(url).pathname)) return false
@@ -1213,11 +1213,11 @@ export const mastodon: Loader = {
     return `@${decodeURIComponent(profile[1]!)}@${url.hostname}`
   },
 
-  isMineUrl(url) {
+  isMineUrl(url, task) {
     let profile = url.pathname.match(PROFILE)
     if (!profile && !url.pathname.startsWith('/@')) return false
     if (profile && POPULAR.has(url.hostname)) {
-      return decodeURIComponent(profile[1]!)
+      return lookupProfile(task, url.href)
     }
     return undefined
   },

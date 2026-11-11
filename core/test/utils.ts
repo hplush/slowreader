@@ -527,7 +527,11 @@ export async function expectNotMine(
 ): Promise<void> {
   let detected: false | DetectedFeed
   try {
-    detected = await loader.detectFeed(text, createDownloadTask(), text.url)
+    detected = await loader.detectFeedInPage(
+      text,
+      createDownloadTask(),
+      text.url
+    )
   } catch {
     return
   }

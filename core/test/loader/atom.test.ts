@@ -128,7 +128,10 @@ describe('atom loader', () => {
 
   test('detects own URLs', () => {
     equal(
-      typeof loaders.atom.isMineUrl(new URL('https://dev.to/')),
+      typeof loaders.atom.isMineUrl(
+        new URL('https://dev.to/'),
+        createDownloadTask()
+      ),
       'undefined'
     )
   })
@@ -325,7 +328,7 @@ describe('atom loader', () => {
 
   test('detects titles', async () => {
     deepEqual(
-      loaders.atom.detectFeed(
+      loaders.atom.detectFeedInPage(
         exampleAtom('<feed></feed>'),
         createDownloadTask(),
         'https://example.com/'
@@ -333,7 +336,7 @@ describe('atom loader', () => {
       { title: '' }
     )
     deepEqual(
-      loaders.atom.detectFeed(
+      loaders.atom.detectFeedInPage(
         exampleAtom(
           `<?xml version="1.0" encoding="utf-8"?>
           <feed xmlns="http://www.w3.org/2005/Atom">
@@ -353,7 +356,7 @@ describe('atom loader', () => {
 
   test('detects content type by content', () => {
     deepEqual(
-      loaders.atom.detectFeed(
+      loaders.atom.detectFeedInPage(
         createTextResponse('<feed><title>A</title></feed>', {
           headers: new Headers({ 'Content-Type': `text/html` })
         }),
@@ -363,7 +366,7 @@ describe('atom loader', () => {
       { title: 'A' }
     )
     deepEqual(
-      loaders.atom.detectFeed(
+      loaders.atom.detectFeedInPage(
         createTextResponse(
           '<?xml version="1.0" encoding="UTF-8"?> ' +
             '<feed><title>B</title></feed>'
@@ -377,7 +380,7 @@ describe('atom loader', () => {
 
   test('detects type', async () => {
     deepEqual(
-      loaders.atom.detectFeed(
+      loaders.atom.detectFeedInPage(
         exampleAtom('<feed></feed>'),
         createDownloadTask(),
         'https://example.com/'
@@ -385,7 +388,7 @@ describe('atom loader', () => {
       { title: '' }
     )
     deepEqual(
-      loaders.atom.detectFeed(
+      loaders.atom.detectFeedInPage(
         exampleAtom(
           `<?xml version="1.0" encoding="utf-8"?>
           <feed xmlns="http://www.w3.org/2005/Atom">
@@ -405,7 +408,7 @@ describe('atom loader', () => {
 
   test('detects popular XML mistakes', () => {
     deepEqual(
-      loaders.atom.detectFeed(
+      loaders.atom.detectFeedInPage(
         exampleAtom(
           `\r\n\r\n<?xml version="1.0" encoding="utf-8"?>
           <feed xmlns="http://www.w3.org/2005/Atom">
@@ -421,7 +424,7 @@ describe('atom loader', () => {
 
   test('ignores text & comment nodes when probing', () => {
     deepEqual(
-      loaders.atom.detectFeed(
+      loaders.atom.detectFeedInPage(
         exampleAtom(
           '<?xml-stylesheet type="text/xsl" href="/nope"?><feed><title>Test</title></feed>'
         ),

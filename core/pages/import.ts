@@ -13,7 +13,7 @@ import {
   type TextResponse
 } from '../lib/download.ts'
 import { parseDocument } from '../lib/html.ts'
-import { type FeedLoader, getLoaderForText } from '../loader/index.ts'
+import { type FeedLoader, findFeed } from '../loader/index.ts'
 import { importMessages } from '../messages/index.ts'
 import { addPost } from '../post.ts'
 import { GENERAL_CATEGORY } from '../schema.ts'
@@ -49,17 +49,14 @@ async function readFile(file: File): Promise<false | string> {
 async function loadPreferringHttps(
   task: DownloadTask,
   url: string
-): Promise<{ candidate: FeedLoader | false; response: TextResponse }> {
+): Promise<{ feed: false | FeedLoader; response: TextResponse | undefined }> {
   if (url.startsWith('http://')) {
-    let secure = url.replace(/^http:/, 'https:')
     try {
-      let response = await task.text(secure)
-      let candidate = await getLoaderForText(response, task, secure)
-      if (candidate) return { candidate, response }
+      let found = await findFeed(task, url.replace(/^http:/, 'https:'))
+      if (found.feed) return found
     } catch {}
   }
-  let response = await task.text(url)
-  return { candidate: await getLoaderForText(response, task, url), response }
+  return findFeed(task, url)
 }
 
 type FeedError = 'exists' | 'noFeeds' | 'unknown' | 'unloadable'
@@ -147,7 +144,7 @@ export const importPage = createPage('import', () => {
         continue
       }
 
-      let { candidate, response } = loaded
+      let { feed: candidate, response } = loaded
       if (!candidate) {
         addFeedError(url, 'unknown')
       } else if (await feedExists(candidate.url)) {

@@ -106,19 +106,28 @@ describe('bluesky loader', () => {
     checkAndRemoveRequestMock()
   })
 
-  test('detects own URLs', () => {
+  test('detects own URLs', async () => {
     let { bluesky } = loaders
-    equal(
-      bluesky.isMineUrl(new URL('https://bsky.app/profile/jane.bsky.social')),
-      'jane.bsky.social'
+    let task = createDownloadTask()
+    function isMine(url: string): ReturnType<typeof bluesky.isMineUrl> {
+      return bluesky.isMineUrl(new URL(url), task)
+    }
+    equal(isMine('https://bsky.app/profile/jane.com/post/1'), false)
+    equal(isMine('https://example.com/profile/a'), false)
+    equal(isMine('https://example.com'), undefined)
+    equal(isMine('http://localhost'), false)
+
+    expectRequest(
+      `${API}/app.bsky.actor.getProfile?actor=jane.bsky.social`
+    ).andRespond(
+      200,
+      JSON.stringify(profile('jane', { displayName: 'Jane Doe' })),
+      'application/json'
     )
-    equal(
-      bluesky.isMineUrl(new URL('https://bsky.app/profile/jane.com/post/1')),
-      false
-    )
-    equal(bluesky.isMineUrl(new URL('https://example.com/profile/a')), false)
-    equal(bluesky.isMineUrl(new URL('https://example.com')), undefined)
-    equal(bluesky.isMineUrl(new URL('http://localhost')), false)
+    deepEqual(await isMine('https://bsky.app/profile/jane.bsky.social'), {
+      title: 'Jane Doe',
+      url: 'https://bsky.app/profile/jane.bsky.social'
+    })
   })
 
   test('detects profiles', async () => {
@@ -129,13 +138,29 @@ describe('bluesky loader', () => {
       html?: string,
       requested = url
     ): Promise<false | DetectedFeed> {
-      return bluesky.detectFeed(page(url, html), task, requested)
+      return bluesky.detectFeedInPage(page(url, html), task, requested)
     }
 
     deepEqual(await detect('https://bsky.app/profile/did:plc:jane'), {
       title: 'Jane Doe',
       url: 'https://bsky.app/profile/jane.bsky.social'
     })
+
+    let did = `${API}/app.bsky.actor.getProfile?actor=did%3Aplc%3Ajane`
+    expectRequest(did).andRespond(
+      200,
+      JSON.stringify(profile('jane', { displayName: 'Jane Doe' })),
+      'application/json'
+    )
+    let byDid = new URL('https://bsky.app/profile/did:plc:jane')
+    deepEqual(await bluesky.isMineUrl(byDid, task), await detect(byDid.href))
+    expectRequest(did).andRespond(400)
+    equal(await bluesky.isMineUrl(byDid, task), false)
+    expectRequest(did).andFail()
+    let offline = await throws(async () => {
+      await bluesky.isMineUrl(byDid, createDownloadTask({ tries: 1 }))
+    })
+    equal(offline.name, 'NetworkError')
 
     expectRequest(`${API}/app.bsky.actor.getProfile?actor=bob.com`).andRespond(
       200,

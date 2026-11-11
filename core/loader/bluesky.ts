@@ -1252,6 +1252,17 @@ let blueskyAccount: AccountLoader<BlueskySignIn> = {
   }
 }
 
+async function lookupProfile(
+  task: DownloadTask,
+  actor: string
+): Promise<{ title: string; url: string }> {
+  let profile = await loadProfile(task, actor)
+  return {
+    title: profile.displayName?.trim() || profile.handle,
+    url: toProfileUrl(profile)
+  }
+}
+
 export const bluesky: Loader = {
   account: blueskyAccount,
 
@@ -1340,7 +1351,7 @@ export const bluesky: Loader = {
     )
   },
 
-  async detectFeed(text, task, url) {
+  async detectFeedInPage(text, task, url) {
     let actor: string
     if (isProfile(url)) {
       // Redirect page could have meta of something else
@@ -1362,11 +1373,7 @@ export const bluesky: Loader = {
     }
     // Unknown profile has a page without meta tags
     try {
-      let profile = await loadProfile(task, actor)
-      return {
-        title: profile.displayName?.trim() || profile.handle,
-        url: toProfileUrl(profile)
-      }
+      return await lookupProfile(task, actor)
     } catch {
       return false
     }
@@ -1376,11 +1383,18 @@ export const bluesky: Loader = {
     return toFeedData(await loadProfile(task, getActor(url)))
   },
 
-  isMineUrl(url) {
+  isMineUrl(url, task) {
     if (isDomainRoot(url.href)) return undefined
     if (url.hostname !== 'bsky.app') return false
     let profile = url.pathname.match(PROFILE)
-    return profile ? decodeURIComponent(profile[1]!) : false
+    if (!profile) return false
+    return lookupProfile(task, decodeURIComponent(profile[1]!)).catch(
+      (e: unknown) => {
+        // Bluesky answers 400 for unknown author
+        if (HTTPStatusError.is(e)) return false
+        throw e
+      }
+    )
   },
 
   getHandleFromUrl(url) {

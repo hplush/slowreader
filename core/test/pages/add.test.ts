@@ -29,7 +29,7 @@ import {
 
 setupNodeDom()
 
-let detectBluesky = loaders.bluesky.detectFeed
+let detectBluesky = loaders.bluesky.detectFeedInPage
 
 describe('add page', () => {
   beforeEach(() => {
@@ -42,7 +42,7 @@ describe('add page', () => {
     })
     mockRequest()
     // Domain handle check sends a request for every site
-    spyOn(loaders.bluesky, 'detectFeed', (text, task, url) => {
+    spyOn(loaders.bluesky, 'detectFeedInPage', (text, task, url) => {
       if (new URL(url).hostname !== 'bsky.app') return false
       return detectBluesky(text, task, url)
     })
@@ -53,6 +53,16 @@ describe('add page', () => {
     await cleanClient()
     checkAndRemoveRequestMock()
   })
+
+  function expectMastodonLookup(name: string): void {
+    expectRequest(
+      `https://mastodon.social/api/v1/accounts/lookup?acct=${name}`
+    ).andRespond(
+      200,
+      JSON.stringify({ acct: name, display_name: 'Jane', id: '1' }),
+      'application/json'
+    )
+  }
 
   function equalWithText(a: FeedLoader[], b: FeedLoader[]): void {
     equal(a.length, b.length)
@@ -243,21 +253,17 @@ describe('add page', () => {
     keepMount(page.searching)
     keepMount(page.candidates)
 
-    let profile =
-      '<!DOCTYPE html><html><head>' +
-      '<link href="https://mastodon.social/@jane.rss" rel="alternate" ' +
-      'type="application/rss+xml">' +
-      '<link href="https://mastodon.social/users/jane" rel="alternate" ' +
-      'type="application/activity+json">' +
-      '<meta content="Jane (@jane@mastodon.social)" property="og:title">' +
-      '</head></html>'
-    expectRequest('https://mastodon.social/@jane/1').andRespond(200, profile)
-    expectRequest('https://mastodon.social/@jane').andRespond(200, profile)
-    expectRequest('https://mastodon.social/@jane.rss').andRespond(
+    expectRequest('https://mastodon.social/@jane/1').andRespond(
       200,
-      '<rss><channel><title>Jane</title></channel></rss>',
-      'application/rss+xml'
+      '<!DOCTYPE html><html><head>' +
+        '<link href="https://mastodon.social/@jane.rss" rel="alternate" ' +
+        'type="application/rss+xml">' +
+        '<link href="https://mastodon.social/users/jane" rel="alternate" ' +
+        'type="application/activity+json">' +
+        '<meta content="Jane (@jane@mastodon.social)" property="og:title">' +
+        '</head></html>'
     )
+    expectMastodonLookup('jane')
     page.search('https://mastodon.social/@jane/1')
     await waitLoading(page.searching)
     equalWithText(page.candidates.get(), [
@@ -278,19 +284,11 @@ describe('add page', () => {
     keepMount(page.searching)
     keepMount(page.candidates)
 
-    let profile =
-      '<!DOCTYPE html><html><head>' +
-      '<link href="https://mastodon.social/@jane.rss" rel="alternate" ' +
-      'type="application/rss+xml">' +
-      '<link href="https://mastodon.social/users/jane" rel="alternate" ' +
-      'type="application/activity+json">' +
-      '<meta content="Jane (@jane@mastodon.social)" property="og:title">' +
-      '</head></html>'
     expectRequest(
       'https://mastodon.social/.well-known/webfinger' +
         '?resource=acct%3Ajane%40mastodon.social'
     ).andRespond(404)
-    expectRequest('https://mastodon.social/@jane').andRespond(200, profile)
+    expectMastodonLookup('jane')
     page.search('@jane@mastodon.social')
     equal(page.params.url.get(), '@jane@mastodon.social')
     await waitLoading(page.searching)
@@ -314,15 +312,17 @@ describe('add page', () => {
     keepMount(page.searching)
     keepMount(page.candidates)
 
-    expectRequest('https://bsky.app/profile/jane.bsky.social').andRespond(
+    expectRequest(
+      'https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile' +
+        '?actor=jane.bsky.social'
+    ).andRespond(
       200,
-      '<!DOCTYPE html><html><head>' +
-        '<meta property="og:url" ' +
-        'content="https://bsky.app/profile/jane.bsky.social">' +
-        '<meta property="og:title" content="Jane (@jane.bsky.social)">' +
-        '<link rel="alternate" type="application/rss+xml" ' +
-        'href="https://bsky.app/profile/did:plc:jane/rss">' +
-        '</head></html>'
+      JSON.stringify({
+        did: 'did:plc:jane',
+        displayName: 'Jane',
+        handle: 'jane.bsky.social'
+      }),
+      'application/json'
     )
     page.search('@jane.bsky.social')
     await waitLoading(page.searching)
@@ -396,10 +396,6 @@ describe('add page', () => {
     keepMount(page.searching)
     keepMount(page.candidates)
 
-    expectRequest('https://mastodon.social/@kyva@meetiko.org/').andRespond(
-      200,
-      '<!DOCTYPE html><html><head><title>Mastodon</title></head></html>'
-    )
     expectRequest(
       'https://mastodon.social/api/v1/accounts/lookup' +
         '?acct=kyva%40meetiko.org'
@@ -461,7 +457,9 @@ describe('add page', () => {
       'https://mastodon.social/.well-known/webfinger' +
         '?resource=acct%3Ajohn%40mastodon.social'
     ).andRespond(404)
-    let profile = expectRequest('https://mastodon.social/@john').andWait()
+    let profile = expectRequest(
+      'https://mastodon.social/api/v1/accounts/lookup?acct=john'
+    ).andWait()
     page.search('@john@mastodon.social')
     await setTimeout(10)
     page.search('@jane')
@@ -470,7 +468,23 @@ describe('add page', () => {
     equal(page.error.get(), 'unknownHandle')
   })
 
-  test('does not load worse links', async () => {
+  test('shows network error of sure loader', async () => {
+    let page = openPage({
+      params: {},
+      route: 'add'
+    })
+    keepMount(page.searching)
+    keepMount(page.error)
+
+    expectRequest(
+      'https://mastodon.social/api/v1/accounts/lookup?acct=jane'
+    ).andRespond(404)
+    page.search('https://mastodon.social/@jane')
+    await waitLoading(page.searching)
+    equal(page.error.get(), 'unloadable')
+  })
+
+  test('does not download URL of sure loader', async () => {
     let page = openPage({
       params: {},
       route: 'add'
@@ -478,13 +492,7 @@ describe('add page', () => {
     keepMount(page.searching)
     keepMount(page.candidates)
 
-    expectRequest('https://mastodon.social/@jane').andRespond(
-      200,
-      '<!DOCTYPE html><html><head>' +
-        '<link href="/@jane.rss" rel="alternate" type="application/rss+xml">' +
-        '<meta content="Jane (@jane@mastodon.social)" property="og:title">' +
-        '</head></html>'
-    )
+    expectMastodonLookup('jane')
     page.search('https://mastodon.social/@jane')
     await waitLoading(page.searching)
     equalWithText(page.candidates.get(), [

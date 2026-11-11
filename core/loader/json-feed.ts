@@ -225,7 +225,7 @@ export const jsonFeed: Loader = {
     }
   },
 
-  detectFeed(text) {
+  detectFeedInPage(text) {
     let parsedJson = text.parseJson()
     validate(text.text, parsedJson)
     return { title: parsedJson.title }
