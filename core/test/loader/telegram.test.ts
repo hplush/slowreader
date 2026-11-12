@@ -536,7 +536,8 @@ describe('telegram loader', () => {
     testTelegram.answers.getChat = {
       '@type': 'chat',
       'id': -1001,
-      'last_read_inbox_message_id': lastRead * 1048576
+      'last_read_inbox_message_id': lastRead * 1048576,
+      'title': 'News'
     }
     testTelegram.answers.getChatHistory = ({ from_message_id: from }) => ({
       '@type': 'messages',
@@ -724,6 +725,219 @@ describe('telegram loader', () => {
     equal(
       (await loadFeedPosts())[0]!.full,
       '<p><a href="mailto:a@b.c">a@b.c</a></p>'
+    )
+  })
+
+  test('loads forwards, replies, link previews, and polls', async () => {
+    function text(value: string): object {
+      return { '@type': 'formattedText', 'entities': [], 'text': value }
+    }
+    function forward(origin: object): object {
+      return { forward_info: { '@type': 'messageForwardInfo', origin } }
+    }
+    function reply(post: number): object {
+      return {
+        reply_to: {
+          '@type': 'messageReplyToMessage',
+          'chat_id': -1001,
+          'message_id': post * 1048576
+        }
+      }
+    }
+    mockHistory(0, {
+      0: [
+        message(10, {
+          content: {
+            '@type': 'messagePoll',
+            'poll': {
+              '@type': 'poll',
+              'options': [{ text: text('Yes') }, { text: text('No') }, {}],
+              'question': text('Question?')
+            }
+          }
+        }),
+        message(9, {
+          content: {
+            '@type': 'messageText',
+            'link_preview': {
+              '@type': 'linkPreview',
+              'description': text('Description'),
+              'title': 'Title',
+              'url': 'https://example.com/'
+            },
+            'text': text('With preview')
+          }
+        }),
+        message(8, {
+          content: {
+            '@type': 'messageText',
+            'link_preview': {
+              '@type': 'linkPreview',
+              'description': text(''),
+              'title': '',
+              'url': 'https://example.com/'
+            },
+            'text': text('Only photo in preview')
+          }
+        }),
+        message(
+          7,
+          forward({ '@type': 'messageOriginChannel', 'chat_id': -1005 })
+        ),
+        message(
+          6,
+          forward({ '@type': 'messageOriginUser', 'sender_user_id': 5 })
+        ),
+        message(
+          5,
+          forward({
+            '@type': 'messageOriginHiddenUser',
+            'sender_name': 'Hidden'
+          })
+        ),
+        message(
+          4,
+          forward({ '@type': 'messageOriginChat', 'sender_chat_id': 6 })
+        ),
+        message(
+          3,
+          forward({ '@type': 'messageOriginChannel', 'chat_id': -1009 })
+        ),
+        message(2, reply(1)),
+        message(1, reply(99))
+      ]
+    })
+    let news = testTelegram.answers.getChat as TelegramObject
+    testTelegram.answers.getChat = ({ chat_id: id }) => {
+      if (id === -1001) {
+        return news
+      } else if (id === -1005) {
+        return {
+          '@type': 'chat',
+          'title': 'Source',
+          'type': { '@type': 'chatTypeSupergroup', 'supergroup_id': 5 }
+        }
+      } else if (id === 6) {
+        return {
+          '@type': 'chat',
+          'title': 'Group',
+          'type': { '@type': 'chatTypeBasicGroup' }
+        }
+      } else {
+        return fail('Chat not found')
+      }
+    }
+    testTelegram.answers.loadChats = fail('Not Found', 404)
+    testTelegram.answers.getSupergroup = {
+      '@type': 'supergroup',
+      'usernames': { '@type': 'usernames', 'active_usernames': ['source'] }
+    }
+    testTelegram.answers.getUser = USER
+    testTelegram.answers.getMessage = ({ message_id: id }) => {
+      return id === 1048576 ? message(1) : fail('Not found', 404)
+    }
+
+    let channel = { title: 'News', url: 'https://t.me/news' }
+    deepEqual(
+      (await loadFeedPosts()).map(post => ({
+        author: post.author,
+        full: post.full,
+        poll: post.poll,
+        preview: post.preview,
+        replied: post.replied,
+        repostedBy: post.repostedBy
+      })),
+      [
+        {
+          author: undefined,
+          full: '<p>Question?</p>',
+          poll: { options: [{ title: 'Yes' }, { title: 'No' }, { title: '' }] },
+          preview: undefined,
+          replied: undefined,
+          repostedBy: undefined
+        },
+        {
+          author: undefined,
+          full: '<p>With preview</p>',
+          poll: undefined,
+          preview: {
+            description: 'Description',
+            title: 'Title',
+            url: 'https://example.com/'
+          },
+          replied: undefined,
+          repostedBy: undefined
+        },
+        {
+          author: undefined,
+          full: '<p>Only photo in preview</p>',
+          poll: undefined,
+          preview: undefined,
+          replied: undefined,
+          repostedBy: undefined
+        },
+        {
+          author: { title: 'Source', url: 'https://t.me/source' },
+          full: '<p>Post 7</p>',
+          poll: undefined,
+          preview: undefined,
+          replied: undefined,
+          repostedBy: channel
+        },
+        {
+          author: { title: 'Jane Doe', url: 'https://t.me/jane' },
+          full: '<p>Post 6</p>',
+          poll: undefined,
+          preview: undefined,
+          replied: undefined,
+          repostedBy: channel
+        },
+        {
+          author: { title: 'Hidden' },
+          full: '<p>Post 5</p>',
+          poll: undefined,
+          preview: undefined,
+          replied: undefined,
+          repostedBy: channel
+        },
+        {
+          author: { title: 'Group', url: undefined },
+          full: '<p>Post 4</p>',
+          poll: undefined,
+          preview: undefined,
+          replied: undefined,
+          repostedBy: channel
+        },
+        {
+          author: undefined,
+          full: '<p>Post 3</p>',
+          poll: undefined,
+          preview: undefined,
+          replied: undefined,
+          repostedBy: undefined
+        },
+        {
+          author: undefined,
+          full: '<p>Post 2</p>',
+          poll: undefined,
+          preview: undefined,
+          replied: {
+            full: '<p>Post 1</p>',
+            missing: false,
+            publishedAt: 1001,
+            url: 'https://t.me/news/1'
+          },
+          repostedBy: undefined
+        },
+        {
+          author: undefined,
+          full: '<p>Post 1</p>',
+          poll: undefined,
+          preview: undefined,
+          replied: { missing: true },
+          repostedBy: undefined
+        }
+      ]
     )
   })
 

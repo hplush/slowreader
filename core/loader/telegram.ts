@@ -13,7 +13,14 @@ import {
 import { TelegramError, UserFacingError } from '../errors.ts'
 import { escapeXml } from '../lib/html.ts'
 import { accountsMessages as t } from '../messages/index.ts'
-import type { LoadedAuthor, ParsedPost } from '../post.ts'
+import type {
+  LoadedAuthor,
+  ParsedPost,
+  PostAuthor,
+  PostPoll,
+  PostPreview,
+  QuotedPost
+} from '../post.ts'
 import {
   createPostsList,
   type PostsList,
@@ -241,12 +248,16 @@ function getUsername(owner: TelegramObject): string | undefined {
     : undefined
 }
 
+function getUserName(user: TelegramObject): string {
+  return [user.first_name, user.last_name].filter(Boolean).join(' ')
+}
+
 async function loadAccount(
   name: string
 ): Promise<Extract<SignInStep<SignInData>, { type: 'done' }>> {
   let user = await sendToTelegram(name, { '@type': 'getMe' })
   let username = getUsername(user)
-  let title = [user.first_name, user.last_name].filter(Boolean).join(' ')
+  let title = getUserName(user)
   return {
     account: {
       handle: username ? `@${username}` : title,
@@ -348,6 +359,21 @@ function loadChatList(name: string): Promise<void> {
   return session.loadingChats
 }
 
+async function loadChannelUrl(
+  name: string,
+  supergroupId: unknown
+): Promise<string> {
+  let username = getUsername(
+    await sendToTelegram(name, {
+      '@type': 'getSupergroup',
+      'supergroup_id': supergroupId
+    })
+  )
+  return username
+    ? `https://t.me/${username}`
+    : `https://t.me/c/${String(supergroupId)}`
+}
+
 /**
  * Chat list has private chats and groups too. We take only channels
  * and drop the rest here, so they never reach the database.
@@ -374,19 +400,11 @@ async function loadChannels(name: string): Promise<LoadedAuthor[]> {
       ) {
         return undefined
       }
-      let username = getUsername(
-        await sendToTelegram(name, {
-          '@type': 'getSupergroup',
-          'supergroup_id': type.supergroup_id
-        })
-      )
       return {
         // Channel can change the username, but not the ID
         loaderData: JSON.stringify({ id: String(chat.id) }),
         title: String(chat.title),
-        url: username
-          ? `https://t.me/${username}`
-          : `https://t.me/c/${String(type.supergroup_id)}`
+        url: await loadChannelUrl(name, type.supergroup_id)
       }
     })
   )
@@ -569,29 +587,128 @@ function formatText(formatted: unknown): string {
 function getText(message: TelegramObject): string {
   let content = message.content
   if (!isObject(content)) return ''
-  return formatText(isObject(content.text) ? content.text : content.caption)
+  if (isObject(content.text)) return formatText(content.text)
+  return formatText(
+    isObject(content.poll) ? content.poll.question : content.caption
+  )
+}
+
+function getPoll(content: Record<string, unknown>): PostPoll | undefined {
+  if (!isObject(content.poll) || !Array.isArray(content.poll.options)) {
+    return undefined
+  }
+  return {
+    options: content.poll.options.filter(isObject).map(option => ({
+      title: isObject(option.text) ? String(option.text.text) : ''
+    }))
+  }
+}
+
+function getPreview(content: Record<string, unknown>): PostPreview | undefined {
+  let link = content.link_preview
+  if (!isObject(link) || typeof link.url !== 'string') return undefined
+  let preview: PostPreview = { url: link.url }
+  if (typeof link.title === 'string' && link.title) preview.title = link.title
+  if (
+    isObject(link.description) &&
+    typeof link.description.text === 'string' &&
+    link.description.text
+  ) {
+    preview.description = link.description.text
+  }
+  // Without image the card with only URL repeats the link from the text
+  return preview.title || preview.description ? preview : undefined
+}
+
+/**
+ * TDLib knows chats and users from the posts, which it already loaded.
+ * Forward from a private channel has no source, which we could ask.
+ */
+async function loadForwardAuthor(
+  name: string,
+  origin: unknown
+): Promise<PostAuthor | undefined> {
+  if (!isObject(origin)) return undefined
+  if (typeof origin.sender_name === 'string') {
+    return { title: origin.sender_name }
+  }
+  try {
+    if (origin.sender_user_id) {
+      let user = await sendToTelegram(name, {
+        '@type': 'getUser',
+        'user_id': origin.sender_user_id
+      })
+      let username = getUsername(user)
+      return {
+        title: getUserName(user),
+        url: username ? `https://t.me/${username}` : undefined
+      }
+    }
+    let chat = await sendToTelegram(name, {
+      '@type': 'getChat',
+      'chat_id': origin.chat_id ?? origin.sender_chat_id
+    })
+    return {
+      title: String(chat.title),
+      url:
+        isObject(chat.type) && chat.type.supergroup_id
+          ? await loadChannelUrl(name, chat.type.supergroup_id)
+          : undefined
+    }
+  } catch (e) {
+    if (!TelegramError.is(e)) throw e
+    return undefined
+  }
+}
+
+/**
+ * Channels answer to own older posts to continue the story.
+ */
+async function loadReplied(
+  name: string,
+  feedUrl: string,
+  reply: unknown
+): Promise<QuotedPost | undefined> {
+  if (!isObject(reply) || reply['@type'] !== 'messageReplyToMessage') {
+    return undefined
+  }
+  try {
+    let message = await sendToTelegram(name, {
+      '@type': 'getMessage',
+      'chat_id': reply.chat_id,
+      'message_id': reply.message_id
+    })
+    return {
+      full: getText(message) || undefined,
+      missing: false,
+      publishedAt: Number(message.date),
+      url: `${feedUrl}/${String(Number(message.id) / MESSAGE_ID_STEP)}`
+    }
+  } catch (e) {
+    if (!TelegramError.is(e)) throw e
+    return { missing: true }
+  }
 }
 
 /**
  * Messages of one post from the newest one.
  */
-function toPost(
-  feedUrl: string,
+async function toPost(
+  name: string,
+  channel: PostAuthor,
   messages: TelegramObject[]
-): ParsedPost | undefined {
+): Promise<ParsedPost | undefined> {
   let first = messages.at(-1)!
+  let content = isObject(first.content) ? first.content : {}
   // Like “channel pinned a post”
-  if (
-    isObject(first.content) &&
-    /^message(Chat|PinMessage|VideoChat)/.test(String(first.content['@type']))
-  ) {
+  if (/^message(Chat|PinMessage|VideoChat)/.test(String(content['@type']))) {
     return undefined
   }
   let post: ParsedPost = {
     // Read position and the next refresh must cover the whole album
     originId: String(Number(messages[0]!.id) / MESSAGE_ID_STEP),
     publishedAt: Number(first.date),
-    url: `${feedUrl}/${String(Number(first.id) / MESSAGE_ID_STEP)}`
+    url: `${channel.url!}/${String(Number(first.id) / MESSAGE_ID_STEP)}`
   }
   let text = messages.map(getText).find(Boolean)
   if (text) {
@@ -601,6 +718,19 @@ function toPost(
   }
   let edited = Math.max(...messages.map(i => Number(i.edit_date)))
   if (edited) post.updatedAt = edited
+  let poll = getPoll(content)
+  if (poll) post.poll = poll
+  let preview = getPreview(content)
+  if (preview) post.preview = preview
+  if (isObject(first.forward_info)) {
+    let author = await loadForwardAuthor(name, first.forward_info.origin)
+    if (author) {
+      post.author = author
+      post.repostedBy = channel
+    }
+  }
+  let replied = await loadReplied(name, channel.url!, first.reply_to)
+  if (replied) post.replied = replied
   return post
 }
 
@@ -616,12 +746,15 @@ function loadChannelPosts(
   let chatId = Number(readLoaderData(loaderData, 'id'))
   let read = 0
   let loaded = 0
+  let channel: PostAuthor = { title: '', url }
   let album: TelegramObject[] = []
 
   async function loadPage(from: number): Promise<PostsListResult> {
     let name = getDevice(auth)
     if (from === 0) {
-      read = Number((await loadChat(name, chatId)).last_read_inbox_message_id)
+      let chat = await loadChat(name, chatId)
+      read = Number(chat.last_read_inbox_message_id)
+      channel.title = String(chat.title)
     }
     // The first answer has only the last post, TDLib chooses the size itself
     let history = await sendToTelegram(name, {
@@ -640,7 +773,9 @@ function loadChannelPosts(
     album = []
     // The oldest album of the page can continue on the next page
     if (!ended && getAlbumId(albums.at(-1)![0]!)) album = albums.pop()!
-    let posts = albums.map(group => toPost(url, group)).filter(post => !!post)
+    let posts = (
+      await Promise.all(albums.map(group => toPost(name, channel, group)))
+    ).filter(post => !!post)
     for (let post of posts) {
       loaded += 1
       // Channel, which was never opened in Telegram, has no read position,
