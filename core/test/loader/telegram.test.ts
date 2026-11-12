@@ -643,6 +643,90 @@ describe('telegram loader', () => {
     )
   })
 
+  test('formats text of the post', async () => {
+    let text =
+      'Title 🚀\n\nSee example.com, @channel and #tag\n' +
+      'Use <code> & link.\n\nQuoted text\n\nlet a = 1 < 2\n\n' +
+      'mail a@b.c crossing'
+    function entity(part: string, type: string, fields: object = {}): object {
+      return {
+        '@type': 'textEntity',
+        'length': part.length,
+        'offset': text.indexOf(part),
+        'type': { '@type': `textEntityType${type}`, ...fields }
+      }
+    }
+    mockHistory(0, {
+      0: [
+        message(1, {
+          content: {
+            '@type': 'messageText',
+            'text': {
+              '@type': 'formattedText',
+              'entities': [
+                entity('crossing', 'Strikethrough'),
+                entity('Title 🚀', 'Bold'),
+                entity('🚀', 'CustomEmoji', { custom_emoji_id: '1' }),
+                entity('example.com', 'Url'),
+                entity('@channel', 'Mention'),
+                entity('#tag', 'Hashtag'),
+                entity('<code>', 'Code'),
+                entity('link', 'TextUrl', {
+                  url: 'https://example.com/?a=1&b=2'
+                }),
+                entity('link', 'Bold'),
+                entity('Quoted text', 'BlockQuote'),
+                entity('let a = 1 < 2', 'Pre'),
+                entity('mail a@b', 'Underline'),
+                entity('a@b.c', 'EmailAddress'),
+                entity('crossing', 'Italic'),
+                null
+              ],
+              text
+            }
+          }
+        })
+      ]
+    })
+    equal(
+      (await loadFeedPosts())[0]!.full,
+      '<p><b>Title 🚀</b></p>' +
+        '<p>See <a href="https://example.com">example.com</a>, ' +
+        '<a href="https://t.me/channel">@channel</a> and #tag<br>' +
+        'Use <code>&lt;code&gt;</code> &amp; ' +
+        '<a href="https://example.com/?a=1&amp;b=2"><b>link</b></a>.</p>' +
+        '<blockquote>Quoted text</blockquote>' +
+        '<pre>let a = 1 &lt; 2</pre>' +
+        '<p><u>mail a@b</u>.c <s><i>crossing</i></s></p>'
+    )
+
+    mockHistory(0, {
+      0: [
+        message(1, {
+          content: {
+            '@type': 'messageText',
+            'text': {
+              '@type': 'formattedText',
+              'entities': [
+                {
+                  '@type': 'textEntity',
+                  'length': 5,
+                  'offset': 0,
+                  'type': { '@type': 'textEntityTypeEmailAddress' }
+                }
+              ],
+              'text': 'a@b.c'
+            }
+          }
+        })
+      ]
+    })
+    equal(
+      (await loadFeedPosts())[0]!.full,
+      '<p><a href="mailto:a@b.c">a@b.c</a></p>'
+    )
+  })
+
   test('skips service messages and marks unknown content', async () => {
     mockHistory(9, {
       0: [message(9, { content: null }), message(8)],

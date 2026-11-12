@@ -73,6 +73,7 @@ const ALLOWED_TAGS = [
   'time',
   'tr',
   'track',
+  'u',
   'ul',
   'video'
 ]

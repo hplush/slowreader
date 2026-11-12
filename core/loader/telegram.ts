@@ -433,11 +433,143 @@ function groupAlbums(messages: TelegramObject[]): TelegramObject[][] {
   return groups
 }
 
+interface TextEntity {
+  children: TextEntity[]
+  end: number
+  start: number
+  type: Record<string, unknown>
+}
+
+function nestEntities(entities: unknown): TextEntity[] {
+  let roots: TextEntity[] = []
+  let parents: TextEntity[] = []
+  let sorted = (Array.isArray(entities) ? entities : [])
+    .filter(isObject)
+    .map(entity => ({
+      children: [],
+      end: Number(entity.offset) + Number(entity.length),
+      start: Number(entity.offset),
+      type: isObject(entity.type) ? entity.type : {}
+    }))
+    .toSorted((a, b) => a.start - b.start || b.end - a.end)
+  for (let entity of sorted) {
+    while (parents.length > 0 && entity.start >= parents.at(-1)!.end) {
+      parents.pop()
+    }
+    let parent = parents.at(-1)
+    if (parent && entity.end > parent.end) continue
+    ;(parent ? parent.children : roots).push(entity)
+    parents.push(entity)
+  }
+  return roots
+}
+
+function escapeText(text: string): string {
+  return escapeXml(text).replaceAll('\n', '<br>')
+}
+
+function formatInside(
+  text: string,
+  start: number,
+  end: number,
+  entities: TextEntity[]
+): string {
+  let html = ''
+  let position = start
+  for (let entity of entities) {
+    html += escapeText(text.slice(position, entity.start))
+    html += formatEntity(text, entity)
+    position = entity.end
+  }
+  return html + escapeText(text.slice(position, end))
+}
+
+function formatEntity(text: string, entity: TextEntity): string {
+  let raw = text.slice(entity.start, entity.end)
+  let inside = formatInside(text, entity.start, entity.end, entity.children)
+  let type = String(entity.type['@type']).replace('textEntityType', '')
+  let tag = {
+    BlockQuote: 'blockquote',
+    Bold: 'b',
+    Code: 'code',
+    ExpandableBlockQuote: 'blockquote',
+    Italic: 'i',
+    Pre: 'pre',
+    PreCode: 'pre',
+    Strikethrough: 's',
+    Underline: 'u'
+  }[type]
+  let href = {
+    EmailAddress: `mailto:${raw}`,
+    Mention: `https://t.me/${raw.slice(1)}`,
+    TextUrl: String(entity.type.url),
+    Url: /^[a-z][\w+.-]*:/i.test(raw) ? raw : `https://${raw}`
+  }[type]
+  if (tag === 'pre') {
+    return `<pre>${escapeXml(raw)}</pre>`
+  } else if (tag) {
+    return `<${tag}>${inside}</${tag}>`
+  } else if (href) {
+    return `<a href="${escapeXml(href)}">${inside}</a>`
+  } else {
+    // Hashtag, custom emoji, spoiler, and other entities without HTML tag
+    return inside
+  }
+}
+
+/**
+ * TDLib text with entities to HTML. Offsets are in UTF-16 code units,
+ * like JS string indexes. Empty line starts a new paragraph.
+ */
+function formatText(formatted: unknown): string {
+  if (!isObject(formatted) || typeof formatted.text !== 'string') return ''
+  let text = formatted.text
+  let blocks: { html: string; paragraph: boolean }[] = []
+
+  function addInline(html: string): void {
+    let last = blocks.at(-1)
+    if (last?.paragraph) {
+      last.html += html
+    } else {
+      blocks.push({ html, paragraph: true })
+    }
+  }
+
+  function addText(from: number, to: number): void {
+    text
+      .slice(from, to)
+      .split(/\n{2,}/)
+      .forEach((part, index) => {
+        if (index > 0) blocks.push({ html: '', paragraph: true })
+        addInline(escapeText(part))
+      })
+  }
+
+  let position = 0
+  for (let entity of nestEntities(formatted.entities)) {
+    addText(position, entity.start)
+    let html = formatEntity(text, entity)
+    if (/^<(pre|blockquote)>/.test(html)) {
+      blocks.push({ html, paragraph: false })
+    } else {
+      addInline(html)
+    }
+    position = entity.end
+  }
+  addText(position, text.length)
+  return blocks
+    .map(block => {
+      if (!block.paragraph) return block.html
+      let html = block.html.replaceAll(/^(<br>)+|(<br>)+$/g, '')
+      return html ? `<p>${html}</p>` : ''
+    })
+    .join('')
+}
+
 function getText(message: TelegramObject): string {
   let content = message.content
   if (!isObject(content)) return ''
-  let text = isObject(content.text) ? content.text : content.caption
-  return isObject(text) && typeof text.text === 'string' ? text.text : ''
+  return formatText(isObject(content.text) ? content.text : content.caption)
 }
 
 /**
@@ -464,9 +596,6 @@ function toPost(
   let text = messages.map(getText).find(Boolean)
   if (text) {
     post.full = text
-      .split(/\n{2,}/)
-      .map(part => `<p>${escapeXml(part).replaceAll('\n', '<br>')}</p>`)
-      .join('')
   } else {
     post.unsupported = true
   }
