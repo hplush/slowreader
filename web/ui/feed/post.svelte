@@ -60,6 +60,7 @@
   let url = $derived(userPostUrl(post))
   let badges = $derived(getPostBadges(post))
   let hasByline = $derived(!!(author || post.author || post.repostedBy))
+  let dynamic = $derived('dynamic' in post ? post.dynamic : undefined)
 </script>
 
 {#snippet byline()}
@@ -88,6 +89,7 @@
 
 <li
   class="feed-post"
+  class:is-ad={dynamic}
   class:is-current={current}
   class:is-protected={post.protected}
   class:is-read={'read' in post && post.read}
@@ -96,14 +98,19 @@
     if (post.protected) event.preventDefault()
   }}
 >
-  <a
-    class="feed-post_link"
-    aria-controls={current ? getPopupId('post', param) : null}
-    aria-current={current ? 'page' : null}
-    aria-labelledby={`feed-content-${post.id}`}
-    href={getPopupHash(highlight ? undefined : $router, 'post', param)}
-  ></a>
+  {#if !dynamic}
+    <a
+      class="feed-post_link"
+      aria-controls={current ? getPopupId('post', param) : null}
+      aria-current={current ? 'page' : null}
+      aria-labelledby={`feed-content-${post.id}`}
+      href={getPopupHash(highlight ? undefined : $router, 'post', param)}
+    ></a>
+  {/if}
   <article id={`feed-content-${post.id}`} class="feed-post_content">
+    {#if dynamic}
+      <p class="feed-post_label">{$t[dynamic]}</p>
+    {/if}
     {#if !hasByline}
       <div class="feed-post_heading" class:is-date-only={!post.title}>
         {@render date()}
@@ -172,49 +179,51 @@
         {$postMessages.unsupported}
       </Note>
     {/if}
-    <footer class="feed-post_actions">
-      {#if badges.length > 0}
-        <div class="feed-post_badges">
-          <PostBadges {badges} />
-        </div>
-      {/if}
-      <div class="feed-post_fill"></div>
-      {#if url && canShare()}
-        <div class="feed-post_action">
+    {#if !dynamic}
+      <footer class="feed-post_actions">
+        {#if badges.length > 0}
+          <div class="feed-post_badges">
+            <PostBadges {badges} />
+          </div>
+        {/if}
+        <div class="feed-post_fill"></div>
+        {#if url && canShare()}
+          <div class="feed-post_action">
+            <Button
+              icon={mdiShareVariantOutline}
+              onclick={() => {
+                shareUrl(url)
+              }}
+              size="icon"
+              variant="plain"
+            >
+              {$postMessages.share}
+            </Button>
+          </div>
+        {/if}
+        {#if url}
           <Button
-            icon={mdiShareVariantOutline}
-            onclick={() => {
-              shareUrl(url)
-            }}
+            href={url}
+            icon={mdiOpenInNew}
+            size="icon"
+            target="_blank"
+            variant="plain"
+          >
+            {$t.openPostLink}
+          </Button>
+        {/if}
+        {#if more}
+          <Button
+            href={getPopupHash(highlight ? undefined : $router, 'post', param)}
+            icon={mdiChevronRight}
             size="icon"
             variant="plain"
           >
-            {$postMessages.share}
+            {$t.more}
           </Button>
-        </div>
-      {/if}
-      {#if url}
-        <Button
-          href={url}
-          icon={mdiOpenInNew}
-          size="icon"
-          target="_blank"
-          variant="plain"
-        >
-          {$t.openPostLink}
-        </Button>
-      {/if}
-      {#if more}
-        <Button
-          href={getPopupHash(highlight ? undefined : $router, 'post', param)}
-          icon={mdiChevronRight}
-          size="icon"
-          variant="plain"
-        >
-          {$t.more}
-        </Button>
-      {/if}
-    </footer>
+        {/if}
+      </footer>
+    {/if}
   </article>
 </li>
 
@@ -238,12 +247,17 @@
       background: var(--feed-post-background);
       border: calc(var(--min-size) / 2) solid var(--flat-border-color);
 
-      &:not(.is-read) {
+      &:not(.is-read, .is-ad) {
         --feed-post-background: --tune-background(--field);
       }
 
-      &.is-read {
+      &.is-read,
+      &.is-ad {
         color: var(--secondary-text-color);
+      }
+
+      &.is-ad {
+        padding-bottom: 0.875rem;
       }
 
       &:not(:last-child) {
@@ -353,6 +367,18 @@
     .feed-post_title {
       margin-top: -0.325rem;
       font: var(--post-card-title-font);
+
+      .feed-post.is-ad & {
+        margin-top: 0;
+        font: inherit;
+        font-weight: var(--semibold-weight);
+      }
+    }
+
+    .feed-post_label {
+      margin-top: -0.25rem;
+      font: var(--control-secondary-font);
+      color: var(--secondary-text-color);
     }
 
     .feed-post_actions {

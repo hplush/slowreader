@@ -1228,6 +1228,124 @@ describe('telegram loader', () => {
     equal(await isMediaCached('telegram:5/5/preview'), true)
   })
 
+  test('gives ad of the channel as a dynamic post', async () => {
+    deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
+    mockHistory(0, {})
+    let auth = {
+      account: testAccount({ credentials: null, service: 'telegram' }),
+      device: 'name',
+      expire: () => Promise.resolve(),
+      reload: () => Promise.resolve(undefined),
+      save: () => Promise.resolve()
+    }
+    function loadDynamic(): Promise<object[]> {
+      return loaders.telegram.getDynamicPosts!(
+        task,
+        'https://t.me/a',
+        '{"id":"-1000000000005"}',
+        auth
+      )
+    }
+    function mockAds(...messages: object[]): void {
+      testTelegram.answers.getChatSponsoredMessages = {
+        '@type': 'sponsoredMessages',
+        messages
+      }
+    }
+
+    mockAds(
+      {
+        '@type': 'sponsoredMessage',
+        'additional_info': '18+',
+        'button_text': 'Open <site>',
+        'content': photoPost.content,
+        'is_recommended': false,
+        'message_id': 9,
+        'sponsor': {
+          '@type': 'advertisementSponsor',
+          'info': 'Shop Inc.',
+          'url': 'https://shop.example.com/?a=1&b=2'
+        },
+        'title': 'Shop'
+      },
+      { '@type': 'sponsoredMessage', 'message_id': 10 }
+    )
+    deepEqual(await loadDynamic(), [
+      {
+        dynamic: 'sponsored',
+        full:
+          '<p>Caption</p>' +
+          '<p><a href="https://shop.example.com/?a=1&amp;b=2">' +
+          'Open &lt;site&gt;</a></p><p>Shop Inc.</p><p>18+</p>',
+        media: [
+          {
+            placeholder: 'data:image/jpeg;base64,AAAA',
+            type: 'image',
+            url: 'telegram:5/sponsored/9'
+          }
+        ],
+        mediaSizes: [{ bytes: 1000, height: 500, width: 800 }],
+        originId: '9',
+        title: 'Shop',
+        url: 'https://shop.example.com/?a=1&b=2'
+      }
+    ])
+
+    testTelegram.answers.downloadFile = ({ file_id: id }) => ({
+      '@type': 'file',
+      id,
+      'size': 5
+    })
+    testTelegram.files = { 12: new Blob(['photo']) }
+    testTelegram.requests = []
+    let image = await loaders.telegram.getMedia!('telegram:5/sponsored/9')!
+    equal(await image.text(), 'photo')
+    equal(
+      testTelegram.requests.some(i => i['@type'] === 'getMessage'),
+      false
+    )
+
+    mockAds({
+      '@type': 'sponsoredMessage',
+      'additional_info': '',
+      'button_text': 'View channel',
+      'content': {
+        '@type': 'messageText',
+        'text': { '@type': 'formattedText', 'text': 'Join us' }
+      },
+      'is_recommended': true,
+      'message_id': 10,
+      'sponsor': {
+        '@type': 'advertisementSponsor',
+        'info': '',
+        'url': 'https://t.me/other'
+      },
+      'title': 'Channel'
+    })
+    deepEqual(await loadDynamic(), [
+      {
+        dynamic: 'recommended',
+        full: '<p>Join us</p><p><a href="https://t.me/other">View channel</a></p>',
+        originId: '10',
+        title: 'Channel',
+        url: 'https://t.me/other'
+      }
+    ])
+
+    mockAds({ '@type': 'sponsoredMessage', 'message_id': 11 })
+    deepEqual(await loadDynamic(), [])
+    mockAds()
+    deepEqual(await loadDynamic(), [])
+    testTelegram.answers.getChatSponsoredMessages = {
+      '@type': 'sponsoredMessages'
+    }
+    deepEqual(await loadDynamic(), [])
+    deepEqual(
+      await loaders.telegram.getDynamicPosts!(task, 'https://t.me/a'),
+      []
+    )
+  })
+
   test('skips service messages and marks unknown content', async () => {
     mockHistory(9, {
       0: [message(9, { content: null }), message(8)],

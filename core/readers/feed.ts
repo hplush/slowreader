@@ -3,7 +3,7 @@ import { computed } from 'nanostores'
 import { getUserPostUrls } from '../account.ts'
 import { humanizeUrl } from '../format.ts'
 import { hasPersonAvatar } from '../loader/index.ts'
-import { createReader, type FeedAuthor } from './common.ts'
+import { createReader, type FeedAuthor, loadDynamicFor } from './common.ts'
 import { numberPager, nextPager } from './pagers.ts'
 
 export const feedReader = createReader('feed', (filter, params) => {
@@ -31,6 +31,7 @@ export const feedReader = createReader('feed', (filter, params) => {
       }
       return authors
     }),
+    dynamic: loadDynamicFor(filter),
     userPostUrl: getUserPostUrls()
   }
 })

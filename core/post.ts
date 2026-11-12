@@ -53,6 +53,7 @@ export type LoadedAuthor = { loaderData?: string } & PostAuthor
 
 export type ParsedPost = {
   author?: LoadedAuthor
+  dynamic?: 'recommended' | 'sponsored'
   /**
    * Home timeline shows it by this followed hashtag, the author could be
    * not followed. Not saved to the database.

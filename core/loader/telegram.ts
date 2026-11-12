@@ -80,6 +80,7 @@ interface Session {
    * Parallel refreshes of channels share one loading of the chat list.
    */
   loadingChats: Promise<void> | undefined
+  sponsored: Map<string, TelegramObject>
   state: TelegramObject | undefined
   waiters: Set<(state: TelegramObject) => void>
 }
@@ -98,6 +99,7 @@ function getSession(name: string): Session {
     idle: undefined,
     keep: false,
     loadingChats: undefined,
+    sponsored: new Map(),
     state: undefined,
     waiters: new Set()
   }
@@ -770,16 +772,12 @@ function getMediaFile(
 }
 
 function toMedia(
-  chatId: number,
+  url: string,
   message: TelegramObject
 ): [PostMedia, MediaSize] | undefined {
   let file = getMediaFile(message)
   if (!file) return undefined
   let content = message.content as Record<string, unknown>
-  // Channel ID as in t.me/c/ links
-  let url =
-    `telegram:${String(-chatId - 1e12)}/` +
-    String(Number(message.id) / MESSAGE_ID_STEP)
   let media: PostMedia = {
     type: content.animation ? 'video;mode=gif' : file.type.split('/')[0]!,
     url
@@ -826,11 +824,12 @@ async function loadMedia(
     try {
       await loadChat(device, chatId)
       let file = getMediaFile(
-        await sendToTelegram(device, {
-          '@type': 'getMessage',
-          'chat_id': chatId,
-          'message_id': messageId
-        }),
+        getSession(device).sponsored.get(`${chatId}/${messageId}`) ??
+          (await sendToTelegram(device, {
+            '@type': 'getMessage',
+            'chat_id': chatId,
+            'message_id': messageId
+          })),
         part
       )
       if (!file) throw new Error('Telegram post has no such media')
@@ -886,7 +885,14 @@ async function toPost(
   if (text) post.full = text
   let media = messages
     .toReversed()
-    .map(message => toMedia(chatId, message))
+    .map(message => {
+      return toMedia(
+        // Channel ID as in t.me/c/ links
+        `telegram:${String(-chatId - 1e12)}/` +
+          String(Number(message.id) / MESSAGE_ID_STEP),
+        message
+      )
+    })
     .filter(item => !!item)
   if (media.length > 0) {
     post.media = media.map(([item]) => item)
@@ -1091,13 +1097,57 @@ export const telegram: Loader = {
     return false
   },
 
+  async getDynamicPosts(task, url, loaderData, auth) {
+    if (!auth) return []
+    let name = getDevice(auth)
+    let chatId = Number(readLoaderData(loaderData, 'id'))
+    await loadChat(name, chatId)
+    let answer = await sendToTelegram(name, {
+      '@type': 'getChatSponsoredMessages',
+      'chat_id': chatId
+    })
+    let found = Array.isArray(answer.messages)
+      ? (answer.messages as unknown[])[0]
+      : undefined
+    if (!isObject(found) || !isObject(found.sponsor)) return []
+    let message: TelegramObject = { ...found, '@type': 'sponsoredMessage' }
+    let id = String(found.message_id)
+    getSession(name).sponsored.set(`${chatId}/${id}`, message)
+    let link = String(found.sponsor.url)
+    let post: ParsedPost = {
+      dynamic: found.is_recommended ? 'recommended' : 'sponsored',
+      full:
+        getText(message) +
+        `<p><a href="${escapeXml(link)}">` +
+        `${escapeText(String(found.button_text))}</a></p>` +
+        [found.sponsor.info, found.additional_info]
+          .filter(info => typeof info === 'string' && info !== '')
+          .map(info => `<p>${escapeText(String(info))}</p>`)
+          .join(''),
+      originId: id,
+      title: String(found.title),
+      url: link
+    }
+    let media = toMedia(
+      `telegram:${String(-chatId - 1e12)}/sponsored/${id}`,
+      message
+    )
+    if (media) {
+      post.media = [media[0]]
+      post.mediaSizes = [media[1]]
+    }
+    return [post]
+  },
+
   getMedia(url) {
-    let match = /^telegram:(\d+)\/(\d+)(?:\/(poster|preview))?$/.exec(url)
+    let match =
+      /^telegram:(\d+)\/(sponsored\/)?(\d+)(?:\/(poster|preview))?$/.exec(url)
     return match
       ? loadMedia(
           -1e12 - Number(match[1]),
-          Number(match[2]) * MESSAGE_ID_STEP,
-          match[3]
+          // Ads have own IDs outside of post numbers
+          Number(match[3]) * (match[2] ? 1 : MESSAGE_ID_STEP),
+          match[4]
         )
       : undefined
   },

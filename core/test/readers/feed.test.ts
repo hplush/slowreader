@@ -9,11 +9,14 @@ import {
   addFeed,
   addPost,
   changeRead,
+  deviceSessions,
   type FeedReader,
   getFeedAuthor,
   hasUnreadPosts,
   listReader,
+  loaders,
   loadPost,
+  saveDataMode,
   testAccount,
   testFeed,
   testPost,
@@ -25,6 +28,7 @@ import {
   cleanClient,
   numberPagination,
   ensureReader,
+  expectWarning,
   openPage,
   openRoute,
   nextPagination,
@@ -271,5 +275,132 @@ describe('feed reader', () => {
     await setTimeout(10)
     equal(await hasUnreadPosts('fast', { categoryId }), false)
     equal((await loadPost('o1'))!.read, false)
+  })
+
+  test('shows posts, which services have only during reading', async t => {
+    let service = loaders.telegram
+    let ad = {
+      dynamic: 'sponsored' as const,
+      full: '<p>Text</p>',
+      originId: '9',
+      title: 'Shop',
+      url: 'https://shop.example.com/'
+    }
+    let failing: Error | undefined
+    let loaded = 0
+    let withAuth: string[] = []
+    let { getDynamicPosts } = service
+    t.after(() => {
+      service.getDynamicPosts = getDynamicPosts
+    })
+    service.getDynamicPosts = (task, url, loaderData, auth) => {
+      loaded += 1
+      if (auth) withAuth.push(url)
+      if (failing) return Promise.reject(failing)
+      return Promise.resolve(url === 'https://t.me/ads' ? [ad] : [])
+    }
+
+    let accountId = await addAccount(
+      testAccount({ credentials: null, service: 'telegram' })
+    )
+    let signedOut = await addAccount(
+      testAccount({ credentials: null, service: 'telegram' })
+    )
+    deviceSessions.set({ [accountId]: { device: 'name', service: 'telegram' } })
+    t.after(() => {
+      deviceSessions.set({})
+    })
+    let categoryId = await addCategory({ fastReader: 'feed', title: 'A' })
+    let [ads, free, away, rss, fast] = await Promise.all(
+      [
+        { accountId, loader: 'telegram' as const, url: 'https://t.me/ads' },
+        { accountId, loader: 'telegram' as const, url: 'https://t.me/free' },
+        {
+          accountId: signedOut,
+          loader: 'telegram' as const,
+          url: 'https://t.me/away'
+        },
+        { url: 'https://example.com/rss' },
+        {
+          accountId,
+          categoryId,
+          loader: 'telegram' as const,
+          url: 'https://t.me/ads'
+        }
+      ].map(feed => addFeed(testFeed({ slowReader: 'feed', ...feed })))
+    )
+    for (let feedId of [ads!, free!, away!, rss!]) {
+      await addPost(testPost({ feedId, reading: 'slow' }))
+    }
+    await addPost(testPost({ feedId: fast!, reading: 'fast' }))
+
+    async function loadDynamic(
+      params: { category: string } | { feed: string }
+    ): Promise<object[]> {
+      openRoute({ params: {}, route: 'about' })
+      let page =
+        'feed' in params
+          ? openPage({ params, route: 'slow' })
+          : openPage({ params, route: 'fast' })
+      await waitLoading(page.postsLoading)
+      let { dynamic } = ensureReader(page.posts, 'feed')
+      t.after(dynamic.listen(() => {}))
+      await setTimeout(10)
+      return dynamic.get().map(post => ({
+        dynamic: post.dynamic,
+        full: post.full,
+        id: post.id,
+        loader: post.loader,
+        title: post.title,
+        url: post.url
+      }))
+    }
+
+    t.mock.timers.enable({ apis: ['Date'], now: 1_000_000 })
+    let shown = [
+      {
+        dynamic: 'sponsored',
+        full: '<p>Text</p>',
+        id: `${ads} 9`,
+        loader: 'telegram',
+        title: 'Shop',
+        url: 'https://shop.example.com/'
+      }
+    ]
+    deepEqual(await loadDynamic({ feed: ads! }), shown)
+    deepEqual(await loadDynamic({ feed: free! }), [])
+    deepEqual(await loadDynamic({ feed: away! }), [])
+    deepEqual(await loadDynamic({ feed: rss! }), [])
+    equal(loaded, 3)
+    deepEqual(withAuth, ['https://t.me/ads', 'https://t.me/free'])
+
+    // Fast list mixes feeds and should not grow by posts of every of them
+    deepEqual(await loadDynamic({ category: categoryId }), [])
+    equal(loaded, 3)
+
+    t.mock.timers.tick(299_000)
+    deepEqual(await loadDynamic({ feed: ads! }), shown)
+    equal(loaded, 3)
+
+    t.mock.timers.tick(2000)
+    failing = new Error('Telegram is offline')
+    failing.name = 'TelegramError'
+    deepEqual(await loadDynamic({ feed: ads! }), [])
+    equal(loaded, 4)
+
+    t.mock.timers.tick(301_000)
+    failing = undefined
+    saveDataMode.set('on')
+    t.after(() => {
+      saveDataMode.set('auto')
+    })
+    deepEqual(await loadDynamic({ feed: ads! }), [])
+    equal(loaded, 4)
+
+    saveDataMode.set('auto')
+    failing = new Error('Bug')
+    await expectWarning(async () => {
+      deepEqual(await loadDynamic({ feed: ads! }), [])
+    }, [failing])
   })
 })

@@ -10,5 +10,7 @@ export const feedsMessages = i18n('feeds', {
   prevPage: 'Back',
   reader: 'Read mode',
   readPage: 'Mark as read',
-  readPageAndNext: 'Mark as read & load next'
+  readPageAndNext: 'Mark as read & load next',
+  recommended: 'Recommended',
+  sponsored: 'Sponsored'
 })

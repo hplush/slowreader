@@ -1,7 +1,15 @@
 import type { SqlStore } from '@nanostores/sql'
-import type { ReadableAtom, WritableAtom } from 'nanostores'
+import { atom, onMount, type ReadableAtom, type WritableAtom } from 'nanostores'
 
+import { canUseAccount, getAccountAuth, loadAccounts } from '../account.ts'
+import { onClient } from '../client.ts'
+import { getEnvironment } from '../environment.ts'
+import { isRemoteError } from '../errors.ts'
+import { loadFeed } from '../feed.ts'
+import { createDownloadTask } from '../lib/download.ts'
+import { isSaveData } from '../lib/network.ts'
 import { nextValue } from '../lib/stores.ts'
+import { loaders } from '../loader/index.ts'
 import { slowMenu, unreadFastMenu } from '../menu.ts'
 import {
   addHandles,
@@ -11,7 +19,8 @@ import {
   type PostValue,
   type PreviewPost,
   type ReaderPost,
-  type ReaderPostWith
+  type ReaderPostWith,
+  toPreviewPost
 } from '../post.ts'
 import { navigate, router, type Routes } from '../router.ts'
 import { getCrdt, getTables } from '../schema.ts'
@@ -528,4 +537,60 @@ export function trackReadPosts(
     })
     if (next.some((post, index) => post !== prev[index])) list.set(next)
   })
+}
+
+let dynamicCache = new Map<
+  string,
+  { loadedAt: number; posts: Promise<PreviewPost[]> }
+>()
+
+onClient(() => () => {
+  dynamicCache.clear()
+})
+
+async function loadDynamicPosts(feedId: string): Promise<PreviewPost[]> {
+  let feed = await loadFeed(feedId)
+  if (!feed || !loaders[feed.loader].getDynamicPosts) return []
+  let account = (await loadAccounts()).find(i => i.id === feed.accountId)
+  try {
+    let posts = await loaders[feed.loader].getDynamicPosts!(
+      createDownloadTask(),
+      feed.url,
+      feed.loaderData,
+      account && canUseAccount(account) ? getAccountAuth(account) : undefined
+    )
+    return posts.map(post => {
+      return toPreviewPost(
+        { ...post, id: `${feedId} ${post.originId}` },
+        feed.loader
+      )
+    })
+  } catch (e) {
+    if (!isRemoteError(e)) getEnvironment().warn(e)
+    return []
+  }
+}
+
+/**
+ * Posts, which the service shows with the feed only at the moment of reading,
+ * like ads in Telegram. Only for a single Useful feed. Service changes them,
+ * but we do not ask it on every opening, and never in Save Data mode.
+ */
+export function loadDynamicFor(
+  filter: PostFilter
+): ReadableAtom<PreviewPost[]> {
+  let $dynamic = atom<PreviewPost[]>([])
+  onMount($dynamic, () => {
+    let { feedId } = filter
+    if (filter.reading !== 'slow' || !feedId || isSaveData()) return
+    let cached = dynamicCache.get(feedId)
+    if (!cached || cached.loadedAt < Date.now() - 300_000) {
+      cached = { loadedAt: Date.now(), posts: loadDynamicPosts(feedId) }
+      dynamicCache.set(feedId, cached)
+    }
+    void cached.posts.then(posts => {
+      $dynamic.set(posts)
+    })
+  })
+  return $dynamic
 }

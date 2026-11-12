@@ -17,6 +17,7 @@
   import { getPopupHash } from '../../stores/url-router.ts'
   import Button from '../../ui/button.svelte'
   import FeedLink from '../../ui/feed-link.svelte'
+  import Feed from '../../ui/feed/index.svelte'
   import Loader from '../../ui/loader.svelte'
   import NavbarFast from '../../ui/navbar/fast.svelte'
   import NavbarSlow from '../../ui/navbar/slow.svelte'
@@ -38,6 +39,8 @@
     $posts?.name === 'feed' || $posts?.name === 'list' ? $posts : undefined
   )
   let list = $derived(reader?.list)
+  let dynamic = $derived(reader?.dynamic)
+  let userPostUrl = $derived(reader?.userPostUrl)
   let readingPage = $derived(reader?.readingPage)
   let nextPagination = $derived(
     reader?.pagination.type === 'next' ? reader.pagination : undefined
@@ -107,6 +110,9 @@
         <FeedsFeedPage feedUrl={$feed?.url} reader={$posts} />
       {:else}
         <FeedsListPage reader={$posts} />
+      {/if}
+      {#if $dynamic?.length && $userPostUrl}
+        <Feed posts={$dynamic} userPostUrl={$userPostUrl} />
       {/if}
       {#if reader && nextPagination}
         <NextPagination

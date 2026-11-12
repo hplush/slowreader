@@ -258,6 +258,19 @@ export type Loader = {
   getOriginId?(loaderData: string): string | undefined
 
   /**
+   * Posts, which the service shows with the feed only at the moment
+   * of reading, like ad. They have `dynamic`, are not saved,
+   * and not counted as unread. Readers ask for them on opening the feed
+   * and show them under its posts. `auth` is passed for a feed of account.
+   */
+  getDynamicPosts?(
+    task: DownloadTask,
+    url: string,
+    loaderData?: null | string,
+    auth?: AccountAuth
+  ): Promise<ParsedPost[]>
+
+  /**
    * Extracts the feed's posts.
    *
    * If the URL’s document was already downloaded during the feed’s search.

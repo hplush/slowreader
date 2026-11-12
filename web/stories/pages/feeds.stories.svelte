@@ -1,8 +1,10 @@
 <script context="module" lang="ts">
   import {
     changePost,
+    deviceSessions,
     type FeedsPage as FeedsPageStore,
     GENERAL_CATEGORY,
+    loaders,
     navigate,
     pages,
     type PostValue,
@@ -529,30 +531,67 @@
   </Scene>
 </Story>
 
-<Story name="Feed Protected" asChild parameters={{ layout: 'fullscreen' }}>
+<Story
+  name="Feed Telegram Protected"
+  asChild
+  parameters={{ layout: 'fullscreen' }}
+>
   <Scene
+    accounts={[{ credentials: null, id: 'account', service: 'telegram' }]}
     feeds={[
       {
-        id: 'feed',
+        accountId: 'account',
+        id: 'shop',
+        loader: 'telegram',
         protected: true,
-        reading: 'fast',
-        title: 'Channel, which forbids copying'
+        reading: 'slow',
+        slowReader: 'feed',
+        title: 'Channel with ads, which forbids copying',
+        url: 'https://t.me/shop'
       }
     ]}
+    oninit={() => {
+      deviceSessions.set({ account: { device: 'name', service: 'telegram' } })
+      loaders.telegram.getDynamicPosts = () => {
+        return Promise.resolve([
+          {
+            dynamic: 'sponsored',
+            full:
+              '<p>Service demands to show its ads under the posts.</p>' +
+              '<p><a href="https://example.com/shop">Open site</a></p>' +
+              '<p>Shop Inc.</p><p>18+</p>',
+            media: [{ type: 'image', url: imgExample }],
+            mediaSizes: [{ height: 441, width: 700 }],
+            originId: '1',
+            title: 'Shop of long names, which do not fit into one line',
+            url: 'https://example.com/shop'
+          },
+          {
+            dynamic: 'recommended',
+            full:
+              '<p>Short text</p>' +
+              '<p><a href="https://t.me/another">View channel</a></p>',
+            originId: '2',
+            title: 'Another channel',
+            url: 'https://t.me/another'
+          }
+        ])
+      }
+    }}
     posts={[
       {
-        feedId: 'feed',
+        feedId: 'shop',
         full:
           '<p>Text can not be selected or copied. The image has no menu ' +
           'to save it and can not be dragged out. The post is hidden ' +
           'on print.</p>',
         media: [{ type: 'image', url: imgExample }],
-        reading: 'fast'
+        reading: 'slow'
       }
     ]}
-    route={{ params: { category: GENERAL_CATEGORY }, route: 'fast' }}
+    route={{ params: { feed: 'shop' }, route: 'slow' }}
   >
-    <FeedsPage page={pages.fast()} />
+    <FeedsPage page={pages.slow()} />
   </Scene>
 </Story>
 
