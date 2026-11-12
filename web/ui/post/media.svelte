@@ -20,8 +20,21 @@
 
   let {
     media,
+    protect = false,
     warningClicked = false
-  }: { media: ReaderMedia[]; warningClicked?: boolean } = $props()
+  }: {
+    media: ReaderMedia[]
+    protect?: boolean | null
+    warningClicked?: boolean
+  } = $props()
+
+  function blockSaving(event: Event): void {
+    if (protect) event.preventDefault()
+  }
+
+  function playAfterClick(url: string, video: HTMLVideoElement): void {
+    if (clicked === url && video.paused) video.play().catch(() => {})
+  }
 
   let broken = new SvelteSet<string>()
   let loaded = new SvelteSet<string>()
@@ -67,7 +80,14 @@
 {/snippet}
 
 {#if media.length > 0}
-  <div class="post-media" class:is-hidden={hidden}>
+  <div
+    class="post-media"
+    class:is-hidden={hidden}
+    class:is-protected={protect}
+    oncontextmenu={blockSaving}
+    ondragstart={blockSaving}
+    role="presentation"
+  >
     <div class="post-media_list" inert={hidden}>
       {#each media as item, index (`${item.url}${index}`)}
         {#if waitsClick(item, $saveData, downloaded)}
@@ -102,7 +122,7 @@
             class="post-media_item"
             class:is-loading={!loaded.has(item.url)}
             {@attach focusClicked(item.url)}
-            {@attach mediaSrc(item.url)}
+            {@attach mediaSrc(item.url, { once: !!protect })}
             alt={item.alt ?? ''}
             decoding="async"
             height={item.size?.height}
@@ -121,8 +141,8 @@
           <video
             class="post-media_item"
             {@attach focusClicked(item.url)}
-            {@attach mediaSrc(item.url, 'src', false)}
-            {@attach mediaSrc(item.poster, 'poster')}
+            {@attach mediaSrc(item.url, { web: false })}
+            {@attach mediaSrc(item.poster, { attribute: 'poster' })}
             aria-label={item.alt}
             autoplay
             disablepictureinpicture
@@ -140,12 +160,19 @@
           <video
             class="post-media_item"
             {@attach focusClicked(item.url)}
-            {@attach mediaSrc(item.url, 'src', false)}
-            {@attach mediaSrc($saveData ? undefined : item.poster, 'poster')}
+            {@attach mediaSrc(item.url, { web: false })}
+            {@attach mediaSrc($saveData ? undefined : item.poster, {
+              attribute: 'poster'
+            })}
             aria-label={item.alt}
             autoplay={clicked === item.url}
             controls
+            controlslist={protect ? 'nodownload noremoteplayback' : undefined}
+            disablepictureinpicture={!!protect}
             height={item.size?.height}
+            onloadeddata={event => {
+              playAfterClick(item.url, event.currentTarget)
+            }}
             playsinline
             preload="none"
             title={item.alt}
@@ -205,6 +232,14 @@
       height: auto;
       overflow: hidden;
       border-radius: var(--base-radius);
+
+      .post-media.is-protected & {
+        -webkit-touch-callout: none;
+      }
+
+      .post-media.is-protected &:is(img) {
+        pointer-events: none;
+      }
 
       &.is-loading {
         background: --tune-background(--image-placeholder);

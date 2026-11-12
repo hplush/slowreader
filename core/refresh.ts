@@ -409,6 +409,11 @@ async function finishTarget(state: TargetRefresh): Promise<void> {
   let adding = await withoutDeletedPosts(state.adding)
   let { accounts, feeds, posts } = getTables()
   if ('feed' in target) {
+    let loaded = state.pages.get().list
+    let isProtected = loaded.some(post => post.protected)
+    if (loaded.length > 0 && isProtected !== !!target.feed.protected) {
+      await feeds.update(target.feed.id, { protected: isProtected })
+    }
     let frequency = getPostsFrequency(state.pages)
     let first = state.page[0]
     let lastPublishedAt = first && getSortedAt(first)

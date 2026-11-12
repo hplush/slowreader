@@ -125,6 +125,7 @@ describe('export page', () => {
           loader: 'rss',
           loaderData: null,
           originTitle: null,
+          protected: null,
           reading: 'fast',
           refreshedAt: null,
           slowReader: null,

@@ -220,7 +220,8 @@ export function loadPostsPage(
         "posts"."mediaSizes", "posts"."originId", "posts"."publishedAt",
         "posts"."sortedAt", "posts"."lang", "posts"."poll",
         "posts"."read", "posts"."title", "posts"."url", "posts"."author",
-        "posts"."preview", "posts"."quoted", "posts"."replied",
+        "posts"."preview", "feeds"."protected", "posts"."quoted",
+        "posts"."replied",
         "posts"."repostedBy", "posts"."threadId", "posts"."unsupported",
         "posts"."warning", (SELECT COUNT(*) FROM "posts" AS "thread"
           WHERE "thread"."threadId" = "posts"."threadId"
@@ -257,6 +258,8 @@ export function loadPostsPage(
     rows = getCrdt().select<ReaderPostRow>`
       SELECT "id", "feedId", "media", "mediaSizes", "originId",
         "publishedAt", "sortedAt", "read", "title", "url", "author", "preview",
+        (SELECT "protected" FROM "feeds"
+          WHERE "feeds"."id" = "posts"."feedId") AS "protected",
         "quoted", "lang", "poll",
         "replied", "repostedBy", "threadId", "unsupported", "warning",
         (SELECT COUNT(*) FROM "posts" AS "thread"
@@ -302,7 +305,8 @@ export function loadPostsRange(
         "posts"."mediaSizes", "posts"."originId", "posts"."publishedAt",
         "posts"."sortedAt", "posts"."lang", "posts"."poll",
         "posts"."read", "posts"."title", "posts"."url", "posts"."author",
-        "posts"."preview", "posts"."quoted", "posts"."replied",
+        "posts"."preview", "feeds"."protected", "posts"."quoted",
+        "posts"."replied",
         "posts"."repostedBy", "posts"."threadId", "posts"."unsupported",
         "posts"."warning", (SELECT COUNT(*) FROM "posts" AS "thread"
           WHERE "thread"."threadId" = "posts"."threadId"
@@ -339,6 +343,8 @@ export function loadPostsRange(
     rows = getCrdt().select<ReaderPostRow>`
       SELECT "id", "feedId", "media", "mediaSizes", "originId",
         "publishedAt", "sortedAt", "read", "title", "url", "author", "preview",
+        (SELECT "protected" FROM "feeds"
+          WHERE "feeds"."id" = "posts"."feedId") AS "protected",
         "quoted", "lang", "poll",
         "replied", "repostedBy", "threadId", "unsupported", "warning",
         (SELECT COUNT(*) FROM "posts" AS "thread"

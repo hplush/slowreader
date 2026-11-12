@@ -89,8 +89,12 @@
 <li
   class="feed-post"
   class:is-current={current}
+  class:is-protected={post.protected}
   class:is-read={'read' in post && post.read}
   {@attach pauseVideosWhenScrolledOut}
+  oncopy={event => {
+    if (post.protected) event.preventDefault()
+  }}
 >
   <a
     class="feed-post_link"
@@ -154,12 +158,13 @@
       {/if}
       <PostMedia
         media={getMediaOutsideText(post.media, intro, post.intro === null)}
+        protect={post.protected}
       />
       {#if post.quoted}
         <PostQuote quoted={post.quoted} {userPostUrl} />
       {/if}
       {#if post.preview}
-        <PostPreview preview={post.preview} />
+        <PostPreview preview={post.preview} protect={post.protected} />
       {/if}
     </PostWarning>
     {#if post.unsupported}
@@ -219,6 +224,15 @@
       --feed-post-background: var(--current-background);
 
       position: relative;
+
+      &.is-protected {
+        user-select: none;
+
+        @media print {
+          display: none;
+        }
+      }
+
       padding: 0.875rem var(--control-padding) 0 var(--control-padding);
       overflow-wrap: anywhere;
       background: var(--feed-post-background);

@@ -353,6 +353,7 @@ export function testFeed(feed: Partial<FeedValue> = {}): FeedValue {
     loader: 'rss',
     loaderData: null,
     originTitle: null,
+    protected: null,
     reading: 'fast',
     refreshedAt: null,
     slowReader: null,

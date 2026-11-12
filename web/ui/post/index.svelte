@@ -22,10 +22,12 @@
 
   let {
     post,
+    protect = false,
     repostHref,
     userPostUrl
   }: {
     post: WithHandles<OriginPost | PostValue>
+    protect?: boolean | null
     repostHref?: string
     userPostUrl: UserPostUrl
   } = $props()
@@ -33,7 +35,13 @@
   let text = $derived(sanitizeDOM(post.full || post.intro || ''))
 </script>
 
-<article class="post">
+<article
+  class="post"
+  class:is-protected={protect}
+  oncopy={event => {
+    if (protect) event.preventDefault()
+  }}
+>
   <PostByline author={post.author} {repostHref} repostedBy={post.repostedBy} />
   {#if post.title}
     <h1 class="post_title">
@@ -71,6 +79,7 @@
           text,
           false
         )}
+        {protect}
         {warningClicked}
       />
 
@@ -78,7 +87,7 @@
         <PostQuote full linked quoted={post.quoted} {userPostUrl} />
       {/if}
       {#if post.preview}
-        <PostPreview preview={post.preview} />
+        <PostPreview preview={post.preview} {protect} />
       {/if}
     {/snippet}
   </PostWarning>
@@ -97,6 +106,14 @@
       align-items: flex-start;
       width: stretch;
       font: var(--post-text-font);
+    }
+
+    .post.is-protected {
+      user-select: none;
+
+      @media print {
+        display: none;
+      }
     }
 
     .post_title {

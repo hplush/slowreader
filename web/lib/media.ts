@@ -25,12 +25,18 @@ export function pauseVideosWhenScrolledOut(node: Element): () => void {
 /**
  * Browser can not load media of some our loaders by URL on its own,
  * like `telegram:` URL. We load its file and show it by a local URL.
+ *
  * `web` is `false`, when `<source>` tags already have the web URL.
+ * `once` forgets the local URL after the image loading, so user can not
+ * open the file of a protected post in a new tab.
  */
 export function mediaSrc(
   url: null | string | undefined,
-  attribute: 'poster' | 'src' = 'src',
-  web = true
+  {
+    attribute = 'src',
+    once = false,
+    web = true
+  }: { attribute?: 'poster' | 'src'; once?: boolean; web?: boolean } = {}
 ): Attachment<HTMLElement> {
   return element => {
     let loading = url ? loadMediaBlob(url) : undefined
@@ -48,6 +54,15 @@ export function mediaSrc(
       blob => {
         if (removed) return
         local = URL.createObjectURL(blob)
+        if (once) {
+          element.addEventListener(
+            'load',
+            () => {
+              URL.revokeObjectURL(local!)
+            },
+            { once: true }
+          )
+        }
         element.setAttribute(attribute, local)
       },
       () => {

@@ -1048,8 +1048,13 @@ describe('telegram loader', () => {
         })
       ]
     })
+    let posts = await loadFeedPosts('{"id":"-1000000000005"}')
     deepEqual(
-      (await loadFeedPosts('{"id":"-1000000000005"}')).map(post => ({
+      posts.map(post => post.protected),
+      [undefined, undefined, undefined, undefined, true]
+    )
+    deepEqual(
+      posts.map(post => ({
         media: post.media,
         preview: post.preview,
         sizes: post.mediaSizes,
@@ -1100,12 +1105,18 @@ describe('telegram loader', () => {
           unsupported: undefined
         },
         {
-          // Telegram forbids to save media of protected channels
-          media: undefined,
+          media: [
+            {
+              poster: 'telegram:5/2/poster',
+              sensitive: true,
+              type: 'video',
+              url: 'telegram:5/2'
+            }
+          ],
           preview: undefined,
-          sizes: undefined,
+          sizes: [{ bytes: 5000, height: 848, width: 464 }],
           text: undefined,
-          unsupported: true
+          unsupported: undefined
         }
       ]
     )
@@ -1124,7 +1135,6 @@ describe('telegram loader', () => {
     })
     mockHistory(0, {})
     let posts: Record<number, TelegramObject> = {
-      2: message(2, { ...videoPost, can_be_saved: false }),
       3: videoPost,
       4: photoPost,
       5: previewPost,
@@ -1174,7 +1184,7 @@ describe('telegram loader', () => {
     equal(await (await getMedia!('telegram:5/3/poster')!).text(), 'post')
     equal(await (await getMedia!('telegram:5/5/preview')!).text(), 'prev')
 
-    for (let url of ['telegram:5/6', 'telegram:5/2', 'telegram:5/4/poster']) {
+    for (let url of ['telegram:5/6', 'telegram:5/4/poster']) {
       await rejects(getMedia!(url)!, {
         message: 'Telegram post has no such media'
       })
@@ -1314,6 +1324,18 @@ describe('telegram loader', () => {
     // Every channel is a separate request, so the progress counts it
     equal(refreshStatistics.get().totalFeeds, 4)
     equal(refreshStatistics.get().processedFeeds, 4)
+    equal(!!(await loadFeed(channel))!.protected, false)
+
+    // Author forbids or allows copying for all posts of the channel at once
+    mockHistory(2, { 0: [message(3, { can_be_saved: false })] })
+    await refreshPosts()
+    deepEqual(refreshErrors.get(), [])
+    equal((await loadFeed(channel))!.protected, true)
+    equal((await loadPosts()).filter(i => i.originId === '3').length, 2)
+
+    mockHistory(3, { 0: [message(3)] })
+    await refreshPosts()
+    equal((await loadFeed(channel))!.protected, false)
   })
 
   test('has no posts yet', async () => {

@@ -216,6 +216,7 @@ describe('import page', () => {
         lastPublishedAt: null,
         loaderData: null,
         originTitle: null,
+        protected: null,
         refreshedAt: null,
         slowReader: null
       }

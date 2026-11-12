@@ -8,7 +8,7 @@ import { type FeedValue, loadFeeds, loadFeedsByCategory } from '../feed.ts'
 import { type FilterValue, loadFilters } from '../filter.ts'
 import { formatCurrentTime } from '../format.ts'
 import { escapeXml } from '../lib/html.ts'
-import { loadPostsPage, type PostValue } from '../post.ts'
+import { loadPostsForExport, type PostValue } from '../post.ts'
 import { GENERAL_CATEGORY } from '../schema.ts'
 import {
   customPostFont,
@@ -161,7 +161,7 @@ export const exportPage = createPage('export', () => {
     file.write('  "posts": [')
     let total = 0
     while (true) {
-      let page = await loadPostsPage(POSTS_PER_PAGE, total)
+      let page = await loadPostsForExport(POSTS_PER_PAGE, total)
       if (stopped) break
       for (let post of page) {
         file.write(`${total === 0 ? '\n' : ',\n'}    ${JSON.stringify(post)}`)

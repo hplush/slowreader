@@ -15,6 +15,7 @@ import {
   cacheImages,
   changeFeed,
   encryptionKey,
+  GENERAL_CATEGORY,
   getMediaOutsideText,
   getPost,
   getPostBadges,
@@ -24,6 +25,7 @@ import {
   getQuotedIntro,
   isLoaderMedia,
   loadPost,
+  loadPostsForExport,
   type PostCardText,
   sanitizeDOM,
   saveDataMode,
@@ -33,6 +35,7 @@ import {
   toPreviewPost,
   waitsClick
 } from '../index.ts'
+import { loadPostsPage, topCursor } from '../readers/common.ts'
 import {
   cleanClient,
   setTestUser,
@@ -172,6 +175,36 @@ describe('post', () => {
     // Nothing to recognize the post by, so posts must not share the ID
     let empty = { id: 'a', originId: '', url: '' }
     notEqual(getPostId('feed', empty), getPostId('feed', { ...empty, id: 'b' }))
+  })
+
+  test('takes protection of the post from its feed', async () => {
+    let open = await addFeed(testFeed())
+    let closed = await addFeed(testFeed({ protected: true }))
+    let copyable = await addPost(testPost({ feedId: open, reading: 'slow' }))
+    await addPost(testPost({ feedId: closed, reading: 'slow' }))
+
+    // Author forbids to save posts of the feed
+    deepEqual(
+      (await loadPostsForExport(10, 0)).map(post => post.id),
+      [copyable]
+    )
+
+    async function getProtection(filter: object): Promise<string[]> {
+      let page = await loadPostsPage(
+        { reading: 'slow', ...filter },
+        topCursor(),
+        10
+      )
+      return page
+        .map(post => `${post.feedId} ${String(!!post.protected)}`)
+        .toSorted((a, b) => a.localeCompare(b))
+    }
+    deepEqual(await getProtection({ feedId: open }), [`${open} false`])
+    deepEqual(await getProtection({ feedId: closed }), [`${closed} true`])
+    deepEqual(
+      await getProtection({ categoryId: GENERAL_CATEGORY }),
+      [`${open} false`, `${closed} true`].toSorted((a, b) => a.localeCompare(b))
+    )
   })
 
   test('has helper to load post', async () => {

@@ -734,8 +734,7 @@ function getMediaFile(
   part?: string
 ): MediaFile | undefined {
   let content = message.content
-  // Telegram forbids to save or copy posts of protected channels
-  if (!isObject(content) || message.can_be_saved === false) return undefined
+  if (!isObject(content)) return undefined
   if (part === 'preview') {
     let link = content.link_preview
     let photo = getLargestSize(
@@ -902,6 +901,9 @@ async function toPost(
   }
   if (preview) post.preview = preview
   if (!text && !post.media && !poll) post.unsupported = true
+  if (messages.some(message => message.can_be_saved === false)) {
+    post.protected = true
+  }
   if (isObject(first.forward_info)) {
     let author = await loadForwardAuthor(name, first.forward_info.origin)
     if (author) {

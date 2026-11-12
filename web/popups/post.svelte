@@ -90,6 +90,8 @@
       <Stack gap="s">
         <Post
           post={$post}
+          protect={(feed && $feed!.protected) ||
+            ('protected' in $post && $post.protected)}
           repostHref={feed && getPopupHash($router, 'feed', $feed!.url)}
           userPostUrl={$userPostUrl}
         />

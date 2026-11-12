@@ -5,14 +5,23 @@
   import { mediaSrc } from '../../lib/media.ts'
   import BrokenImage from '../broken-image.svelte'
 
-  let { preview }: { preview: PostPreview } = $props()
+  let {
+    preview,
+    protect = false
+  }: { preview: PostPreview; protect?: boolean | null } = $props()
 
   let broken = $state<null | string>()
   let loaded = $state<null | string>()
   let image = $derived($saveData ? undefined : preview.image)
 </script>
 
-<a class="post-preview" href={preview.url} rel="noopener" target="_blank">
+<a
+  class="post-preview"
+  class:is-protected={protect}
+  href={preview.url}
+  rel="noopener"
+  target="_blank"
+>
   {#if image && broken === image}
     <span class="post-preview_image is-broken">
       <BrokenImage />
@@ -21,10 +30,14 @@
     <img
       class="post-preview_image"
       class:is-loading={loaded !== image}
-      {@attach mediaSrc(image)}
+      {@attach mediaSrc(image, { once: !!protect })}
       alt=""
       decoding="async"
+      draggable={protect ? 'false' : undefined}
       loading="lazy"
+      oncontextmenu={event => {
+        if (protect) event.preventDefault()
+      }}
       onerror={() => {
         broken = image
       }}
@@ -70,6 +83,10 @@
       width: 100%;
       max-height: 15rem;
       object-fit: cover;
+
+      .post-preview.is-protected & {
+        pointer-events: none;
+      }
 
       &.is-loading,
       &.is-broken {

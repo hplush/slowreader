@@ -13,6 +13,7 @@
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import PostPopupComponent from '../../popups/post.svelte'
+  import videoExample from '../assets/example.webm'
   import imgExample from '../assets/long_width_example.avif'
   import emojiExample from '../assets/short_width_example.avif'
   import LoadedPopup from '../loaded-popup.svelte'
@@ -87,7 +88,7 @@
           alt: 'Video',
           poster: imgExample,
           type: 'video',
-          url: 'https://example.com/video.mp4'
+          url: videoExample
         }
       ],
       missing: false,
@@ -333,9 +334,8 @@
     feeds={[FEED]}
     oninit={() => {
       loaders.telegram.getMedia = url => {
-        return url.endsWith('/broken')
-          ? Promise.reject(new Error('No file'))
-          : fetch(imgExample)
+        if (url.endsWith('/broken')) return Promise.reject(new Error('No file'))
+        return fetch(url === 'telegram:5/3' ? videoExample : imgExample)
       }
       open()()
     }}
@@ -354,7 +354,51 @@
         mediaSizes: [
           { height: 441, width: 700 },
           { height: 1080, width: 1920 },
-          { bytes: 8864869, height: 1080, width: 1920 }
+          { bytes: 28089, height: 1080, width: 1920 }
+        ],
+        preview: {
+          image: 'telegram:5/5/preview',
+          title: 'Link title',
+          url: 'https://example.com/'
+        },
+        title: null,
+        url: 'https://t.me/news/4'
+      }
+    ]}
+  >
+    {#if popup}
+      <LoadedPopup {popup}>
+        {#snippet loaded(loadedPopup)}
+          <PostPopupComponent popup={loadedPopup} />
+        {/snippet}
+      </LoadedPopup>
+    {/if}
+  </Scene>
+</Story>
+
+<Story name="Protected" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    feeds={[{ ...FEED, protected: true }]}
+    oninit={() => {
+      loaders.telegram.getMedia = url => {
+        return fetch(url === 'telegram:5/3' ? videoExample : imgExample)
+      }
+      open()()
+    }}
+    posts={[
+      {
+        feedId: 'feed',
+        full:
+          '<p>The channel forbids copying. Text can not be selected ' +
+          'or copied. Image and video have no menu to save them ' +
+          'and can not be dragged out. The post is hidden on print.</p>',
+        media: [
+          { type: 'image', url: 'telegram:5/4' },
+          { poster: 'telegram:5/3/poster', type: 'video', url: 'telegram:5/3' }
+        ],
+        mediaSizes: [
+          { height: 441, width: 700 },
+          { bytes: 28089, height: 1080, width: 1920 }
         ],
         preview: {
           image: 'telegram:5/5/preview',
@@ -404,7 +448,7 @@
             alt: 'Video',
             poster: imgExample,
             type: 'video',
-            url: 'https://example.com/video.mp4'
+            url: videoExample
           },
           {
             alt: 'GIF',

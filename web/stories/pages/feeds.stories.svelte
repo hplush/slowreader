@@ -12,6 +12,7 @@
 
   import FeedsPage from '../../pages/feeds/index.svelte'
   import Navbar from '../../ui/navbar/index.svelte'
+  import videoExample from '../assets/example.webm'
   import imgExample from '../assets/long_width_example.avif'
   import emojiExample from '../assets/short_width_example.avif'
   import { answerNightTaskWrong, lockAtNight } from '../environment.ts'
@@ -263,7 +264,7 @@
           poster: imgExample,
           sensitive: true,
           type: 'video',
-          url: 'https://example.com/video.mp4'
+          url: videoExample
         },
         {
           alt: 'GIF',
@@ -518,6 +519,33 @@
       }
     ]}
     posts={MASTODON}
+    route={{ params: { category: GENERAL_CATEGORY }, route: 'fast' }}
+  >
+    <FeedsPage page={pages.fast()} />
+  </Scene>
+</Story>
+
+<Story name="Feed Protected" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    feeds={[
+      {
+        id: 'feed',
+        protected: true,
+        reading: 'fast',
+        title: 'Channel, which forbids copying'
+      }
+    ]}
+    posts={[
+      {
+        feedId: 'feed',
+        full:
+          '<p>Text can not be selected or copied. The image has no menu ' +
+          'to save it and can not be dragged out. The post is hidden ' +
+          'on print.</p>',
+        media: [{ type: 'image', url: imgExample }],
+        reading: 'fast'
+      }
+    ]}
     route={{ params: { category: GENERAL_CATEGORY }, route: 'fast' }}
   >
     <FeedsPage page={pages.fast()} />

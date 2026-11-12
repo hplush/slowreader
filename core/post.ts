@@ -77,6 +77,7 @@ export type ParsedPost = {
   originId: string
   poll?: PostPoll
   preview?: PostPreview
+  protected?: true
   publishedAt?: number
   quoted?: QuotedPost
   replied?: QuotedPost
@@ -146,6 +147,7 @@ export type ReaderPostWith<Media> = {
   authorUrl?: string
   loader?: LoaderName
   media: Media
+  protected?: boolean | null
   threadPosition: number
   threadSize: number
 } & Pick<
@@ -267,13 +269,17 @@ export function loadPosts(): Promise<PostValue[]> {
 }
 
 /**
- * Load posts by pages to not keep all of them in memory during the export.
+ * Posts for the export file, in chunks, to not keep all of them in memory.
+ * Without posts of protected feeds: their authors forbid to save them.
  */
-export function loadPostsPage(
+export function loadPostsForExport(
   limit: number,
   offset: number
 ): Promise<PostValue[]> {
   return getTables().posts.load`
+    WHERE "feedId" IS NULL OR "feedId" NOT IN (
+      SELECT "id" FROM "feeds" WHERE "protected" IS TRUE
+    )
     ORDER BY "publishedAt" DESC LIMIT ${limit} OFFSET ${offset}
   `
 }
@@ -519,7 +525,7 @@ export function processOriginPost(
   reading: PostValue['reading']
 ): { id: string } & NewPost {
   let publishedAt = origin.publishedAt ?? Math.round(Date.now() / 1000)
-  return {
+  let post = {
     ...origin,
     ...source,
     id: getPostId(getSourceId(source), origin),
@@ -527,6 +533,9 @@ export function processOriginPost(
     reading,
     sortedAt: getSortedAt({ ...origin, publishedAt })!
   }
+  // It is a state of the feed, not a column of the post
+  delete post.protected
+  return post
 }
 
 /**
