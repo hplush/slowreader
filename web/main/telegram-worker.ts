@@ -1,7 +1,7 @@
 // TDLib, Telegram’s own library, compiled to WebAssembly in our
 // @hplush/tdlib package. It has access to the whole Telegram account,
-// so it lives in own worker, which nginx.conf allows to connect only to us
-// and Telegram.
+// so it lives in own worker, which nginx.conf allows only to download
+// our files and to connect to Telegram.
 
 import glue from '@hplush/tdlib/td_wasm.js?url'
 import wasm from '@hplush/tdlib/td_wasm.wasm?url'
