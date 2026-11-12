@@ -11,9 +11,14 @@ import {
   type TelegramRequest
 } from '../environment.ts'
 import { TelegramError, UserFacingError } from '../errors.ts'
+import { escapeXml } from '../lib/html.ts'
 import { accountsMessages as t } from '../messages/index.ts'
-import type { LoadedAuthor } from '../post.ts'
-import { createPostsList } from '../posts-list.ts'
+import type { LoadedAuthor, ParsedPost } from '../post.ts'
+import {
+  createPostsList,
+  type PostsList,
+  type PostsListResult
+} from '../posts-list.ts'
 import { request } from '../request.ts'
 import {
   type AccountAuth,
@@ -62,6 +67,10 @@ interface Session {
    * Sign in form waits for user’s answer longer, than TDLib’s idle time.
    */
   keep: boolean
+  /**
+   * Parallel refreshes of channels share one loading of the chat list.
+   */
+  loadingChats: Promise<void> | undefined
   state: TelegramObject | undefined
   waiters: Set<(state: TelegramObject) => void>
 }
@@ -79,6 +88,7 @@ function getSession(name: string): Session {
     ending: false,
     idle: undefined,
     keep: false,
+    loadingChats: undefined,
     state: undefined,
     waiters: new Set()
   }
@@ -240,7 +250,6 @@ async function loadAccount(
   return {
     account: {
       handle: username ? `@${username}` : title,
-      // User chooses every channel, unlike posts of a social network timeline
       reading: 'slow',
       server: 'https://t.me',
       title,
@@ -314,18 +323,13 @@ function getDevice(auth: AccountAuth): string {
   return auth.device
 }
 
-/**
- * Chat list has private chats and groups too. We take only channels
- * and drop the rest here, so they never reach the database.
- */
-async function loadChannels(name: string): Promise<LoadedAuthor[]> {
-  let list = { '@type': 'chatListMain' }
+async function loadAllChats(name: string): Promise<void> {
   let more = true
   while (more) {
     try {
       await sendToTelegram(name, {
         '@type': 'loadChats',
-        'chat_list': list,
+        'chat_list': { '@type': 'chatListMain' },
         'limit': 100
       })
     } catch (e) {
@@ -334,9 +338,25 @@ async function loadChannels(name: string): Promise<LoadedAuthor[]> {
       more = false
     }
   }
+}
+
+function loadChatList(name: string): Promise<void> {
+  let session = getSession(name)
+  session.loadingChats ??= loadAllChats(name).finally(() => {
+    session.loadingChats = undefined
+  })
+  return session.loadingChats
+}
+
+/**
+ * Chat list has private chats and groups too. We take only channels
+ * and drop the rest here, so they never reach the database.
+ */
+async function loadChannels(name: string): Promise<LoadedAuthor[]> {
+  await loadChatList(name)
   let loaded = await sendToTelegram(name, {
     '@type': 'getChats',
-    'chat_list': list,
+    'chat_list': { '@type': 'chatListMain' },
     'limit': 100_000
   })
   let chats = await Promise.all(
@@ -371,6 +391,145 @@ async function loadChannels(name: string): Promise<LoadedAuthor[]> {
     })
   )
   return channels.filter(channel => !!channel)
+}
+
+/**
+ * TDLib knows only chats from the loaded chat list, and forgets them
+ * on every restart.
+ */
+async function loadChat(name: string, chatId: number): Promise<TelegramObject> {
+  let body = { '@type': 'getChat', 'chat_id': chatId }
+  try {
+    return await sendToTelegram(name, body)
+  } catch (e) {
+    if (!TelegramError.is(e)) throw e
+    await loadChatList(name)
+    return sendToTelegram(name, body)
+  }
+}
+
+// TDLib message ID is the post number from t.me links multiplied by it
+const MESSAGE_ID_STEP = 1_048_576
+
+function getAlbumId(message: TelegramObject): string | undefined {
+  let id = message.media_album_id
+  return typeof id === 'string' && id !== '0' ? id : undefined
+}
+
+/**
+ * Photos of one post come as separate messages with the same album ID.
+ */
+function groupAlbums(messages: TelegramObject[]): TelegramObject[][] {
+  let groups: TelegramObject[][] = []
+  for (let message of messages) {
+    let last = groups.at(-1)
+    let albumId = getAlbumId(message)
+    if (last && albumId && getAlbumId(last[0]!) === albumId) {
+      last.push(message)
+    } else {
+      groups.push([message])
+    }
+  }
+  return groups
+}
+
+function getText(message: TelegramObject): string {
+  let content = message.content
+  if (!isObject(content)) return ''
+  let text = isObject(content.text) ? content.text : content.caption
+  return isObject(text) && typeof text.text === 'string' ? text.text : ''
+}
+
+/**
+ * Messages of one post from the newest one.
+ */
+function toPost(
+  feedUrl: string,
+  messages: TelegramObject[]
+): ParsedPost | undefined {
+  let first = messages.at(-1)!
+  // Like “channel pinned a post”
+  if (
+    isObject(first.content) &&
+    /^message(Chat|PinMessage|VideoChat)/.test(String(first.content['@type']))
+  ) {
+    return undefined
+  }
+  let post: ParsedPost = {
+    // Read position and the next refresh must cover the whole album
+    originId: String(Number(messages[0]!.id) / MESSAGE_ID_STEP),
+    publishedAt: Number(first.date),
+    url: `${feedUrl}/${String(Number(first.id) / MESSAGE_ID_STEP)}`
+  }
+  let text = messages.map(getText).find(Boolean)
+  if (text) {
+    post.full = text
+      .split(/\n{2,}/)
+      .map(part => `<p>${escapeXml(part).replaceAll('\n', '<br>')}</p>`)
+      .join('')
+  } else {
+    post.unsupported = true
+  }
+  let edited = Math.max(...messages.map(i => Number(i.edit_date)))
+  if (edited) post.updatedAt = edited
+  return post
+}
+
+/**
+ * All posts of the channel from the newest one. Only Telegram knows,
+ * which of them user did not read, so posts under it are marked as `old`.
+ */
+function loadChannelPosts(
+  auth: AccountAuth,
+  url: string,
+  loaderData: null | string | undefined
+): PostsList {
+  let chatId = Number(readLoaderData(loaderData, 'id'))
+  let read = 0
+  let loaded = 0
+  let album: TelegramObject[] = []
+
+  async function loadPage(from: number): Promise<PostsListResult> {
+    let name = getDevice(auth)
+    if (from === 0) {
+      read = Number((await loadChat(name, chatId)).last_read_inbox_message_id)
+    }
+    // The first answer has only the last post, TDLib chooses the size itself
+    let history = await sendToTelegram(name, {
+      '@type': 'getChatHistory',
+      'chat_id': chatId,
+      'from_message_id': from,
+      'limit': 100,
+      'offset': 0,
+      'only_local': false
+    })
+    let messages = (
+      Array.isArray(history.messages) ? history.messages : []
+    ).filter(isObject) as TelegramObject[]
+    let ended = messages.length === 0
+    let albums = groupAlbums([...album, ...messages])
+    album = []
+    // The oldest album of the page can continue on the next page
+    if (!ended && getAlbumId(albums.at(-1)![0]!)) album = albums.pop()!
+    let posts = albums.map(group => toPost(url, group)).filter(post => !!post)
+    for (let post of posts) {
+      loaded += 1
+      // Channel, which was never opened in Telegram, has no read position,
+      // and only its latest posts are news
+      if (
+        Number(post.originId) * MESSAGE_ID_STEP <= read ||
+        (read === 0 && loaded > 10)
+      ) {
+        post.old = true
+      }
+    }
+    return [
+      posts,
+      ended ? undefined : () => loadPage(Number(messages.at(-1)!.id))
+    ]
+  }
+
+  return createPostsList(() => loadPage(0))
 }
 
 let telegramAccount: AccountLoader<SignInData> = {
@@ -421,6 +580,8 @@ let telegramAccount: AccountLoader<SignInData> = {
     return Promise.resolve(false)
   },
 
+  noTimeline: true,
+
   async startSignIn(task, input) {
     let name = nanoid()
     keepTelegramRunning(name, true)
@@ -455,8 +616,10 @@ export const telegram: Loader = {
     return readLoaderData(loaderData, 'id')
   },
 
-  getPosts() {
-    return createPostsList(() => Promise.resolve([[], undefined]))
+  getPosts(task, url, text, refreshedAt, loaderData, auth) {
+    return auth
+      ? loadChannelPosts(auth, url, loaderData)
+      : createPostsList(() => Promise.resolve([[], undefined]))
   },
 
   getPostSource() {

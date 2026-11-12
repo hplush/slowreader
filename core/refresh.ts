@@ -5,9 +5,11 @@ import {
   getAccountAuth,
   loadAccount,
   loadAccounts,
+  needsDeviceSignIn,
   toVirtualFeed
 } from './account.ts'
 import { onClient, waitSyncOrOffline } from './client.ts'
+import { deviceSessions } from './device-sessions.ts'
 import { getEnvironment } from './environment.ts'
 import { cleanFeedRedirects, trackFeedRedirect } from './feed-redirects.ts'
 import {
@@ -158,7 +160,15 @@ export const refreshTotalProgress = computed(
   }
 )
 
-type RefreshTarget = { account: AccountValue } | { feed: FeedValue }
+type RefreshTarget =
+  | { account: AccountValue }
+  | {
+      feed: FeedValue
+      /**
+       * Account of a service without home timeline, which loads the feed.
+       */
+      owner: AccountValue | undefined
+    }
 
 let queue = createQueue<RefreshTarget>([])
 
@@ -188,7 +198,8 @@ function getMarker(target: RefreshTarget): Marker {
   return 'feed' in target ? target.feed : target.account
 }
 
-function wasAlreadyAdded(marker: Marker, origin: OriginPost): boolean {
+function isOld(marker: Marker, origin: OriginPost): boolean {
+  if (origin.old) return true
   let sortedAt = getSortedAt(origin)
   if (sortedAt && marker.lastPublishedAt) {
     return sortedAt <= marker.lastPublishedAt
@@ -230,7 +241,7 @@ async function collectFeedPage(
 
   let posts = state.page
   let first = posts[0]
-  if (!first || wasAlreadyAdded(feed, first)) return true
+  if (!first || isOld(feed, first)) return true
   state.newest ??= first
 
   let filters = await getFilters(state, feed.id)
@@ -241,7 +252,7 @@ async function collectFeedPage(
   let readings = new Map<string, NewPost['reading']>()
   let accepted: OriginPost[] = []
   for (let origin of posts) {
-    if (wasAlreadyAdded(feed, origin)) {
+    if (isOld(feed, origin)) {
       break
     }
     if (state.known?.has(origin.originId)) continue
@@ -279,7 +290,7 @@ async function collectAccountPage(
 
   let posts = state.page
   let first = posts[0]
-  if (!first || wasAlreadyAdded(account, first)) return true
+  if (!first || isOld(account, first)) return true
   state.newest ??= first
 
   state.feeds ??= await loadFeedsByUrls()
@@ -288,7 +299,7 @@ async function collectAccountPage(
   let created: NewFeed[] = []
   let renamed = new Map<string, string>()
   for (let origin of posts) {
-    if (wasAlreadyAdded(account, origin)) break
+    if (isOld(account, origin)) break
     if (state.known?.has(origin.originId)) continue
     let author = origin.repostedBy ?? origin.author
     let url = author?.url
@@ -461,7 +472,7 @@ async function processPage(
 ): Promise<QueueCallback | void> {
   sortPage(state.page)
   let marker = getMarker(state.target)
-  let enough = state.page.some(i => wasAlreadyAdded(marker, i))
+  let enough = state.page.some(i => isOld(marker, i))
   let more =
     !enough &&
     state.pages.get().hasNext &&
@@ -476,7 +487,7 @@ async function processPage(
   // Future posts are newer than the marker on every refresh,
   // so they are found only by origin ID
   let first = state.page[0]
-  if (more || (first && !wasAlreadyAdded(marker, first))) {
+  if (more || (first && !isOld(marker, first))) {
     state.known ??= new Set(await loadKnown(state.target))
   }
   let exists = await collectPage(state)
@@ -496,7 +507,11 @@ async function processPage(
 
 function loadTargetPosts(target: RefreshTarget, task: DownloadTask): PostsList {
   if ('feed' in target) {
-    return getFeedLatestPosts(target.feed, task)
+    return getFeedLatestPosts(
+      target.feed,
+      task,
+      target.owner && getAccountAuth(target.owner)
+    )
   } else {
     let { account } = target
     return loaders[account.service].account!.getTimeline(
@@ -540,7 +555,7 @@ export async function loadRecentPosts(
   if (pages.get().isLoading) await pages.loading
   let error = pages.get().error
   if (error) throw error
-  let state = createState({ feed }, pages, task)
+  let state = createState({ feed, owner: undefined }, pages, task)
   sortPage(state.page)
   await collectFeedPage(state, feedId)
   let { newest } = state
@@ -593,10 +608,15 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
   untouched = new Map()
   untouchedAccounts = []
   await waitLoading(syncedSettingsLoading)
-  let [feeds, accounts] = await Promise.all([
-    loadFeedsForRefresh(),
-    loadAccounts()
-  ])
+  let accounts = await loadAccounts()
+  // Device without the account’s session gets its posts from other devices
+  let owners = accounts.filter(
+    account =>
+      loaders[account.service].account!.noTimeline &&
+      !account.expired &&
+      !needsDeviceSignIn(account, deviceSessions.get())
+  )
+  let feeds = await loadFeedsForRefresh(owners.map(account => account.id))
   if (auto && (nightLocked.get() || feeds.length + accounts.length === 0)) {
     releaseRefreshLock()
     refreshStatus.set('start')
@@ -607,7 +627,10 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
   if (maxAge > 0) await deleteFastPostsBefore(refreshedAt - maxAge)
   let targets: RefreshTarget[] = [
     ...accounts.map(account => ({ account })),
-    ...feeds.map(feed => ({ feed }))
+    ...feeds.map(feed => ({
+      feed,
+      owner: owners.find(account => account.id === feed.accountId)
+    }))
   ]
   refreshStatistics.set({
     ...refreshStatistics.get(),

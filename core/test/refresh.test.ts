@@ -40,6 +40,7 @@ import {
   refreshProgress,
   refreshStatistics,
   refreshStatus,
+  refreshTotalProgress,
   saveDataMode,
   setRequestMethod,
   stopRefreshing,
@@ -238,6 +239,7 @@ describe('refresh', () => {
     ])
     await setTimeout(10)
     equal(refreshProgress.get(), 0.5)
+    deepEqual(refreshTotalProgress.get(), { stage: 'posts', value: 0.5 })
     deepEqual(refreshStatistics.get(), {
       errorFeeds: 0,
       errorRequests: 0,

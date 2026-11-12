@@ -6,6 +6,7 @@ import { onClient } from './client.ts'
 import { isRemoteError } from './errors.ts'
 import { createDownloadTask, type TextResponse } from './lib/download.ts'
 import {
+  type AccountAuth,
   type FeedLoader,
   getOriginKey,
   loaders,
@@ -74,9 +75,18 @@ export function loadFeeds(): Promise<FeedValue[]> {
  * Feeds with `accountId` get posts from the account’s home timeline.
  * Frequent feeds go first, since they have more posts to load.
  */
-export function loadFeedsForRefresh(): Promise<FeedValue[]> {
+/**
+ * Home timeline of the account refreshes its feeds. Only accounts of services
+ * without timeline need a separate refresh for every feed.
+ */
+export function loadFeedsForRefresh(
+  accountIds: string[]
+): Promise<FeedValue[]> {
   return getTables().feeds.load`
-    WHERE "accountId" IS NULL ORDER BY "frequency" DESC NULLS LAST, "title"
+    WHERE "accountId" IS NULL OR "accountId" IN (
+      SELECT "value" FROM json_each(${JSON.stringify(accountIds)})
+    )
+    ORDER BY "frequency" DESC NULLS LAST, "title"
   `
 }
 
@@ -249,14 +259,16 @@ export async function addCandidate(
 
 export function getFeedLatestPosts(
   feed: Pick<FeedValue, 'loader' | 'loaderData' | 'refreshedAt' | 'url'>,
-  task = createDownloadTask()
+  task = createDownloadTask(),
+  auth?: AccountAuth
 ): PostsList {
   return loaders[feed.loader].getPosts(
     task,
     feed.url,
     undefined,
     feed.refreshedAt ?? undefined,
-    feed.loaderData
+    feed.loaderData,
+    auth
   )
 }
 

@@ -6,11 +6,18 @@ import { setTimeout } from 'node:timers/promises'
 import {
   accountsMessages,
   addAccount,
+  addFeed,
   createDownloadTask,
   createTextResponse,
   deviceSessions,
   loaders,
+  loadFeed,
   loadFeeds,
+  loadPosts,
+  type OriginPost,
+  refreshErrors,
+  refreshPosts,
+  refreshStatistics,
   syncFollows,
   type TelegramObject,
   testAccount,
@@ -495,6 +502,248 @@ describe('telegram loader', () => {
       renamed.find(feed => feed.url === 'https://t.me/renamed')!.id,
       feeds.find(feed => feed.url === 'https://t.me/news')!.id
     )
+  })
+
+  function message(post: number, fields: object = {}): TelegramObject {
+    return {
+      '@type': 'message',
+      'content': {
+        '@type': 'messageText',
+        'text': { '@type': 'formattedText', 'text': `Post ${post}` }
+      },
+      'date': 1000 + post,
+      'edit_date': 0,
+      'id': post * 1048576,
+      'media_album_id': '0',
+      ...fields
+    }
+  }
+
+  function photo(album: string, caption: string): object {
+    return {
+      content: {
+        '@type': 'messagePhoto',
+        'caption': { '@type': 'formattedText', 'text': caption }
+      },
+      media_album_id: album
+    }
+  }
+
+  function mockHistory(
+    lastRead: number,
+    pages: Record<number, TelegramObject[]>
+  ): void {
+    testTelegram.answers.getChat = {
+      '@type': 'chat',
+      'id': -1001,
+      'last_read_inbox_message_id': lastRead * 1048576
+    }
+    testTelegram.answers.getChatHistory = ({ from_message_id: from }) => ({
+      '@type': 'messages',
+      'messages': pages[Number(from) / 1048576] ?? []
+    })
+  }
+
+  async function loadFeedPosts(): Promise<Partial<OriginPost>[]> {
+    testTelegram.requests = []
+    let posts = loaders.telegram.getPosts(
+      task,
+      'https://t.me/news',
+      undefined,
+      undefined,
+      '{"id":"-1001"}',
+      {
+        account: testAccount({ credentials: null, service: 'telegram' }),
+        device: 'name',
+        expire: () => Promise.resolve(),
+        reload: () => Promise.resolve(undefined),
+        save: () => Promise.resolve()
+      }
+    )
+    await posts.loading
+    while (posts.get().hasNext) await posts.next()
+    if (posts.get().error) throw posts.get().error!
+    return posts.get().list.map(post => {
+      let copy: Partial<OriginPost> = { ...post }
+      delete copy.id
+      return copy
+    })
+  }
+
+  function getHistoryRequests(): number[] {
+    return testTelegram.requests
+      .filter(i => i['@type'] === 'getChatHistory')
+      .map(i => Number(i.from_message_id) / 1048576)
+  }
+
+  test('loads all posts of the channel and marks read ones', async () => {
+    mockHistory(3, {
+      0: [message(6)],
+      4: [message(3), message(2)],
+      6: [
+        message(5, photo('album', '')),
+        message(4, {
+          ...photo('album', 'Album\n\nA & B\nline'),
+          edit_date: 2000
+        })
+      ]
+    })
+    deepEqual(await loadFeedPosts(), [
+      {
+        full: '<p>Post 6</p>',
+        originId: '6',
+        publishedAt: 1006,
+        url: 'https://t.me/news/6'
+      },
+      {
+        full: '<p>Album</p><p>A &amp; B<br>line</p>',
+        originId: '5',
+        publishedAt: 1004,
+        updatedAt: 2000,
+        url: 'https://t.me/news/4'
+      },
+      {
+        full: '<p>Post 3</p>',
+        old: true,
+        originId: '3',
+        publishedAt: 1003,
+        url: 'https://t.me/news/3'
+      },
+      {
+        full: '<p>Post 2</p>',
+        old: true,
+        originId: '2',
+        publishedAt: 1002,
+        url: 'https://t.me/news/2'
+      }
+    ])
+    deepEqual(getHistoryRequests(), [0, 6, 4, 2])
+  })
+
+  test('has 10 new posts in the channel, which was never opened', async () => {
+    mockHistory(0, {
+      0: [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map(post => message(post))
+    })
+    deepEqual(
+      (await loadFeedPosts()).map(post => [post.originId, post.old]),
+      [
+        ['12', undefined],
+        ['11', undefined],
+        ['10', undefined],
+        ['9', undefined],
+        ['8', undefined],
+        ['7', undefined],
+        ['6', undefined],
+        ['5', undefined],
+        ['4', undefined],
+        ['3', undefined],
+        ['2', true],
+        ['1', true]
+      ]
+    )
+  })
+
+  test('skips service messages and marks unknown content', async () => {
+    mockHistory(9, {
+      0: [message(9, { content: null }), message(8)],
+      8: [
+        message(7, { content: { '@type': 'messageVideoNote' } }),
+        message(6, { content: { '@type': 'messagePinMessage' } })
+      ]
+    })
+    deepEqual(await loadFeedPosts(), [
+      {
+        old: true,
+        originId: '9',
+        publishedAt: 1009,
+        unsupported: true,
+        url: 'https://t.me/news/9'
+      },
+      {
+        full: '<p>Post 8</p>',
+        old: true,
+        originId: '8',
+        publishedAt: 1008,
+        url: 'https://t.me/news/8'
+      },
+      {
+        old: true,
+        originId: '7',
+        publishedAt: 1007,
+        unsupported: true,
+        url: 'https://t.me/news/7'
+      }
+    ])
+  })
+
+  test('loads the chat list, when TDLib does not know the channel', async () => {
+    mockHistory(1, { 0: [message(2)] })
+    let chat = testTelegram.answers.getChat as TelegramObject
+    let known = false
+    testTelegram.answers.getChat = () => {
+      return known ? chat : fail('Chat not found')
+    }
+    testTelegram.answers.loadChats = () => {
+      known = true
+      return fail('Not Found', 404)
+    }
+    deepEqual(
+      (await loadFeedPosts()).map(post => post.originId),
+      ['2']
+    )
+
+    testTelegram.answers.getChat = () => {
+      throw new Error('TDLib is broken')
+    }
+    await rejects(loadFeedPosts(), { message: 'TDLib is broken' })
+  })
+
+  test('refreshes channels of the account with a session here', async () => {
+    let signedIn = await addAccount(
+      testAccount({ credentials: null, service: 'telegram' })
+    )
+    let other = await addAccount(
+      testAccount({ credentials: null, service: 'telegram' })
+    )
+    deviceSessions.set({ [signedIn]: { device: 'name', service: 'telegram' } })
+    let channel = await addFeed(
+      testFeed({
+        accountId: signedIn,
+        loader: 'telegram',
+        loaderData: '{"id":"-1001"}',
+        url: 'https://t.me/news'
+      })
+    )
+    let second = await addFeed(
+      testFeed({
+        accountId: signedIn,
+        loader: 'telegram',
+        loaderData: '{"id":"-1003"}',
+        url: 'https://t.me/second'
+      })
+    )
+    await addFeed(
+      testFeed({
+        accountId: other,
+        loader: 'telegram',
+        loaderData: '{"id":"-1002"}',
+        url: 'https://t.me/other'
+      })
+    )
+    mockHistory(1, { 0: [message(2)], 2: [message(1)] })
+    await refreshPosts()
+    deepEqual(refreshErrors.get(), [])
+    deepEqual(
+      new Set((await loadPosts()).map(post => `${post.feedId} ${post.url}`)),
+      new Set([
+        `${channel} https://t.me/news/2`,
+        `${second} https://t.me/second/2`
+      ])
+    )
+    equal((await loadFeed(channel))!.lastOriginId, '2')
+    // Every channel is a separate request, so the progress counts it
+    equal(refreshStatistics.get().totalFeeds, 4)
+    equal(refreshStatistics.get().processedFeeds, 4)
   })
 
   test('has no posts yet', async () => {

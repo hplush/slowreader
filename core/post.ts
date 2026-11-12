@@ -69,6 +69,11 @@ export type ParsedPost = {
   media?: PostMedia[]
   mediaSizes?: (MediaSize | null)[]
   merged?: boolean
+  /**
+   * Post is not news for the user, like already read in the service’s app.
+   * Refresh stops on it, feed’s preview shows it. Not saved to the database.
+   */
+  old?: true
   originId: string
   poll?: PostPoll
   preview?: PostPreview

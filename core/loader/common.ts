@@ -173,6 +173,12 @@ export interface AccountLoader<Data = unknown> {
   ): PostsList
 
   /**
+   * Service has no home timeline. Refresh loads every feed of the account
+   * on its own by `getPosts()` with `auth`.
+   */
+  noTimeline?: true
+
+  /**
    * Post’s URL on user’s server, where user can vote or reply.
    *
    * For instance, on Mastodon it will return URL on user's server.
@@ -228,13 +234,16 @@ export type Loader = {
    *
    * Task is a way to combine multiple HTTP requests (for instance, during
    * the feed search/preview) to cancel all of them fast.
+   *
+   * Refresh passes `auth` for the feed of account with `noTimeline`.
    */
   getPosts(
     task: DownloadTask,
     url: string,
     text?: TextResponse,
     refreshedAt?: number,
-    loaderData?: null | string
+    loaderData?: null | string,
+    auth?: AccountAuth
   ): PostsList
 
   /**
