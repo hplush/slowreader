@@ -39,7 +39,7 @@ export type MovedFeed = { loaderData?: string } & FeedData
  * Account’s fields, which the loader got from the service after the sign in.
  */
 export type SignedInAccount = { handle: string } & Omit<FeedData, 'handle'> &
-  Pick<NewAccount, 'credentials' | 'server'>
+  Pick<NewAccount, 'credentials' | 'reading' | 'server'>
 
 /**
  * Field of the sign in form, which loader asks from the user.

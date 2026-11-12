@@ -1067,6 +1067,7 @@ describe('accounts page with Telegram', () => {
     equal(account!.credentials, null)
     equal(account!.handle, '@jane')
     equal(account!.service, 'telegram')
+    equal(account!.reading, 'slow')
     let session = deviceSessions.get()[account!.id]!
     equal(session.service, 'telegram')
     deepEqual(testTelegram.destroyed, [])

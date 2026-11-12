@@ -240,6 +240,8 @@ async function loadAccount(
   return {
     account: {
       handle: username ? `@${username}` : title,
+      // User chooses every channel, unlike posts of a social network timeline
+      reading: 'slow',
       server: 'https://t.me',
       title,
       // Next sign in finds the account by URL. User can change the name

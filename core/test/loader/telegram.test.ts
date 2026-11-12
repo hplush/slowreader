@@ -147,6 +147,7 @@ describe('telegram loader', () => {
       {
         account: {
           handle: '@jane',
+          reading: 'slow',
           server: 'https://t.me',
           title: 'Jane Doe',
           url: 'tg://user?id=100'
@@ -206,6 +207,7 @@ describe('telegram loader', () => {
       {
         account: {
           handle: 'Jane',
+          reading: 'slow',
           server: 'https://t.me',
           title: 'Jane',
           url: 'tg://user?id=100'
