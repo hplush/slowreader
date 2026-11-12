@@ -1,20 +1,22 @@
-import { atom } from 'nanostores'
+import { atom, computed } from 'nanostores'
 
 import {
   changeAccount,
   deleteAccount,
   getAccount,
+  needsDeviceSignIn,
   openAccountSignInPage,
   signInErrorToMessage,
   startAccountSignIn,
   updateAccountProfile
 } from '../account.ts'
 import { getCategories, getCategoryOptions } from '../category.ts'
+import { deviceSessions } from '../device-sessions.ts'
 import { NotFoundError } from '../errors.ts'
 import { createDownloadTask } from '../lib/download.ts'
 import { storeFromColumn, waitSql } from '../lib/stores.ts'
 import { loaders } from '../loader/index.ts'
-import { closeLastPopup } from '../router.ts'
+import { closeLastPopup, navigate } from '../router.ts'
 import { type CreatedLoadedPopup, definePopup } from './common.ts'
 
 export const account = definePopup('account', async id => {
@@ -44,6 +46,10 @@ export const account = definePopup('account', async id => {
     follow: storeFromColumn($account, 'follow', false, follow =>
       changeAccount(id, { follow })
     ),
+    needsDeviceSignIn: computed(
+      [$account, deviceSessions],
+      (row, sessions) => !!row.value && needsDeviceSignIn(row.value, sessions)
+    ),
     async remove(): Promise<void> {
       closeLastPopup()
       await deleteAccount(id)
@@ -55,13 +61,19 @@ export const account = definePopup('account', async id => {
      */
     async signInAgain(): Promise<void> {
       let row = $account.get().value ?? loaded
+      let field = loaders[row.service].account!.firstField
+      if (field !== 'handle' && field !== 'server') {
+        navigate({
+          params: { service: row.service },
+          popups: [],
+          route: 'accounts'
+        })
+        return
+      }
       $signInError.set(undefined)
       $signingIn.set(true)
       try {
-        let step = await startAccountSignIn(
-          row.service,
-          row[loaders[row.service].account!.firstField]
-        )
+        let step = await startAccountSignIn(row.service, row[field])
         if (step.type === 'open') await openAccountSignInPage(row.service, step)
       } catch (e) {
         $signInError.set(signInErrorToMessage(e))

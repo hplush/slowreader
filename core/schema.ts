@@ -53,7 +53,7 @@ const READERS = ['feed', 'list'] as const satisfies readonly UsefulReaderName[]
 
 const READINGS = ['fast', 'slow'] as const
 
-export const ACCOUNT_SERVICES = ['mastodon', 'bluesky'] as const
+export const ACCOUNT_SERVICES = ['mastodon', 'bluesky', 'telegram'] as const
 
 export type AccountService = (typeof ACCOUNT_SERVICES)[number]
 

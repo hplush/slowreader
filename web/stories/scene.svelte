@@ -18,6 +18,7 @@
     customPostFont,
     DEFAULT_MEDIA_STATISTICS,
     DEFAULT_REFRESH_STATISTICS,
+    deviceSessions,
     extensionState,
     fastPostsMaxAge,
     type FeedValue,
@@ -190,6 +191,7 @@
     hasSources.set(!!feeds?.length)
     welcomeSteps.set(undefined)
     closedCategories.set(new Set())
+    deviceSessions.set({})
 
     function updateTheme(): void {
       let classes = document.documentElement.classList

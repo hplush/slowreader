@@ -8,8 +8,11 @@ import type {
   CachedMedia,
   Environment,
   Network,
-  PasskeySignal
+  PasskeySignal,
+  TelegramObject,
+  TelegramRequest
 } from './environment.ts'
+import { TelegramError } from './errors.ts'
 import { type RequestMethod, setRequestMethod } from './request.ts'
 import {
   type BaseRoute,
@@ -35,6 +38,107 @@ export let testHistory: BaseRoute[] = []
  * OAuth sign in pages of services, which the app opened.
  */
 export let testOAuthPages: string[] = []
+
+export interface TestTelegram {
+  /**
+   * Answers of fake TDLib by request’s `@type`. `error` object rejects
+   * the request like real TDLib.
+   */
+  answers: Record<
+    string,
+    ((request: TelegramRequest) => TelegramObject) | TelegramObject
+  >
+
+  /**
+   * Database names of deleted TDLib instances.
+   */
+  destroyed: string[]
+
+  /**
+   * Content of files, which fake TDLib “downloaded”, by file ID.
+   */
+  files: Record<number, Blob>
+
+  /**
+   * Every request, which the app sent to TDLib of any account.
+   */
+  requests: TelegramRequest[]
+
+  /**
+   * Database names of running TDLib instances.
+   */
+  running: Set<string>
+}
+
+/**
+ * Fake TDLib, Telegram’s own library, like request mock for HTTP.
+ */
+export let testTelegram: TestTelegram
+
+let telegramListeners = new Map<string, Set<(update: TelegramObject) => void>>()
+
+/**
+ * Send an update from fake TDLib, like new step of the sign in.
+ * Without database name all accounts get it.
+ */
+export function sendTelegramUpdate(
+  update: TelegramObject,
+  name?: string
+): void {
+  for (let [database, listeners] of telegramListeners) {
+    if (name && name !== database) continue
+    for (let listener of listeners) listener(update)
+  }
+}
+
+/**
+ * Fake TDLib creator. Tests add it to the environment, when they need
+ * Telegram: `startClient({ telegramCreator: testTelegramCreator })`.
+ */
+export const testTelegramCreator: NonNullable<
+  Environment['telegramCreator']
+> = ({ name }) => {
+  let listeners = new Set<(update: TelegramObject) => void>()
+  telegramListeners.set(name, listeners)
+  return {
+    close() {
+      testTelegram.running.delete(name)
+      return Promise.resolve()
+    },
+    destroy() {
+      testTelegram.running.delete(name)
+      testTelegram.destroyed.push(name)
+      return Promise.resolve()
+    },
+    onUpdate(listener) {
+      listeners.add(listener)
+      return () => {
+        listeners.delete(listener)
+      }
+    },
+    readFile(fileId, offset, count) {
+      let file = testTelegram.files[fileId]
+      return file
+        ? Promise.resolve(file.slice(offset, offset + count))
+        : Promise.reject(new Error(`No Telegram file ${fileId}`))
+    },
+    async send(request) {
+      testTelegram.running.add(name)
+      testTelegram.requests.push(request)
+      let answer = testTelegram.answers[request['@type']]
+      if (!answer) {
+        throw new Error(`No Telegram answer for ${request['@type']}`)
+      }
+      // Real TDLib never answers in the same tick
+      await Promise.resolve()
+      let object = typeof answer === 'function' ? answer(request) : answer
+      if (object['@type'] === 'error') {
+        throw new TelegramError(Number(object.code), String(object.message))
+      }
+      return object
+    }
+  }
+}
 
 let testRoute = atom<BaseRoute | undefined>()
 
@@ -130,6 +234,14 @@ export function getTestEnvironment(): Environment {
   testSignals = []
   testHistory = []
   testOAuthPages = []
+  testTelegram = {
+    answers: {},
+    destroyed: [],
+    files: {},
+    requests: [],
+    running: new Set()
+  }
+  telegramListeners.clear()
   let persistentStore: Record<string, string> = {
     'slowreader:autoRefresh': 'never'
   }

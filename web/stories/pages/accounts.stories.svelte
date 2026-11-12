@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-  import { accountsMessages, pages } from '@slowreader/core'
+  import { accountsMessages, deviceSessions, pages } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import AccountsPage from '../../pages/accounts.svelte'
@@ -28,6 +28,14 @@
       handle:
         '@alexander.hamilton.personal.account@very-long-server-name.example',
       title: 'Alexander Hamilton with a very long display name on Mastodon'
+    },
+    {
+      credentials: null,
+      handle: '@sitnik',
+      id: 'telegram',
+      server: 'https://t.me',
+      service: 'telegram' as const,
+      title: 'Andrey Sitnik'
     }
   ]
 </script>
@@ -39,7 +47,13 @@
 </Story>
 
 <Story name="List" asChild parameters={{ layout: 'fullscreen' }}>
-  <Scene accounts={ACCOUNTS} route="accounts">
+  <Scene
+    accounts={ACCOUNTS}
+    oninit={() => {
+      pages.accounts().telegram.set(true)
+    }}
+    route="accounts"
+  >
     <AccountsPage page={pages.accounts()} />
   </Scene>
 </Story>
@@ -50,7 +64,15 @@
   globals={{ viewport: { value: 'mobile2' } }}
   parameters={{ layout: 'fullscreen', themes: { themeOverride: 'dark' } }}
 >
-  <Scene accounts={ACCOUNTS} route="accounts">
+  <Scene
+    accounts={ACCOUNTS.map(account => ({ ...account, expired: false }))}
+    oninit={() => {
+      deviceSessions.set({
+        telegram: { device: 'device', service: 'telegram' }
+      })
+    }}
+    route="accounts"
+  >
     <AccountsPage page={pages.accounts()} />
   </Scene>
 </Story>
@@ -82,6 +104,65 @@
       })
       pages.accounts().input.set('@sitnik.bsky.social')
       pages.accounts().submitting.set(true)
+    }}
+    route="accounts"
+  >
+    <AccountsPage page={pages.accounts()} />
+  </Scene>
+</Story>
+
+<Story name="Telegram Phone" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      pages.accounts().step.set({
+        field: 'phone',
+        service: 'telegram',
+        type: 'form'
+      })
+      pages.accounts().input.set('+1 (212) 555-0123')
+    }}
+    route="accounts"
+  >
+    <AccountsPage page={pages.accounts()} />
+  </Scene>
+</Story>
+
+<Story
+  name="Telegram Code Dark"
+  asChild
+  parameters={{ layout: 'fullscreen', themes: { themeOverride: 'dark' } }}
+>
+  <Scene
+    oninit={() => {
+      pages.accounts().step.set({
+        field: 'code',
+        service: 'telegram',
+        type: 'form'
+      })
+      pages.accounts().label.set(accountsMessages.get().codeFromApp)
+      pages.accounts().input.set('12345')
+    }}
+    route="accounts"
+  >
+    <AccountsPage page={pages.accounts()} />
+  </Scene>
+</Story>
+
+<Story
+  name="Telegram Password Mobile"
+  asChild
+  globals={{ viewport: { value: 'mobile2' } }}
+  parameters={{ layout: 'fullscreen' }}
+>
+  <Scene
+    oninit={() => {
+      pages.accounts().step.set({
+        field: 'password',
+        service: 'telegram',
+        type: 'form'
+      })
+      pages.accounts().input.set('password')
+      pages.accounts().error.set(accountsMessages.get().invalidPassword)
     }}
     route="accounts"
   >

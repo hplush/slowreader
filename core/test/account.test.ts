@@ -1,6 +1,7 @@
 import { restoreAll, type Spy, spyOn } from 'nanospy'
-import { deepEqual, equal } from 'node:assert/strict'
+import { deepEqual, equal, notEqual } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
+import { setTimeout } from 'node:timers/promises'
 
 import {
   addAccount,
@@ -10,6 +11,8 @@ import {
   changeAccount,
   deleteAccount,
   deleteAccountPostsBy,
+  deviceSessions,
+  downloadingCloudData,
   getAccountAuth,
   getUserPostUrl,
   getUserPostUrls,
@@ -26,13 +29,23 @@ import {
   NetworkError,
   type MovedFeed,
   needFollowsSync,
+  needsDeviceSignIn,
+  openedDatabase,
   type PostAuthor,
+  setDeviceSession,
   syncFollows,
   testAccount,
   testFeed,
   testPost
 } from '../index.ts'
-import { cleanClient, expectWarning, startClient, waitFor } from './utils.ts'
+import type { AccountLoader } from '../loader/common.ts'
+import {
+  cleanClient,
+  expectWarning,
+  startClient,
+  waitFor,
+  waitUntil
+} from './utils.ts'
 
 describe('account', () => {
   let moves: Record<string, Error | MovedFeed> = {}
@@ -49,8 +62,23 @@ describe('account', () => {
 
   afterEach(async () => {
     restoreAll()
+    deviceSessions.set({})
+    downloadingCloudData.set(false)
     await cleanClient()
   })
+
+  function spyEndedSessions(): string[] {
+    let ended: string[] = []
+    spyOn(
+      loaders.telegram.account as Required<AccountLoader>,
+      'endDeviceSession',
+      device => {
+        ended.push(device)
+        return Promise.resolve()
+      }
+    )
+    return ended
+  }
 
   function feedsState(): Promise<[string, null | string][]> {
     return loadFeeds().then(feeds =>
@@ -91,6 +119,24 @@ describe('account', () => {
     )
     equal(isAccountService('bluesky'), true)
     equal(isAccountService('rss'), false)
+  })
+
+  test('finds the same account by URL on the next sign in', async () => {
+    let first = await addAccount(
+      testAccount({ handle: 'Jane', url: 'tg://user?id=1' })
+    )
+    let renamed = await addAccount(
+      testAccount({ handle: '@jane', title: 'Jane Doe', url: 'tg://user?id=1' })
+    )
+    equal(renamed, first)
+    let another = await addAccount(
+      testAccount({ handle: '@jane', url: 'tg://user?id=2' })
+    )
+    notEqual(another, first)
+    equal((await loadAccounts()).length, 2)
+    let saved = await loadAccount(first)
+    equal(saved!.handle, '@jane')
+    equal(saved!.title, 'Jane Doe')
   })
 
   test('deletes account with virtual feeds and posts', async () => {
@@ -525,6 +571,79 @@ describe('account', () => {
 
     await deleteAccount(accountId)
     equal(await auth.reload(), undefined)
+  })
+
+  test('keeps session of device-only account', async () => {
+    let ended = spyEndedSessions()
+    let accountId = await addAccount(
+      testAccount({ credentials: null, service: 'telegram' })
+    )
+    let account = (await loadAccount(accountId))!
+    equal(needsDeviceSignIn(account, deviceSessions.get()), true)
+    equal(needsDeviceSignIn(testAccount(), {}), false)
+    equal(getAccountAuth(account).device, undefined)
+    equal(await getAccountAuth(account).reload(), undefined)
+
+    await setDeviceSession(accountId, { device: 'one', service: 'telegram' })
+    equal(needsDeviceSignIn(account, deviceSessions.get()), false)
+    equal(getAccountAuth(account).device, 'one')
+    deepEqual(ended, [])
+
+    await setDeviceSession(accountId, { device: 'two', service: 'telegram' })
+    equal(getAccountAuth(account).device, 'two')
+    deepEqual(ended, ['one'])
+
+    await deleteAccount(accountId)
+    deepEqual(ended, ['one', 'two'])
+    deepEqual(deviceSessions.get(), {})
+  })
+
+  test('does not sync follows without session on this device', async () => {
+    let calls = 0
+    spyOn(loaders.telegram.account!, 'getFollows', () => {
+      calls += 1
+      return Promise.resolve([])
+    })
+    let accountId = await addAccount(
+      testAccount({ credentials: null, service: 'telegram' })
+    )
+    let account = (await loadAccount(accountId))!
+    equal(needFollowsSync(account), false)
+    await syncFollows('telegram')
+    equal(calls, 0)
+    equal((await loadAccount(accountId))!.followsSyncedAt, null)
+
+    await setDeviceSession(accountId, { device: 'one', service: 'telegram' })
+    equal(needFollowsSync(account), true)
+    await syncFollows('telegram')
+    equal(calls, 1)
+  })
+
+  test('ends sessions of accounts deleted on other devices', async () => {
+    let ended = spyEndedSessions()
+    let kept = await addAccount(
+      testAccount({ credentials: null, service: 'telegram' })
+    )
+    deviceSessions.set({
+      deleted: { device: 'deleted', service: 'telegram' },
+      [kept]: { device: 'kept', service: 'telegram' }
+    })
+    let db = openedDatabase.get()
+
+    downloadingCloudData.set(true)
+    openedDatabase.set(undefined)
+    openedDatabase.set(db)
+    await setTimeout(10)
+    deepEqual(ended, [])
+
+    downloadingCloudData.set(false)
+    openedDatabase.set(undefined)
+    openedDatabase.set(db)
+    await waitUntil(() => ended.length > 0)
+    deepEqual(ended, ['deleted'])
+    deepEqual(deviceSessions.get(), {
+      [kept]: { device: 'kept', service: 'telegram' }
+    })
   })
 
   test('opens post on user server', () => {

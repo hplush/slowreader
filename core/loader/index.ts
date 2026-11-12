@@ -16,6 +16,7 @@ import { jsonFeed } from './json-feed.ts'
 import { mastodon } from './mastodon.ts'
 import { rss } from './rss.ts'
 import { rss1 } from './rss1.ts'
+import { telegram } from './telegram.ts'
 
 export type { AccountAuth, DetectedFeed, Loader, MovedFeed }
 
@@ -25,7 +26,8 @@ export const loaders = {
   jsonFeed,
   mastodon,
   rss,
-  rss1
+  rss1,
+  telegram
 } satisfies {
   [Name in string]: Loader
 }

@@ -2,6 +2,7 @@
   import {
     mdiAccount,
     mdiAccountAlert,
+    mdiCellphoneLink,
     mdiLogin,
     mdiTrashCanOutline
   } from '@mdi/js'
@@ -24,7 +25,8 @@
   import Switch from '../ui/switch.svelte'
 
   let { popup }: { popup: AccountPopup } = $props()
-  let { account, categories, signInError, signingIn } = $derived(popup)
+  let { account, categories, needsDeviceSignIn, signInError, signingIn } =
+    $derived(popup)
 </script>
 
 <Popup id={getPopupId(popup.name, popup.param)}>
@@ -80,6 +82,13 @@
           {#if $signInError}
             <Error>{$signInError}</Error>
           {/if}
+        </Note>
+      {:else if $needsDeviceSignIn}
+        <Note icon={mdiCellphoneLink} variant="neutral">
+          {$t.deviceSignInNote}
+          <Button icon={mdiLogin} onclick={popup.signInAgain}>
+            {$t.signInOnDevice}
+          </Button>
         </Note>
       {/if}
     </Stack>

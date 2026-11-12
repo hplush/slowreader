@@ -75,12 +75,15 @@ export {
   getTestEnvironment,
   mockRequest,
   openRoute,
+  sendTelegramUpdate,
   setTestNetwork,
   setTestVisibility,
   testHistory,
   testOAuthPages,
   testSession,
-  testSignals
+  testSignals,
+  testTelegram,
+  testTelegramCreator
 } from '../test.ts'
 
 /**

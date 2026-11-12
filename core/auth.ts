@@ -14,6 +14,7 @@ import {
 } from '@slowreader/api'
 import { customAlphabet } from 'nanoid'
 
+import { endDeviceSessions } from './account.ts'
 import { busyDuring } from './busy.ts'
 import { client, getClient } from './client.ts'
 import { getEnvironment, onEnvironment } from './environment.ts'
@@ -451,6 +452,7 @@ export function signOut(): Promise<void> {
           )
         } catch {}
       }
+      await endDeviceSessions()
       await client.get()?.clean()
       await getEnvironment().mediaCache.clear()
       forgetLocalData()

@@ -7,6 +7,7 @@ import {
   loadAccounts,
   openAccountSignInPage,
   returnToAccountSignIn,
+  setDeviceSession,
   signInErrorToMessage,
   startAccountSignIn,
   syncFollows
@@ -17,6 +18,7 @@ import { showCrash } from '../errors.ts'
 import type { SignInField, SignInStep } from '../loader/common.ts'
 import { loaders } from '../loader/index.ts'
 import { POPULAR_MASTODON_SERVERS } from '../loader/mastodon.ts'
+import { loadTelegramApp, telegramApp } from '../loader/telegram.ts'
 import { accountsMessages as t } from '../messages/index.ts'
 import { navigate, router } from '../router.ts'
 import type { AccountService } from '../schema.ts'
@@ -31,6 +33,7 @@ export const accountsPage = createPage('accounts', () => {
   let $error = atom<string | undefined>()
   let $input = atom('')
   let $step = atom<AccountsStep>({ type: 'list' })
+  let $label = atom<string | undefined>()
   let $submitting = atom(false)
   let $service = routeParam('accounts', 'service')
 
@@ -39,9 +42,10 @@ export const accountsPage = createPage('accounts', () => {
    */
   let asked: { data: unknown } | undefined
 
-  function open(step: AccountsStep): void {
+  function open(step: AccountsStep, label?: string): void {
     asked = undefined
     $error.set(undefined)
+    $label.set(label)
     $input.set('')
     $step.set(step)
   }
@@ -52,6 +56,9 @@ export const accountsPage = createPage('accounts', () => {
   ): Promise<void> {
     let known = await loadAccounts(service)
     let accountId = await addAccount({ ...step.account, service })
+    if (step.device) {
+      await setDeviceSession(accountId, { device: step.device, service })
+    }
     if (!known.some(i => i.id === accountId)) void syncFollows(service)
     open({ type: 'list' })
     navigate(
@@ -95,7 +102,7 @@ export const accountsPage = createPage('accounts', () => {
     if (step.type === 'done') {
       await signedIn(service, step)
     } else if (step.type === 'ask') {
-      open({ field: step.field, service, type: 'form' })
+      open({ field: step.field, service, type: 'form' }, step.label)
       asked = { data: step.data }
     } else {
       // Web never returns here, only native clients with in-app browser
@@ -132,7 +139,18 @@ export const accountsPage = createPage('accounts', () => {
     }
   }
 
+  /**
+   * Loader could keep data of the unfinished sign in, like session key.
+   */
+  function leaveForm(): void {
+    let step = $step.get()
+    if (step.type === 'form' && asked) {
+      void loaders[step.service].account!.cancelSignIn?.(asked.data)
+    }
+  }
+
   let unbindService = $service.subscribe(service => {
+    leaveForm()
     if (service) {
       open({
         field: loaders[service].account!.firstField,
@@ -141,6 +159,22 @@ export const accountsPage = createPage('accounts', () => {
       })
     } else {
       open({ type: 'list' })
+    }
+  })
+
+  // Telegram needs own library in the client and app ID from the server
+  let $telegram = atom(false)
+  let unbindTelegram = telegramApp.subscribe(app => {
+    $telegram.set(!!app && !!env.telegramCreator)
+  })
+  void loadTelegramApp().then(() => {
+    let current = router.get()
+    if (
+      current.route === 'accounts' &&
+      current.params.service === 'telegram' &&
+      !$telegram.get()
+    ) {
+      showList()
     }
   })
 
@@ -155,13 +189,20 @@ export const accountsPage = createPage('accounts', () => {
   return {
     accounts: getAccounts(),
     cancel(): void {
+      leaveForm()
       showList()
     },
     error: $error,
     exit() {
+      leaveForm()
       unbindService()
+      unbindTelegram()
     },
     input: $input,
+    /**
+     * Loader’s label for the current field, like where the code was sent.
+     */
+    label: $label,
     mastodonServers: POPULAR_MASTODON_SERVERS,
     /**
      * ID of the account in the opened popup.
@@ -174,7 +215,8 @@ export const accountsPage = createPage('accounts', () => {
     },
     step: $step,
     submit,
-    submitting: $submitting
+    submitting: $submitting,
+    telegram: $telegram
   }
 })
 

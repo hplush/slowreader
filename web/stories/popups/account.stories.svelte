@@ -18,7 +18,8 @@
 
   function popup(
     account: Partial<AccountValue>,
-    signInError?: string
+    signInError?: string,
+    needsDeviceSignIn = false
   ): AccountPopup {
     return {
       account: atom({
@@ -41,6 +42,7 @@
       follow: atom(account.follow ?? false),
       loading: atom(false),
       name: 'account',
+      needsDeviceSignIn: atom(needsDeviceSignIn),
       notFound: false,
       param: 'account',
       remove() {
@@ -86,6 +88,28 @@
           title: 'Alexander Hamilton with a very long display name on Bluesky'
         },
         'The service did not accept the sign in. Try again.'
+      )}
+    />
+  </Scene>
+</Story>
+
+<Story
+  name="Telegram Other Device"
+  asChild
+  parameters={{ layout: 'fullscreen' }}
+>
+  <Scene route="accounts">
+    <AccountPopupComponent
+      popup={popup(
+        {
+          credentials: null,
+          handle: '@sitnik',
+          server: 'https://t.me',
+          service: 'telegram',
+          title: 'Andrey Sitnik'
+        },
+        undefined,
+        true
       )}
     />
   </Scene>

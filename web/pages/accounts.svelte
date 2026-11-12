@@ -4,12 +4,16 @@
     mdiChevronLeft,
     mdiChevronRight,
     mdiLogin,
+    mdiSend,
     mdiShieldCheckOutline
   } from '@mdi/js'
   import {
     type AccountsPage,
+    type AccountValue,
     addMessages,
+    deviceSessions,
     getPopupId,
+    needsDeviceSignIn,
     router,
     settingsMessages,
     accountsMessages as t
@@ -30,7 +34,43 @@
   import Title from '../ui/title.svelte'
 
   let { page }: { page: AccountsPage } = $props()
-  let { accounts, error, input, opened, step, submitting } = $derived(page)
+  let { accounts, error, input, label, opened, step, submitting, telegram } =
+    $derived(page)
+
+  let submit = $derived(
+    $step.type === 'form' && $step.field === 'phone'
+      ? { label: $t.sendCode, loader: $t.sendingCode }
+      : { label: $t.signIn, loader: $t.authorizing }
+  )
+
+  // Phone keyboard and password manager depend on these attributes
+  const AUTOCOMPLETE = {
+    code: 'one-time-code',
+    emailCode: 'one-time-code',
+    handle: 'off',
+    password: 'current-password',
+    phone: 'tel',
+    server: 'off'
+  } as const
+
+  const TYPES = {
+    code: 'text',
+    emailCode: 'text',
+    handle: 'text',
+    password: 'password',
+    phone: 'tel',
+    server: 'text'
+  } as const
+
+  function getHint(account: AccountValue): string {
+    if (account.expired) {
+      return $t.signInExpired
+    } else if (needsDeviceSignIn(account, $deviceSessions)) {
+      return $t.signInOnDevice
+    } else {
+      return account.handle
+    }
+  }
 </script>
 
 {#if $step.type === 'list'}
@@ -47,12 +87,15 @@
           links={$accounts.value.map(account => ({
             avatar: { icon: mdiAccount, round: true, url: account.avatar },
             controls: getPopupId('account', account.id),
-            hint: account.expired ? $t.signInExpired : account.handle,
+            hint: getHint(account),
             href: getPopupHash($router, 'account', account.id),
             id: account.id,
             item: account,
             mark: mdiChevronRight,
-            variant: account.expired ? 'dangerous' : 'normal'
+            variant:
+              account.expired || needsDeviceSignIn(account, $deviceSessions)
+                ? 'dangerous'
+                : 'normal'
           }))}
         >
           {#snippet item(account)}
@@ -64,6 +107,25 @@
         <Title>{$t.addTitle}</Title>
         <Stack gap="s">
           <Button
+            href={getURL({ params: { service: 'bluesky' }, route: 'accounts' })}
+            icon={brandBluesky}
+            size="wide"
+          >
+            {$t.addBluesky}
+          </Button>
+          {#if $telegram}
+            <Button
+              href={getURL({
+                params: { service: 'telegram' },
+                route: 'accounts'
+              })}
+              icon={mdiSend}
+              size="wide"
+            >
+              {$t.addTelegram}
+            </Button>
+          {/if}
+          <Button
             href={getURL({
               params: { service: 'mastodon' },
               route: 'accounts'
@@ -72,13 +134,6 @@
             size="wide"
           >
             {$t.addMastodon}
-          </Button>
-          <Button
-            href={getURL({ params: { service: 'bluesky' }, route: 'accounts' })}
-            icon={brandBluesky}
-            size="wide"
-          >
-            {$t.addBluesky}
           </Button>
         </Stack>
       </Stack>
@@ -98,15 +153,25 @@
           <Stack gap="l">
             <Stack gap="s">
               <Input
-                autocomplete="off"
+                aria-describedby={$step.field === 'password'
+                  ? 'accounts-password-hint'
+                  : undefined}
+                autocomplete={AUTOCOMPLETE[$step.field]}
                 disabled={$submitting}
                 errorId={$error ? 'accounts-error' : undefined}
-                label={$t[`${$step.field}Field`]}
+                inputmode={AUTOCOMPLETE[$step.field] === 'one-time-code'
+                  ? 'numeric'
+                  : undefined}
+                label={$label ?? $t[`${$step.field}Field`]}
                 required
+                type={TYPES[$step.field]}
                 bind:value={$input}
               />
               {#if $error}
                 <Error id="accounts-error">{$error}</Error>
+              {/if}
+              {#if $step.field === 'password'}
+                <p id="accounts-password-hint">{$t.passwordForgotten}</p>
               {/if}
               {#if $step.service === 'mastodon'}
                 <Stack gap="s" row wrap>
@@ -137,12 +202,12 @@
               </Button>
               <Button
                 icon={mdiLogin}
-                loader={$submitting ? $t.authorizing : undefined}
+                loader={$submitting ? submit.loader : undefined}
                 size="wide"
                 type="submit"
                 variant="main"
               >
-                {$t.signIn}
+                {submit.label}
               </Button>
             </Stack>
           </Stack>

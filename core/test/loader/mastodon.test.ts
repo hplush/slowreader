@@ -1354,6 +1354,7 @@ describe('mastodon account', () => {
   })
 
   let auth: AccountAuth = {
+    device: undefined,
     account: testAccount({
       credentials: {
         accessToken: 'token',

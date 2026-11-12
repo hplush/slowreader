@@ -14,6 +14,7 @@ export const addMessages = i18n('add', {
   searchGuide:
     'Currently, Slow Reader supports RSS, Mastodon, and BlueSky.\n\n' +
     'More sources are coming soon.',
+  telegramLoader: 'Telegram',
   title: 'Add',
   unknownHandle: 'This user was not found on supported social networks.',
   unloadable: 'Can’t open this website',

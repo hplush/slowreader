@@ -1393,6 +1393,7 @@ describe('bluesky account', () => {
     let saved: AccountCredentials[] = []
     let expired: boolean[] = []
     let auth: AccountAuth = {
+      device: undefined,
       account: testAccount({
         credentials: {
           accessToken: 'access',

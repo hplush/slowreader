@@ -1,3 +1,4 @@
+import { encodeTelegramApp } from '@slowreader/api'
 import { restoreAll, spyOn } from 'nanospy'
 import { deepEqual, equal, ok } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
@@ -12,6 +13,7 @@ import {
   commonMessages,
   currentPage,
   deleteCategory,
+  deviceSessions,
   fatal,
   GENERAL_CATEGORY,
   getEnvironment,
@@ -26,18 +28,24 @@ import {
 } from '../../index.ts'
 import { sha256 } from '../../lib/oauth.ts'
 import { getBlueskyClientId } from '../../loader/bluesky.ts'
+import { telegramApp } from '../../loader/telegram.ts'
 import {
   checkAndRemoveRequestMock,
+  checkLoadedPopup,
   cleanClient,
   expectRequest,
   expectWarning,
+  getPopup,
   mockRequest,
   openPage,
   openRoute,
   restartClient,
+  sendTelegramUpdate,
   startClient,
   testHistory,
   testOAuthPages,
+  testTelegram,
+  testTelegramCreator,
   waitFor,
   waitUntil
 } from '../utils.ts'
@@ -959,5 +967,170 @@ describe('accounts page', () => {
       getBlueskyClientId('https://slowreader.app/settings/accounts'),
       'https://slowreader.app/oauth/bluesky.json'
     )
+  })
+})
+
+describe('accounts page with Telegram', () => {
+  beforeEach(() => {
+    startClient({ telegramCreator: testTelegramCreator })
+    mockRequest()
+    telegramApp.set({ apiHash: 'hash', apiId: 1 })
+    deviceSessions.set({})
+    testTelegram.answers.getMe = {
+      '@type': 'user',
+      'first_name': 'Jane',
+      'id': 100,
+      'last_name': 'Doe',
+      'usernames': { '@type': 'usernames', 'active_usernames': ['jane'] }
+    }
+    testTelegram.answers.logOut = { '@type': 'ok' }
+  })
+
+  afterEach(async () => {
+    await cleanClient()
+    telegramApp.set(undefined)
+    deviceSessions.set({})
+    checkAndRemoveRequestMock()
+  })
+
+  function moveTo(type: string, extra?: object): () => { '@type': string } {
+    return () => {
+      sendTelegramUpdate({
+        '@type': 'updateAuthorizationState',
+        'authorization_state': {
+          '@type': `authorizationState${type}`,
+          ...extra
+        }
+      })
+      return { '@type': 'ok' }
+    }
+  }
+
+  function openAccounts(): AccountsPage {
+    expectRequest('/telegram-app.json').andRespond(
+      200,
+      JSON.stringify(encodeTelegramApp({ apiHash: 'hash', apiId: 1 })),
+      JSON_TYPE
+    )
+    return openPage({ params: {}, route: 'accounts' })
+  }
+
+  test('shows Telegram only with app ID from the server', async () => {
+    telegramApp.set(undefined)
+    let page = openAccounts()
+    equal(page.telegram.get(), false)
+    await waitFor(page.telegram, available => available)
+
+    expectRequest('/telegram-app.json').andRespond(404)
+    restartClient({ params: {}, route: 'welcome' })
+    let again = openPage({ params: {}, route: 'accounts' })
+    await waitFor(again.telegram, available => !available)
+  })
+
+  test('signs in to Telegram on this device', async () => {
+    testTelegram.answers.setAuthenticationPhoneNumber = moveTo('WaitCode', {
+      code_info: {
+        '@type': 'authenticationCodeInfo',
+        'type': { '@type': 'authenticationCodeTypeTelegramMessage' }
+      }
+    })
+    testTelegram.answers.checkAuthenticationCode = moveTo('Ready')
+    let page = openAccounts()
+    openRoute({ params: { service: 'telegram' }, route: 'accounts' })
+    deepEqual(page.step.get(), {
+      field: 'phone',
+      service: 'telegram',
+      type: 'form'
+    })
+    equal(page.label.get(), undefined)
+    page.input.set('+34 600 000 000')
+    await page.submit()
+    deepEqual(page.step.get(), {
+      field: 'code',
+      service: 'telegram',
+      type: 'form'
+    })
+    equal(page.label.get(), accountsMessages.get().codeFromApp)
+    page.input.set('12345')
+    await page.submit()
+    await waitAccountPopup()
+    equal(page.label.get(), undefined)
+
+    let [account] = await loadAccounts()
+    equal(account!.credentials, null)
+    equal(account!.handle, '@jane')
+    equal(account!.service, 'telegram')
+    let session = deviceSessions.get()[account!.id]!
+    equal(session.service, 'telegram')
+    deepEqual(testTelegram.destroyed, [])
+    // Back button does not return to the form
+    equal(
+      testHistory.some(i => i.route === 'accounts' && i.params.service),
+      false
+    )
+
+    // Phone is not saved, so account popup opens the form
+    let popup = checkLoadedPopup(getPopup('account', 0))
+    equal(popup.needsDeviceSignIn.get(), false)
+    deviceSessions.set({})
+    equal(popup.needsDeviceSignIn.get(), true)
+    deviceSessions.set({ [account!.id]: session })
+    await popup.signInAgain()
+    equal(openedPopups.get().length, 0)
+    deepEqual(router.get().params, { service: 'telegram' })
+    deepEqual(page.step.get(), {
+      field: 'phone',
+      service: 'telegram',
+      type: 'form'
+    })
+
+    page.input.set('+34600000000')
+    await page.submit()
+    page.input.set('12345')
+    await page.submit()
+    await waitAccountPopup()
+    equal((await loadAccounts()).length, 1)
+    let next = deviceSessions.get()[account!.id]!
+    equal(next.device !== session.device, true)
+    deepEqual(testTelegram.destroyed, [session.device])
+  })
+
+  test('deletes session key on leaving the sign in', async () => {
+    testTelegram.answers.setAuthenticationPhoneNumber = moveTo('WaitCode')
+    let page = openAccounts()
+    openRoute({ params: { service: 'telegram' }, route: 'accounts' })
+    page.cancel()
+    deepEqual(testTelegram.destroyed, [])
+
+    openRoute({ params: { service: 'telegram' }, route: 'accounts' })
+    page.input.set('+34600000000')
+    await page.submit()
+    page.cancel()
+    equal(testTelegram.destroyed.length, 1)
+    equal(page.step.get().type, 'list')
+    deepEqual(testHistory.at(-1), { hash: '', params: {}, route: 'accounts' })
+
+    // Back button
+    openRoute({ params: { service: 'telegram' }, route: 'accounts' })
+    page.input.set('+34600000000')
+    await page.submit()
+    openRoute({ params: {}, route: 'accounts' })
+    equal(testTelegram.destroyed.length, 2)
+    equal(page.step.get().type, 'list')
+
+    openRoute({ params: { service: 'telegram' }, route: 'accounts' })
+    page.input.set('+34600000000')
+    await page.submit()
+    openPage({ params: {}, route: 'welcome' })
+    equal(testTelegram.destroyed.length, 3)
+  })
+
+  test('opens the list instead of Telegram form without app ID', async () => {
+    telegramApp.set(undefined)
+    expectRequest('/telegram-app.json').andRespond(404)
+    let page = openPage({ params: { service: 'telegram' }, route: 'accounts' })
+    equal(page.step.get().type, 'form')
+    await waitFor(page.step, step => step.type === 'list')
+    deepEqual(testHistory.at(-1), { hash: '', params: {}, route: 'accounts' })
   })
 })

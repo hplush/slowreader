@@ -44,7 +44,13 @@ export type SignedInAccount = { handle: string } & Omit<FeedData, 'handle'> &
 /**
  * Field of the sign in form, which loader asks from the user.
  */
-export type SignInField = 'handle' | 'server'
+export type SignInField =
+  | 'code'
+  | 'emailCode'
+  | 'handle'
+  | 'password'
+  | 'phone'
+  | 'server'
 
 /**
  * Next step of the sign in. Loader could ask user for the form field
@@ -52,8 +58,25 @@ export type SignInField = 'handle' | 'server'
  * or finish the sign in.
  */
 export type SignInStep<Data> =
-  | { account: SignedInAccount; type: 'done' }
-  | { data: Data; field: SignInField; type: 'ask' }
+  | {
+      account: SignedInAccount
+      /**
+       * Name of the session, which the service keeps only on this device
+       * instead of synced `credentials`.
+       */
+      device?: string
+      type: 'done'
+    }
+  | {
+      data: Data
+      field: SignInField
+      /**
+       * Loader knows more than the field’s name, like where the service
+       * sent the code.
+       */
+      label?: string
+      type: 'ask'
+    }
   | {
       data: Data
       /**
@@ -81,6 +104,12 @@ export interface AccountAuth {
   account: AccountValue
 
   /**
+   * Name of the session on this device from the sign in. Missing, if user
+   * signed in to the account only on other devices.
+   */
+  device: string | undefined
+
+  /**
    * Mark that the service refused the credentials and nothing can renew them.
    */
   expire(): Promise<void>
@@ -103,6 +132,11 @@ export interface AccountAuth {
  */
 export interface AccountLoader<Data = unknown> {
   /**
+   * User left the sign in form after `ask` step.
+   */
+  cancelSignIn?(data: Data): Promise<void>
+
+  /**
    * Continue the sign in with user’s answer to the previous step.
    * Throw `UserFacingError` on wrong answer to ask the same field again.
    */
@@ -111,6 +145,12 @@ export interface AccountLoader<Data = unknown> {
     data: Data,
     answer: SignInAnswer
   ): Promise<SignInStep<Data>>
+
+  /**
+   * End the session, which the service keeps on this device,
+   * like after the account was deleted.
+   */
+  endDeviceSession?(device: string): Promise<void>
 
   /**
    * The first field of the sign in form.

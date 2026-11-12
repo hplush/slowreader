@@ -1,8 +1,13 @@
 import type { SqlStore, SqlStoreValue } from '@nanostores/sql'
 import { delay } from 'nanodelay'
-import { computed, type ReadableAtom } from 'nanostores'
+import { computed, effect, type ReadableAtom } from 'nanostores'
 
 import { getClient, onClient } from './client.ts'
+import {
+  type DeviceSession,
+  deviceSessions,
+  saveDeviceSession
+} from './device-sessions.ts'
 import { getEnvironment } from './environment.ts'
 import {
   errorToMessage,
@@ -33,9 +38,10 @@ import {
   GENERAL_CATEGORY,
   getCrdt,
   getTables,
-  type NewAccount
+  type NewAccount,
+  openedDatabase
 } from './schema.ts'
-import { hasCloud } from './settings.ts'
+import { downloadingCloudData, hasCloud } from './settings.ts'
 
 export type { AccountValue, NewAccount }
 
@@ -72,19 +78,22 @@ export function loadAccounts(
 }
 
 /**
- * Sign in to the same account again only updates its tokens.
+ * Sign in to the same account again only updates its tokens. Account
+ * is found by URL: user can change the handle on the service, and two users
+ * without handles can have the same name.
  * The first account of the service is used on subscribing by default.
  */
 export async function addAccount(fields: NewAccount): Promise<string> {
   let same = await getTables().accounts.load`
     WHERE "service" = ${fields.service}
   `
-  let existing = same.find(i => i.handle === fields.handle)
+  let existing = same.find(i => i.url === fields.url)
   if (existing) {
     await getTables().accounts.update(existing.id, {
       avatar: fields.avatar,
       credentials: fields.credentials,
       expired: false,
+      handle: fields.handle,
       server: fields.server,
       title: fields.title
     })
@@ -125,6 +134,68 @@ export async function updateAccountProfile(
 }
 
 /**
+ * End the session, which the service keeps only on this device.
+ */
+async function endDeviceSession(accountId: string): Promise<void> {
+  let { [accountId]: session, ...rest } = deviceSessions.get()
+  if (!session) return
+  deviceSessions.set(rest)
+  await loaders[session.service].account!.endDeviceSession?.(session.device)
+}
+
+/**
+ * App’s sign out deletes session keys from the device. Without it services
+ * will list this device as signed in forever.
+ */
+export async function endDeviceSessions(): Promise<void> {
+  await Promise.allSettled(
+    Object.keys(deviceSessions.get()).map(endDeviceSession)
+  )
+}
+
+/**
+ * New sign in on this device replaces the previous session of the account.
+ */
+export async function setDeviceSession(
+  accountId: string,
+  session: DeviceSession
+): Promise<void> {
+  await endDeviceSession(accountId)
+  saveDeviceSession(accountId, session)
+}
+
+/**
+ * Service keeps keys of this account only on devices, and user did not
+ * sign in on this one. Posts from other devices are still synced.
+ */
+export function needsDeviceSignIn(
+  account: AccountValue,
+  sessions: Record<string, DeviceSession>
+): boolean {
+  return !account.credentials && !sessions[account.id]
+}
+
+/**
+ * Account could be deleted on another device, while this one was closed.
+ * The service should not list this device as signed in forever.
+ */
+async function endSessionsOfDeletedAccounts(): Promise<void> {
+  let ids = Object.keys(deviceSessions.get())
+  // Accounts are not here yet, when the cloud data is still downloading
+  if (ids.length === 0 || downloadingCloudData.get()) return
+  let accounts = await loadAccounts()
+  for (let id of ids) {
+    if (!accounts.some(account => account.id === id)) await endDeviceSession(id)
+  }
+}
+
+onClient(() =>
+  effect(openedDatabase, db => {
+    if (db) void endSessionsOfDeletedAccounts()
+  })
+)
+
+/**
  * Another account of the service takes the feeds, and the follows sync
  * keeps only feeds of the authors, which other accounts follow.
  */
@@ -149,6 +220,7 @@ export async function deleteAccount(accountId: string): Promise<void> {
     await tables.feeds.deleteWhere`"accountId" = ${accountId}`
   }
   await tables.accounts.delete(accountId)
+  await endDeviceSession(accountId)
   if (heir) {
     // Running sync loaded feeds before they were moved to the heir
     await followsSyncing.get(heir.service)
@@ -162,6 +234,7 @@ export async function deleteAccount(accountId: string): Promise<void> {
 export function getAccountAuth(account: AccountValue): AccountAuth {
   let auth: AccountAuth = {
     account,
+    device: deviceSessions.get()[account.id]?.device,
     expire() {
       return changeAccount(account.id, { expired: true })
     },
@@ -314,6 +387,7 @@ onClient(() => () => {
  */
 export function needFollowsSync(account: AccountValue): boolean {
   if (account.expired) return false
+  if (needsDeviceSignIn(account, deviceSessions.get())) return false
   let now = Math.round(Date.now() / 1000)
   return !account.followsSyncedAt || now - account.followsSyncedAt >= 86400
 }
@@ -341,7 +415,7 @@ async function loadFollows(
   let synced = new Set<string>()
   let complete = true
   for (let account of accounts) {
-    if (account.expired) {
+    if (account.expired || needsDeviceSignIn(account, deviceSessions.get())) {
       complete = false
       continue
     }

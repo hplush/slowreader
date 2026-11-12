@@ -5,6 +5,7 @@ import {
   cleanAllTables,
   FakeAuthenticator
 } from '@slowreader/server/test'
+import { restoreAll, spyOn } from 'nanospy'
 import { deepEqual, equal, notEqual, ok } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
@@ -13,6 +14,7 @@ import {
   benchmarkStatistics,
   client,
   commonMessages,
+  deviceSessions,
   enableTestTime,
   encryptionKey,
   encryptionKeyLost,
@@ -20,6 +22,7 @@ import {
   generateCredentials,
   getEnvironment,
   hasCloud,
+  loaders,
   NetworkError,
   onSignOut,
   passkeyOnly,
@@ -35,6 +38,7 @@ import {
   userId
 } from '../index.ts'
 import { WrongPasswordError } from '../lib/keys.ts'
+import type { AccountLoader } from '../loader/common.ts'
 import {
   expectWarning,
   getTestEnvironment,
@@ -230,6 +234,34 @@ describe('auth', () => {
 
     await signOut()
     await server.expectWrongCredentials(credentials.userId, { token: session })
+  })
+
+  test('ends sessions kept only on this device on sign out', async t => {
+    await startLocalUser(generateCredentials())
+    deviceSessions.set({
+      broken: { device: 'broken', service: 'telegram' },
+      working: { device: 'working', service: 'telegram' }
+    })
+    let ended: string[] = []
+    spyOn(
+      loaders.telegram.account as Required<AccountLoader>,
+      'endDeviceSession',
+      device => {
+        ended.push(device)
+        return device === 'broken'
+          ? Promise.reject(new Error('No Telegram on this client'))
+          : Promise.resolve()
+      }
+    )
+    t.after(() => {
+      restoreAll()
+      deviceSessions.set({})
+    })
+
+    await signOut()
+    deepEqual(ended, ['broken', 'working'])
+    deepEqual(deviceSessions.get(), {})
+    equal(typeof userId.get(), 'undefined')
   })
 
   test('signs out when server is not available', async () => {
