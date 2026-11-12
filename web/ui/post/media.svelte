@@ -1,6 +1,7 @@
 <script lang="ts">
   import { mdiEyeOutline } from '@mdi/js'
   import {
+    isLoaderMedia,
     isMediaCached,
     type ReaderMedia,
     saveData,
@@ -12,6 +13,7 @@
   import { SvelteSet } from 'svelte/reactivity'
 
   import { waitImageDecoded } from '../../lib/image.ts'
+  import { mediaSrc } from '../../lib/media.ts'
   import BrokenImage from '../broken-image.svelte'
   import Button from '../button.svelte'
   import ClickToLoad from '../click-to-load.svelte'
@@ -59,7 +61,9 @@
   {#each item.sources ?? [] as source (source.url)}
     <source src={source.url} type={source.type} />
   {/each}
-  <source src={item.url} />
+  {#if !isLoaderMedia(item.url)}
+    <source src={item.url} />
+  {/if}
 {/snippet}
 
 {#if media.length > 0}
@@ -98,6 +102,7 @@
             class="post-media_item"
             class:is-loading={!loaded.has(item.url)}
             {@attach focusClicked(item.url)}
+            {@attach mediaSrc(item.url)}
             alt={item.alt ?? ''}
             decoding="async"
             height={item.size?.height}
@@ -109,7 +114,6 @@
               await waitImageDecoded(event.currentTarget)
               loaded.add(item.url)
             }}
-            src={item.url}
             title={item.alt}
             width={item.size?.width}
           />
@@ -117,6 +121,8 @@
           <video
             class="post-media_item"
             {@attach focusClicked(item.url)}
+            {@attach mediaSrc(item.url, 'src', false)}
+            {@attach mediaSrc(item.poster, 'poster')}
             aria-label={item.alt}
             autoplay
             disablepictureinpicture
@@ -124,7 +130,6 @@
             loop
             muted
             playsinline
-            poster={item.poster}
             title={item.alt}
             width={item.size?.width}
           >
@@ -135,12 +140,13 @@
           <video
             class="post-media_item"
             {@attach focusClicked(item.url)}
+            {@attach mediaSrc(item.url, 'src', false)}
+            {@attach mediaSrc($saveData ? undefined : item.poster, 'poster')}
             aria-label={item.alt}
             autoplay={clicked === item.url}
             controls
             height={item.size?.height}
             playsinline
-            poster={$saveData ? undefined : item.poster}
             preload="none"
             title={item.alt}
             width={item.size?.width}
@@ -150,10 +156,10 @@
         {:else if item.type.startsWith('audio')}
           <audio
             class="post-media_audio"
+            {@attach mediaSrc(item.url)}
             aria-label={item.alt}
             controls
             preload="none"
-            src={item.url}
             title={item.alt}
           ></audio>
         {/if}
@@ -178,6 +184,7 @@
   :global {
     .post-media {
       position: relative;
+      max-width: 100%;
       overflow: hidden;
       border-radius: var(--base-radius);
     }

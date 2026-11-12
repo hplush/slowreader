@@ -2,6 +2,7 @@
   import {
     type FeedValue,
     getPostPopupParam,
+    loaders,
     openWarnings,
     type Popup,
     popups,
@@ -314,6 +315,54 @@
         },
         reading: 'slow',
         url: 'https://example.com/news/3'
+      }
+    ]}
+  >
+    {#if popup}
+      <LoadedPopup {popup}>
+        {#snippet loaded(loadedPopup)}
+          <PostPopupComponent popup={loadedPopup} />
+        {/snippet}
+      </LoadedPopup>
+    {/if}
+  </Scene>
+</Story>
+
+<Story name="Loader Media" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    feeds={[FEED]}
+    oninit={() => {
+      loaders.telegram.getMedia = url => {
+        return url.endsWith('/broken')
+          ? Promise.reject(new Error('No file'))
+          : fetch(imgExample)
+      }
+      open()()
+    }}
+    posts={[
+      {
+        feedId: 'feed',
+        full:
+          '<p>Files are loaded by Telegram’s library, not by URL. ' +
+          'The second image is broken. The video is a whole file, ' +
+          'so it waits for the click.</p>',
+        media: [
+          { type: 'image', url: 'telegram:5/4' },
+          { type: 'image', url: 'telegram:5/4/broken' },
+          { poster: 'telegram:5/3/poster', type: 'video', url: 'telegram:5/3' }
+        ],
+        mediaSizes: [
+          { height: 441, width: 700 },
+          { height: 1080, width: 1920 },
+          { bytes: 8864869, height: 1080, width: 1920 }
+        ],
+        preview: {
+          image: 'telegram:5/5/preview',
+          title: 'Link title',
+          url: 'https://example.com/'
+        },
+        title: null,
+        url: 'https://t.me/news/4'
       }
     ]}
   >

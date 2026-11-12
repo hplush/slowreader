@@ -246,7 +246,7 @@ export function getTestEnvironment(): Environment {
     'slowreader:autoRefresh': 'never'
   }
   let savedKey: CryptoKey | undefined
-  let media = new Map<string, CachedMedia>()
+  let media = new Map<string, { blob: Blob } & CachedMedia>()
 
   return {
     baseRouter: testRouter,
@@ -282,6 +282,9 @@ export function getTestEnvironment(): Environment {
         for (let url of urls) media.delete(url)
         return Promise.resolve()
       },
+      get(url) {
+        return Promise.resolve(media.get(url)?.blob)
+      },
       has(url) {
         return Promise.resolve(media.has(url))
       },
@@ -289,9 +292,9 @@ export function getTestEnvironment(): Environment {
         return Promise.resolve([...media.keys()])
       },
       async put(url, response) {
-        let cached = { bytes: (await response.arrayBuffer()).byteLength }
-        media.set(url, cached)
-        return cached
+        let blob = await response.blob()
+        media.set(url, { blob, bytes: blob.size })
+        return { bytes: blob.size }
       },
       size() {
         let total = 0

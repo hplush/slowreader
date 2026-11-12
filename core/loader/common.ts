@@ -217,6 +217,12 @@ export type Loader = {
   getLoaderData?(task: DownloadTask, url: string): Promise<string | undefined>
 
   /**
+   * File of the post’s media, which only the loader can load, like media
+   * with `telegram:` URL. `undefined` if it is not such URL.
+   */
+  getMedia?(url: string): Promise<Response> | undefined
+
+  /**
    * New account of the author, who moved to another server.
    * `undefined` if the author did not move.
    */

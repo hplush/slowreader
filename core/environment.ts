@@ -105,6 +105,7 @@ export interface CachedMedia {
 export interface MediaCache {
   clear(): Promise<void>
   delete(urls: string[]): Promise<void>
+  get(url: string): Promise<Blob | undefined>
   has(url: string): Promise<boolean>
   keys(): Promise<string[]>
   put(url: string, response: Response): Promise<CachedMedia>

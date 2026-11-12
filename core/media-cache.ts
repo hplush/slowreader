@@ -7,7 +7,8 @@ import { createDownloadTask } from './lib/download.ts'
 import { canUseNetwork } from './lib/network.ts'
 import { createQueue } from './lib/queue.ts'
 import { increaseKey } from './lib/stores.ts'
-import { changePost, loadPost } from './post.ts'
+import { loadLoaderMedia } from './loader/index.ts'
+import { changePost, isLoaderMedia, loadPost } from './post.ts'
 import {
   getCrdt,
   getDatabase,
@@ -405,9 +406,12 @@ export async function syncMediaCache(): Promise<void> {
         let response: Response
         try {
           // Proxy loads media without the per-host delay by this header
-          response = await task.request(url, {
-            headers: { Accept: wanted.get(url)!.video ? 'video/*' : 'image/*' }
-          })
+          response = await (loadLoaderMedia(url) ??
+            task.request(url, {
+              headers: {
+                Accept: wanted.get(url)!.video ? 'video/*' : 'image/*'
+              }
+            }))
         } catch (e) {
           // Missed file will not appear on retry, unlike a rate limit
           if (HTTPStatusError.is(e, /^4\d\d$/) && e.status !== 429) {
@@ -456,11 +460,27 @@ export async function cacheMediaOnRequest(
   url: string,
   video = false
 ): Promise<void> {
-  let task = createDownloadTask({ tries: 1 })
-  let response = await task.request(url, {
-    headers: { Accept: video ? 'video/*' : 'image/*' }
-  })
+  let response = await (loadLoaderMedia(url) ??
+    createDownloadTask({ tries: 1 }).request(url, {
+      headers: { Accept: video ? 'video/*' : 'image/*' }
+    }))
   await getEnvironment().mediaCache.put(url, response)
+}
+
+/**
+ * File for media, which browser can not load by URL on its own, like media
+ * with `telegram:` URL. `undefined` for a web URL.
+ */
+export function loadMediaBlob(url: string): Promise<Blob> | undefined {
+  if (!isLoaderMedia(url)) return undefined
+  return getEnvironment()
+    .mediaCache.get(url)
+    .then(async cached => {
+      if (cached) return cached
+      let loading = loadLoaderMedia(url)
+      if (!loading) throw new Error(`No loader for ${url}`)
+      return (await loading).blob()
+    })
 }
 
 export function stopMediaCache(): void {

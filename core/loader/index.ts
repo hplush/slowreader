@@ -44,6 +44,17 @@ export function hasPersonAvatar(loader: string | undefined): boolean {
 }
 
 /**
+ * File of the media, which browser can not load by URL on its own.
+ */
+export function loadLoaderMedia(url: string): Promise<Response> | undefined {
+  for (let loader of Object.values<Loader>(loaders)) {
+    let media = loader.getMedia?.(url)
+    if (media) return media
+  }
+  return undefined
+}
+
+/**
  * Map key of the feed, which does not change with feed’s URL.
  */
 export function getOriginKey(

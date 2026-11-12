@@ -549,15 +549,29 @@ export function getPostIntro(
   return [intro, more]
 }
 
+/**
+ * Browser can not load this media by URL on its own, since the loader
+ * has own URL schema for it, like `telegram:`.
+ */
+export function isLoaderMedia(url: string): boolean {
+  return /^(?!https?:|data:|blob:)[a-z][\w+.-]*:/i.test(url)
+}
+
 export function waitsClick(
   media: PostMedia,
   saveData: boolean,
   loaded: ReadonlySet<string>
 ): boolean {
+  if (loaded.has(media.url)) return false
+  if (saveData) {
+    return media.type.startsWith('image') || media.type.startsWith('video')
+  }
+  // Loader gives video with own URL schema only as a whole file,
+  // so it is not downloaded before user asks to play it
   return (
-    saveData &&
-    !loaded.has(media.url) &&
-    (media.type.startsWith('image') || media.type.startsWith('video'))
+    media.type.startsWith('video') &&
+    !media.type.endsWith(';mode=gif') &&
+    isLoaderMedia(media.url)
   )
 }
 

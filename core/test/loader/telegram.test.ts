@@ -7,21 +7,27 @@ import {
   accountsMessages,
   addAccount,
   addFeed,
+  addPost,
+  cacheMediaOnRequest,
   createDownloadTask,
   createTextResponse,
   deviceSessions,
+  isMediaCached,
   loaders,
   loadFeed,
   loadFeeds,
+  loadMediaBlob,
   loadPosts,
   type OriginPost,
   refreshErrors,
   refreshPosts,
   refreshStatistics,
   syncFollows,
+  syncMediaCache,
   type TelegramObject,
   testAccount,
   testFeed,
+  testPost,
   UserFacingError
 } from '../../index.ts'
 import type { SignInStep } from '../../loader/common.ts'
@@ -545,14 +551,16 @@ describe('telegram loader', () => {
     })
   }
 
-  async function loadFeedPosts(): Promise<Partial<OriginPost>[]> {
+  async function loadFeedPosts(
+    loaderData = '{"id":"-1001"}'
+  ): Promise<Partial<OriginPost>[]> {
     testTelegram.requests = []
     let posts = loaders.telegram.getPosts(
       task,
       'https://t.me/news',
       undefined,
       undefined,
-      '{"id":"-1001"}',
+      loaderData,
       {
         account: testAccount({ credentials: null, service: 'telegram' }),
         device: 'name',
@@ -939,6 +947,270 @@ describe('telegram loader', () => {
         }
       ]
     )
+  })
+
+  function file(id: number, size: number): object {
+    return { '@type': 'file', id, size }
+  }
+
+  let photoPost = message(4, {
+    content: {
+      '@type': 'messagePhoto',
+      'caption': { '@type': 'formattedText', 'text': 'Caption' },
+      'photo': {
+        '@type': 'photo',
+        'sizes': [
+          { height: 200, photo: file(11, 100), width: 320 },
+          { height: 500, photo: file(12, 1000), width: 800 }
+        ]
+      }
+    },
+    media_album_id: 'album'
+  })
+  let videoPost = message(3, {
+    content: {
+      '@type': 'messageVideo',
+      'has_spoiler': true,
+      'video': {
+        '@type': 'video',
+        'height': 848,
+        'mime_type': 'video/mp4',
+        'thumbnail': {
+          '@type': 'thumbnail',
+          'file': file(21, 50),
+          'format': { '@type': 'thumbnailFormatJpeg' },
+          'height': 320,
+          'width': 175
+        },
+        'video': file(22, 5000),
+        'width': 464
+      }
+    },
+    media_album_id: 'album'
+  })
+  let previewPost = message(5, {
+    content: {
+      '@type': 'messageText',
+      'link_preview': {
+        '@type': 'linkPreview',
+        'title': '',
+        'type': {
+          '@type': 'linkPreviewTypePhoto',
+          'photo': {
+            '@type': 'photo',
+            'sizes': [{ height: 450, photo: file(31, 300), width: 800 }]
+          }
+        },
+        'url': 'https://example.com/'
+      },
+      'text': { '@type': 'formattedText', 'text': 'Link' }
+    }
+  })
+
+  test('loads photos and videos of the post', async () => {
+    mockHistory(0, {
+      0: [
+        message(7, {
+          content: {
+            '@type': 'messageVideoNote',
+            'video_note': {
+              '@type': 'videoNote',
+              'length': 384,
+              'thumbnail': {
+                '@type': 'thumbnail',
+                'file': file(41, 10),
+                'format': { '@type': 'thumbnailFormatWebm' }
+              },
+              'video': file(42, 700)
+            }
+          }
+        }),
+        message(6, {
+          content: {
+            '@type': 'messageAnimation',
+            'animation': {
+              '@type': 'animation',
+              'animation': file(51, 900),
+              'height': 100,
+              'mime_type': 'video/mp4',
+              'width': 200
+            }
+          }
+        }),
+        previewPost,
+        photoPost,
+        videoPost,
+        message(2, {
+          ...videoPost,
+          can_be_saved: false,
+          id: 2 * 1048576,
+          media_album_id: '0'
+        })
+      ]
+    })
+    deepEqual(
+      (await loadFeedPosts('{"id":"-1000000000005"}')).map(post => ({
+        media: post.media,
+        preview: post.preview,
+        sizes: post.mediaSizes,
+        text: post.full,
+        unsupported: post.unsupported
+      })),
+      [
+        {
+          media: [{ type: 'video', url: 'telegram:5/7' }],
+          preview: undefined,
+          sizes: [{ bytes: 700, height: 384, width: 384 }],
+          text: undefined,
+          unsupported: undefined
+        },
+        {
+          media: [{ type: 'video;mode=gif', url: 'telegram:5/6' }],
+          preview: undefined,
+          sizes: [{ bytes: 900, height: 100, width: 200 }],
+          text: undefined,
+          unsupported: undefined
+        },
+        {
+          media: undefined,
+          preview: {
+            image: 'telegram:5/5/preview',
+            url: 'https://example.com/'
+          },
+          sizes: undefined,
+          text: '<p>Link</p>',
+          unsupported: undefined
+        },
+        {
+          media: [
+            {
+              poster: 'telegram:5/3/poster',
+              sensitive: true,
+              type: 'video',
+              url: 'telegram:5/3'
+            },
+            { type: 'image', url: 'telegram:5/4' }
+          ],
+          preview: undefined,
+          sizes: [
+            { bytes: 5000, height: 848, width: 464 },
+            { bytes: 1000, height: 500, width: 800 }
+          ],
+          text: '<p>Caption</p>',
+          unsupported: undefined
+        },
+        {
+          // Telegram forbids to save media of protected channels
+          media: undefined,
+          preview: undefined,
+          sizes: undefined,
+          text: undefined,
+          unsupported: true
+        }
+      ]
+    )
+  })
+
+  test('loads media files by TDLib', async () => {
+    let { getMedia } = loaders.telegram
+    equal(getMedia!('https://example.com/a.jpg'), undefined)
+    await rejects(getMedia!('telegram:5/4')!, {
+      message: 'No Telegram session on this device'
+    })
+
+    deviceSessions.set({
+      other: { device: 'other', service: 'mastodon' },
+      own: { device: 'name', service: 'telegram' }
+    })
+    mockHistory(0, {})
+    let posts: Record<number, TelegramObject> = {
+      2: message(2, { ...videoPost, can_be_saved: false }),
+      3: videoPost,
+      4: photoPost,
+      5: previewPost,
+      6: message(6)
+    }
+    testTelegram.answers.getMessage = ({ message_id: id }) => {
+      return posts[Number(id) / 1048576] ?? fail('Not found', 404)
+    }
+    testTelegram.answers.downloadFile = ({ file_id: id }) => ({
+      '@type': 'file',
+      id,
+      'size': 4
+    })
+    testTelegram.files = {
+      12: new Blob(['photo']),
+      21: new Blob(['poster']),
+      22: new Blob(['video']),
+      31: new Blob(['preview'])
+    }
+
+    let image = await getMedia!('telegram:5/4')!
+    equal(image.headers.get('Content-Type'), 'image/jpeg')
+    equal(await image.text(), 'phot')
+    deepEqual(
+      testTelegram.requests.filter(i => i['@type'] !== 'getChat'),
+      [
+        {
+          '@type': 'getMessage',
+          'chat_id': -1000000000005,
+          'message_id': 4 * 1048576
+        },
+        {
+          '@type': 'downloadFile',
+          'file_id': 12,
+          'limit': 0,
+          'offset': 0,
+          'priority': 1,
+          'synchronous': true
+        },
+        { '@type': 'deleteFile', 'file_id': 12 }
+      ]
+    )
+
+    let video = await getMedia!('telegram:5/3')!
+    equal(video.headers.get('Content-Type'), 'video/mp4')
+    equal(await video.text(), 'vide')
+    equal(await (await getMedia!('telegram:5/3/poster')!).text(), 'post')
+    equal(await (await getMedia!('telegram:5/5/preview')!).text(), 'prev')
+
+    for (let url of ['telegram:5/6', 'telegram:5/2', 'telegram:5/4/poster']) {
+      await rejects(getMedia!(url)!, {
+        message: 'Telegram post has no such media'
+      })
+    }
+    await rejects(getMedia!('telegram:5/9')!, { name: 'TelegramError' })
+  })
+
+  test('gives media to the cache and to the page', async () => {
+    deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
+    mockHistory(0, {})
+    testTelegram.answers.getMessage = photoPost
+    testTelegram.answers.downloadFile = { '@type': 'file', 'id': 12, 'size': 5 }
+    testTelegram.files = { 12: new Blob(['photo']) }
+
+    equal(loadMediaBlob('https://example.com/a.jpg'), undefined)
+    await rejects(loadMediaBlob('unknown:1')!, {
+      message: 'No loader for unknown:1'
+    })
+    equal(await (await loadMediaBlob('telegram:5/4')!).text(), 'photo')
+    equal(await isMediaCached('telegram:5/4'), false)
+
+    await cacheMediaOnRequest('telegram:5/4')
+    equal(await isMediaCached('telegram:5/4'), true)
+    testTelegram.answers.getMessage = fail('Not found', 404)
+    equal(await (await loadMediaBlob('telegram:5/4')!).text(), 'photo')
+
+    testTelegram.answers.getMessage = previewPost
+    testTelegram.files = { 31: new Blob(['preview']) }
+    await addPost(
+      testPost({
+        preview: { image: 'telegram:5/5/preview', url: 'https://example.com/' },
+        reading: 'slow'
+      })
+    )
+    await syncMediaCache()
+    equal(await isMediaCached('telegram:5/5/preview'), true)
   })
 
   test('skips service messages and marks unknown content', async () => {

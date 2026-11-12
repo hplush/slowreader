@@ -2,6 +2,7 @@
   import { type PostPreview, saveData } from '@slowreader/core'
 
   import { waitImageDecoded } from '../../lib/image.ts'
+  import { mediaSrc } from '../../lib/media.ts'
   import BrokenImage from '../broken-image.svelte'
 
   let { preview }: { preview: PostPreview } = $props()
@@ -20,6 +21,7 @@
     <img
       class="post-preview_image"
       class:is-loading={loaded !== image}
+      {@attach mediaSrc(image)}
       alt=""
       decoding="async"
       loading="lazy"
@@ -32,7 +34,6 @@
         loaded = src
       }}
       referrerpolicy="no-referrer"
-      src={image}
     />
   {/if}
   <span class="post-preview_text">

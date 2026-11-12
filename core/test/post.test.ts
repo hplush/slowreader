@@ -12,18 +12,19 @@ import {
   addFeed,
   addFilter,
   addPost,
+  cacheImages,
   changeFeed,
   encryptionKey,
   getMediaOutsideText,
-  getPostId,
-  loadPost,
-  getPostBadges,
-  getPostIntro,
   getPost,
-  getQuotedIntro,
-  type PostCardText,
+  getPostBadges,
+  getPostId,
+  getPostIntro,
   getPostTitle,
-  cacheImages,
+  getQuotedIntro,
+  isLoaderMedia,
+  loadPost,
+  type PostCardText,
   sanitizeDOM,
   saveDataMode,
   slowPostsCount,
@@ -91,6 +92,28 @@ describe('post', () => {
     equal(waitsClick(image, false, new Set()), false)
     equal(waitsClick(video, true, new Set()), true)
     equal(waitsClick(video, true, loaded), false)
+    equal(waitsClick(video, false, new Set()), false)
+
+    let whole = { type: 'video', url: 'telegram:5/4' }
+    equal(waitsClick(whole, false, new Set()), true)
+    equal(waitsClick(whole, false, new Set([whole.url])), false)
+    equal(
+      waitsClick({ ...whole, type: 'video;mode=gif' }, false, new Set()),
+      false
+    )
+    equal(waitsClick({ ...whole, type: 'image' }, false, new Set()), false)
+
+    equal(isLoaderMedia('telegram:5/4'), true)
+    for (let url of [
+      'https://example.com/a.jpg',
+      'http://example.com/a.jpg',
+      '/assets/a.jpg',
+      'a.jpg',
+      'data:image/png;base64,AA',
+      'blob:https://example.com/1'
+    ]) {
+      equal(isLoaderMedia(url), false)
+    }
     equal(waitsClick(audio, true, new Set()), false)
   })
 

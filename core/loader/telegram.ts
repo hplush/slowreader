@@ -3,7 +3,7 @@ import { decodeTelegramApp, type TelegramApp } from '@slowreader/api'
 import { nanoid } from 'nanoid'
 
 import { onClient } from '../client.ts'
-import { forgetDeviceSession } from '../device-sessions.ts'
+import { deviceSessions, forgetDeviceSession } from '../device-sessions.ts'
 import {
   getEnvironment,
   type TelegramClient,
@@ -15,8 +15,10 @@ import { escapeXml } from '../lib/html.ts'
 import { accountsMessages as t } from '../messages/index.ts'
 import type {
   LoadedAuthor,
+  MediaSize,
   ParsedPost,
   PostAuthor,
+  PostMedia,
   PostPoll,
   PostPreview,
   QuotedPost
@@ -691,11 +693,175 @@ async function loadReplied(
 }
 
 /**
+ * Telegram sends a photo in a few sizes, we take the biggest one.
+ */
+function getLargestSize(photo: unknown): Record<string, unknown> | undefined {
+  if (!isObject(photo) || !Array.isArray(photo.sizes)) return undefined
+  return photo.sizes
+    .filter(isObject)
+    .toSorted((a, b) => Number(b.width) - Number(a.width))[0]
+}
+
+interface MediaFile {
+  id: number
+  size: MediaSize
+  type: string
+}
+
+function toMediaFile(
+  file: unknown,
+  type: unknown,
+  size: Record<string, unknown>
+): MediaFile | undefined {
+  if (!isObject(file) || typeof type !== 'string') return undefined
+  return {
+    id: Number(file.id),
+    size: {
+      bytes: Number(file.size),
+      height: Number(size.height ?? size.length),
+      width: Number(size.width ?? size.length)
+    },
+    type
+  }
+}
+
+/**
+ * File of the post by the end of media URL: the media itself, video’s
+ * `poster`, or image of link `preview`.
+ */
+function getMediaFile(
+  message: TelegramObject,
+  part?: string
+): MediaFile | undefined {
+  let content = message.content
+  // Telegram forbids to save or copy posts of protected channels
+  if (!isObject(content) || message.can_be_saved === false) return undefined
+  if (part === 'preview') {
+    let link = content.link_preview
+    let photo = getLargestSize(
+      isObject(link) && isObject(link.type) ? link.type.photo : undefined
+    )
+    return photo && toMediaFile(photo.photo, 'image/jpeg', photo)
+  }
+  let video = content.video ?? content.animation ?? content.video_note
+  if (part === 'poster') {
+    let poster = isObject(video) ? video.thumbnail : undefined
+    if (!isObject(poster) || !isObject(poster.format)) return undefined
+    let format = /^thumbnailFormat(Jpeg|Png|Webp|Gif)$/.exec(
+      String(poster.format['@type'])
+    )
+    return (
+      (format &&
+        toMediaFile(
+          poster.file,
+          `image/${format[1]!.toLowerCase()}`,
+          poster
+        )) ??
+      undefined
+    )
+  }
+  let photo = getLargestSize(content.photo)
+  if (photo) return toMediaFile(photo.photo, 'image/jpeg', photo)
+  if (!isObject(video)) return undefined
+  return toMediaFile(
+    video.video ?? video.animation,
+    video.mime_type ?? 'video/mp4',
+    video
+  )
+}
+
+function toMedia(
+  chatId: number,
+  message: TelegramObject
+): [PostMedia, MediaSize] | undefined {
+  let file = getMediaFile(message)
+  if (!file) return undefined
+  let content = message.content as Record<string, unknown>
+  // Channel ID as in t.me/c/ links
+  let url =
+    `telegram:${String(-chatId - 1e12)}/` +
+    String(Number(message.id) / MESSAGE_ID_STEP)
+  let media: PostMedia = {
+    type: content.animation ? 'video;mode=gif' : file.type.split('/')[0]!,
+    url
+  }
+  if (getMediaFile(message, 'poster')) media.poster = `${url}/poster`
+  if (content.has_spoiler) media.sensitive = true
+  return [media, file.size]
+}
+
+async function readTelegramFile(
+  name: string,
+  file: MediaFile,
+  bytes: number
+): Promise<Response> {
+  let session = getSession(name)
+  clearTimeout(session.idle)
+  try {
+    return new Response(await session.client.readFile(file.id, 0, bytes), {
+      headers: { 'Content-Type': file.type }
+    })
+  } finally {
+    closeOnIdle(session)
+  }
+}
+
+/**
+ * Media URL has no account, so we try every Telegram session of this device.
+ */
+async function loadMedia(
+  chatId: number,
+  messageId: number,
+  part: string | undefined
+): Promise<Response> {
+  let error: unknown = new Error('No Telegram session on this device')
+  for (let { device, service } of Object.values(deviceSessions.get())) {
+    if (service !== 'telegram') continue
+    try {
+      await loadChat(device, chatId)
+      let file = getMediaFile(
+        await sendToTelegram(device, {
+          '@type': 'getMessage',
+          'chat_id': chatId,
+          'message_id': messageId
+        }),
+        part
+      )
+      if (!file) throw new Error('Telegram post has no such media')
+      let downloaded = await sendToTelegram(device, {
+        '@type': 'downloadFile',
+        'file_id': file.id,
+        'limit': 0,
+        'offset': 0,
+        'priority': 1,
+        'synchronous': true
+      })
+      let response = await readTelegramFile(
+        device,
+        file,
+        Number(downloaded.size)
+      )
+      // TDLib keeps downloaded files in memory, and we have own media cache
+      await sendToTelegram(device, {
+        '@type': 'deleteFile',
+        'file_id': file.id
+      }).catch(() => {})
+      return response
+    } catch (e) {
+      if (!TelegramError.is(e)) throw e
+      error = e
+    }
+  }
+  throw error
+}
+
+/**
  * Messages of one post from the newest one.
  */
 async function toPost(
   name: string,
   channel: PostAuthor,
+  chatId: number,
   messages: TelegramObject[]
 ): Promise<ParsedPost | undefined> {
   let first = messages.at(-1)!
@@ -711,17 +877,31 @@ async function toPost(
     url: `${channel.url!}/${String(Number(first.id) / MESSAGE_ID_STEP)}`
   }
   let text = messages.map(getText).find(Boolean)
-  if (text) {
-    post.full = text
-  } else {
-    post.unsupported = true
+  if (text) post.full = text
+  let media = messages
+    .toReversed()
+    .map(message => toMedia(chatId, message))
+    .filter(item => !!item)
+  if (media.length > 0) {
+    post.media = media.map(([item]) => item)
+    post.mediaSizes = media.map(([, size]) => size)
   }
   let edited = Math.max(...messages.map(i => Number(i.edit_date)))
   if (edited) post.updatedAt = edited
   let poll = getPoll(content)
   if (poll) post.poll = poll
   let preview = getPreview(content)
+  if (getMediaFile(first, 'preview')) {
+    preview = {
+      ...preview,
+      image:
+        `telegram:${String(-chatId - 1e12)}/` +
+        `${String(Number(first.id) / MESSAGE_ID_STEP)}/preview`,
+      url: String((content.link_preview as Record<string, unknown>).url)
+    }
+  }
   if (preview) post.preview = preview
+  if (!text && !post.media && !poll) post.unsupported = true
   if (isObject(first.forward_info)) {
     let author = await loadForwardAuthor(name, first.forward_info.origin)
     if (author) {
@@ -774,7 +954,9 @@ function loadChannelPosts(
     // The oldest album of the page can continue on the next page
     if (!ended && getAlbumId(albums.at(-1)![0]!)) album = albums.pop()!
     let posts = (
-      await Promise.all(albums.map(group => toPost(name, channel, group)))
+      await Promise.all(
+        albums.map(group => toPost(name, channel, chatId, group))
+      )
     ).filter(post => !!post)
     for (let post of posts) {
       loaded += 1
@@ -870,6 +1052,17 @@ export const telegram: Loader = {
 
   detectFeedInPage() {
     return false
+  },
+
+  getMedia(url) {
+    let match = /^telegram:(\d+)\/(\d+)(?:\/(poster|preview))?$/.exec(url)
+    return match
+      ? loadMedia(
+          -1e12 - Number(match[1]),
+          Number(match[2]) * MESSAGE_ID_STEP,
+          match[3]
+        )
+      : undefined
   },
 
   getMineLinksFromText() {

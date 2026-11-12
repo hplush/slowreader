@@ -1,8 +1,20 @@
-import type { CachedMedia, MediaCache } from '@slowreader/core'
+import {
+  type CachedMedia,
+  isLoaderMedia,
+  type MediaCache
+} from '@slowreader/core'
 
 import type { MediaCacheName } from '../main/sw.ts'
 
 const MEDIA_CACHE: MediaCacheName = 'slowreader-media'
+
+// Cache accepts only web URLs, but loaders have own URL schemas for media,
+// like `telegram:`. It is only a key: nothing is requested from this domain.
+const LOADER_KEY = 'https://not-a-url.slowreader.app/'
+
+function toKey(url: string): string {
+  return isLoaderMedia(url) ? LOADER_KEY + encodeURIComponent(url) : url
+}
 
 function readVideoSize(
   blob: Blob
@@ -45,21 +57,29 @@ export const mediaCache: MediaCache = {
   },
   async delete(urls) {
     let cache = await caches.open(MEDIA_CACHE)
-    await Promise.all(urls.map(url => cache.delete(url)))
+    await Promise.all(urls.map(url => cache.delete(toKey(url))))
+  },
+  async get(url) {
+    let cache = await caches.open(MEDIA_CACHE)
+    return (await cache.match(toKey(url)))?.blob()
   },
   async has(url) {
     let cache = await caches.open(MEDIA_CACHE)
-    return !!(await cache.match(url))
+    return !!(await cache.match(toKey(url)))
   },
   async keys() {
     let cache = await caches.open(MEDIA_CACHE)
-    return (await cache.keys()).map(request => request.url)
+    return (await cache.keys()).map(request => {
+      return request.url.startsWith(LOADER_KEY)
+        ? decodeURIComponent(request.url.slice(LOADER_KEY.length))
+        : request.url
+    })
   },
   async put(url, response) {
     let cache = await caches.open(MEDIA_CACHE)
     // Response from the proxy has proxy’s URL and extra headers
     await cache.put(
-      url,
+      toKey(url),
       new Response(response.body, {
         headers: {
           'Content-Type':
@@ -67,7 +87,7 @@ export const mediaCache: MediaCache = {
         }
       })
     )
-    let blob = await (await cache.match(url))!.blob()
+    let blob = await (await cache.match(toKey(url)))!.blob()
     return { bytes: blob.size, ...(await readSize(blob)) }
   },
   async size() {
