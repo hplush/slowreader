@@ -2,14 +2,13 @@ import { atom, computed, effect, map } from 'nanostores'
 
 import {
   type AccountValue,
+  canUseAccount,
   getAccountAuth,
   loadAccount,
   loadAccounts,
-  needsDeviceSignIn,
   toVirtualFeed
 } from './account.ts'
 import { onClient, waitSyncOrOffline } from './client.ts'
-import { deviceSessions } from './device-sessions.ts'
 import { getEnvironment } from './environment.ts'
 import { cleanFeedRedirects, trackFeedRedirect } from './feed-redirects.ts'
 import {
@@ -51,6 +50,7 @@ import {
   withoutDeletedPosts
 } from './post.ts'
 import { getPostsFrequency, type PostsList } from './posts-list.ts'
+import { deletePostsReadInService, sendReadPositions } from './read-sync.ts'
 import {
   refreshLock,
   releaseRefreshLock,
@@ -610,12 +610,11 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
   await waitLoading(syncedSettingsLoading)
   let accounts = await loadAccounts()
   // Device without the account’s session gets its posts from other devices
-  let owners = accounts.filter(
-    account =>
-      loaders[account.service].account!.noTimeline &&
-      !account.expired &&
-      !needsDeviceSignIn(account, deviceSessions.get())
-  )
+  let owners = accounts.filter(account => {
+    return (
+      loaders[account.service].account!.noTimeline && canUseAccount(account)
+    )
+  })
   let feeds = await loadFeedsForRefresh(owners.map(account => account.id))
   if (auto && (nightLocked.get() || feeds.length + accounts.length === 0)) {
     releaseRefreshLock()
@@ -672,6 +671,14 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
       }
     }
   )
+
+  // Read position to and from services, like Telegram
+  try {
+    await sendReadPositions()
+    await deletePostsReadInService()
+  } catch (e) {
+    getEnvironment().warn(e)
+  }
 
   for (let [frequency, ids] of untouched) {
     await changeFeed(

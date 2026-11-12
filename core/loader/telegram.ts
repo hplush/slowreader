@@ -1022,8 +1022,36 @@ let telegramAccount: AccountLoader<SignInData> = {
     return createPostsList(() => Promise.resolve([[], undefined]))
   },
 
+  async getReadPosts(task, auth, feed, postOriginIds) {
+    let chat = await loadChat(
+      getDevice(auth),
+      Number(readLoaderData(feed.loaderData, 'id'))
+    )
+    return postOriginIds.filter(postOriginId => {
+      return (
+        Number(postOriginId) * MESSAGE_ID_STEP <=
+        Number(chat.last_read_inbox_message_id)
+      )
+    })
+  },
+
   isFollowing() {
     return Promise.resolve(false)
+  },
+
+  async setReadPosition(task, auth, feed, postOriginId) {
+    let name = getDevice(auth)
+    let chatId = Number(readLoaderData(feed.loaderData, 'id'))
+    let messageId = Number(postOriginId) * MESSAGE_ID_STEP
+    let chat = await loadChat(name, chatId)
+    // Read position only grows
+    if (messageId <= Number(chat.last_read_inbox_message_id)) return
+    await sendToTelegram(name, {
+      '@type': 'viewMessages',
+      'chat_id': chatId,
+      'force_read': true,
+      'message_ids': [messageId]
+    })
   },
 
   noTimeline: true,

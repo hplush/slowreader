@@ -176,6 +176,14 @@ export function needsDeviceSignIn(
 }
 
 /**
+ * This device can ask the service by this account right now: its sign in
+ * is not expired and it does not wait for a sign in on this device.
+ */
+export function canUseAccount(account: AccountValue): boolean {
+  return !account.expired && !needsDeviceSignIn(account, deviceSessions.get())
+}
+
+/**
  * Account could be deleted on another device, while this one was closed.
  * The service should not list this device as signed in forever.
  */
@@ -386,8 +394,7 @@ onClient(() => () => {
  * Follows are synced once per day on any device.
  */
 export function needFollowsSync(account: AccountValue): boolean {
-  if (account.expired) return false
-  if (needsDeviceSignIn(account, deviceSessions.get())) return false
+  if (!canUseAccount(account)) return false
   let now = Math.round(Date.now() / 1000)
   return !account.followsSyncedAt || now - account.followsSyncedAt >= 86400
 }
@@ -415,7 +422,7 @@ async function loadFollows(
   let synced = new Set<string>()
   let complete = true
   for (let account of accounts) {
-    if (account.expired || needsDeviceSignIn(account, deviceSessions.get())) {
+    if (!canUseAccount(account)) {
       complete = false
       continue
     }

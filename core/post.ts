@@ -393,6 +393,17 @@ export function changePost(
   return getTables().posts.update(postId, changes)
 }
 
+let readListener: ((postIds: string[]) => Promise<void>) | undefined
+
+/**
+ * Read sync with services listens for posts, which user read here.
+ */
+export function onPostsRead(
+  listener: (postIds: string[]) => Promise<void>
+): void {
+  readListener = listener
+}
+
 /**
  * Readers show the thread as a single post, so the whole thread is read
  * with it.
@@ -412,9 +423,9 @@ export async function changeRead(
       `
     })
   )
-  await changePost([...postIds, ...parts.flat().map(part => part.id)], {
-    read
-  })
+  let ids = [...postIds, ...parts.flat().map(part => part.id)]
+  await changePost(ids, { read })
+  if (read) await readListener?.(ids)
 }
 
 export function getPostId(sourceId: string, origin: OriginPost): string {

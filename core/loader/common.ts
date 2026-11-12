@@ -173,6 +173,30 @@ export interface AccountLoader<Data = unknown> {
   ): PostsList
 
   /**
+   * Which of these unread posts of the feed user already read in the app
+   * of the service. Refresh deletes them here, so user will not get
+   * the same post twice.
+   */
+  getReadPosts?(
+    task: DownloadTask,
+    auth: AccountAuth,
+    feed: Pick<FeedValue, 'loaderData' | 'url'>,
+    postOriginIds: string[]
+  ): Promise<string[]>
+
+  /**
+   * Move read position of the feed on the service to this post. We call it
+   * a few seconds after user read posts here, with the newest read post,
+   * which has no unread posts under it.
+   */
+  setReadPosition?(
+    task: DownloadTask,
+    auth: AccountAuth,
+    feed: Pick<FeedValue, 'loaderData' | 'url'>,
+    postOriginId: string
+  ): Promise<void>
+
+  /**
    * Service has no home timeline. Refresh loads every feed of the account
    * on its own by `getPosts()` with `auth`.
    */
@@ -260,7 +284,7 @@ export type Loader = {
   /**
    * Get source data of post from loader's API for debug purposes.
    */
-  getPostSource(feed: FeedValue, originId: string): Promise<unknown>
+  getPostSource(feed: FeedValue, postOriginId: string): Promise<unknown>
 
   /**
    * Convert this loader’s profile URL to `@handle`.
@@ -280,7 +304,7 @@ export type Loader = {
   getThreadAncestors?(
     task: DownloadTask,
     feedUrl: string,
-    originId: string
+    postOriginId: string
   ): Promise<ParsedPost[]>
 
   /**
@@ -290,7 +314,7 @@ export type Loader = {
   getThreadDescendants?(
     task: DownloadTask,
     feedUrl: string,
-    originId: string
+    postOriginId: string
   ): Promise<ParsedPost[]>
 
   /**
