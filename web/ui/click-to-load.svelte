@@ -16,6 +16,7 @@
     bytes,
     height,
     onload,
+    placeholder,
     play = false,
     sensitive = false,
     url,
@@ -26,6 +27,7 @@
     bytes?: null | number
     height?: null | number
     onload: () => void
+    placeholder?: null | string
     play?: boolean
     sensitive?: boolean
     url: string
@@ -56,7 +58,7 @@
   }
 </script>
 
-<span class="click-to-load">
+<span class="click-to-load" class:is-blurred={placeholder}>
   <svg
     class="click-to-load_ratio"
     aria-hidden="true"
@@ -64,6 +66,9 @@
     viewBox={`0 0 ${ratio[0]} ${ratio[1]}`}
     width={ratio[0]}
   ></svg>
+  {#if placeholder}
+    <img class="click-to-load_blur" alt="" src={placeholder} />
+  {/if}
   <span class="click-to-load_content">
     <Clickable
       class="click-to-load_download"
@@ -113,6 +118,23 @@
       text-align: center;
       background: --tune-background(--image-placeholder);
       border-radius: var(--base-radius);
+
+      &.is-blurred {
+        position: relative;
+        overflow: hidden;
+      }
+    }
+
+    .click-to-load_blur {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: blur(1rem);
+
+      /* Blur makes the edges of the image transparent */
+      scale: 1.2;
     }
 
     .click-to-load_ratio {
@@ -131,6 +153,10 @@
       justify-content: center;
       min-width: 0;
       padding: 1rem;
+
+      .click-to-load.is-blurred & {
+        position: relative;
+      }
     }
 
     .click-to-load_download {
@@ -179,6 +205,14 @@
 
     .click-to-load_size {
       font: var(--control-secondary-font);
+    }
+
+    .click-to-load.is-blurred .click-to-load_size,
+    .click-to-load.is-blurred .click-to-load_alt {
+      padding: 0.125rem 0.375rem;
+      color: var(--text-color);
+      background: var(--current-background);
+      border-radius: var(--base-radius);
     }
 
     .click-to-load_sensitive {

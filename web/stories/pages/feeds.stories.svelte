@@ -274,7 +274,11 @@
           url: 'https://example.com/gif.mp4'
         }
       ],
-      mediaSizes: [{ height: 480, width: 1920 }, null, null],
+      mediaSizes: [
+        { height: 441, width: 700 },
+        { height: 180, width: 320 },
+        { height: 441, width: 700 }
+      ],
       publishedAt: 4,
       reading: 'fast'
     },

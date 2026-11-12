@@ -959,6 +959,7 @@ describe('telegram loader', () => {
       'caption': { '@type': 'formattedText', 'text': 'Caption' },
       'photo': {
         '@type': 'photo',
+        'minithumbnail': { '@type': 'minithumbnail', 'data': 'AAAA' },
         'sizes': [
           { height: 200, photo: file(11, 100), width: 320 },
           { height: 500, photo: file(12, 1000), width: 800 }
@@ -1094,7 +1095,11 @@ describe('telegram loader', () => {
               type: 'video',
               url: 'telegram:5/3'
             },
-            { type: 'image', url: 'telegram:5/4' }
+            {
+              placeholder: 'data:image/jpeg;base64,AAAA',
+              type: 'image',
+              url: 'telegram:5/4'
+            }
           ],
           preview: undefined,
           sizes: [

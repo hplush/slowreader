@@ -786,6 +786,13 @@ function toMedia(
   }
   if (getMediaFile(message, 'poster')) media.poster = `${url}/poster`
   if (content.has_spoiler) media.sensitive = true
+  // Telegram puts a tiny blurred copy of the image into the post itself
+  let source =
+    content.photo ?? content.video ?? content.animation ?? content.video_note
+  let tiny = isObject(source) ? source.minithumbnail : undefined
+  if (isObject(tiny) && typeof tiny.data === 'string') {
+    media.placeholder = `data:image/jpeg;base64,${tiny.data}`
+  }
   return [media, file.size]
 }
 

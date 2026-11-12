@@ -100,6 +100,9 @@
               clicked = item.url
               downloaded.add(item.url)
             }}
+            placeholder={item.sensitive && !sensitiveShown
+              ? undefined
+              : item.placeholder}
             play={item.type.startsWith('video') &&
               !item.type.endsWith(';mode=gif')}
             sensitive={!!item.sensitive && !sensitiveShown}
@@ -119,6 +122,9 @@
           </span>
         {:else if item.type.startsWith('image')}
           <img
+            style:background-image={item.placeholder && !loaded.has(item.url)
+              ? `url("${item.placeholder}")`
+              : undefined}
             class="post-media_item"
             class:is-loading={!loaded.has(item.url)}
             {@attach focusClicked(item.url)}
@@ -243,6 +249,8 @@
 
       &.is-loading {
         background: --tune-background(--image-placeholder);
+        background-position: center;
+        background-size: cover;
 
         &:not([width][height]) {
           width: 100%;

@@ -173,6 +173,7 @@ let mediaShape = {
   alt: optional(string()),
   fromText: optional(boolean()),
   name: optional(string()),
+  placeholder: optional(string()),
   poster: optional(string()),
   sensitive: optional(boolean()),
   sources: optional(json([json(mediaSourceShape)])),

@@ -23,6 +23,12 @@
     `<img class="emoji" src="${new URL(emojiExample, location.href).href}" ` +
     'alt=":blob:" title=":blob:">'
 
+  // 4×3 pixels, like the tiny preview, which a service puts into the post
+  const TINY =
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAAMElE' +
+    'QVR4nGOwiVoQ1XPixIKoOxUBDEYBPSnT9u1blXepJ4pBwy0voGLatGkVW5pSAGK0EhfIheknAAAA' +
+    'AElFTkSuQmCC'
+
   const FEED = {
     id: 'feed',
     reading: 'slow',
@@ -68,7 +74,7 @@
         url: imgExample
       }
     ],
-    mediaSizes: [{ height: 480, width: 1920 }],
+    mediaSizes: [{ height: 441, width: 700 }],
     preview: {
       description: 'Description of the link',
       image: imgExample,
@@ -349,7 +355,12 @@
         media: [
           { type: 'image', url: 'telegram:5/4' },
           { type: 'image', url: 'telegram:5/4/broken' },
-          { poster: 'telegram:5/3/poster', type: 'video', url: 'telegram:5/3' }
+          {
+            placeholder: TINY,
+            poster: 'telegram:5/3/poster',
+            type: 'video',
+            url: 'telegram:5/3'
+          }
         ],
         mediaSizes: [
           { height: 441, width: 700 },
@@ -394,7 +405,12 @@
           'and can not be dragged out. The post is hidden on print.</p>',
         media: [
           { type: 'image', url: 'telegram:5/4' },
-          { poster: 'telegram:5/3/poster', type: 'video', url: 'telegram:5/3' }
+          {
+            placeholder: TINY,
+            poster: 'telegram:5/3/poster',
+            type: 'video',
+            url: 'telegram:5/3'
+          }
         ],
         mediaSizes: [
           { height: 441, width: 700 },
@@ -433,13 +449,19 @@
         full:
           `<p>Images wait for the click ${EMOJI}</p>` +
           `<img src="${new URL(imgExample, location.href).href}" ` +
-          'width="640" height="160" ' +
+          'width="700" height="441" ' +
           'alt="Wide example image">',
         media: [
-          { alt: 'Chart of the release', type: 'image', url: imgExample },
+          {
+            alt: 'Chart of the release',
+            placeholder: TINY,
+            type: 'image',
+            url: imgExample
+          },
           { type: 'image', url: emojiExample },
           {
             alt: 'Movie scene',
+            placeholder: TINY,
             sensitive: true,
             type: 'image',
             url: `${imgExample}#sensitive`
@@ -457,7 +479,13 @@
             url: 'https://example.com/gif.mp4'
           }
         ],
-        mediaSizes: [{ bytes: 245_000, height: 480, width: 1920 }],
+        mediaSizes: [
+          { bytes: 37_716, height: 441, width: 700 },
+          { height: 564, width: 400 },
+          { height: 441, width: 700 },
+          { height: 180, width: 320 },
+          { height: 441, width: 700 }
+        ],
         preview: {
           image: imgExample,
           title: 'Link title',
