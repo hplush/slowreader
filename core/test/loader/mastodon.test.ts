@@ -467,6 +467,7 @@ describe('mastodon loader', () => {
         status('2', {
           media_attachments: [
             {
+              blurhash: '00TI:j',
               description: 'Cat',
               meta: { original: { height: 10, width: 20 } },
               preview_url: 'https://mastodon.social/small.png',
@@ -475,6 +476,7 @@ describe('mastodon loader', () => {
               url: 'https://mastodon.social/cat.png'
             },
             {
+              blurhash: 'broken',
               description: null,
               meta: null,
               preview_url: 'https://mastodon.social/poster.png',
@@ -566,6 +568,10 @@ describe('mastodon loader', () => {
           media: [
             {
               alt: 'Cat',
+              placeholder:
+                'data:image/bmp;base64,Qk2WAAAAAAAAADYAAAAoAAAACAAAAAQAAAABABgA' +
+                'A'.repeat(32) +
+                'AAD/'.repeat(32),
               sensitive: true,
               type: 'image',
               url: 'https://mastodon.social/cat.png'

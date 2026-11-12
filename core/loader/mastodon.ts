@@ -5,6 +5,7 @@ import {
   ParseError,
   UserFacingError
 } from '../errors.ts'
+import { blurhashToImage } from '../lib/blurhash.ts'
 import {
   createDownloadTask,
   type DownloadTask,
@@ -59,6 +60,7 @@ interface MastodonAccount {
 
 // https://docs.joinmastodon.org/entities/MediaAttachment/
 interface MastodonMedia {
+  blurhash?: null | string
   description: null | string
   meta?: { original?: { height?: number; width?: number } } | null
   preview_url: null | string
@@ -288,13 +290,18 @@ function parseMedia(
       item.poster = attachment.preview_url
     }
     if (status.sensitive) item.sensitive = true
-    media.push(item)
     let original = attachment.meta?.original
-    if (original?.width && original.height) {
-      sizes.push({ height: original.height, width: original.width })
-    } else {
-      sizes.push(null)
-    }
+    let size =
+      original?.width && original.height
+        ? { height: original.height, width: original.width }
+        : null
+    let placeholder = blurhashToImage(
+      attachment.blurhash ?? '',
+      size ? size.width / size.height : 1
+    )
+    if (placeholder) item.placeholder = placeholder
+    media.push(item)
+    sizes.push(size)
   }
   if (media.length === 0) return {}
   if (sizes.every(size => size === null)) return { media }
