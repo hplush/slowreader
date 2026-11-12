@@ -80,7 +80,7 @@ SQLite runs in [`main/db-worker.ts`](./main/db-worker.ts) with the [SQLite WASM 
 
 Telegram channels are loaded by [TDLib](https://github.com/tdlib/td), Telegram’s own library. It has no fresh npm package, so we build it to WebAssembly in [its own repository](https://github.com/hplush/tdlib) and take the result as `@hplush/tdlib` npm package.
 
-`pnpm start` connects to Telegram’s test servers, which have own accounts and channels. Production build uses the real ones.
+Telegram is disabled locally until you set `TELEGRAM_API_ID` & `TELEGRAM_API_HASH` in `.env`.
 
 ## Demo Mode
 

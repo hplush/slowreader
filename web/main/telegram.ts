@@ -209,8 +209,7 @@ export function createTelegram(options: TelegramOptions): TelegramClient {
         'use_chat_info_database': false,
         'use_file_database': false,
         'use_message_database': false,
-        'use_secret_chats': false,
-        'use_test_dc': import.meta.env.DEV
+        'use_secret_chats': false
       })
     } catch (e) {
       await tdlib.stop()
