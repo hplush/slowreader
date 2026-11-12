@@ -6,6 +6,7 @@ import { wasmDriver } from '@nanostores/sql/wasm'
 import { fatal, showCrash, userId } from '@slowreader/core'
 
 import type { FromWorker, ToWorker } from './db-worker.ts'
+import { deleteTelegramDatabases } from './telegram.ts'
 
 type Vfs = 'opfs' | 'sahpool'
 
@@ -23,6 +24,7 @@ if (localStorage.getItem('slowreader:wipe')) {
   for await (let name of root.keys()) {
     await root.removeEntry(name, { recursive: true }).catch(() => {})
   }
+  await deleteTelegramDatabases()
   localStorage.removeItem('slowreader:wipe')
 }
 

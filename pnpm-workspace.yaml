@@ -25,6 +25,7 @@ minimumReleaseAgeExclude:
   - postcss-smooth-corners
   - '@nanostores/*'
   - '@logux/*'
+  - '@hplush/*'
   - '@size-limit/*'
   - size-limit
   - browserslist

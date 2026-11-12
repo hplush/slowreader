@@ -178,6 +178,22 @@ export class HTTPStatusError extends Error {
 }
 
 /**
+ * `error` object from TDLib, Telegram’s own library.
+ */
+export class TelegramError extends Error {
+  static is(thrown: unknown): thrown is TelegramError {
+    return thrown instanceof Error && thrown.name === 'TelegramError'
+  }
+
+  code: number
+  constructor(code: number, message: string) {
+    super(message)
+    this.code = code
+    this.name = 'TelegramError'
+  }
+}
+
+/**
  * When some object was not find to render 404 popup/page in UI.
  */
 export class NotFoundError extends Error {

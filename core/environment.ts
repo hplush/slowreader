@@ -111,6 +111,49 @@ export interface MediaCache {
   size(): Promise<number>
 }
 
+/**
+ * TDLib speaks JSON on every platform: `@type` is function or object name.
+ */
+export interface TelegramObject {
+  '@type': string
+  [field: string]: unknown
+}
+
+export type TelegramRequest = TelegramObject
+
+export interface TelegramClient {
+  /**
+   * Stop TDLib and keep its database.
+   */
+  close(): Promise<void>
+
+  /**
+   * Stop TDLib and delete its database and files.
+   */
+  destroy(): Promise<void>
+
+  onUpdate(listener: (update: TelegramObject) => void): () => void
+
+  /**
+   * Part of the file, which TDLib already downloaded.
+   */
+  readFile(fileId: number, offset: number, count: number): Promise<Blob>
+
+  /**
+   * Answer of TDLib, or `TelegramError` from its `error` object.
+   */
+  send(request: TelegramRequest): Promise<TelegramObject>
+}
+
+export interface TelegramOptions {
+  apiHash: string
+  apiId: number
+  /**
+   * Name of TDLib database on this device.
+   */
+  name: string
+}
+
 export type PasskeySignal =
   | { credentialId: string; type: 'unknown' }
   | { ids: string[]; type: 'accepted'; userId: string }
@@ -275,6 +318,14 @@ export interface Environment {
   signalPasskeys(signal: PasskeySignal): void
 
   /**
+   * Start TDLib, Telegram’s own library. Environment
+   * sends `setTdlibParameters` itself, everything after it is on the core.
+   *
+   * Missing, if the client has no TDLib. Telegram is hidden then.
+   */
+  telegramCreator?(options: TelegramOptions): TelegramClient
+
+  /**
    * Load app's translation. Based on Nano Stores I18n API.
    */
   translationLoader: TranslationLoader
@@ -347,6 +398,7 @@ export function setupEnvironment<Router extends BaseRouter>(
     saveSession: env.saveSession,
     server: env.server,
     signalPasskeys: env.signalPasskeys,
+    telegramCreator: env.telegramCreator,
     translationLoader: env.translationLoader,
     updateClient: env.updateClient,
     warn: env.warn

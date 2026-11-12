@@ -11,6 +11,8 @@
       "!dist/copy-demo-db/**",
       "!dist/assets/copy-demo-db-*.{js,css}",
       "!dist/assets/opfs-worker-*.js",
+      "!dist/assets/telegram-worker-*.js",
+      "!dist/assets/td_wasm-*.{js,wasm}",
       "!dist/demo.{json,sqlite}",
       "!dist/icon-*.{png,svg}",
       "!dist/apple-touch-icon.png",
@@ -32,7 +34,7 @@
       "!dist/assets/{literata,merriweather,source-serif-4,bitter,inter,atkinson-hyperlegible-next,lexend,opendyslexic}-*.woff2",
       "!dist/assets/*-{italic,math,latin-ext}-*.woff2"
     ],
-    "limit": "770 KB" // Bump by 10 KB steps
+    "limit": "780 KB" // Bump by 10 KB steps
   },
   {
     "name": "Landing page on phone",

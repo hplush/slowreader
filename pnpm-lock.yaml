@@ -634,6 +634,9 @@ importers:
       '@fontsource/playpen-sans':
         specifier: 5.3.0
         version: 5.3.0
+      '@hplush/tdlib':
+        specifier: 1.8.70
+        version: 1.8.70
       '@logux/client':
         specifier: 0.28.0
         version: 0.28.0(@nanostores/sql@0.8.0)(nanostores@1.5.5)(react@19.3.1)
@@ -1381,6 +1384,9 @@ packages:
 
   '@hexagon/base64@1.1.28':
     resolution: {integrity: sha512-lhqDEAvWixy3bZ+UOYbPwUbBkwBq5C1LAJ/xPC8Oi+lL54oyakv/npbA0aU2hgCsx/1NUd4IBvV03+aUBWxerw==}
+
+  '@hplush/tdlib@1.8.70':
+    resolution: {integrity: sha512-b495aVMrV8lB+gZSDPUeyRXeUVM9ocLXY/ZrCCvUHC/bFSr/MbBDl5DJ4pbavG1JSKxQfx1UyeRsD50vzwOwPw==}
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -6163,6 +6169,8 @@ snapshots:
   '@fontsource/playpen-sans@5.3.0': {}
 
   '@hexagon/base64@1.1.28': {}
+
+  '@hplush/tdlib@1.8.70': {}
 
   '@humanfs/core@0.19.2':
     dependencies:

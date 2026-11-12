@@ -34,6 +34,7 @@ import { restarting } from '../stores/restart.ts'
 import { getURL, openRoute, urlRouter } from '../stores/url-router.ts'
 import { createDatabase, dumpDatabase } from './database.ts'
 import { detectExtension, extensionRequest } from './extension.ts'
+import { createTelegram } from './telegram.ts'
 
 let server = location.hostname
 let proxy = '/proxy/'
@@ -163,6 +164,7 @@ setupEnvironment({
   },
   server,
   signalPasskeys,
+  telegramCreator: createTelegram,
   translationLoader() {
     return Promise.resolve({})
   },

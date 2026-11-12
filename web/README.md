@@ -6,6 +6,7 @@ _See the [full architecture guide](../README.md) first._
 - [Tools](#tools)
 - [Scripts](#scripts)
 - [Client Storage](#client-storage)
+- [Telegram Library](#telegram-library)
 - [Demo Mode](#demo-mode)
 - [DevTools Helpers](#devtools-helpers)
 - [Design System](#design-system)
@@ -29,6 +30,8 @@ We use **Svelte** as the UI framework and **Vite** as the builder.
   - [`db-worker.ts`](./main/db-worker.ts): SQLite worker with the drivers for both storage engines. See [client storage](#client-storage).
   - [`browser.ts`](./main/browser.ts): connect core stores to global browser settings like `document.title`.
   - [`extension.ts`](./main/extension.ts): make network request through the browser extension.
+  - [`telegram.ts`](./main/telegram.ts): start and stop Telegram’s library in its worker and pass requests to it.
+  - [`telegram-worker.ts`](./main/telegram-worker.ts): worker with Telegram’s library. See [Telegram library](#telegram-library).
 - [`benchmark/`](./benchmark/): UI performance benchmark, which is loaded only by `?benchmark` in URL. See [benchmark guide](../docs/development/benchmark.md).
 - [`demo/`](./demo/): the page which copies the files of the [demo](#demo-mode) database and the script to build it.
 - [`pages/`](./pages/): Svelte components for pages.
@@ -72,6 +75,12 @@ We keep SQLite as a file in OPFS, but only cross-origin isolated pages can do it
 The engine is chosen on the first start and saved as `slowreader:vfs` in `localStorage`, since the engines can not read each other’s files.
 
 SQLite runs in [`main/db-worker.ts`](./main/db-worker.ts) with the [SQLite WASM driver](https://github.com/nanostores/sql#sqlite-wasm) of Nano Stores SQL.
+
+## Telegram Library
+
+Telegram channels are loaded by [TDLib](https://github.com/tdlib/td), Telegram’s own library. It has no fresh npm package, so we build it to WebAssembly in [its own repository](https://github.com/hplush/tdlib) and take the result as `@hplush/tdlib` npm package.
+
+`pnpm start` connects to Telegram’s test servers, which have own accounts and channels. Production build uses the real ones.
 
 ## Demo Mode
 
