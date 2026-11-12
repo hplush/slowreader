@@ -984,6 +984,13 @@ describe('accounts page with Telegram', () => {
       'usernames': { '@type': 'usernames', 'active_usernames': ['jane'] }
     }
     testTelegram.answers.logOut = { '@type': 'ok' }
+    // Follows sync starts right after the sign in
+    testTelegram.answers.loadChats = {
+      '@type': 'error',
+      'code': 404,
+      'message': 'Not Found'
+    }
+    testTelegram.answers.getChats = { '@type': 'chats', 'chat_ids': [] }
   })
 
   afterEach(async () => {

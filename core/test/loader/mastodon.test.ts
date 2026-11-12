@@ -1580,6 +1580,6 @@ describe('mastodon account', () => {
         account: testAccount({ credentials: null })
       })
     })
-    equal(error.message, 'mastodon account has no credentials')
+    equal(error.message, 'mastodon has no credentials')
   })
 })

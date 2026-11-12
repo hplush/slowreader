@@ -251,6 +251,7 @@ export function isRemoteError(error: unknown): boolean {
   return (
     NetworkError.is(error) ||
     HTTPStatusError.is(error) ||
+    TelegramError.is(error) ||
     error instanceof ParseError ||
     (error instanceof Error && error.name === 'AbortError')
   )

@@ -12,12 +12,15 @@ import {
 } from '../environment.ts'
 import { TelegramError, UserFacingError } from '../errors.ts'
 import { accountsMessages as t } from '../messages/index.ts'
+import type { LoadedAuthor } from '../post.ts'
 import { createPostsList } from '../posts-list.ts'
 import { request } from '../request.ts'
 import {
+  type AccountAuth,
   type AccountLoader,
   isObject,
   type Loader,
+  readLoaderData,
   type SignInStep
 } from './common.ts'
 
@@ -216,14 +219,23 @@ function toUserError(error: unknown): unknown {
   }
 }
 
+/**
+ * Users and channels can have a few usernames. The first one is the main.
+ */
+function getUsername(owner: TelegramObject): string | undefined {
+  let usernames = isObject(owner.usernames)
+    ? owner.usernames.active_usernames
+    : []
+  return Array.isArray(usernames)
+    ? (usernames[0] as string | undefined)
+    : undefined
+}
+
 async function loadAccount(
   name: string
 ): Promise<Extract<SignInStep<SignInData>, { type: 'done' }>> {
   let user = await sendToTelegram(name, { '@type': 'getMe' })
-  let usernames = isObject(user.usernames)
-    ? user.usernames.active_usernames
-    : []
-  let username = Array.isArray(usernames) ? (usernames[0] as string) : undefined
+  let username = getUsername(user)
   let title = [user.first_name, user.last_name].filter(Boolean).join(' ')
   return {
     account: {
@@ -295,6 +307,70 @@ async function sendAnswer(
   return toStep(name, await waitTelegramAuthState(name, previous))
 }
 
+function getDevice(auth: AccountAuth): string {
+  if (!auth.device) throw new Error('No Telegram session on this device')
+  return auth.device
+}
+
+/**
+ * Chat list has private chats and groups too. We take only channels
+ * and drop the rest here, so they never reach the database.
+ */
+async function loadChannels(name: string): Promise<LoadedAuthor[]> {
+  let list = { '@type': 'chatListMain' }
+  let more = true
+  while (more) {
+    try {
+      await sendToTelegram(name, {
+        '@type': 'loadChats',
+        'chat_list': list,
+        'limit': 100
+      })
+    } catch (e) {
+      // TDLib loads the list by parts and answers 404 after the last one
+      if (!TelegramError.is(e) || e.code !== 404) throw e
+      more = false
+    }
+  }
+  let loaded = await sendToTelegram(name, {
+    '@type': 'getChats',
+    'chat_list': list,
+    'limit': 100_000
+  })
+  let chats = await Promise.all(
+    (Array.isArray(loaded.chat_ids) ? loaded.chat_ids : []).map(id =>
+      sendToTelegram(name, { '@type': 'getChat', 'chat_id': id })
+    )
+  )
+  let channels = await Promise.all(
+    chats.map(async chat => {
+      let type = chat.type
+      if (
+        !isObject(type) ||
+        type['@type'] !== 'chatTypeSupergroup' ||
+        !type.is_channel
+      ) {
+        return undefined
+      }
+      let username = getUsername(
+        await sendToTelegram(name, {
+          '@type': 'getSupergroup',
+          'supergroup_id': type.supergroup_id
+        })
+      )
+      return {
+        // Channel can change the username, but not the ID
+        loaderData: JSON.stringify({ id: String(chat.id) }),
+        title: String(chat.title),
+        url: username
+          ? `https://t.me/${username}`
+          : `https://t.me/c/${String(type.supergroup_id)}`
+      }
+    })
+  )
+  return channels.filter(channel => !!channel)
+}
+
 let telegramAccount: AccountLoader<SignInData> = {
   cancelSignIn({ name }) {
     return destroyTelegram(name)
@@ -331,8 +407,8 @@ let telegramAccount: AccountLoader<SignInData> = {
     return Promise.reject(new Error('Telegram follow is not ready'))
   },
 
-  getFollows() {
-    return Promise.resolve([])
+  async getFollows(task, auth) {
+    return loadChannels(getDevice(auth))
   },
 
   getTimeline() {
@@ -371,6 +447,10 @@ export const telegram: Loader = {
 
   getMineLinksFromText() {
     return []
+  },
+
+  getOriginId(loaderData) {
+    return readLoaderData(loaderData, 'id')
   },
 
   getPosts() {

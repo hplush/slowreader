@@ -105,6 +105,8 @@ Debug helpers from [`core/devtools.ts`](../core/devtools.ts) are exported in `wi
 
 - `slowreader.enablePostDebug()`: print post data and its source on opening post popup.
 - `slowreader.enableProxyDebug()`: print proxy request and response headers.
+- `slowreader.askTelegram(request)`: send a raw request to [TDLib](https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1_function.html).
+
 - `slowreader.removeTombstones()`: remove deleted rows’ actions from the log without waiting for expiration.
 - `slowreader.printActionCounts()`: print a table with the number of log actions by type and the total.
 

@@ -5,10 +5,13 @@ import { setTimeout } from 'node:timers/promises'
 
 import {
   accountsMessages,
+  addAccount,
   createDownloadTask,
   createTextResponse,
   deviceSessions,
   loaders,
+  loadFeeds,
+  syncFollows,
   type TelegramObject,
   testAccount,
   testFeed,
@@ -384,7 +387,115 @@ describe('telegram loader', () => {
     })
   })
 
-  test('has no channels yet', async () => {
+  function mockChats(usernames: Record<number, string[]>): void {
+    let parts = 2
+    testTelegram.answers.loadChats = () => {
+      parts -= 1
+      return parts >= 0 ? { '@type': 'ok' } : fail('Not Found', 404)
+    }
+    testTelegram.answers.getChats = {
+      '@type': 'chats',
+      'chat_ids': [-1001, -1002, -1003, 4],
+      'total_count': 4
+    }
+    testTelegram.answers.getChat = ({ chat_id: id }) => ({
+      '@type': 'chat',
+      id,
+      'last_message': { '@type': 'message', 'id': 1 },
+      'title': `Chat ${String(id)}`,
+      'type':
+        id === 4
+          ? { '@type': 'chatTypePrivate', 'user_id': 4 }
+          : {
+              '@type': 'chatTypeSupergroup',
+              'is_channel': id !== -1003,
+              'supergroup_id': -1000 - Number(id)
+            }
+    })
+    testTelegram.answers.getSupergroup = ({ supergroup_id: id }) => ({
+      '@type': 'supergroup',
+      id,
+      'is_channel': true,
+      'usernames': {
+        '@type': 'usernames',
+        'active_usernames': usernames[Number(id)] ?? []
+      }
+    })
+  }
+
+  test('loads only channels from the chat list', async () => {
+    let auth = {
+      account: testAccount({ credentials: null, service: 'telegram' }),
+      device: 'name',
+      expire: () => Promise.resolve(),
+      reload: () => Promise.resolve(undefined),
+      save: () => Promise.resolve()
+    }
+    mockChats({ 1: ['news', 'old'] })
+    deepEqual(await account.getFollows(task, auth), [
+      {
+        loaderData: '{"id":"-1001"}',
+        title: 'Chat -1001',
+        url: 'https://t.me/news'
+      },
+      {
+        loaderData: '{"id":"-1002"}',
+        title: 'Chat -1002',
+        url: 'https://t.me/c/2'
+      }
+    ])
+    deepEqual(
+      testTelegram.requests.map(i => i['@type']),
+      [
+        'loadChats',
+        'loadChats',
+        'loadChats',
+        'getChats',
+        'getChat',
+        'getChat',
+        'getChat',
+        'getChat',
+        'getSupergroup',
+        'getSupergroup'
+      ]
+    )
+    equal(loaders.telegram.getOriginId!('{"id":"-1001"}'), '-1001')
+
+    testTelegram.answers.loadChats = fail('FLOOD_WAIT_5', 429)
+    await rejects(account.getFollows(task, auth), { name: 'TelegramError' })
+    await rejects(account.getFollows(task, { ...auth, device: undefined }), {
+      message: 'No Telegram session on this device'
+    })
+  })
+
+  test('keeps the feed of the channel after its username change', async () => {
+    let accountId = await addAccount(
+      testAccount({ credentials: null, service: 'telegram' })
+    )
+    deviceSessions.set({ [accountId]: { device: 'name', service: 'telegram' } })
+
+    mockChats({ 1: ['news'] })
+    await syncFollows('telegram')
+    let feeds = await loadFeeds()
+    deepEqual(
+      new Set(feeds.map(feed => `${feed.loader} ${feed.title} ${feed.url}`)),
+      new Set([
+        'telegram Chat -1001 https://t.me/news',
+        'telegram Chat -1002 https://t.me/c/2'
+      ])
+    )
+
+    mockChats({ 1: ['renamed'] })
+    await syncFollows('telegram')
+    let renamed = await loadFeeds()
+    equal(renamed.length, 2)
+    equal(
+      renamed.find(feed => feed.url === 'https://t.me/renamed')!.id,
+      feeds.find(feed => feed.url === 'https://t.me/news')!.id
+    )
+  })
+
+  test('has no posts yet', async () => {
     let auth = {
       account: testAccount({ credentials: null, service: 'telegram' }),
       device: 'name',
@@ -393,7 +504,6 @@ describe('telegram loader', () => {
       save: () => Promise.resolve()
     }
     let url = 'https://t.me/channel'
-    deepEqual(await account.getFollows(task, auth), [])
     equal(await account.isFollowing(task, auth, url), false)
     await rejects(account.follow(task, auth, url))
     await rejects(account.unfollow(task, auth, url))

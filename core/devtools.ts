@@ -3,9 +3,12 @@ import type { Meta } from '@logux/core'
 
 import { busyDuring } from './busy.ts'
 import { getClient } from './client.ts'
+import { deviceSessions } from './device-sessions.ts'
+import type { TelegramObject, TelegramRequest } from './environment.ts'
 import { HTTPStatusError } from './errors.ts'
 import { changeFeed, loadFeed, loadFeeds } from './feed.ts'
 import { loaders } from './loader/index.ts'
+import { sendToTelegram } from './loader/telegram.ts'
 import { loadPopupPost } from './popups/post.ts'
 import { proxyDebug } from './request.ts'
 import { router } from './router.ts'
@@ -47,6 +50,18 @@ export function enablePostDebug(): void {
       }
     }
   })
+}
+
+/**
+ * Send a raw request to TDLib, Telegram’s own library, by the Telegram account
+ * of this device, to see what Telegram really answers.
+ */
+export function askTelegram(request: TelegramRequest): Promise<TelegramObject> {
+  let session = Object.values(deviceSessions.get()).find(
+    i => i.service === 'telegram'
+  )
+  if (!session) throw new Error('Sign in to Telegram on this device first')
+  return sendToTelegram(session.device, request)
 }
 
 /**

@@ -250,11 +250,19 @@ describe('import page', () => {
 
   test('imports accounts', async () => {
     let signedIn = await addAccount(
-      testAccount({ handle: '@me@mastodon.social', id: 'current' })
+      testAccount({
+        handle: '@me@mastodon.social',
+        id: 'current',
+        url: 'https://mastodon.social/@me'
+      })
     )
     let backup = {
       accounts: [
-        testAccount({ handle: '@me@mastodon.social', id: 'a1' }),
+        testAccount({
+          handle: '@me@mastodon.social',
+          id: 'a1',
+          url: 'https://mastodon.social/@me'
+        }),
         testAccount({ handle: '@work@mastodon.social', id: 'a2' })
       ],
       categories: [],
