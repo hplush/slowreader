@@ -22,11 +22,15 @@
 
   let id = $props.id()
 
+  // Saving the value could be slow, while the click needs instant feedback
+  let current = $derived(value)
+
   function change(e: { currentTarget: HTMLInputElement } & Event): void {
-    onchange(e.currentTarget.value as Value)
+    current = e.currentTarget.value as Value
+    onchange(current)
   }
 
-  let position = $derived(values.findIndex(i => i[0] === value))
+  let position = $derived(values.findIndex(i => i[0] === current))
 </script>
 
 <fieldset
@@ -41,7 +45,7 @@
   <div class="radio_gutter">
     <div
       style:--radio-width={`${100 / values.length}%`}
-      style:--radio-position={`${(100 / values.length) * position}%`}
+      style:--radio-position={position}
       class="radio_slider"
     ></div>
     {#each values as [key, name, icon] (key)}
@@ -54,7 +58,7 @@
           <input
             name={id}
             class="radio_input"
-            checked={key === value}
+            checked={key === current}
             data-anchor={anchor ? `${anchor}-${key}` : null}
             onchange={change}
             type="radio"
@@ -95,7 +99,7 @@
 
     .radio_slider {
       position: absolute;
-      inset-inline-start: calc(var(--slider-padding) + var(--radio-position));
+      inset-inline-start: var(--slider-padding);
       top: var(--slider-padding);
       bottom: var(--slider-padding);
       z-index: 2;
@@ -103,9 +107,18 @@
       background: --tune-background(--current);
       border-radius: var(--base-radius);
       box-shadow: var(--hard-button-shadow);
-      transition:
-        left var(--simple-time) var(--slide-easing),
-        width var(--simple-time) var(--slide-easing);
+      translate: calc(
+          var(--radio-position) * (100% + 2 * var(--slider-padding))
+        )
+        0;
+      transition: translate var(--simple-time) var(--slide-easing);
+
+      &:dir(rtl) {
+        translate: calc(
+            -1 * var(--radio-position) * (100% + 2 * var(--slider-padding))
+          )
+          0;
+      }
     }
 
     .radio_label {

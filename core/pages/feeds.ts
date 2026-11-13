@@ -3,6 +3,7 @@ import { atom, computed, effect, type ReadableAtom } from 'nanostores'
 import { type CategoryValue, changeCategory, getCategory } from '../category.ts'
 import { layoutType } from '../environment.ts'
 import { changeFeed, type FeedValue, getFeed } from '../feed.ts'
+import { waitLoading } from '../lib/stores.ts'
 import { loaders } from '../loader/index.ts'
 import {
   firstUnreadSlowFeedId,
@@ -177,6 +178,15 @@ let pages = (['slow', 'fast'] as const).map(reading => {
     // and on the reader’s name.
     let lastKey: string | undefined
 
+    let $picked = atom<
+      | {
+          categoryId: string | undefined
+          feedId: string | undefined
+          reader: UsefulReaderName
+        }
+      | undefined
+    >()
+
     let unbindPosts = effect(
       [
         $feed,
@@ -188,7 +198,8 @@ let pages = (['slow', 'fast'] as const).map(reading => {
         menuLoading,
         $menu,
         unreadFastMenu,
-        $locked
+        $locked,
+        $picked
       ],
       (
         feed,
@@ -200,7 +211,8 @@ let pages = (['slow', 'fast'] as const).map(reading => {
         loadingMenu,
         menu,
         fast,
-        locked
+        locked,
+        picked
       ) => {
         let readerName: 'none' | ReaderName
         if (menu || locked.locked) {
@@ -226,6 +238,11 @@ let pages = (['slow', 'fast'] as const).map(reading => {
               : 'empty'
         } else {
           readerName =
+            (picked &&
+            picked.feedId === feedId &&
+            picked.categoryId === categoryId
+              ? picked.reader
+              : undefined) ??
             feed?.[readerProp] ??
             category?.[readerProp] ??
             (reading === 'fast' ||
@@ -282,10 +299,27 @@ let pages = (['slow', 'fast'] as const).map(reading => {
           ? { ...route, params: { ...route.params, from: undefined } }
           : route
       )
-      if (feedId) {
-        await changeFeed(feedId, { [readerProp]: reader })
-      } else if (categoryId) {
-        await changeCategory(categoryId, { [readerProp]: reader })
+      // Firefox spends seconds on the database commit
+      let picked = { categoryId, feedId, reader }
+      $picked.set(picked)
+      // Queries of the new reader would wait for the write transaction
+      let shown = $posts.get()
+      if (shown) {
+        await waitLoading(
+          computed(
+            [shown.loading, $posts],
+            (loading, current) => loading && current === shown
+          )
+        )
+      }
+      try {
+        if (feedId) {
+          await changeFeed(feedId, { [readerProp]: reader })
+        } else if (categoryId) {
+          await changeCategory(categoryId, { [readerProp]: reader })
+        }
+      } finally {
+        if ($picked.get() === picked) $picked.set(undefined)
       }
     }
 

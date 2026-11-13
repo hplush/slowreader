@@ -15,6 +15,7 @@ import {
   nightLock,
   GENERAL_CATEGORY,
   isDemo,
+  loadFeed,
   menuLoading,
   router,
   setLayoutType,
@@ -605,6 +606,22 @@ describe('feeds page', () => {
       await setTimeout(10)
       equal(page.posts.get()!.name, 'list')
     }
+  })
+
+  test('changes reader before the database saves it', async () => {
+    let feed = await addFeed(testFeed({ reading: 'slow' }))
+    await addPost(testPost({ feedId: feed, reading: 'slow' }))
+    let page = openPage({ params: { feed }, route: 'slow' })
+    await setTimeout(10)
+    equal(page.posts.get()!.name, 'list')
+
+    let saving = page.changeReader('feed')
+    equal(page.posts.get()!.name, 'feed')
+    let reverting = page.changeReader('list')
+    equal(page.posts.get()!.name, 'list')
+    await Promise.all([saving, reverting])
+    equal(page.posts.get()!.name, 'list')
+    equal((await loadFeed(feed))?.slowReader, 'list')
   })
 
   test('changes reader of general category', async () => {
