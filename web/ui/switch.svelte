@@ -132,8 +132,7 @@
         margin-block-start: calc(
           var(--switch-diff) / 2 - var(--slider-padding)
         );
-        margin-inline: calc(-1 * var(--control-padding))
-          calc(var(--switch-diff) / 2 - var(--slider-padding));
+        margin-inline: calc(var(--switch-diff) / 2 - var(--slider-padding));
         font: var(--app-title-font);
       }
     }
@@ -162,6 +161,9 @@
 
       .switch.is-title & {
         padding-block: max(0rem, (var(--control-height) - 1lh) / 2);
+        padding-inline-start: calc(
+          var(--slider-padding) - var(--switch-diff) / 2
+        );
       }
 
       &.is-iconed {
