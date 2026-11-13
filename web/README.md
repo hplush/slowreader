@@ -106,15 +106,9 @@ Debug helpers from [`core/devtools.ts`](../core/devtools.ts) are exported in `wi
 - `slowreader.enablePostDebug()`: print post data and its source on opening post popup.
 - `slowreader.changeOpenedPost(changes)`: override post from the opened post popup, like `{ title: 'Test' }`.
 - `slowreader.changeOpenedFeed(changes)`: override feed. Before the call open the feed popup, any post of the feed, or the feed from the Useful menu.
-- `slowreader.devtoolDisabledLoaderMethods.set(paths)`: remove optional loader methods to test how the app works without them. It is saved for all your devices until you set `[]`:
-
-  ```js
-  slowreader.devtoolDisabledLoaderMethods.set(['mastodon.account.getTimeline'])
-  ```
-
+- `slowreader.devtoolDisabledLoaderMethods.set(paths)`: remove optional loader methods to test how the app works without them. It is saved for all your devices until you set `[]`.
 - `slowreader.enableProxyDebug()`: print proxy request and response headers.
 - `slowreader.askTelegram(request)`: send a raw request to [TDLib](https://core.telegram.org/tdlib/docs/classtd_1_1td__api_1_1_function.html).
-
 - `slowreader.removeTombstones()`: remove deleted rows’ actions from the log without waiting for expiration.
 - `slowreader.printActionCounts()`: print a table with the number of log actions by type and the total.
 
