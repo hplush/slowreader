@@ -43,8 +43,7 @@ import type { SignInStep } from '../../loader/common.ts'
 import {
   loadTelegramApp,
   sendToTelegram,
-  telegramApp,
-  telegramDebug
+  telegramApp
 } from '../../loader/telegram.ts'
 import {
   checkAndRemoveRequestMock,
@@ -110,7 +109,6 @@ describe('telegram loader', () => {
   afterEach(async () => {
     await cleanClient()
     telegramApp.set(undefined)
-    telegramDebug.set(undefined)
     deviceSessions.set({})
     checkAndRemoveRequestMock()
   })
@@ -1763,17 +1761,13 @@ describe('telegram loader', () => {
     t.mock.timers.enable({ apis: ['setTimeout'] })
     testTelegram.answers.getMe = USER
     testTelegram.answers.downloadFile = { '@type': 'file' }
-    let counts: Record<string, number> = {}
-    telegramDebug.set(type => {
-      counts[type] = (counts[type] ?? 0) + 1
-    })
     let sending = [1, 2, 3, 4, 5].map(() => {
       return sendToTelegram('name', { '@type': 'getMe' })
     })
     void sendToTelegram('name', { '@type': 'downloadFile' })
     deepEqual(getRequestTypes(), ['getMe', 'getMe', 'getMe', 'downloadFile'])
     await Promise.all(sending)
-    deepEqual(counts, { downloadFile: 1, getMe: 5 })
+    equal(getRequestTypes().filter(i => i === 'getMe').length, 5)
 
     testTelegram.requests = []
     testTelegram.answers.getMe = () => {

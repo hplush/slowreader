@@ -79,13 +79,6 @@ export async function loadTelegramApp(): Promise<void> {
   )
 }
 
-/**
- * Devtools counts requests to TDLib to see, what a refresh costs.
- */
-export const telegramDebug = atom<
-  ((type: string, ms: number) => void) | undefined
->()
-
 interface Session {
   /**
    * Requests, which TDLib is processing right now.
@@ -225,18 +218,6 @@ function closeOnIdle(session: Session): void {
   }, 60_000)
 }
 
-async function sendCounted(
-  session: Session,
-  body: TelegramRequest
-): Promise<TelegramObject> {
-  let start = performance.now()
-  try {
-    return await session.client.send(body)
-  } finally {
-    telegramDebug.get()?.(body['@type'], performance.now() - start)
-  }
-}
-
 /**
  * Telegram blocks the account for minutes after too many requests at once,
  * so only 3 requests are sent at the same time.
@@ -257,7 +238,7 @@ export async function sendToTelegram(
   }
   clearTimeout(session.idle)
   try {
-    return await sendCounted(session, body).catch(async (e: unknown) => {
+    return await session.client.send(body).catch(async (e: unknown) => {
       let wait =
         TelegramError.is(e) && e.code === 429
           ? Number(/retry after (\d+)/.exec(e.message)?.[1])
@@ -265,7 +246,7 @@ export async function sendToTelegram(
       // Longer block is shown to the user as an error
       if (!(wait <= 10)) throw e
       await delay(wait * 1000)
-      return sendCounted(session, body)
+      return session.client.send(body)
     })
   } finally {
     if (limited) {
