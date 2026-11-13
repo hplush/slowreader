@@ -22,7 +22,9 @@
     <ErrorPopup
       popup={{
         ...popups.refresh('1'),
-        error: commonMessages.get().error5xx
+        error: commonMessages.get().error5xx,
+        name: 'feed',
+        param: 'https://example.com/'
       }}
     />
   </Scene>

@@ -8,5 +8,7 @@ Add your Telegram account on the Accounts page to read its channels here:
 - You sign in on every device, since the sign-in key never leaves the device.
 - Posts of channels, which forbid copying, can’t be copied, saved, or exported.
 - Sponsored messages are shown under a channel, as Telegram requires.
+- Add page asks to add the account, if you open a `t.me` link without it.
+- Link to a user, bot, or group tells that only channels are supported, and offers to open it in the browser.
 
 Self-hosters need their own app ID in `TELEGRAM_API_ID` and `TELEGRAM_API_HASH`.

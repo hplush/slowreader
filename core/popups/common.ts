@@ -6,7 +6,8 @@ import {
   errorToMessage,
   HTTPStatusError,
   isNotFoundError,
-  NotFoundError
+  NotFoundError,
+  UserFacingError
 } from '../errors.ts'
 import { type Loadable, subscribeUntil } from '../lib/stores.ts'
 import type { PopupName } from '../router.ts'
@@ -55,6 +56,14 @@ export function getPopupId(name: PopupName, param: string): string {
   return `${name}-${param.replace(/[^\w]/g, '_')}-popup`
 }
 
+/**
+ * Page to open in browser, when the popup could not show it.
+ */
+export function getPopupUrl(popup: BasePopup): string | undefined {
+  let url = popup.param.replace(/^read:/, '')
+  return /^https?:\/\//.test(url) ? url : undefined
+}
+
 export function definePopup<Name extends PopupName, Rest extends Extra>(
   name: Name,
   builder: (param: string) => Promise<Rest>
@@ -91,7 +100,7 @@ export function definePopup<Name extends PopupName, Rest extends Extra>(
         if (isNotFoundError(e) || HTTPStatusError.is(e, [404, 410])) {
           popup.notFound = true
         } else {
-          getEnvironment().warn(e)
+          if (!(e instanceof UserFacingError)) getEnvironment().warn(e)
           popup.error = errorToMessage(e)
         }
         popup.destroy()

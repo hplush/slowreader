@@ -7,6 +7,7 @@
     addMessages as t
   } from '@slowreader/core'
 
+  import { getURL } from '../stores/url-router.ts'
   import DemoNote from '../ui/demo-note.svelte'
   import Error from '../ui/error.svelte'
   import Feeds from '../ui/feeds.svelte'
@@ -18,8 +19,16 @@
   import Stack from '../ui/stack.svelte'
 
   let { page }: { page: AddPage } = $props()
-  let { avatars, candidates, error, mixed, noResults, opened, searching } =
-    $derived(page)
+  let {
+    avatars,
+    candidates,
+    error,
+    mixed,
+    needAccount,
+    noResults,
+    opened,
+    searching
+  } = $derived(page)
   let { url } = $derived(page.params)
 
   let hints = $derived(
@@ -31,7 +40,7 @@
   let empty = $derived(!$noResults && !$searching && !$url)
 
   let gap = $derived.by(() => {
-    if ($searching || $error || $noResults) {
+    if ($searching || $error || $noResults || $needAccount) {
       return 'xl' as const
     } else {
       return 'm' as const
@@ -50,7 +59,7 @@
         anchor="add-url"
         aria-controls="add-results"
         autofocus
-        errorId={$error || $noResults ? 'add-error' : undefined}
+        errorId={$error || $noResults || $needAccount ? 'add-error' : undefined}
         label={$t.urlLabel}
         labelless
         oninput={value => {
@@ -66,7 +75,17 @@
       {:else if $searching}
         <Loader track="add-search" />
       {:else if $error}
-        <Error id="add-error">{$t[$error]}</Error>
+        <Error id="add-error">{$error}</Error>
+      {:else if $needAccount}
+        <Error id="add-error">
+          <RichText
+            text={$t.needAccount({ service: $t[`${$needAccount}Loader`] })}
+            url={getURL({
+              params: { service: $needAccount },
+              route: 'accounts'
+            })}
+          />
+        </Error>
       {:else if $noResults}
         <Error id="add-error">
           <RichText

@@ -8,7 +8,12 @@ import { refresh } from './refresh.ts'
 import { session } from './session.ts'
 
 export type { AccountPopup } from './account.ts'
-export { type BasePopup, getPopupId, type LoadedPopup } from './common.ts'
+export {
+  type BasePopup,
+  getPopupId,
+  getPopupUrl,
+  type LoadedPopup
+} from './common.ts'
 export { type FeedPopup, getLinkPopup } from './feed.ts'
 export type { PasskeyPopup } from './passkey.ts'
 export type { PostPopup } from './post.ts'

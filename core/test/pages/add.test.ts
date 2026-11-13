@@ -5,13 +5,18 @@ import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import {
+  addAccount,
+  addMessages,
   closeLastPopup,
+  deviceSessions,
   type FeedLoader,
   HTTPStatusError,
+  type Loader,
   loaders,
   openedPopups,
   router,
   setLayoutType,
+  testAccount,
   waitLoading
 } from '../../index.ts'
 import {
@@ -96,13 +101,13 @@ describe('add page', () => {
     keepMount(page.error)
 
     page.search('mailto:user@example.com')
-    equal(page.error.get(), 'invalidUrl')
+    equal(page.error.get(), addMessages.get().invalidUrl)
 
     page.search('http://a b')
-    equal(page.error.get(), 'invalidUrl')
+    equal(page.error.get(), addMessages.get().invalidUrl)
 
     page.search('not URL')
-    equal(page.error.get(), 'invalidUrl')
+    equal(page.error.get(), addMessages.get().invalidUrl)
 
     equal(page.noResults.get(), false)
   })
@@ -162,13 +167,51 @@ describe('add page', () => {
 
     await reply(404)
     equal(page.searching.get(), false)
-    equal(page.error.get(), 'unloadable')
+    equal(page.error.get(), addMessages.get().unloadable)
     equal(page.noResults.get(), false)
 
     page.search('')
     equal(page.searching.get(), false)
     equal(page.error.get(), undefined)
     equal(page.noResults.get(), false)
+  })
+
+  test('asks for account of service without anonymous access', async t => {
+    t.after(() => {
+      deviceSessions.set({})
+    })
+    let page = openPage({ params: {}, route: 'add' })
+    keepMount(page.needAccount)
+    keepMount(page.noResults)
+
+    page.search('https://t.me/news')
+    await waitLoading(page.searching)
+    equal(page.needAccount.get(), 'telegram')
+    equal(page.error.get(), undefined)
+    equal(page.noResults.get(), false)
+
+    page.search('')
+    equal(page.needAccount.get(), undefined)
+
+    let accountId = await addAccount(
+      testAccount({ credentials: null, service: 'telegram' })
+    )
+    page.search('https://t.me/news')
+    await waitLoading(page.searching)
+    equal(page.needAccount.get(), 'telegram')
+
+    deviceSessions.set({ [accountId]: { device: 'one', service: 'telegram' } })
+    spyOn(loaders.telegram, 'isMineUrl', () => {
+      return Promise.resolve({ title: 'News' })
+    })
+    page.search('')
+    page.search('https://t.me/news')
+    await waitLoading(page.searching)
+    equal(page.needAccount.get(), undefined)
+    deepEqual(
+      page.candidates.get().map(i => i.url),
+      ['https://t.me/news']
+    )
   })
 
   test('aborts all HTTP requests on URL change', async () => {
@@ -432,7 +475,30 @@ describe('add page', () => {
     page.search('@jane')
     await waitLoading(page.searching)
     equal(page.params.url.get(), '@jane')
-    equal(page.error.get(), 'unknownHandle')
+    equal(page.error.get(), addMessages.get().unknownHandle)
+  })
+
+  test('hides broken profile if handle has another one', async () => {
+    let page = openPage({ params: {}, route: 'add' })
+    keepMount(page.searching)
+    keepMount(page.candidates)
+
+    spyOn(loaders.telegram as Required<Loader>, 'getProfilesByHandle', () => {
+      return Promise.resolve(['https://a.com/news', 'https://b.com/news'])
+    })
+    expectRequest('https://a.com/news').andRespond(404)
+    expectRequest('https://b.com/news').andRespond(
+      200,
+      '<rss><channel><title>News</title></channel></rss>',
+      'application/rss+xml'
+    )
+    page.search('@news')
+    await waitLoading(page.searching)
+    equal(page.error.get(), undefined)
+    deepEqual(
+      page.candidates.get().map(i => i.url),
+      ['https://b.com/news']
+    )
   })
 
   test('ignores handle results after URL change', async () => {
@@ -451,7 +517,7 @@ describe('add page', () => {
     page.search('@jane')
     await waitLoading(page.searching)
     equal(finger.aborted, true)
-    equal(page.error.get(), 'unknownHandle')
+    equal(page.error.get(), addMessages.get().unknownHandle)
 
     expectRequest(
       'https://mastodon.social/.well-known/webfinger' +
@@ -465,7 +531,7 @@ describe('add page', () => {
     page.search('@jane')
     await waitLoading(page.searching)
     equal(profile.aborted, true)
-    equal(page.error.get(), 'unknownHandle')
+    equal(page.error.get(), addMessages.get().unknownHandle)
   })
 
   test('shows network error of sure loader', async () => {
@@ -481,7 +547,7 @@ describe('add page', () => {
     ).andRespond(404)
     page.search('https://mastodon.social/@jane')
     await waitLoading(page.searching)
-    equal(page.error.get(), 'unloadable')
+    equal(page.error.get(), addMessages.get().unloadable)
   })
 
   test('does not download URL of sure loader', async () => {
@@ -773,7 +839,7 @@ describe('add page', () => {
     page.search('https://example.com/feed')
     await waitLoading(page.searching)
     equal(page.searching.get(), false)
-    equal(page.error.get(), 'unloadable')
+    equal(page.error.get(), addMessages.get().unloadable)
   })
 
   test('syncs feed URL with app URL', async () => {

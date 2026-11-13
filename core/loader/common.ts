@@ -382,6 +382,9 @@ export type Loader = {
    * a promise of the feed, or of `false` for unknown author. Nobody downloads
    * such URL as a page. It returns `false`, if the URL is 100% not loader’s
    * feed. It returns `undefined`, if only the page can tell.
+   *
+   * Promise rejects with `UserFacingError` to tell the user, why the service
+   * has this URL, but it can not be a feed.
    */
   isMineUrl(
     task: DownloadTask,

@@ -63,6 +63,7 @@
 
   const STATUSES = [1, 2, 3].map(id => ({
     account: {
+      acct: 'jane',
       avatar: '',
       display_name: 'Jane',
       id: 'jane',

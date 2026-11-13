@@ -7,6 +7,7 @@ import { setTimeout } from 'node:timers/promises'
 import {
   accountsMessages,
   addAccount,
+  addMessages,
   addFeed,
   addPost,
   cacheImages,
@@ -17,6 +18,7 @@ import {
   createTextResponse,
   deviceSessions,
   getLinkPopup,
+  getPopupUrl,
   isMediaCached,
   loaders,
   loadFeed,
@@ -1563,7 +1565,10 @@ describe('telegram loader', () => {
       await telegram.isMineUrl(task, new URL('https://telegram.me/c/8/1')),
       { title: 'News', url: 'https://t.me/c/8' }
     )
-    equal(await telegram.isMineUrl(task, new URL('https://t.me/group')), false)
+    await rejects(
+      telegram.isMineUrl(task, new URL('https://t.me/group')) as Promise<false>,
+      new UserFacingError(accountsMessages.get().telegramOnlyChannels)
+    )
     equal(await telegram.isMineUrl(task, new URL('https://t.me/lost')), false)
 
     equal(
@@ -1781,7 +1786,11 @@ describe('telegram loader', () => {
     deviceSessions.set({ [accountId]: { device: 'name', service: 'telegram' } })
     mockHistory(0, { 0: [message(3)], 3: [message(2)] })
     testTelegram.answers.searchPublicChat = ({ username }) => {
-      return username === 'news' ? news(-1000000000007, 0) : fail('No', 404)
+      if (username === 'news') return news(-1000000000007, 0)
+      if (username === 'durov') {
+        return { '@type': 'chat', 'type': { '@type': 'chatTypePrivate' } }
+      }
+      return fail('No', 404)
     }
     testTelegram.answers.getSupergroup = {
       '@type': 'supergroup',
@@ -1811,13 +1820,19 @@ describe('telegram loader', () => {
     await waitLoading(page.searching)
     equal(page.noResults.get(), true)
 
+    for (let user of ['https://t.me/durov', '@durov']) {
+      page.search(user)
+      await waitLoading(page.searching)
+      equal(page.error.get(), accountsMessages.get().telegramOnlyChannels)
+    }
+
     // Telegram’s limit of name searches should not look like unknown channel
     testTelegram.answers.searchPublicChat = fail('Too Many Requests', 429)
     await expectWarning(async () => {
       page.search('https://t.me/news')
       await waitLoading(page.searching)
     }, [new TelegramError(429, 'Too Many Requests')])
-    equal(page.error.get(), 'unloadable')
+    equal(page.error.get(), addMessages.get().unloadable)
 
     deviceSessions.set({})
     deepEqual(await loaders.telegram.getProfilesByHandle!(task, '@news'), [])
@@ -1866,15 +1881,25 @@ describe('telegram loader', () => {
         'https://t.me/news/3'
       ]
     )
-    for (let url of ['https://t.me/news/4', 'https://t.me/group/3']) {
-      await rejects(telegram.getPostByUrl!(task, url), {
-        name: 'NotFoundError'
-      })
-    }
+    await rejects(telegram.getPostByUrl!(task, 'https://t.me/news/4'), {
+      name: 'NotFoundError'
+    })
 
     let opened = openTestPopup('post', 'https://t.me/news/3')
     await waitLoading(opened.loading)
     equal(checkLoadedPopup(opened).post.get().full, '<p>Post 3</p>')
+
+    // Mention of a user or a link to group’s message looks like channel’s one
+    for (let [name, param] of [
+      ['feed', 'https://t.me/group'],
+      ['post', 'read:https://t.me/group/3']
+    ] as const) {
+      let refused = openTestPopup(name, param)
+      await waitLoading(refused.loading)
+      equal(refused.error, accountsMessages.get().telegramOnlyChannels)
+      equal(getPopupUrl(refused), param.replace('read:', ''))
+    }
+    equal(getPopupUrl(openTestPopup('account', 'id')), undefined)
 
     // Telegram has other forms of the same links, which would open its site
     let links = [
@@ -1967,7 +1992,10 @@ describe('telegram loader', () => {
     )
     deepEqual(await loadUrls(), [])
     type = 'inviteLinkChatTypeSupergroup'
-    equal(await telegram.isMineUrl(task, new URL(link)), false)
+    await rejects(
+      telegram.isMineUrl(task, new URL(link)) as Promise<false>,
+      new UserFacingError(accountsMessages.get().telegramOnlyChannels)
+    )
     type = 'inviteLinkChatTypeChannel'
 
     testTelegram.answers.joinChatByInviteLink = {

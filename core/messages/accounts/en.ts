@@ -57,6 +57,8 @@ export const accountsMessages = i18n('accounts', {
     'Telegram asks for more steps to join this channel. Join it in the official Telegram app, and it will appear here.',
   telegramOfficialApp:
     'Finish this step in the official Telegram app, then sign in here again',
+  telegramOnlyChannels:
+    'Slow Reader supports only Telegram channels, not users, bots, or groups',
   telegramTitle: 'Telegram sign in',
   tooManyAttempts:
     'Too many attempts. Telegram asks to wait before the next one.',

@@ -1,7 +1,9 @@
 import debounce from 'just-debounce-it'
 import { atom, computed, map, onMount } from 'nanostores'
 
+import { canUseAccount, isAccountService, loadAccounts } from '../account.ts'
 import { getEnvironment, layoutType } from '../environment.ts'
+import { UserFacingError } from '../errors.ts'
 import {
   createDownloadTask,
   type DownloadTask,
@@ -18,7 +20,9 @@ import {
   tryLoadFeedData,
   type UrlCheck
 } from '../loader/index.ts'
+import { addMessages as t } from '../messages/index.ts'
 import { navigate, setPopups } from '../router.ts'
+import type { AccountService } from '../schema.ts'
 import { createPage, routeParam } from './common.ts'
 import { injectOpenedFeed } from './mixins/opened-feed.ts'
 
@@ -42,8 +46,12 @@ function nowOrLater<Value>(
 export type AddLinksValue = Record<
   string,
   | {
-      error: 'invalidUrl' | 'unknownHandle'
+      error: string
       state: 'invalid'
+    }
+  | {
+      service: AccountService
+      state: 'needAccount'
     }
   | {
       state: 'loading'
@@ -93,21 +101,20 @@ export const addPage = createPage('add', () => {
    */
   let $candidates = atom<FeedLoader[]>([])
 
-  let $error = computed(
-    $links,
-    (links): 'invalidUrl' | 'unknownHandle' | 'unloadable' | undefined => {
-      let first = Object.keys(links)[0]
-      if (typeof first !== 'undefined') {
-        let link = links[first]!
-        if (link.state === 'invalid') {
-          return link.error
-        } else if (link.state === 'unloadable') {
-          return 'unloadable'
-        }
-      }
-      return undefined
+  let $error = computed([$links, t], (links, messages) => {
+    let first = Object.values(links)[0]
+    if (first?.state === 'invalid') {
+      return first.error
+    } else if (first?.state === 'unloadable') {
+      return messages.unloadable
     }
-  )
+    return undefined
+  })
+
+  let $needAccount = computed($links, links => {
+    let first = Object.values(links)[0]
+    return first?.state === 'needAccount' ? first.service : undefined
+  })
 
   let openedFeedMixin = injectOpenedFeed()
 
@@ -155,9 +162,11 @@ export const addPage = createPage('add', () => {
   })
 
   let $noResults = computed(
-    [$searching, $url, $candidates, $error],
-    (searching, url, candidates, error) => {
-      return !searching && !!url && candidates.length === 0 && !error
+    [$searching, $url, $candidates, $error, $needAccount],
+    (searching, url, candidates, error, needAccount) => {
+      return (
+        !searching && !!url && candidates.length === 0 && !error && !needAccount
+      )
     }
   )
 
@@ -284,7 +293,7 @@ export const addPage = createPage('add', () => {
     let httpsGuest = false
     if (!url.startsWith('https://') && !url.startsWith('http://')) {
       if (/^\w+:/.test(url)) {
-        $links.setKey(url, { error: 'invalidUrl', state: 'invalid' })
+        $links.setKey(url, { error: t.get().invalidUrl, state: 'invalid' })
         return
       } else {
         url = 'https://' + url
@@ -306,7 +315,7 @@ export const addPage = createPage('add', () => {
     if (findSimilarUrl($links.get(), url)) return
 
     if (!URL.canParse(url)) {
-      $links.setKey(url, { error: 'invalidUrl', state: 'invalid' })
+      $links.setKey(url, { error: t.get().invalidUrl, state: 'invalid' })
       return
     }
 
@@ -314,10 +323,26 @@ export const addPage = createPage('add', () => {
     try {
       let response: TextResponse | undefined
       let found: false | FeedLoader
+      check ??= checkUrl(task, url)
+      if (
+        check.sure &&
+        isAccountService(check.name) &&
+        loaders[check.name].account?.noAnonymous &&
+        !(await loadAccounts(check.name)).some(canUseAccount)
+      ) {
+        if (task === prevTask) {
+          $links.setKey(url, { service: check.name, state: 'needAccount' })
+        }
+        return
+      }
       try {
         ;({ feed: found, response } = await findFeed(task, url, check))
       } catch (e) {
-        unloadable(e)
+        if (!(e instanceof UserFacingError)) {
+          unloadable(e)
+        } else if (task === prevTask) {
+          $links.setKey(url, { error: e.message, state: 'invalid' })
+        }
         return
       }
       if (response) {
@@ -365,10 +390,17 @@ export const addPage = createPage('add', () => {
     if (task !== prevTask) return
     let links = profiles.flat()
     if (links.length === 0) {
-      $links.setKey(handle, { error: 'unknownHandle', state: 'invalid' })
+      $links.setKey(handle, { error: t.get().unknownHandle, state: 'invalid' })
     } else {
       await Promise.all(links.map(i => addLink(task, i)))
-      if (task === prevTask) $links.setKey(handle, { state: 'processed' })
+      if (task === prevTask) {
+        $links.setKey(
+          handle,
+          (links.length === 1 && $links.get()[links[0]!]) || {
+            state: 'processed'
+          }
+        )
+      }
     }
   }
 
@@ -398,6 +430,7 @@ export const addPage = createPage('add', () => {
       reset()
     },
     inputUrl,
+    needAccount: $needAccount,
     noResults: $noResults,
     params: {
       url: $url

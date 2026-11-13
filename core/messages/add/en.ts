@@ -1,3 +1,5 @@
+import { params } from '@nanostores/i18n'
+
 import { i18n } from '../../i18n.ts'
 
 export const addMessages = i18n('add', {
@@ -6,6 +8,9 @@ export const addMessages = i18n('add', {
   invalidUrl: 'There seems to be a mistake in the URL. Please check it.',
   jsonFeedLoader: 'JSON Feed',
   mastodonLoader: 'Mastodon',
+  needAccount: params(
+    'Slow Reader supports {service}, but needs your account to read it.\n\n[Add {service} account] and open this link again.'
+  ),
   noResults:
     'No feeds were found on this website.\n\n' +
     'Please check the URL or [open an issue] if it looks correct.',

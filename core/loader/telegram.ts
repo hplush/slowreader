@@ -1369,7 +1369,9 @@ export const telegram: Loader = {
     let { chat, name } = await findChat(undefined, url)
     let chatId = Number(chat.id)
     let id = getChannelId(chat)
-    if (id === undefined) throw new NotFoundError()
+    if (id === undefined) {
+      throw new UserFacingError(t.get().telegramOnlyChannels)
+    }
     let channel: PostAuthor = {
       title: String(chat.title),
       url: await loadChannelUrl(name, id),
@@ -1420,7 +1422,7 @@ export const telegram: Loader = {
           !isObject(invite.type) ||
           invite.type['@type'] !== 'inviteLinkChatTypeChannel'
         ) {
-          return false
+          throw new UserFacingError(t.get().telegramOnlyChannels)
         }
         if (!invite.chat_id) {
           return { title: String(invite.title), url: `https://t.me/${key}` }
@@ -1428,7 +1430,9 @@ export const telegram: Loader = {
       }
       let chat = await loadChatByKey(name, key)
       let id = getChannelId(chat)
-      if (id === undefined) return false
+      if (id === undefined) {
+        throw new UserFacingError(t.get().telegramOnlyChannels)
+      }
       return { title: String(chat.title), url: await loadChannelUrl(name, id) }
     }).catch((e: unknown) => {
       // No session here, unknown name, or channel of another account.
