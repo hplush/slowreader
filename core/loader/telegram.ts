@@ -1,11 +1,13 @@
 import { persistentJSON } from '@nanostores/persistent'
 import { decodeTelegramApp, type TelegramApp } from '@slowreader/api'
 import { nanoid } from 'nanoid'
+import { atom } from 'nanostores'
 
 import { onClient } from '../client.ts'
 import { deviceSessions, forgetDeviceSession } from '../device-sessions.ts'
 import {
   getEnvironment,
+  onEnvironment,
   type TelegramClient,
   type TelegramObject,
   type TelegramRequest
@@ -47,6 +49,17 @@ export const telegramApp = persistentJSON<TelegramApp | undefined>(
   'slowreader:telegram-app',
   undefined
 )
+
+/**
+ * Telegram needs own library in the client and app ID from the server.
+ */
+export const hasTelegram = atom(false)
+
+onEnvironment(({ telegramCreator }) => {
+  return telegramApp.subscribe(app => {
+    hasTelegram.set(!!app && !!telegramCreator)
+  })
+})
 
 /**
  * Server without app ID has no Telegram. Offline keeps the saved app ID.

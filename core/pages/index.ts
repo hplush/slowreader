@@ -20,6 +20,7 @@ import { reloginPage } from './relogin.ts'
 import { signUpPage } from './sign-up.ts'
 import { startPage } from './start.ts'
 import { storagePage } from './storage.ts'
+import { welcomePage } from './welcome.ts'
 
 export type { AboutPage } from './about.ts'
 export type { AccountsPage, AccountsStep } from './accounts.ts'
@@ -38,6 +39,7 @@ export type { ReloginPage } from './relogin.ts'
 export type { SignUpPage } from './sign-up.ts'
 export type { StartPage } from './start.ts'
 export type { StoragePage } from './storage.ts'
+export type { WelcomePage } from './welcome.ts'
 
 export const pages = {
   about: aboutPage,
@@ -63,7 +65,7 @@ export const pages = {
   slow: slowPage,
   start: startPage,
   storage: storagePage,
-  welcome: createSimplePage('welcome')
+  welcome: welcomePage
 } satisfies {
   [Name in RouteName]: Name extends 'fast' | 'slow'
     ? PageCreator<'fast' | 'slow'>

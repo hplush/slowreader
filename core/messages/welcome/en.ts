@@ -26,7 +26,6 @@ export const welcomeMessages = i18n('welcome', {
   signUp: 'Sign up for cloud',
   installWarning: 'Safari deletes your feeds after 7 days without visits',
   keep: 'Keep as mine',
-  openAccounts: 'Accounts',
   openImport: 'Import RSS',
   openSlow: 'Read Useful posts',
   openWelcome: 'Back to welcome',

@@ -18,6 +18,7 @@ import { rss } from './rss.ts'
 import { rss1 } from './rss1.ts'
 import { telegram } from './telegram.ts'
 
+export { hasTelegram } from './telegram.ts'
 export type { AccountAuth, DetectedFeed, Loader, MovedFeed }
 
 export const loaders = {

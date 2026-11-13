@@ -18,7 +18,7 @@ import { showCrash } from '../errors.ts'
 import type { SignInField, SignInStep } from '../loader/common.ts'
 import { loaders } from '../loader/index.ts'
 import { POPULAR_MASTODON_SERVERS } from '../loader/mastodon.ts'
-import { loadTelegramApp, telegramApp } from '../loader/telegram.ts'
+import { hasTelegram, loadTelegramApp } from '../loader/telegram.ts'
 import { organizeMessages, accountsMessages as t } from '../messages/index.ts'
 import { navigate, router } from '../router.ts'
 import type { AccountService } from '../schema.ts'
@@ -169,17 +169,12 @@ export const accountsPage = createPage('accounts', () => {
     }
   })
 
-  // Telegram needs own library in the client and app ID from the server
-  let $telegram = atom(false)
-  let unbindTelegram = telegramApp.subscribe(app => {
-    $telegram.set(!!app && !!env.telegramCreator)
-  })
   void loadTelegramApp().then(() => {
     let current = router.get()
     if (
       current.route === 'accounts' &&
       current.params.service === 'telegram' &&
-      !$telegram.get()
+      !hasTelegram.get()
     ) {
       showList()
     }
@@ -203,7 +198,6 @@ export const accountsPage = createPage('accounts', () => {
     exit() {
       leaveForm()
       unbindService()
-      unbindTelegram()
     },
     input: $input,
     /**
@@ -223,7 +217,7 @@ export const accountsPage = createPage('accounts', () => {
     step: $step,
     submit,
     submitting: $submitting,
-    telegram: $telegram
+    telegram: hasTelegram
   }
 })
 

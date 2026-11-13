@@ -27,6 +27,7 @@
     getTables,
     hasCloud,
     hasSources,
+    hasTelegram,
     isDemo,
     lastUsage,
     mediaErrors,
@@ -192,6 +193,7 @@
     welcomeSteps.set(undefined)
     closedCategories.set(new Set())
     deviceSessions.set({})
+    hasTelegram.set(false)
 
     function updateTheme(): void {
       let classes = document.documentElement.classList

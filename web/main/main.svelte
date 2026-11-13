@@ -115,7 +115,7 @@
   {:else if $currentPage.route === 'import'}
     <ImportPage page={$currentPage} />
   {:else if $currentPage.route === 'welcome'}
-    <WelcomePage />
+    <WelcomePage page={$currentPage} />
   {:else}
     <ThinPage title={$currentPage.route}>
       {$currentPage.route}

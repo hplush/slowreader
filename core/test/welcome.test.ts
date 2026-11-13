@@ -1,3 +1,4 @@
+import { encodeTelegramApp } from '@slowreader/api'
 import { atom } from 'nanostores'
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, describe, test } from 'node:test'
@@ -18,7 +19,18 @@ import {
   welcomeSteps,
   welcomeTodo
 } from '../index.ts'
-import { cleanClient, openRoute, startClient, waitFor } from './utils.ts'
+import { telegramApp } from '../loader/telegram.ts'
+import {
+  checkAndRemoveRequestMock,
+  cleanClient,
+  expectRequest,
+  mockRequest,
+  openPage,
+  openRoute,
+  startClient,
+  testTelegramCreator,
+  waitFor
+} from './utils.ts'
 
 describe('welcome', () => {
   afterEach(async () => {
@@ -142,5 +154,22 @@ describe('welcome', () => {
 
     forced.set(false)
     equal(needWelcome.get(), false)
+  })
+
+  test('shows Telegram only with app ID from the server', async t => {
+    mockRequest()
+    t.after(() => {
+      telegramApp.set(undefined)
+      checkAndRemoveRequestMock()
+    })
+    expectRequest('/telegram-app.json').andRespond(
+      200,
+      JSON.stringify(encodeTelegramApp({ apiHash: 'hash', apiId: 1 })),
+      'application/json'
+    )
+    startClient({ telegramCreator: testTelegramCreator })
+    let page = openPage({ params: {}, route: 'welcome' })
+    equal(page.telegram.get(), false)
+    await waitFor(page.telegram, available => available)
   })
 })

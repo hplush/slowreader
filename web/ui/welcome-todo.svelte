@@ -1,16 +1,17 @@
 <script lang="ts">
   import {
-    mdiAccountMultiple,
     mdiCellphoneArrowDown,
     mdiCheck,
     mdiCloudUpload,
     mdiDeleteClock,
     mdiFire,
     mdiFood,
-    mdiImport,
-    mdiPuzzle
+    mdiPuzzle,
+    mdiRss,
+    mdiSend
   } from '@mdi/js'
   import {
+    addMessages,
     deleteDemoWithBusy,
     keepDemo,
     markWelcomeStep,
@@ -24,6 +25,8 @@
   import { getURL } from '../stores/url-router.ts'
   import Button from './button.svelte'
   import Icon from './icon.svelte'
+  import brandBluesky from './icons/bluesky.svg?path'
+  import brandMastodon from './icons/mastodon.svg?path'
   import Note from './note.svelte'
   import RichText from './rich-text.svelte'
   import Stack from './stack.svelte'
@@ -31,10 +34,12 @@
   let {
     extension,
     install,
+    telegram,
     todo
   }: {
     extension: string | undefined
     install: { help: string; type: 'guide' } | { type: 'none' | 'prompt' }
+    telegram: boolean
     todo: WelcomeTodo
   } = $props()
 
@@ -111,11 +116,31 @@
   <li class="welcome-todo_step">
     {@render checkbox(['import'], $t.import)}
     {#if !todo.done.has('import')}
-      <Stack gap="m" row>
-        <Button href={getURL('accounts')} icon={mdiAccountMultiple}>
-          {$t.openAccounts}
+      <Stack gap="m" row wrap>
+        <Button
+          href={getURL({ params: { service: 'bluesky' }, route: 'accounts' })}
+          icon={brandBluesky}
+        >
+          {$addMessages.blueskyLoader}
         </Button>
-        <Button href={getURL('import')} icon={mdiImport}>
+        {#if telegram}
+          <Button
+            href={getURL({
+              params: { service: 'telegram' },
+              route: 'accounts'
+            })}
+            icon={mdiSend}
+          >
+            {$addMessages.telegramLoader}
+          </Button>
+        {/if}
+        <Button
+          href={getURL({ params: { service: 'mastodon' }, route: 'accounts' })}
+          icon={brandMastodon}
+        >
+          {$addMessages.mastodonLoader}
+        </Button>
+        <Button href={getURL('import')} icon={mdiRss}>
           {$t.openImport}
         </Button>
       </Stack>

@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-  import { hasCloud, isDemo, markWelcomeStep } from '@slowreader/core'
+  import { hasCloud, isDemo, markWelcomeStep, pages } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import WelcomePage from '../../pages/welcome.svelte'
@@ -18,12 +18,13 @@
     oninit={() => {
       isDemo.set(true)
       markWelcomeStep('slow')
+      pages.welcome().telegram.set(true)
       installation.set('unavailable')
       safariBrowser.set(false)
     }}
     route="welcome"
   >
-    <WelcomePage />
+    <WelcomePage page={pages.welcome()} />
   </Scene>
 </Story>
 
@@ -40,7 +41,7 @@
     }}
     route="welcome"
   >
-    <WelcomePage />
+    <WelcomePage page={pages.welcome()} />
   </Scene>
 </Story>
 
@@ -58,7 +59,7 @@
     }}
     route="welcome"
   >
-    <WelcomePage />
+    <WelcomePage page={pages.welcome()} />
   </Scene>
 </Story>
 
@@ -74,6 +75,6 @@
     }}
     route="welcome"
   >
-    <WelcomePage />
+    <WelcomePage page={pages.welcome()} />
   </Scene>
 </Story>

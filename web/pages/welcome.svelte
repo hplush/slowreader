@@ -1,5 +1,9 @@
 <script lang="ts">
-  import { welcomeMessages as t, welcomeTodo } from '@slowreader/core'
+  import {
+    welcomeMessages as t,
+    type WelcomePage,
+    welcomeTodo
+  } from '@slowreader/core'
 
   import { extensionStore } from '../main/extension.ts'
   import { mobileInstall } from '../stores/install.ts'
@@ -8,6 +12,9 @@
   import ThinPage from '../ui/thin-page.svelte'
   import Title from '../ui/title.svelte'
   import WelcomeTodo from '../ui/welcome-todo.svelte'
+
+  let { page }: { page: WelcomePage } = $props()
+  let { telegram } = $derived(page)
 </script>
 
 <ThinPage title={$t.pageTitle}>
@@ -16,6 +23,7 @@
     <WelcomeTodo
       extension={$tabletMedia ? undefined : $extensionStore}
       install={$mobileInstall}
+      telegram={$telegram}
       todo={$welcomeTodo}
     />
   </Stack>
