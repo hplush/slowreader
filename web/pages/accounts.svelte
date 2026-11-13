@@ -1,6 +1,7 @@
 <script lang="ts">
   import {
     mdiAccount,
+    mdiCellphoneMessage,
     mdiChevronLeft,
     mdiChevronRight,
     mdiLogin,
@@ -39,8 +40,12 @@
 
   let submit = $derived(
     $step.type === 'form' && $step.field === 'phone'
-      ? { label: $t.sendCode, loader: $t.sendingCode }
-      : { label: $t.signIn, loader: $t.authorizing }
+      ? {
+          icon: mdiCellphoneMessage,
+          label: $t.sendCode,
+          loader: $t.sendingCode
+        }
+      : { icon: mdiLogin, label: $t.signIn, loader: $t.authorizing }
   )
 
   // Phone keyboard and password manager depend on these attributes
@@ -198,7 +203,7 @@
                 {$t.cancel}
               </Button>
               <Button
-                icon={mdiLogin}
+                icon={submit.icon}
                 loader={$submitting ? submit.loader : undefined}
                 size="wide"
                 type="submit"
