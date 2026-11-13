@@ -153,9 +153,6 @@
           <Stack gap="l">
             <Stack gap="s">
               <Input
-                aria-describedby={$step.field === 'password'
-                  ? 'accounts-password-hint'
-                  : undefined}
                 autocomplete={AUTOCOMPLETE[$step.field]}
                 disabled={$submitting}
                 errorId={$error ? 'accounts-error' : undefined}
@@ -169,9 +166,6 @@
               />
               {#if $error}
                 <Error id="accounts-error">{$error}</Error>
-              {/if}
-              {#if $step.field === 'password'}
-                <p id="accounts-password-hint">{$t.passwordForgotten}</p>
               {/if}
               {#if $step.service === 'mastodon'}
                 <Stack gap="s" row wrap>

@@ -40,8 +40,6 @@ export const accountsMessages = i18n('accounts', {
     'Your server runs Mastodon older than 4.3. Ask its admin to update it.',
   pageTitle: 'Accounts',
   passwordField: 'Two-step verification password',
-  passwordForgotten:
-    'Forgot the password? Reset it in the official Telegram app.',
   phoneField: 'Your phone number',
   safeDesc: params(
     'Our server can’t use your {service} account. We’re open source, so anyone can check.'
