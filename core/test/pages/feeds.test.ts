@@ -593,6 +593,20 @@ describe('feeds page', () => {
     equal(page.posts.get()!.name, 'list')
   })
 
+  test('reads Bluesky, Mastodon, and Telegram as a feed by default', async () => {
+    for (let loader of ['bluesky', 'mastodon', 'telegram'] as const) {
+      let feed = await addFeed(testFeed({ loader, reading: 'slow' }))
+      await addPost(testPost({ feedId: feed, reading: 'slow' }))
+      let page = openPage({ params: { feed }, route: 'slow' })
+      await setTimeout(10)
+      equal(page.posts.get()!.name, 'feed')
+
+      page.changeReader('list')
+      await setTimeout(10)
+      equal(page.posts.get()!.name, 'list')
+    }
+  })
+
   test('changes reader of general category', async () => {
     let feed = await addFeed(
       testFeed({ categoryId: GENERAL_CATEGORY, reading: 'fast' })

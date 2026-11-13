@@ -3,6 +3,7 @@ import { atom, computed, effect, type ReadableAtom } from 'nanostores'
 import { type CategoryValue, changeCategory, getCategory } from '../category.ts'
 import { layoutType } from '../environment.ts'
 import { changeFeed, type FeedValue, getFeed } from '../feed.ts'
+import { loaders } from '../loader/index.ts'
 import {
   firstUnreadSlowFeedId,
   menuLoading,
@@ -227,7 +228,12 @@ let pages = (['slow', 'fast'] as const).map(reading => {
           readerName =
             feed?.[readerProp] ??
             category?.[readerProp] ??
-            (reading === 'fast' ? 'feed' : 'list')
+            (reading === 'fast' ||
+            (feed &&
+              (feed.loader === 'telegram' ||
+                loaders[feed.loader].account?.getTimeline))
+              ? 'feed'
+              : 'list')
         }
 
         let filter: PostFilter

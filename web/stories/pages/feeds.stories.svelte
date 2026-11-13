@@ -545,7 +545,6 @@
         loader: 'telegram',
         protected: true,
         reading: 'slow',
-        slowReader: 'feed',
         title: 'Channel with ads, which forbids copying',
         url: 'https://t.me/shop'
       }
