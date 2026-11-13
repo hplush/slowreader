@@ -169,14 +169,29 @@
     oninit={() => {
       refreshStatus.set('refreshing')
       refreshStatistics.set({
-        errorFeeds: 0,
-        errorRequests: 0,
+        errorFeeds: 2,
+        errorRequests: 2,
         foundFast: 15,
         foundSlow: 2,
         initializing: false,
         processedFeeds: 31,
         totalFeeds: 100
       })
+      refreshErrors.set([
+        {
+          error: new NetworkError(new TypeError('fetch failed')),
+          feed: testFeed()
+        },
+        {
+          error: new HTTPStatusError(
+            401,
+            'https://example.com/feed',
+            '',
+            new Headers()
+          ),
+          feed: testFeed()
+        }
+      ])
     }}
   >
     <RefreshPopup />

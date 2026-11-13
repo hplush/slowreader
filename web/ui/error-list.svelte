@@ -60,7 +60,8 @@
     }
 
     .error-list_text {
-      padding: 0 var(--control-padding) 0.625rem var(--control-padding);
+      padding: 0.125rem var(--control-padding) 0.625rem var(--control-padding);
+      line-height: 1.3;
     }
   }
 </style>
