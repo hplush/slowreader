@@ -21,6 +21,7 @@ import {
   addFeed,
   deleteFeed,
   type FeedValue,
+  loadFeed,
   moveFeed,
   type NewFeed
 } from './feed.ts'
@@ -29,7 +30,7 @@ import { getStableId } from './lib/stable-id.ts'
 import type { AccountAuth, SignInAnswer, SignInStep } from './loader/common.ts'
 import { getOriginKey, loaders, tryLoadFeedData } from './loader/index.ts'
 import { accountsMessages } from './messages/index.ts'
-import { type LoadedAuthor, recalcPostsReading } from './post.ts'
+import { deletePost, type LoadedAuthor, recalcPostsReading } from './post.ts'
 import {
   ACCOUNT_SERVICES,
   type AccountChanges,
@@ -531,6 +532,69 @@ export function syncFollows(service: AccountService): Promise<void> {
     })
   followsSyncing.set(service, sync)
   return sync
+}
+
+/**
+ * Posts, which user read in Telegram’s app, are deleted here. Read flag
+ * is only to keep the post on the screen, while user is reading here.
+ */
+export async function deletePostsReadInService(): Promise<void> {
+  let accounts = (await loadAccounts()).filter(account => {
+    return (
+      loaders[account.service].account!.getReadPosts && canUseAccount(account)
+    )
+  })
+  if (accounts.length === 0) return
+  let unread = await getCrdt().select<{
+    accountId: string
+    feedId: string
+    id: string
+    originId: string
+  }>`
+    SELECT "posts"."id", "posts"."originId", "posts"."feedId",
+      "feeds"."accountId"
+    FROM "posts"
+    JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
+    WHERE "posts"."read" = 0 AND "feeds"."accountId" IN (
+      SELECT "value" FROM json_each(${JSON.stringify(accounts.map(i => i.id))})
+    )
+  `
+  let read: string[] = []
+  for (let [feedId, posts] of Map.groupBy(unread, post => post.feedId)) {
+    let account = accounts.find(i => i.id === posts[0]!.accountId)!
+    let feed = (await loadFeed(feedId)) as FeedValue
+    try {
+      let readOriginIds = new Set(
+        await loaders[account.service].account!.getReadPosts!(
+          getAccountAuth(account),
+          feed,
+          posts.map(post => post.originId)
+        )
+      )
+      read.push(
+        ...posts.filter(i => readOriginIds.has(i.originId)).map(i => i.id)
+      )
+    } catch (e) {
+      if (!isRemoteError(e)) throw e
+    }
+  }
+  if (read.length > 0) await deletePost(read)
+}
+
+/**
+ * Once a day on any device feeds of accounts are compared with follows
+ * on their services.
+ */
+export async function syncAccounts(accounts: AccountValue[]): Promise<void> {
+  let services = new Set(accounts.filter(needFollowsSync).map(i => i.service))
+  await Promise.all([...services].map(syncFollows))
+  // Telegram loaded the whole chat list for follows, so only now we can find
+  // posts, which were read in Telegram’s app in channels without news
+  try {
+    await deletePostsReadInService()
+  } catch (e) {
+    getEnvironment().warn(e)
+  }
 }
 
 /**

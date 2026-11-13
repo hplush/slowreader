@@ -4,9 +4,9 @@ import { canUseAccount, getAccountAuth, loadAccounts } from './account.ts'
 import { onClient } from './client.ts'
 import { getEnvironment } from './environment.ts'
 import { isRemoteError } from './errors.ts'
-import { type FeedValue, loadFeed } from './feed.ts'
+import { loadFeed } from './feed.ts'
 import { type LoaderName, loaders } from './loader/index.ts'
-import { deletePost, onPostsRead } from './post.ts'
+import { onPostsRead } from './post.ts'
 import { getCrdt } from './schema.ts'
 
 interface ReadPosition {
@@ -107,50 +107,3 @@ onPostsRead(queueReadPositions)
 onClient(() => () => {
   clearTimeout(sending)
 })
-
-/**
- * Posts, which user read in Telegram’s app, are deleted here. Read flag
- * is only to keep the post on the screen, while user is reading here.
- */
-export async function deletePostsReadInService(): Promise<void> {
-  let accounts = (await loadAccounts()).filter(account => {
-    return (
-      loaders[account.service].account!.getReadPosts && canUseAccount(account)
-    )
-  })
-  if (accounts.length === 0) return
-  let unread = await getCrdt().select<{
-    accountId: string
-    feedId: string
-    id: string
-    originId: string
-  }>`
-    SELECT "posts"."id", "posts"."originId", "posts"."feedId",
-      "feeds"."accountId"
-    FROM "posts"
-    JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
-    WHERE "posts"."read" = 0 AND "feeds"."accountId" IN (
-      SELECT "value" FROM json_each(${JSON.stringify(accounts.map(i => i.id))})
-    )
-  `
-  let read: string[] = []
-  for (let [feedId, posts] of Map.groupBy(unread, post => post.feedId)) {
-    let account = accounts.find(i => i.id === posts[0]!.accountId)!
-    let feed = (await loadFeed(feedId)) as FeedValue
-    try {
-      let readOriginIds = new Set(
-        await loaders[account.service].account!.getReadPosts!(
-          getAccountAuth(account),
-          feed,
-          posts.map(post => post.originId)
-        )
-      )
-      read.push(
-        ...posts.filter(i => readOriginIds.has(i.originId)).map(i => i.id)
-      )
-    } catch (e) {
-      if (!isRemoteError(e)) throw e
-    }
-  }
-  if (read.length > 0) await deletePost(read)
-}

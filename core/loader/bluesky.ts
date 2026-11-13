@@ -1178,9 +1178,14 @@ let blueskyAccount: AccountLoader<BlueskySignIn> = {
     return authors
   },
 
-  getTimeline(task, auth, refreshedAt) {
+  getTimeline(task, auth, last) {
     return createPostsList(() =>
-      loadTimelinePage(task, auth, createPdsFinder(task), refreshedAt)
+      loadTimelinePage(
+        task,
+        auth,
+        createPdsFinder(task),
+        last?.refreshedAt ?? undefined
+      )
     )
   },
 
@@ -1287,13 +1292,13 @@ export const bluesky: Loader = {
     return JSON.stringify({ did: (await loadProfile(task, getActor(url))).did })
   },
 
-  getPosts(task, url, text, refreshedAt, loaderData) {
+  getPosts(task, url, text, last, loaderData) {
     return createPostsList(() =>
       loadPage(
         task,
         createPdsFinder(task),
         readLoaderData(loaderData, 'did') ?? getActor(url),
-        refreshedAt
+        last?.refreshedAt ?? undefined
       )
     )
   },

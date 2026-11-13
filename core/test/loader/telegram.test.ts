@@ -43,7 +43,8 @@ import type { SignInStep } from '../../loader/common.ts'
 import {
   loadTelegramApp,
   sendToTelegram,
-  telegramApp
+  telegramApp,
+  telegramDebug
 } from '../../loader/telegram.ts'
 import {
   checkAndRemoveRequestMock,
@@ -109,6 +110,7 @@ describe('telegram loader', () => {
   afterEach(async () => {
     await cleanClient()
     telegramApp.set(undefined)
+    telegramDebug.set(undefined)
     deviceSessions.set({})
     checkAndRemoveRequestMock()
   })
@@ -490,6 +492,15 @@ describe('telegram loader', () => {
     )
     equal(loaders.telegram.getOriginId!('{"id":"-1001"}'), '-1001')
 
+    testTelegram.requests = []
+    deepEqual((await account.getFollows(auth)).length, 2)
+    equal(
+      testTelegram.requests.some(i => i['@type'] === 'loadChats'),
+      false
+    )
+
+    // TDLib forgets chats on restart
+    sendTelegramUpdate(state('Closed'))
     testTelegram.answers.loadChats = fail('FLOOD_WAIT_5', 429)
     await rejects(account.getFollows(auth), { name: 'TelegramError' })
     await rejects(account.getFollows({ ...auth, device: undefined }), {
@@ -549,7 +560,11 @@ describe('telegram loader', () => {
     }
   }
 
-  function news(id: unknown, lastRead: number): TelegramObject {
+  function news(
+    id: unknown,
+    lastRead: number,
+    fields: object = {}
+  ): TelegramObject {
     return {
       '@type': 'chat',
       id,
@@ -559,8 +574,37 @@ describe('telegram loader', () => {
         '@type': 'chatTypeSupergroup',
         'is_channel': true,
         'supergroup_id': -1e12 - Number(id)
-      }
+      },
+      ...fields
     }
+  }
+
+  function position(date: number, fields: object = {}): object {
+    return {
+      '@type': 'chatPosition',
+      'is_pinned': false,
+      'list': { '@type': 'chatListMain' },
+      'order': String(BigInt(date) << 32n),
+      ...fields
+    }
+  }
+
+  /**
+   * Real TDLib tells about every loaded chat by an update.
+   */
+  function mockChatList(...parts: TelegramObject[][]): void {
+    testTelegram.answers.loadChats = () => {
+      let part = parts.shift()
+      if (!part) return fail('Not Found', 404)
+      for (let chat of part) {
+        sendTelegramUpdate({ '@type': 'updateNewChat', chat })
+      }
+      return { '@type': 'ok' }
+    }
+  }
+
+  function getRequestTypes(): string[] {
+    return testTelegram.requests.map(i => i['@type'])
   }
 
   function mockHistory(
@@ -766,11 +810,11 @@ describe('telegram loader', () => {
     function forward(origin: object): object {
       return { forward_info: { '@type': 'messageForwardInfo', origin } }
     }
-    function reply(post: number): object {
+    function reply(post: number, chat = -1001): object {
       return {
         reply_to: {
           '@type': 'messageReplyToMessage',
-          'chat_id': -1001,
+          'chat_id': chat,
           'message_id': post * 1048576
         }
       }
@@ -809,7 +853,8 @@ describe('telegram loader', () => {
               'url': 'https://example.com/'
             },
             'text': text('Only photo in preview')
-          }
+          },
+          ...reply(1, -1002)
         }),
         message(
           7,
@@ -830,10 +875,10 @@ describe('telegram loader', () => {
           4,
           forward({ '@type': 'messageOriginChat', 'sender_chat_id': 6 })
         ),
-        message(
-          3,
-          forward({ '@type': 'messageOriginChannel', 'chat_id': -1009 })
-        ),
+        message(3, {
+          ...forward({ '@type': 'messageOriginChannel', 'chat_id': -1009 }),
+          ...reply(98)
+        }),
         message(2, reply(1)),
         message(1, reply(99))
       ]
@@ -863,8 +908,9 @@ describe('telegram loader', () => {
       'usernames': { '@type': 'usernames', 'active_usernames': ['source'] }
     }
     testTelegram.answers.getUser = USER
-    testTelegram.answers.getMessage = ({ message_id: id }) => {
-      return id === 1048576 ? message(1) : fail('Not found', 404)
+    testTelegram.answers.getMessages = {
+      '@type': 'messages',
+      'messages': [message(98), null]
     }
 
     let channel = { title: 'News', url: 'https://t.me/news' }
@@ -903,7 +949,7 @@ describe('telegram loader', () => {
           full: '<p>Only photo in preview</p>',
           poll: undefined,
           preview: undefined,
-          replied: undefined,
+          replied: { missing: true },
           repostedBy: undefined
         },
         {
@@ -947,7 +993,12 @@ describe('telegram loader', () => {
           full: '<p>Post 3</p>',
           poll: undefined,
           preview: undefined,
-          replied: undefined,
+          replied: {
+            full: '<p>Post 98</p>',
+            missing: false,
+            publishedAt: 1098,
+            url: 'https://t.me/news/98'
+          },
           repostedBy: undefined
         },
         {
@@ -973,6 +1024,35 @@ describe('telegram loader', () => {
         }
       ]
     )
+    // Replied post from the same page needs no request
+    deepEqual(
+      testTelegram.requests.filter(i => i['@type'] === 'getMessages'),
+      [
+        {
+          '@type': 'getMessages',
+          'chat_id': -1001,
+          'message_ids': [98 * 1048576, 99 * 1048576]
+        }
+      ]
+    )
+
+    testTelegram.answers.getMessages = fail('Chat not found')
+    deepEqual(
+      (await loadFeedPosts()).map(post => post.replied?.missing),
+      [
+        undefined,
+        undefined,
+        true,
+        undefined,
+        undefined,
+        undefined,
+        undefined
+      ].concat([true, false, true])
+    )
+    testTelegram.answers.getMessages = () => {
+      throw new Error('TDLib is broken')
+    }
+    await rejects(loadFeedPosts(), { message: 'TDLib is broken' })
   })
 
   function file(id: number, size: number): object {
@@ -1446,7 +1526,11 @@ describe('telegram loader', () => {
 
   test('refreshes channels of the account with a session here', async () => {
     let signedIn = await addAccount(
-      testAccount({ credentials: null, service: 'telegram' })
+      testAccount({
+        credentials: null,
+        followsSyncedAt: Math.round(Date.now() / 1000),
+        service: 'telegram'
+      })
     )
     let other = await addAccount(
       testAccount({ credentials: null, service: 'telegram' })
@@ -1477,6 +1561,7 @@ describe('telegram loader', () => {
       })
     )
     mockHistory(1, { 0: [message(2)], 2: [message(1)] })
+    mockChatList([news(-1001, 1), news(-1003, 1)])
     await refreshPosts()
     deepEqual(refreshErrors.get(), [])
     deepEqual(
@@ -1494,15 +1579,223 @@ describe('telegram loader', () => {
     equal(!!(await loadFeed(channel))!.protected, false)
 
     // Author forbids or allows copying for all posts of the channel at once
-    mockHistory(2, { 0: [message(3, { can_be_saved: false })] })
+    for (let [id, post] of [
+      [-1001, message(3, { can_be_saved: false })],
+      [-1003, message(3)]
+    ] as const) {
+      sendTelegramUpdate({
+        '@type': 'updateChatLastMessage',
+        'chat_id': id,
+        'last_message': post,
+        'positions': []
+      })
+    }
     await refreshPosts()
     deepEqual(refreshErrors.get(), [])
     equal((await loadFeed(channel))!.protected, true)
+    equal(!!(await loadFeed(second))!.protected, false)
     equal((await loadPosts()).filter(i => i.originId === '3').length, 2)
 
-    mockHistory(3, { 0: [message(3)] })
+    sendTelegramUpdate({
+      '@type': 'updateChatLastMessage',
+      'chat_id': -1001,
+      'last_message': message(4),
+      'positions': []
+    })
     await refreshPosts()
     equal((await loadFeed(channel))!.protected, false)
+  })
+
+  test('asks Telegram only about channels with news', async () => {
+    let now = Math.round(Date.now() / 1000)
+    let accountId = await addAccount(
+      testAccount({
+        credentials: null,
+        followsSyncedAt: now,
+        service: 'telegram'
+      })
+    )
+    deviceSessions.set({ [accountId]: { device: 'name', service: 'telegram' } })
+    let ids: Record<string, string> = {}
+    for (let id of ['-1001', '-1002', '-1003', '-1004']) {
+      ids[id] = await addFeed(
+        testFeed({
+          accountId,
+          lastOriginId: '5',
+          lastPublishedAt: 1005,
+          loader: 'telegram',
+          loaderData: JSON.stringify({ id }),
+          // Refresh deletes old Fun posts
+          reading: 'slow',
+          refreshedAt: now - 60,
+          url: `https://t.me/c/${id.slice(4)}`
+        })
+      )
+    }
+    for (let i = 1; i <= 5; i++) {
+      await addPost(
+        testPost({
+          feedId: ids['-1002']!,
+          originId: String(i),
+          publishedAt: 1000 + i,
+          reading: 'slow',
+          url: `https://t.me/c/2/${i}`
+        })
+      )
+    }
+    async function refresh(): Promise<string[]> {
+      testTelegram.requests = []
+      await refreshPosts()
+      deepEqual(refreshErrors.get(), [])
+      return (await loadPosts())
+        .map(post => post.url!.replace('https://t.me/c/', ''))
+        .toSorted((a, b) => a.localeCompare(b))
+    }
+
+    testTelegram.answers.getChatHistory = ({ from_message_id: from }) => ({
+      '@type': 'messages',
+      'messages': [1, 2, 3].map(i => message(Number(from) / 1048576 - i))
+    })
+    mockChatList(
+      [
+        // Ad and pinned chat are on the top of the list in any date
+        news(-1009, 0, {
+          positions: [position(now + 1000, { source: {} })]
+        }),
+        news(-1004, 5, {
+          last_message: message(5),
+          positions: [position(2 ** 31, { is_pinned: true })]
+        }),
+        {
+          '@type': 'chat',
+          'id': 7,
+          'last_message': message(9),
+          'positions': [position(now - 10)],
+          'type': { '@type': 'chatTypePrivate', 'user_id': 7 }
+        },
+        news(-1001, 4, {
+          last_message: message(7),
+          positions: [
+            { list: { '@type': 'chatListArchive' }, order: '1' },
+            position(now - 30)
+          ]
+        })
+      ],
+      [
+        // The first posts were read in Telegram’s app
+        news(-1002, 3, {
+          last_message: message(5),
+          positions: [position(now - 4000)]
+        })
+      ],
+      [news(-1003, 5, { last_message: message(8), positions: [] })]
+    )
+    deepEqual(await refresh(), ['1/6', '1/7', '2/4', '2/5'])
+    deepEqual(getRequestTypes(), ['loadChats', 'loadChats', 'getChatHistory'])
+    deepEqual(testTelegram.requests.at(-1), {
+      '@type': 'getChatHistory',
+      'chat_id': -1001,
+      'from_message_id': 7 * 1048576,
+      'limit': 100,
+      'offset': 0,
+      'only_local': false
+    })
+
+    // Private chats are not kept, but chat without the last message is known
+    sendTelegramUpdate({
+      '@type': 'updateChatLastMessage',
+      'chat_id': 7,
+      'last_message': message(10),
+      'positions': [position(now)]
+    })
+    sendTelegramUpdate({
+      '@type': 'updateChatLastMessage',
+      'chat_id': -1004,
+      'positions': [position(2 ** 31, { is_pinned: true })]
+    })
+    deepEqual(await refresh(), ['1/6', '1/7', '2/4', '2/5'])
+    deepEqual(getRequestTypes(), [])
+
+    sendTelegramUpdate({
+      '@type': 'updateChatLastMessage',
+      'chat_id': -1002,
+      'last_message': message(7),
+      'positions': [position(now)]
+    })
+    sendTelegramUpdate({
+      '@type': 'updateChatReadInbox',
+      'chat_id': -1002,
+      'last_read_inbox_message_id': 6 * 1048576
+    })
+    deepEqual(await refresh(), ['1/6', '1/7', '2/7'])
+    deepEqual(getRequestTypes(), ['getChatHistory'])
+
+    // TDLib forgets chats on restart
+    sendTelegramUpdate(state('Closed'))
+    mockChatList(
+      [
+        news(-1003, 5, {
+          last_message: message(6),
+          positions: [position(now - 10)]
+        })
+      ],
+      [
+        {
+          '@type': 'chat',
+          'id': 8,
+          'positions': [position(now - 90_000)],
+          'type': { '@type': 'chatTypeBasicGroup' }
+        }
+      ],
+      [news(-1004, 5, { last_message: message(9) })]
+    )
+    sendTelegramUpdate({
+      '@type': 'updateChatPosition',
+      'chat_id': 8,
+      'position': position(now - 5)
+    })
+    sendTelegramUpdate({ '@type': 'updateChatPosition', 'chat_id': 8 })
+    deepEqual(await refresh(), ['1/6', '1/7', '2/7', '3/6'])
+    deepEqual(getRequestTypes(), ['loadChats', 'loadChats', 'getChatHistory'])
+  })
+
+  test('limits parallel requests and waits for a short block', async t => {
+    t.mock.timers.enable({ apis: ['setTimeout'] })
+    testTelegram.answers.getMe = USER
+    testTelegram.answers.downloadFile = { '@type': 'file' }
+    let counts: Record<string, number> = {}
+    telegramDebug.set(type => {
+      counts[type] = (counts[type] ?? 0) + 1
+    })
+    let sending = [1, 2, 3, 4, 5].map(() => {
+      return sendToTelegram('name', { '@type': 'getMe' })
+    })
+    void sendToTelegram('name', { '@type': 'downloadFile' })
+    deepEqual(getRequestTypes(), ['getMe', 'getMe', 'getMe', 'downloadFile'])
+    await Promise.all(sending)
+    deepEqual(counts, { downloadFile: 1, getMe: 5 })
+
+    testTelegram.requests = []
+    testTelegram.answers.getMe = () => {
+      return testTelegram.requests.length === 1
+        ? fail('Too Many Requests: retry after 3', 429)
+        : USER
+    }
+    let retried = sendToTelegram('name', { '@type': 'getMe' })
+    // Let the first request fail before moving the clock
+    for (let i = 0; i < 10; i++) await Promise.resolve()
+    deepEqual(getRequestTypes(), ['getMe'])
+    t.mock.timers.tick(3000)
+    deepEqual(await retried, USER)
+    deepEqual(getRequestTypes(), ['getMe', 'getMe'])
+    t.mock.timers.reset()
+
+    testTelegram.requests = []
+    testTelegram.answers.getMe = fail('Too Many Requests: retry after 60', 429)
+    await rejects(sendToTelegram('name', { '@type': 'getMe' }), {
+      name: 'TelegramError'
+    })
+    deepEqual(getRequestTypes(), ['getMe'])
   })
 
   test('finds channel by URL and follows it', async () => {

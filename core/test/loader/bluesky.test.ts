@@ -1032,7 +1032,7 @@ describe('bluesky loader', () => {
       createDownloadTask(),
       'https://bsky.app/profile/did:plc:jane',
       undefined,
-      Date.parse('2026-02-02T00:00:00.000Z') / 1000
+      { refreshedAt: Date.parse('2026-02-02T00:00:00.000Z') / 1000 }
     )
     await refreshed.loading
     equal(refreshed.get().list.length, 5)
@@ -1547,7 +1547,9 @@ describe('bluesky account', () => {
         repost(bobPost('3'))
       ]
     })
-    let posts = signedIn.getTimeline!(createDownloadTask(), auth, 0)
+    let posts = signedIn.getTimeline!(createDownloadTask(), auth, {
+      refreshedAt: 0
+    })
     await posts.loading
     let proof = getProof(first)
     equal(proof.authorization, 'DPoP access')
@@ -1597,11 +1599,9 @@ describe('bluesky account', () => {
   test('stops timeline on the previous refresh', async () => {
     let { auth } = createAuth()
     respond(timeline(auth), { cursor: 'c1', feed: [{ post: bobPost('1') }] })
-    let posts = signedIn.getTimeline!(
-      createDownloadTask(),
-      auth,
-      Math.round(Date.now() / 1000)
-    )
+    let posts = signedIn.getTimeline!(createDownloadTask(), auth, {
+      refreshedAt: Math.round(Date.now() / 1000)
+    })
     await posts.loading
     equal(posts.get().hasNext, false)
   })

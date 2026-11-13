@@ -1,6 +1,6 @@
 import { atom, type WritableAtom } from 'nanostores'
 
-import { loadAccounts, needFollowsSync, syncFollows } from '../../account.ts'
+import { loadAccounts, needFollowsSync, syncAccounts } from '../../account.ts'
 
 export type FollowsSync = 'checking' | 'done' | 'none' | 'syncing'
 
@@ -13,15 +13,12 @@ export type FollowsSync = 'checking' | 'done' | 'none' | 'syncing'
 export function injectFollowsSync(): { sync: WritableAtom<FollowsSync> } {
   let $sync = atom<FollowsSync>('checking')
   void loadAccounts().then(accounts => {
-    let needUpdate = new Set(
-      accounts.filter(needFollowsSync).map(account => account.service)
-    )
-    if (needUpdate.size === 0) {
+    if (!accounts.some(needFollowsSync)) {
       $sync.set('none')
       return
     }
     $sync.set('syncing')
-    void Promise.all([...needUpdate].map(syncFollows)).then(() => {
+    void syncAccounts(accounts).then(() => {
       $sync.set('done')
     })
   })

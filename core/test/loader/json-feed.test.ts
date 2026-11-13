@@ -886,7 +886,7 @@ describe('json feed loader', () => {
       task,
       'https://example.com/news/',
       undefined,
-      1767225600 // Thu, 01 Jan 2026 00:00:00 GMT
+      { refreshedAt: 1767225600 } // Thu, 01 Jan 2026 00:00:00 GMT
     )
     await page2.loading
     deepEqual(capturedOpts?.headers, {

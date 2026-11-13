@@ -1,5 +1,6 @@
 import { persistentJSON } from '@nanostores/persistent'
 import { decodeTelegramApp, type TelegramApp } from '@slowreader/api'
+import { delay } from 'nanodelay'
 import { nanoid } from 'nanoid'
 import { atom } from 'nanostores'
 
@@ -22,8 +23,7 @@ import type {
   PostAuthor,
   PostMedia,
   PostPoll,
-  PostPreview,
-  QuotedPost
+  PostPreview
 } from '../post.ts'
 import {
   createPostsList,
@@ -36,6 +36,7 @@ import {
   type AccountLoader,
   type DetectedFeed,
   isObject,
+  type LastRefresh,
   type Loader,
   readLoaderData,
   type SignInStep
@@ -78,8 +79,29 @@ export async function loadTelegramApp(): Promise<void> {
   )
 }
 
+/**
+ * Devtools counts requests to TDLib to see, what a refresh costs.
+ */
+export const telegramDebug = atom<
+  ((type: string, ms: number) => void) | undefined
+>()
+
 interface Session {
+  /**
+   * Requests, which TDLib is processing right now.
+   */
+  active: number
+  /**
+   * Channels, which TDLib loaded after its start, with the last post and
+   * the read position from its updates.
+   */
+  channels: Map<number, TelegramObject>
   client: TelegramClient
+  /**
+   * Chat list is sorted by the last activity and is loaded from the top.
+   * It is the date of the oldest loaded chat, or `0` for the whole list.
+   */
+  depth: number
   /**
    * We asked TDLib to end the session, so it is not user’s sign out
    * in another Telegram app.
@@ -91,15 +113,62 @@ interface Session {
    */
   keep: boolean
   /**
-   * Parallel refreshes of channels share one loading of the chat list.
+   * Parallel refreshes of channels share one loading of the next part
+   * of the chat list.
    */
   loadingChats: Promise<void> | undefined
   sponsored: Map<string, TelegramObject>
   state: TelegramObject | undefined
   waiters: Set<(state: TelegramObject) => void>
+  /**
+   * Requests, which wait for the end of the active ones.
+   */
+  waiting: (() => void)[]
 }
 
 let sessions = new Map<string, Session>()
+
+/**
+ * TDLib sorts the chat list by `order`, which has the date of the last
+ * activity in the high 32 bits. Pinned chats and ads are always on the top.
+ */
+function trackDepth(session: Session, positions: unknown): void {
+  for (let position of Array.isArray(positions) ? positions : []) {
+    if (
+      !isObject(position) ||
+      !isObject(position.list) ||
+      position.list['@type'] !== 'chatListMain' ||
+      position.is_pinned ||
+      position.source ||
+      !/^\d+$/.test(String(position.order))
+    ) {
+      continue
+    }
+    let date = Number(BigInt(String(position.order)) >> 32n)
+    if (date > 0) session.depth = Math.min(session.depth, date)
+  }
+}
+
+function trackChat(session: Session, update: TelegramObject): void {
+  let channel = session.channels.get(Number(update.chat_id))
+  if (update['@type'] === 'updateNewChat' && isObject(update.chat)) {
+    // Private chats and groups are not kept even in memory
+    if (getChannelId(update.chat) !== undefined) {
+      session.channels.set(Number(update.chat.id), {
+        ...update.chat,
+        '@type': 'chat'
+      })
+    }
+    trackDepth(session, update.chat.positions)
+  } else if (update['@type'] === 'updateChatLastMessage') {
+    if (channel) channel.last_message = update.last_message
+    trackDepth(session, update.positions)
+  } else if (update['@type'] === 'updateChatPosition') {
+    trackDepth(session, [update.position])
+  } else if (update['@type'] === 'updateChatReadInbox' && channel) {
+    channel.last_read_inbox_message_id = update.last_read_inbox_message_id
+  }
+}
 
 function getSession(name: string): Session {
   let session = sessions.get(name)
@@ -108,20 +177,32 @@ function getSession(name: string): Session {
   let creator = getEnvironment().telegramCreator
   if (!app || !creator) throw new Error('No Telegram on this client')
   let created: Session = {
+    active: 0,
+    channels: new Map(),
     client: creator({ ...app, name }),
+    depth: Infinity,
     ending: false,
     idle: undefined,
     keep: false,
     loadingChats: undefined,
     sponsored: new Map(),
     state: undefined,
-    waiters: new Set()
+    waiters: new Set(),
+    waiting: []
   }
   created.client.onUpdate(update => {
-    if (update['@type'] !== 'updateAuthorizationState') return
+    if (update['@type'] !== 'updateAuthorizationState') {
+      trackChat(created, update)
+      return
+    }
     let state = update.authorization_state
     if (!isObject(state) || typeof state['@type'] !== 'string') return
     created.state = { ...state, '@type': state['@type'] }
+    // TDLib forgets chats on every restart
+    if (state['@type'] !== 'authorizationStateReady') {
+      created.channels.clear()
+      created.depth = Infinity
+    }
     for (let waiter of created.waiters) waiter(created.state)
     created.waiters.clear()
     if (state['@type'] === 'authorizationStateLoggingOut' && !created.ending) {
@@ -144,15 +225,57 @@ function closeOnIdle(session: Session): void {
   }, 60_000)
 }
 
+async function sendCounted(
+  session: Session,
+  body: TelegramRequest
+): Promise<TelegramObject> {
+  let start = performance.now()
+  try {
+    return await session.client.send(body)
+  } finally {
+    telegramDebug.get()?.(body['@type'], performance.now() - start)
+  }
+}
+
+/**
+ * Telegram blocks the account for minutes after too many requests at once,
+ * so only 3 requests are sent at the same time.
+ */
 export async function sendToTelegram(
   name: string,
   body: TelegramRequest
 ): Promise<TelegramObject> {
   let session = getSession(name)
+  // Long download of a video must not hold posts loading
+  let limited = body['@type'] !== 'downloadFile'
+  if (limited && session.active >= 3) {
+    await new Promise<void>(resolve => {
+      session.waiting.push(resolve)
+    })
+  } else if (limited) {
+    session.active += 1
+  }
   clearTimeout(session.idle)
   try {
-    return await session.client.send(body)
+    return await sendCounted(session, body).catch(async (e: unknown) => {
+      let wait =
+        TelegramError.is(e) && e.code === 429
+          ? Number(/retry after (\d+)/.exec(e.message)?.[1])
+          : NaN
+      // Longer block is shown to the user as an error
+      if (!(wait <= 10)) throw e
+      await delay(wait * 1000)
+      return sendCounted(session, body)
+    })
   } finally {
+    if (limited) {
+      let next = session.waiting.shift()
+      if (next) {
+        next()
+      } else {
+        session.active -= 1
+      }
+    }
     closeOnIdle(session)
   }
 }
@@ -371,29 +494,35 @@ function getDevice(auth: AccountAuth): string {
   return auth.device
 }
 
-async function loadAllChats(name: string): Promise<void> {
-  let more = true
-  while (more) {
-    try {
-      await sendToTelegram(name, {
-        '@type': 'loadChats',
-        'chat_list': { '@type': 'chatListMain' },
-        'limit': 100
-      })
-    } catch (e) {
-      // TDLib loads the list by parts and answers 404 after the last one
-      if (!TelegramError.is(e) || e.code !== 404) throw e
-      more = false
-    }
-  }
+function loadMoreChats(name: string): Promise<void> {
+  let session = getSession(name)
+  session.loadingChats ??= sendToTelegram(name, {
+    '@type': 'loadChats',
+    'chat_list': { '@type': 'chatListMain' },
+    'limit': 100
+  })
+    .then(
+      () => {},
+      (e: unknown) => {
+        // TDLib loads the list by parts and answers 404 after the last one
+        if (!TelegramError.is(e) || e.code !== 404) throw e
+        session.depth = 0
+      }
+    )
+    .finally(() => {
+      session.loadingChats = undefined
+    })
+  return session.loadingChats
 }
 
-function loadChatList(name: string): Promise<void> {
-  let session = getSession(name)
-  session.loadingChats ??= loadAllChats(name).finally(() => {
-    session.loadingChats = undefined
-  })
-  return session.loadingChats
+/**
+ * Load the top of the chat list with all chats, which had news after the date.
+ */
+async function loadChatsSince(name: string, date: number): Promise<void> {
+  // Sign out during the loading replaces the session
+  while (getSession(name).depth > Math.max(date, 0)) await loadMoreChats(name)
+  // Channels without news send no requests, but need chats in TDLib’s memory
+  closeOnIdle(getSession(name))
 }
 
 async function loadChannelUrl(
@@ -416,7 +545,7 @@ async function loadChannelUrl(
  * and drop the rest here, so they never reach the database.
  */
 async function loadChannels(name: string): Promise<LoadedAuthor[]> {
-  await loadChatList(name)
+  await loadChatsSince(name, 0)
   let loaded = await sendToTelegram(name, {
     '@type': 'getChats',
     'chat_list': { '@type': 'chatListMain' },
@@ -444,17 +573,20 @@ async function loadChannels(name: string): Promise<LoadedAuthor[]> {
 }
 
 /**
- * TDLib knows only chats from the loaded chat list, and forgets them
- * on every restart.
+ * TDLib knows only chats from the loaded part of the chat list, and forgets
+ * them on every restart. Chats with recent activity are in the first parts.
  */
 async function loadChat(name: string, chatId: number): Promise<TelegramObject> {
-  let body = { '@type': 'getChat', 'chat_id': chatId }
-  try {
-    return await sendToTelegram(name, body)
-  } catch (e) {
-    if (!TelegramError.is(e)) throw e
-    await loadChatList(name)
-    return sendToTelegram(name, body)
+  for (;;) {
+    try {
+      return await sendToTelegram(name, {
+        '@type': 'getChat',
+        'chat_id': chatId
+      })
+    } catch (e) {
+      if (!TelegramError.is(e) || getSession(name).depth === 0) throw e
+      await loadMoreChats(name)
+    }
   }
 }
 
@@ -559,7 +691,7 @@ async function findChat(
   return auth ? ask(getDevice(auth)) : askAnySession(ask)
 }
 
-function getChannelId(chat: TelegramObject): unknown {
+function getChannelId(chat: Record<string, unknown>): unknown {
   let type = chat.type
   return isObject(type) &&
     type['@type'] === 'chatTypeSupergroup' &&
@@ -752,7 +884,7 @@ function formatText(formatted: unknown): string {
     .join('')
 }
 
-function getText(message: TelegramObject): string {
+function getText(message: Record<string, unknown>): string {
   let content = message.content
   if (!isObject(content)) return ''
   if (isObject(content.text)) return formatText(content.text)
@@ -830,31 +962,69 @@ async function loadForwardAuthor(
 }
 
 /**
- * Channels answer to own older posts to continue the story.
+ * Add authors of forwards and replied posts to posts by their first messages.
+ *
+ * Channels answer to own older posts to continue the story. Replied post
+ * is often on the same page, and one request loads all the rest.
  */
-async function loadReplied(
+async function loadSources(
   name: string,
-  feedUrl: string,
-  reply: unknown
-): Promise<QuotedPost | undefined> {
-  if (!isObject(reply) || reply['@type'] !== 'messageReplyToMessage') {
-    return undefined
-  }
-  try {
-    let message = await sendToTelegram(name, {
-      '@type': 'getMessage',
-      'chat_id': reply.chat_id,
-      'message_id': reply.message_id
+  channel: PostAuthor,
+  chatId: number,
+  posts: Map<ParsedPost, TelegramObject>,
+  page: TelegramObject[]
+): Promise<void> {
+  let replies = new Map<ParsedPost, number>()
+  await Promise.all(
+    [...posts].map(async ([post, message]) => {
+      let reply = message.reply_to
+      if (isObject(reply) && reply['@type'] === 'messageReplyToMessage') {
+        replies.set(
+          post,
+          reply.chat_id === chatId ? Number(reply.message_id) : 0
+        )
+      }
+      if (isObject(message.forward_info)) {
+        let author = await loadForwardAuthor(name, message.forward_info.origin)
+        if (author) {
+          post.author = author
+          post.repostedBy = channel
+        }
+      }
     })
-    return {
-      full: getText(message) || undefined,
-      missing: false,
-      publishedAt: Number(message.date),
-      url: `${feedUrl}/${String(Number(message.id) / MESSAGE_ID_STEP)}`
+  )
+  let known = new Map<number, Record<string, unknown>>(
+    page.map(message => [Number(message.id), message])
+  )
+  let unknown = [...new Set(replies.values())].filter(id => {
+    return id !== 0 && !known.has(id)
+  })
+  if (unknown.length > 0) {
+    try {
+      let answer = await sendToTelegram(name, {
+        '@type': 'getMessages',
+        'chat_id': chatId,
+        'message_ids': unknown
+      })
+      for (let message of Array.isArray(answer.messages)
+        ? answer.messages
+        : []) {
+        if (isObject(message)) known.set(Number(message.id), message)
+      }
+    } catch (e) {
+      if (!TelegramError.is(e)) throw e
     }
-  } catch (e) {
-    if (!TelegramError.is(e)) throw e
-    return { missing: true }
+  }
+  for (let [post, id] of replies) {
+    let message = known.get(id)
+    post.replied = message
+      ? {
+          full: getText(message) || undefined,
+          missing: false,
+          publishedAt: Number(message.date),
+          url: `${channel.url!}/${String(id / MESSAGE_ID_STEP)}`
+        }
+      : { missing: true }
   }
 }
 
@@ -1032,12 +1202,11 @@ function loadAvatar(user: boolean, id: number): Promise<Response> {
 /**
  * Messages of one post from the newest one.
  */
-async function toPost(
-  name: string,
+function toPost(
   channel: PostAuthor,
   chatId: number,
   messages: TelegramObject[]
-): Promise<ParsedPost | undefined> {
+): ParsedPost | undefined {
   let first = messages.at(-1)!
   let content = isObject(first.content) ? first.content : {}
   // Like “channel pinned a post”
@@ -1086,26 +1255,21 @@ async function toPost(
   if (messages.some(message => message.can_be_saved === false)) {
     post.protected = true
   }
-  if (isObject(first.forward_info)) {
-    let author = await loadForwardAuthor(name, first.forward_info.origin)
-    if (author) {
-      post.author = author
-      post.repostedBy = channel
-    }
-  }
-  let replied = await loadReplied(name, channel.url!, first.reply_to)
-  if (replied) post.replied = replied
   return post
 }
 
 /**
  * All posts of the channel from the newest one. Only Telegram knows,
  * which of them user did not read, so posts under it are marked as `old`.
+ *
+ * Refresh of the account asks nothing from Telegram for the channel
+ * without news: its last post is already in the loaded chat list.
  */
 function loadChannelPosts(
   auth: AccountAuth | undefined,
   url: string,
-  loaderData: null | string | undefined
+  loaderData: null | string | undefined,
+  last: LastRefresh | undefined
 ): PostsList {
   let name = ''
   let chatId = 0
@@ -1113,6 +1277,17 @@ function loadChannelPosts(
   let loaded = 0
   let channel: PostAuthor = { title: '', url }
   let album: TelegramObject[] = []
+
+  function setChat(chat: TelegramObject): void {
+    chatId = Number(chat.id)
+    // Refresh already saved all posts up to the last one
+    read = Math.max(
+      Number(chat.last_read_inbox_message_id),
+      Number(last?.lastOriginId ?? 0) * MESSAGE_ID_STEP
+    )
+    channel.title = String(chat.title)
+    Object.assign(channel, getAvatar('channel', -chatId - 1e12, chat.photo))
+  }
 
   async function loadHistory(from: number): Promise<TelegramObject[]> {
     let history = await sendToTelegram(name, {
@@ -1129,7 +1304,24 @@ function loadChannelPosts(
   }
 
   async function loadPage(from: number): Promise<PostsListResult> {
-    if (from === 0) {
+    let messages: TelegramObject[] = []
+    let key = getChannelKey(url, loaderData)
+    if (from !== 0) {
+      messages = await loadHistory(from)
+    } else if (auth && last?.refreshedAt && typeof key === 'number') {
+      name = getDevice(auth)
+      // Device clock can differ from Telegram’s one
+      await loadChatsSince(name, last.refreshedAt - 3600)
+      let chat = getSession(name).channels.get(key)
+      let latest = chat?.last_message
+      if (!chat || !isObject(latest)) return [[], undefined]
+      setChat(chat)
+      if (Number(latest.id) <= read) return [[], undefined]
+      messages = [
+        { ...latest, '@type': 'message' },
+        ...(await loadHistory(Number(latest.id)))
+      ]
+    } else {
       let found: Awaited<ReturnType<typeof findChat>>
       try {
         found = await findChat(auth, url, loaderData)
@@ -1139,41 +1331,40 @@ function loadChannelPosts(
         throw e
       }
       name = found.name
-      chatId = Number(found.chat.id)
-      read = Number(found.chat.last_read_inbox_message_id)
-      channel.title = String(found.chat.title)
-      Object.assign(
-        channel,
-        getAvatar('channel', -chatId - 1e12, found.chat.photo)
-      )
-    }
-    let messages = await loadHistory(from)
-    // TDLib’s first answer has only the last post. It is enough for refresh,
-    // but too little for feed’s preview.
-    if (!auth && from === 0 && messages.length === 1) {
-      messages.push(...(await loadHistory(Number(messages[0]!.id))))
+      setChat(found.chat)
+      messages = await loadHistory(0)
+      // TDLib’s first answer has only the last post. It is enough for refresh,
+      // but too little for feed’s preview.
+      if (!auth && messages.length === 1) {
+        messages.push(...(await loadHistory(Number(messages[0]!.id))))
+      }
     }
     let ended = messages.length === 0
-    let albums = groupAlbums([...album, ...messages])
+    let page = [...album, ...messages]
+    let albums = groupAlbums(page)
     album = []
     // The oldest album of the page can continue on the next page
     if (!ended && getAlbumId(albums.at(-1)![0]!)) album = albums.pop()!
-    let posts = (
-      await Promise.all(
-        albums.map(group => toPost(name, channel, chatId, group))
-      )
-    ).filter(post => !!post)
-    for (let post of posts) {
+    let posts: ParsedPost[] = []
+    let news = new Map<ParsedPost, TelegramObject>()
+    for (let group of albums) {
+      let post = toPost(channel, chatId, group)
+      if (!post) continue
+      posts.push(post)
       loaded += 1
       // Channel, which was never opened in Telegram, has no read position,
       // and only its latest posts are news
       if (
-        Number(post.originId) * MESSAGE_ID_STEP <= read ||
-        (read === 0 && loaded > 10)
+        read === 0
+          ? loaded > 10
+          : Number(post.originId) * MESSAGE_ID_STEP <= read
       ) {
         post.old = true
       }
+      // Refresh does not save old posts
+      if (!auth || !post.old) news.set(post, group.at(-1)!)
     }
+    await loadSources(name, channel, chatId, news, page)
     return [
       posts,
       ended ? undefined : () => loadPage(Number(messages.at(-1)!.id))
@@ -1240,15 +1431,17 @@ let telegramAccount: AccountLoader<SignInData> = {
   },
 
   async getReadPosts(auth, feed, postOriginIds) {
-    let chat = await loadChat(
-      getDevice(auth),
-      Number(readLoaderData(feed.loaderData, 'id'))
+    let name = getDevice(auth)
+    await loadChatsSince(name, (feed.refreshedAt ?? 0) - 3600)
+    // Silent channel is under the loaded part of the chat list
+    // until the daily sync of follows loads the whole list
+    let read = Number(
+      getSession(name).channels.get(
+        Number(readLoaderData(feed.loaderData, 'id'))
+      )?.last_read_inbox_message_id
     )
     return postOriginIds.filter(postOriginId => {
-      return (
-        Number(postOriginId) * MESSAGE_ID_STEP <=
-        Number(chat.last_read_inbox_message_id)
-      )
+      return Number(postOriginId) * MESSAGE_ID_STEP <= read
     })
   },
 
@@ -1390,19 +1583,19 @@ export const telegram: Loader = {
       url: await loadChannelUrl(name, id),
       ...getAvatar('channel', id, chat.photo)
     }
-    let post = await toPost(name, channel, chatId, [
-      await sendToTelegram(name, {
-        '@type': 'getMessage',
-        'chat_id': chatId,
-        'message_id': Number(parseLink(URL.parse(url))!.post) * MESSAGE_ID_STEP
-      })
-    ])
+    let message = await sendToTelegram(name, {
+      '@type': 'getMessage',
+      'chat_id': chatId,
+      'message_id': Number(parseLink(URL.parse(url))!.post) * MESSAGE_ID_STEP
+    })
+    let post = toPost(channel, chatId, [message])
     if (!post) throw new NotFoundError()
+    await loadSources(name, channel, chatId, new Map([[post, message]]), [])
     return { author: channel, ...post, id: url }
   },
 
-  getPosts(task, url, text, refreshedAt, loaderData, auth) {
-    return loadChannelPosts(auth, url, loaderData)
+  getPosts(task, url, text, last, loaderData, auth) {
+    return loadChannelPosts(auth, url, loaderData, last)
   },
 
   getProfilesByHandle(task, handle) {

@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import {
+  type AccountValue,
   addAccount,
   addFeed,
   addFilter,
@@ -17,6 +18,7 @@ import {
   deleteFeed,
   fastPostsMaxAge,
   lastRefresh,
+  type LoadedAuthor,
   nightLock,
   syncedSettingsLoading,
   getClient,
@@ -987,6 +989,13 @@ describe('refresh of accounts', () => {
 
   let signedIn = loaders.mastodon.account! as Required<AccountLoader>
 
+  function syncedAccount(account: Partial<AccountValue> = {}): AccountValue {
+    return testAccount({
+      followsSyncedAt: Math.round(Date.now() / 1000),
+      ...account
+    })
+  }
+
   function by(
     name: string,
     originId: string,
@@ -1022,7 +1031,7 @@ describe('refresh of accounts', () => {
 
   test('puts home timeline posts to feeds and account', async t => {
     let accountId = await addAccount(
-      testAccount({
+      syncedAccount({
         lastPublishedAt: 100,
         reading: 'fast',
         refreshedAt: 10,
@@ -1099,7 +1108,7 @@ describe('refresh of accounts', () => {
       ]
     )
     equal(timeline.calls[0]![1].account.id, accountId)
-    equal(timeline.calls[0]![2], 10)
+    equal(timeline.calls[0]![2]!.refreshedAt, 10)
     equal(rss.calls.length, 1)
     equal(mastodonFeeds.calls.length, 0)
 
@@ -1158,7 +1167,7 @@ describe('refresh of accounts', () => {
   })
 
   test('sorts timeline by repost time', async () => {
-    let accountId = await addAccount(testAccount({ lastPublishedAt: 200 }))
+    let accountId = await addAccount(syncedAccount({ lastPublishedAt: 200 }))
     spyTimeline([
       by('dave', 'new', { publishedAt: 210 }),
       by('dave', 'reposted', {
@@ -1184,7 +1193,7 @@ describe('refresh of accounts', () => {
 
   test('finds Bluesky feed by DID after handle change', async () => {
     let accountId = await addAccount(
-      testAccount({ service: 'bluesky', url: 'https://bsky.app/profile/me' })
+      syncedAccount({ service: 'bluesky', url: 'https://bsky.app/profile/me' })
     )
     let alice = await addFeed(
       testFeed({
@@ -1254,7 +1263,7 @@ describe('refresh of accounts', () => {
   })
 
   test('loads every timeline page', async () => {
-    let accountId = await addAccount(testAccount({ lastPublishedAt: 100 }))
+    let accountId = await addAccount(syncedAccount({ lastPublishedAt: 100 }))
     spyTimeline(
       [by('dave', '3', { publishedAt: 300 })],
       [
@@ -1272,7 +1281,7 @@ describe('refresh of accounts', () => {
   })
 
   test('loads retry and next timeline page before feeds', async () => {
-    await addAccount(testAccount({ lastPublishedAt: 100 }))
+    await addAccount(syncedAccount({ lastPublishedAt: 100 }))
     for (let i = 1; i <= 7; i++) {
       await addFeed(testFeed({ title: `${i}`, url: `https://${i}.com/` }))
     }
@@ -1351,7 +1360,7 @@ describe('refresh of accounts', () => {
   })
 
   test('loads only the newest timeline page on the first refresh', async () => {
-    let accountId = await addAccount(testAccount())
+    let accountId = await addAccount(syncedAccount())
     let timeline = spyTimeline(
       [by('dave', '2', { publishedAt: 200 })],
       [by('dave', '1', { publishedAt: 100 })]
@@ -1380,7 +1389,7 @@ describe('refresh of accounts', () => {
 
   test('marks account without new posts', async () => {
     let accountId = await addAccount(
-      testAccount({ lastOriginId: 'old', lastPublishedAt: 100 })
+      syncedAccount({ lastOriginId: 'old', lastPublishedAt: 100 })
     )
     spyTimeline([by('dave', 'old', { publishedAt: 100 })])
     await refreshPosts()
@@ -1391,7 +1400,7 @@ describe('refresh of accounts', () => {
   })
 
   test('is ready to account deletion during refreshing', async () => {
-    let accountId = await addAccount(testAccount())
+    let accountId = await addAccount(syncedAccount())
     spyOn(signedIn, 'getTimeline', () => {
       return createPostsList(async () => {
         await deleteAccount(accountId)
@@ -1404,7 +1413,7 @@ describe('refresh of accounts', () => {
 
   test('shows account errors', async () => {
     let accountId = await addAccount(
-      testAccount({ title: 'Me', url: 'https://mastodon.social/@me' })
+      syncedAccount({ title: 'Me', url: 'https://mastodon.social/@me' })
     )
     let error = new ParseError('broken')
     spyOn(signedIn, 'getTimeline', () => {
@@ -1414,6 +1423,40 @@ describe('refresh of accounts', () => {
     deepEqual(refreshErrors.get(), [
       { account: { id: accountId, title: 'Me' }, error }
     ])
+  })
+
+  test('syncs follows once a day before loading posts', async () => {
+    let accountId = await addAccount(testAccount())
+    spyTimeline([])
+    let follows = spyOn(signedIn, 'getFollows', () => {
+      return Promise.resolve([{ title: 'Bob', url: BOB }])
+    })
+
+    await refreshPosts()
+    equal(follows.callCount, 1)
+    deepEqual(
+      (await loadFeeds()).map(feed => feed.url),
+      [BOB]
+    )
+    equal(typeof (await loadAccount(accountId))!.followsSyncedAt, 'number')
+
+    await refreshPosts()
+    equal(follows.callCount, 1)
+  })
+
+  test('is ready to be stopped during the sync of follows', async () => {
+    await addAccount(testAccount())
+    let timeline = spyTimeline([])
+    let follows = Promise.withResolvers<LoadedAuthor[]>()
+    spyOn(signedIn, 'getFollows', () => follows.promise)
+
+    let refreshing = refreshPosts()
+    await setTimeout(10)
+    stopRefreshing()
+    follows.resolve([])
+    await refreshing
+    equal(timeline.callCount, 0)
+    equal(refreshStatus.get(), 'start')
   })
 
   test('loads recent posts of the feed', async () => {
@@ -1549,8 +1592,13 @@ describe('auto refresh', () => {
     let load = spyOn(loaders.rss, 'getPosts', () => {
       return createPostsList(() => Promise.resolve([[], undefined]))
     })
+    await addAccount(testAccount())
+    let follows = spyOn(loaders.mastodon.account!, 'getFollows', () => {
+      return Promise.resolve([])
+    })
     nightLock.set({ enabled: true, from: 0, to: 24 })
     await refreshPosts({ auto: true })
     equal(load.callCount, 0)
+    equal(follows.callCount, 0)
   })
 })

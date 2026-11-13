@@ -176,7 +176,7 @@ export const jsonFeed: Loader = {
     return [...linksByType, ...findAnchorHrefs(text, /feed\.json/i)]
   },
 
-  getPosts(task, url, text, refreshedAt) {
+  getPosts(task, url, text, last) {
     if (text) {
       return createPostsList(async () => [
         await parsePosts(task, text),
@@ -184,7 +184,7 @@ export const jsonFeed: Loader = {
       ])
     } else {
       return createPostsList(() =>
-        fetchIfModified(task, url, refreshedAt, async response => [
+        fetchIfModified(task, url, last, async response => [
           await parsePosts(task, response),
           undefined
         ])

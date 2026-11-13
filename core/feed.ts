@@ -9,6 +9,7 @@ import {
   type AccountAuth,
   type FeedLoader,
   getOriginKey,
+  type LastRefresh,
   loaders,
   type MovedFeed,
   tryLoadFeedData
@@ -261,7 +262,7 @@ export async function addCandidate(
 }
 
 export function getFeedLatestPosts(
-  feed: Pick<FeedValue, 'loader' | 'loaderData' | 'refreshedAt' | 'url'>,
+  feed: LastRefresh & Pick<FeedValue, 'loader' | 'loaderData' | 'url'>,
   task = createDownloadTask(),
   auth?: AccountAuth
 ): PostsList {
@@ -269,7 +270,7 @@ export function getFeedLatestPosts(
     task,
     feed.url,
     undefined,
-    feed.refreshedAt ?? undefined,
+    feed,
     feed.loaderData,
     auth
   )

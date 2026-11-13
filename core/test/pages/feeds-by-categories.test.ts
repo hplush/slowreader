@@ -7,6 +7,7 @@ import {
   addAccount,
   addCategory,
   addFeed,
+  addPost,
   changeAccount,
   deleteCategory,
   GENERAL_CATEGORY,
@@ -14,9 +15,11 @@ import {
   loadAccount,
   loadCategory,
   loadFeed,
+  loadPosts,
   loaders,
   testAccount,
   testFeed,
+  testPost,
   waitLoading
 } from '../../index.ts'
 import {
@@ -107,13 +110,18 @@ describe('feeds by categories page', () => {
     ])
   })
 
-  test('syncs follows and shows account feeds', async () => {
+  test('syncs follows and shows account feeds', async t => {
     let category = await addCategory({ title: 'A' })
     let accountId = await addAccount(testAccount({ categoryId: category }))
     await addAccount(testAccount({ expired: true }))
     let virtual = await addFeed(
       testFeed({ accountId, categoryId: null, title: '1' })
     )
+    await addPost(testPost({ feedId: virtual, originId: 'read' }))
+    loaders.mastodon.account!.getReadPosts = () => Promise.resolve(['read'])
+    t.after(() => {
+      delete loaders.mastodon.account!.getReadPosts
+    })
     let { promise, resolve } =
       Promise.withResolvers<{ title: string; url: string }[]>()
     let follows = spyOn(loaders.mastodon.account!, 'getFollows', () => promise)
@@ -131,6 +139,7 @@ describe('feeds by categories page', () => {
     await setTimeout(10)
     equal(page.sync.get(), 'done')
     equal(follows.callCount, 1)
+    deepEqual(await loadPosts(), [])
 
     openPage({ params: {}, route: 'welcome' })
     page = openPage({ params: {}, route: 'feedsByCategories' })

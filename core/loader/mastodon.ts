@@ -1096,7 +1096,7 @@ export const mastodon: Loader = {
     return JSON.stringify({ id: (await loadAccount(task, url)).id })
   },
 
-  getPosts(task, url, text, refreshedAt, loaderData) {
+  getPosts(task, url, text, last, loaderData) {
     let tag = getTagName(url)
     if (tag) {
       return createPostsList(() => loadTagPage(task, new URL(url).origin, tag))

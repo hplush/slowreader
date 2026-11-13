@@ -141,6 +141,13 @@ export interface AccountAuth {
 }
 
 /**
+ * What the previous refresh saved to the feed or to the account.
+ */
+export type LastRefresh = Partial<
+  Pick<FeedValue, 'lastOriginId' | 'lastPublishedAt' | 'refreshedAt'>
+>
+
+/**
  * User’s account on the service to read the home timeline and follow authors.
  */
 export interface AccountLoader<Data = unknown> {
@@ -181,7 +188,7 @@ export interface AccountLoader<Data = unknown> {
   getTimeline?(
     task: DownloadTask,
     auth: AccountAuth,
-    refreshedAt?: number
+    last?: LastRefresh
   ): PostsList
 
   /**
@@ -191,7 +198,7 @@ export interface AccountLoader<Data = unknown> {
    */
   getReadPosts?(
     auth: AccountAuth,
-    feed: Pick<FeedValue, 'loaderData' | 'url'>,
+    feed: Pick<FeedValue, 'loaderData' | 'refreshedAt' | 'url'>,
     postOriginIds: string[]
   ): Promise<string[]>
 
@@ -279,14 +286,12 @@ export type Loader = {
    * Extracts the feed's posts.
    *
    * If the URL’s document was already downloaded during the feed’s search.
-   *
-   * Refresh passes `auth` for the feed of account without `getTimeline()`.
    */
   getPosts(
     task: DownloadTask,
     url: string,
     text?: TextResponse,
-    refreshedAt?: number,
+    last?: LastRefresh,
     loaderData?: null | string,
     auth?: AccountAuth
   ): PostsList
@@ -747,13 +752,13 @@ export function findMediaInText(html: string | undefined): PostMedia[] {
 export async function fetchIfModified(
   task: DownloadTask,
   url: string,
-  refreshedAt: number | undefined,
+  last: LastRefresh | undefined,
   parseCb: (
     response: TextResponse
   ) => Promise<PostsListResult> | PostsListResult
 ): Promise<PostsListResult> {
-  let headers = refreshedAt
-    ? { 'If-Modified-Since': new Date(refreshedAt * 1000).toUTCString() }
+  let headers = last?.refreshedAt
+    ? { 'If-Modified-Since': new Date(last.refreshedAt * 1000).toUTCString() }
     : undefined
   let response = await task.text(url, { headers })
   if (response.status === 304) return [[], undefined]

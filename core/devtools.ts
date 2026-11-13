@@ -8,7 +8,7 @@ import type { TelegramObject, TelegramRequest } from './environment.ts'
 import { HTTPStatusError } from './errors.ts'
 import { changeFeed, loadFeed, loadFeedByUrl, loadFeeds } from './feed.ts'
 import { loaders } from './loader/index.ts'
-import { sendToTelegram } from './loader/telegram.ts'
+import { sendToTelegram, telegramDebug } from './loader/telegram.ts'
 import { loadPopupPost } from './popups/post.ts'
 import { changePost } from './post.ts'
 import { proxyDebug } from './request.ts'
@@ -117,6 +117,29 @@ export function askTelegram(request: TelegramRequest): Promise<TelegramObject> {
   )
   if (!session) throw new Error('Sign in to Telegram on this device first')
   return sendToTelegram(session.device, request)
+}
+
+/**
+ * Count requests to TDLib by type with their time in milliseconds, to see
+ * what a refresh costs. Call the returned function to print the table.
+ * Requests answered from TDLib’s memory take a few milliseconds.
+ */
+export function countTelegramRequests(): () => void {
+  let stats: Record<string, { count: number; max: number; total: number }> = {}
+  telegramDebug.set((type, ms) => {
+    let stat = (stats[type] ??= { count: 0, max: 0, total: 0 })
+    stat.count += 1
+    stat.max = Math.max(stat.max, ms)
+    stat.total += ms
+  })
+  return () => {
+    telegramDebug.set(undefined)
+    for (let stat of Object.values(stats)) {
+      stat.max = Math.round(stat.max)
+      stat.total = Math.round(stat.total)
+    }
+    console.table(stats)
+  }
 }
 
 /**

@@ -3,9 +3,12 @@ import { atom, computed, effect, map } from 'nanostores'
 import {
   type AccountValue,
   canUseAccount,
+  deletePostsReadInService,
   getAccountAuth,
   loadAccount,
   loadAccounts,
+  needFollowsSync,
+  syncAccounts,
   toVirtualFeed
 } from './account.ts'
 import { onClient, waitSyncOrOffline } from './client.ts'
@@ -50,7 +53,7 @@ import {
   withoutDeletedPosts
 } from './post.ts'
 import { getPostsFrequency, type PostsList } from './posts-list.ts'
-import { deletePostsReadInService, sendReadPositions } from './read-sync.ts'
+import { sendReadPositions } from './read-sync.ts'
 import {
   refreshLock,
   releaseRefreshLock,
@@ -522,7 +525,7 @@ function loadTargetPosts(target: RefreshTarget, task: DownloadTask): PostsList {
     return loaders[account.service].account!.getTimeline!(
       task,
       getAccountAuth(account),
-      account.refreshedAt ?? undefined
+      account
     )
   }
 }
@@ -613,7 +616,16 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
   untouched = new Map()
   untouchedAccounts = []
   await waitLoading(syncedSettingsLoading)
+  if (auto && nightLocked.get()) {
+    releaseRefreshLock()
+    refreshStatus.set('start')
+    return
+  }
   let accounts = await loadAccounts()
+  if (accounts.some(needFollowsSync)) {
+    await syncAccounts(accounts)
+    if (!isRefreshing.get()) return
+  }
   // Device without the account’s session gets its posts from other devices
   let owners = accounts.filter(account => {
     return (
@@ -621,7 +633,7 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
     )
   })
   let feeds = await loadFeedsForRefresh(owners.map(account => account.id))
-  if (auto && (nightLocked.get() || feeds.length + accounts.length === 0)) {
+  if (auto && feeds.length + accounts.length === 0) {
     releaseRefreshLock()
     refreshStatus.set('start')
     return

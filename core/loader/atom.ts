@@ -19,6 +19,7 @@ import {
   findXmlBase,
   findXmlLang,
   getUpdatedAt,
+  type LastRefresh,
   type Loader,
   toAvatarUrl,
   toTime
@@ -167,11 +168,9 @@ async function parseFeed(
 async function loadFeed(
   task: DownloadTask,
   url: string,
-  refreshedAt?: number
+  last?: LastRefresh
 ): Promise<PostsListResult> {
-  return fetchIfModified(task, url, refreshedAt, response =>
-    parseFeed(task, response)
-  )
+  return fetchIfModified(task, url, last, response => parseFeed(task, response))
 }
 
 export const atom: Loader = {
@@ -190,11 +189,11 @@ export const atom: Loader = {
     }
   },
 
-  getPosts(task, url, text, refreshedAt) {
+  getPosts(task, url, text, last) {
     if (text) {
       return createPostsList(() => parseFeed(task, text))
     } else {
-      return createPostsList(() => loadFeed(task, url, refreshedAt))
+      return createPostsList(() => loadFeed(task, url, last))
     }
   },
 

@@ -89,7 +89,7 @@ export const rss: Loader = {
     ]
   },
 
-  getPosts(task, url, text, refreshedAt) {
+  getPosts(task, url, text, last) {
     if (text) {
       return createPostsList(async () => [
         await parsePosts(task, text),
@@ -97,7 +97,7 @@ export const rss: Loader = {
       ])
     } else {
       return createPostsList(() =>
-        fetchIfModified(task, url, refreshedAt, async response => [
+        fetchIfModified(task, url, last, async response => [
           await parsePosts(task, response),
           undefined
         ])

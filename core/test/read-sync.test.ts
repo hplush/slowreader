@@ -5,14 +5,20 @@ import {
   addAccount,
   addFeed,
   addPost,
+  changeAccount,
+  changeFeed,
   changeRead,
   deleteFeed,
   deletePostsReadInService,
   deviceSessions,
+  loadAccount,
+  loadAccounts,
+  loadFeeds,
   loadPosts,
   readPositions,
   refreshPosts,
   sendReadPositions,
+  syncAccounts,
   type TelegramObject,
   testAccount,
   testFeed,
@@ -24,6 +30,7 @@ import {
   cleanClient,
   expectWarning,
   mockRequest,
+  sendTelegramUpdate,
   startClient,
   testTelegram,
   testTelegramCreator
@@ -31,16 +38,47 @@ import {
 
 const STEP = 1048576
 
+const NOT_FOUND = { '@type': 'error', 'code': 404, 'message': 'Not Found' }
+
 describe('read sync', () => {
   let accountId: string
   let feedId: string
 
+  /**
+   * Real TDLib tells about loaded chats and their changes by updates.
+   */
   function mockReadPosition(post: number): void {
-    testTelegram.answers.getChat = {
+    let chat = {
       '@type': 'chat',
+      'id': -1001,
       'last_read_inbox_message_id': post * STEP,
-      'title': 'News'
+      'title': 'News',
+      'type': {
+        '@type': 'chatTypeSupergroup',
+        'is_channel': true,
+        'supergroup_id': 1
+      }
     }
+    let loaded = false
+    testTelegram.answers.getChat = chat
+    testTelegram.answers.loadChats = () => {
+      if (loaded) return NOT_FOUND
+      loaded = true
+      sendTelegramUpdate({ '@type': 'updateNewChat', chat })
+      return { '@type': 'ok' }
+    }
+    sendTelegramUpdate({
+      '@type': 'updateChatReadInbox',
+      'chat_id': -1001,
+      'last_read_inbox_message_id': post * STEP
+    })
+  }
+
+  function restartTdlib(): void {
+    sendTelegramUpdate({
+      '@type': 'updateAuthorizationState',
+      'authorization_state': { '@type': 'authorizationStateClosed' }
+    })
   }
 
   function getViews(): TelegramObject[] {
@@ -77,7 +115,11 @@ describe('read sync', () => {
     mockRequest()
     telegramApp.set({ apiHash: 'hash', apiId: 1 })
     accountId = await addAccount(
-      testAccount({ credentials: null, service: 'telegram' })
+      testAccount({
+        credentials: null,
+        followsSyncedAt: Math.round(Date.now() / 1000),
+        service: 'telegram'
+      })
     )
     deviceSessions.set({ [accountId]: { device: 'name', service: 'telegram' } })
     feedId = await addFeed(
@@ -202,20 +244,14 @@ describe('read sync', () => {
     deepEqual(await getSaved(), [`${feedId} 3`, `${rss} 1`])
     deepEqual(readPositions.get(), {})
 
-    testTelegram.answers.getChat = {
-      '@type': 'error',
-      'code': 400,
-      'message': 'Chat not found'
-    }
-    testTelegram.answers.loadChats = {
-      '@type': 'error',
-      'code': 404,
-      'message': 'Not Found'
-    }
+    mockReadPosition(3)
+    restartTdlib()
+    testTelegram.answers.loadChats = NOT_FOUND
     await deletePostsReadInService()
     deepEqual(await getSaved(), [`${feedId} 3`, `${rss} 1`])
 
-    testTelegram.answers.getChat = () => {
+    restartTdlib()
+    testTelegram.answers.loadChats = () => {
       throw new Error('TDLib is broken')
     }
     await rejects(deletePostsReadInService(), {
@@ -224,6 +260,109 @@ describe('read sync', () => {
 
     deviceSessions.set({})
     await deletePostsReadInService()
+  })
+
+  test('checks channels without news by daily sync of follows', async () => {
+    let now = Math.round(Date.now() / 1000)
+    await changeFeed(feedId, { refreshedAt: now })
+    await addPosts(feedId, 2)
+
+    function channel(id: number, read: number, date: number): TelegramObject {
+      return {
+        '@type': 'chat',
+        id,
+        'last_read_inbox_message_id': read * STEP,
+        'positions': [
+          {
+            '@type': 'chatPosition',
+            'list': { '@type': 'chatListMain' },
+            'order': String(BigInt(date) << 32n)
+          }
+        ],
+        'title': `Channel ${id}`,
+        'type': {
+          '@type': 'chatTypeSupergroup',
+          'is_channel': true,
+          'supergroup_id': -1000 - id
+        }
+      }
+    }
+    let chats: Record<string, TelegramObject> = {}
+    function mockChats(read: number): void {
+      chats = {
+        '-1001': channel(-1001, read, now - 90_000),
+        '-1002': channel(-1002, 0, now - 5000)
+      }
+      let parts = [[chats['-1002']!], [chats['-1001']!]]
+      restartTdlib()
+      testTelegram.requests = []
+      testTelegram.answers.loadChats = () => {
+        let part = parts.shift()
+        if (!part) return NOT_FOUND
+        for (let chat of part) {
+          sendTelegramUpdate({ '@type': 'updateNewChat', chat })
+        }
+        return { '@type': 'ok' }
+      }
+    }
+    testTelegram.answers.getChats = {
+      '@type': 'chats',
+      'chat_ids': [-1002, -1001]
+    }
+    testTelegram.answers.getChat = ({ chat_id: id }) => chats[String(id)]!
+    testTelegram.answers.getSupergroup = ({ supergroup_id: id }) => ({
+      '@type': 'supergroup',
+      'usernames': {
+        '@type': 'usernames',
+        'active_usernames': [id === 1 ? 'news' : 'top']
+      }
+    })
+    testTelegram.answers.getChatHistory = {
+      '@type': 'messages',
+      'messages': []
+    }
+    function countLoads(): number {
+      return testTelegram.requests.filter(i => i['@type'] === 'loadChats')
+        .length
+    }
+
+    // News is under the loaded top of the chat list
+    mockChats(1)
+    await refreshPosts()
+    equal(countLoads(), 1)
+    deepEqual(await getSaved(), [`${feedId} 1`, `${feedId} 2`])
+
+    mockChats(1)
+    await changeAccount(accountId, { followsSyncedAt: now - 90_000 })
+    await refreshPosts()
+    equal(countLoads(), 3)
+    deepEqual(await getSaved(), [`${feedId} 2`])
+    deepEqual((await loadFeeds()).map(feed => feed.url).toSorted(), [
+      'https://t.me/news',
+      'https://t.me/top'
+    ])
+    equal((await loadAccount(accountId))!.followsSyncedAt! >= now, true)
+
+    mockChats(2)
+    await refreshPosts()
+    equal(countLoads(), 1)
+    deepEqual(await getSaved(), [`${feedId} 2`])
+
+    mockChats(2)
+    await changeAccount(accountId, { followsSyncedAt: null })
+    await syncAccounts(await loadAccounts())
+    deepEqual(await getSaved(), [])
+
+    restartTdlib()
+    await changeAccount(accountId, { followsSyncedAt: null })
+    testTelegram.answers.loadChats = () => {
+      throw new Error('TDLib is broken')
+    }
+    await addPosts(feedId, 1)
+    await expectWarning(
+      async () => syncAccounts(await loadAccounts()),
+      [new Error('TDLib is broken'), new Error('TDLib is broken')]
+    )
   })
 
   test('syncs read position on refresh', async () => {
@@ -239,7 +378,8 @@ describe('read sync', () => {
     // The first post was read here, the second one in Telegram
     deepEqual(await getSaved(), [`${feedId} 1`, `${feedId} 3`])
 
-    testTelegram.answers.getChat = () => {
+    restartTdlib()
+    testTelegram.answers.loadChats = () => {
       throw new Error('TDLib is broken')
     }
     await expectWarning(
