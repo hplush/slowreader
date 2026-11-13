@@ -1,21 +1,21 @@
 # Creates development machine inside docker
 # so every developer will have the same environment
 
-# registry.fedoraproject.org/fedora:44
-FROM registry.fedoraproject.org/fedora@sha256:b3e011d47e686a89781495c9a87bc80349af742965e5d51e79cd51711982e4a2
+# registry.fedoraproject.org/fedora:45
+FROM registry.fedoraproject.org/fedora@sha256:e15959f36d52307f176f8c068009f6f1451c3b238b37a1f03e56dbfa4526e8b1
 
 ARG TARGETARCH
 
-ENV NODE_VERSION=26.13.0 \
-  NODE_CHECKSUM_X64=d28a96af6c38596f6d9d97c0ee531c13d238d757742387d1928de822d959e997 \
-  NODE_CHECKSUM_ARM64=406fe3fbde1c054adff8b297c16fdb5af6659db327c1ac8acd46b56ef1af9a92
+ENV NODE_VERSION=26.13.1 \
+  NODE_CHECKSUM_X64=5c063e46bab0fbc1c17cc445d7ff129cbdcd0471be6ed83b6ab864f8143bc864 \
+  NODE_CHECKSUM_ARM64=89e1853138db51e8b82d3e98ba9c0d3f2956a28e5e55ea1b7e12d25aae92d5dd
 
-ENV PNPM_VERSION=12.18.0 \
-  PNPM_CHECKSUM_X64=3726060e236c0db3e7124c0a5af123c840ba0cb76682149b63ea0baf290017c2 \
-  PNPM_CHECKSUM_ARM64=700bd1aa4028465b80e62b7c5bec8455be60bbafaf53a3262a4ab8e2057712ac
+ENV PNPM_VERSION=12.20.0 \
+  PNPM_CHECKSUM_X64=568fd50dd174a57e80efacc04be1d6a228bb41fbebe557f2ef63a1c3a721a5f4 \
+  PNPM_CHECKSUM_ARM64=e6edbf380ee2299be4cde0f5b8f7183529a8963916637896dd6b3ac71a216ae0
 
 
-RUN dnf install -yq zsh micro git tig psmisc procps-ng awk libatomic wget zip \
+RUN dnf install -yq zsh micro git tig psmisc procps-ng gawk libatomic wget zip \
   gtk3 nss nspr alsa-lib cups-libs mesa-libgbm dbus-libs libX11-xcb \
   libXcomposite libXdamage libXrandr libXcursor libXi libxkbcommon \
   google-noto-sans-fonts google-noto-emoji-fonts gh jq bind-utils openssl \

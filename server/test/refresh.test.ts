@@ -35,6 +35,15 @@ describe('server refresh lock', () => {
     return actions.filter(i => i.type.startsWith('refresh/'))
   }
 
+  function waitReceived(client: TestClient, type: string): Promise<void> {
+    return new Promise(resolve => {
+      let unbind = client.node.log.type(type, () => {
+        unbind()
+        resolve()
+      })
+    })
+  }
+
   test('gives lock to one tab', async () => {
     await using server = buildTestServer()
     let { session } = await signUpUser(server, '0000000000000000')
@@ -97,9 +106,15 @@ describe('server refresh lock', () => {
     await setTimeout(10)
 
     let late = new TestClient(server, '0000000000000000', { token: session })
-    deepEqual(await collect(late, () => late.connect()), [
-      refreshLocked({ nodeId: holder.nodeId })
-    ])
+    deepEqual(
+      await collect(late, async () => {
+        await Promise.all([
+          waitReceived(late, refreshLocked.type),
+          late.connect()
+        ])
+      }),
+      [refreshLocked({ nodeId: holder.nodeId })]
+    )
 
     deepEqual(
       await collect(other, async () => {
@@ -110,7 +125,10 @@ describe('server refresh lock', () => {
 
     deepEqual(
       await collect(other, async () => {
-        await holder.disconnect()
+        await Promise.all([
+          waitReceived(other, refreshUnlocked.type),
+          holder.disconnect()
+        ])
       }),
       [refreshUnlocked({})]
     )
