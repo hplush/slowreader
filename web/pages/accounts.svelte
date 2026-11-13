@@ -68,7 +68,7 @@
     } else if (needsDeviceSignIn(account, $deviceSessions)) {
       return $t.signInOnDevice
     } else {
-      return account.handle
+      return $addMessages[`${account.service}Loader`]
     }
   }
 </script>
@@ -99,7 +99,7 @@
           }))}
         >
           {#snippet item(account)}
-            {account.title}
+            {account.handle}
           {/snippet}
         </Links>
       {/if}
