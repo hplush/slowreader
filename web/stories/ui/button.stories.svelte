@@ -126,6 +126,9 @@
       <Button href="/disabled" {icon} loader variant="secondary">
         Secondary
       </Button>
+      <Button {icon} loader {onclick} pseudostate="active" variant="secondary">
+        Pressed
+      </Button>
     </Section>
     <Section>
       <div style="display: flex; width: fit-content;">

@@ -317,6 +317,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
+
+      .button:active & {
+        translate: 0 1px;
+      }
     }
   }
 </style>
