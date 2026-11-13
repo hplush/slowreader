@@ -6,6 +6,9 @@
   --dangerous-h: 20;
   --good-h: 140;
   --text-on-accent-color: oklch(1 0 0);
+  --media-loader-background: oklch(0 0 0 / 60%);
+  --media-loader-track-color: oklch(1 0 0 / 20%);
+  --media-loader-color: oklch(1 0 0);
   --paper-background:
     repeating-linear-gradient(
       to right,

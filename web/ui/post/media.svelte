@@ -1,9 +1,11 @@
 <script lang="ts">
   import { mdiEyeOutline } from '@mdi/js'
   import {
+    commonMessages,
     isLoaderMedia,
     isMediaCached,
     type ReaderMedia,
+    reportLoader,
     saveData,
     showSensitiveMedia,
     postMessages as t,
@@ -79,6 +81,37 @@
   {/if}
 {/snippet}
 
+{#snippet image(item: ReaderMedia)}
+  <!-- Firefox makes loader’s image square until it gets src -->
+  <img
+    style:aspect-ratio={!loaded.has(item.url) &&
+    item.size?.width &&
+    item.size.height
+      ? `${item.size.width} / ${item.size.height}`
+      : undefined}
+    style:background-image={item.placeholder && !loaded.has(item.url)
+      ? blurredBackground(item.placeholder, item.size?.width, item.size?.height)
+      : undefined}
+    class="post-media_item"
+    class:is-loading={!loaded.has(item.url)}
+    {@attach focusClicked(item.url)}
+    {@attach mediaSrc(item.url, { once: !!protect })}
+    alt={item.alt ?? ''}
+    decoding="async"
+    height={item.size?.height}
+    loading="lazy"
+    onerror={() => {
+      broken.add(item.url)
+    }}
+    onload={async event => {
+      await waitImageDecoded(event.currentTarget)
+      loaded.add(item.url)
+    }}
+    title={item.alt}
+    width={item.size?.width}
+  />
+{/snippet}
+
 {#if media.length > 0}
   <div
     class="post-media"
@@ -120,39 +153,39 @@
           >
             <BrokenImage alt={item.alt} />
           </span>
+        {:else if item.type.startsWith('image') && isLoaderMedia(item.url)}
+          <span class="post-media_frame">
+            {@render image(item)}
+            {#if !loaded.has(item.url)}
+              <svg
+                class="post-media_loader"
+                {@attach () => reportLoader('media')}
+                aria-label={$commonMessages.loading}
+                role="progressbar"
+                viewBox="0 0 12 12"
+              >
+                <circle
+                  class="post-media_track"
+                  cx="6"
+                  cy="6"
+                  fill="none"
+                  r="3"
+                  stroke-width="1"
+                />
+                <circle
+                  class="post-media_spinner"
+                  cx="6"
+                  cy="6"
+                  fill="none"
+                  r="3"
+                  stroke-dasharray="4.7 100"
+                  stroke-width="1"
+                />
+              </svg>
+            {/if}
+          </span>
         {:else if item.type.startsWith('image')}
-          <!-- Firefox makes loader’s image square until it gets src -->
-          <img
-            style:aspect-ratio={!loaded.has(item.url) &&
-            item.size?.width &&
-            item.size.height
-              ? `${item.size.width} / ${item.size.height}`
-              : undefined}
-            style:background-image={item.placeholder && !loaded.has(item.url)
-              ? blurredBackground(
-                  item.placeholder,
-                  item.size?.width,
-                  item.size?.height
-                )
-              : undefined}
-            class="post-media_item"
-            class:is-loading={!loaded.has(item.url)}
-            {@attach focusClicked(item.url)}
-            {@attach mediaSrc(item.url, { once: !!protect })}
-            alt={item.alt ?? ''}
-            decoding="async"
-            height={item.size?.height}
-            loading="lazy"
-            onerror={() => {
-              broken.add(item.url)
-            }}
-            onload={async event => {
-              await waitImageDecoded(event.currentTarget)
-              loaded.add(item.url)
-            }}
-            title={item.alt}
-            width={item.size?.width}
-          />
+          {@render image(item)}
         {:else if item.type.endsWith(';mode=gif')}
           <video
             class="post-media_item"
@@ -272,6 +305,59 @@
         display: block;
         width: 100%;
         aspect-ratio: 16 / 9;
+      }
+    }
+
+    .post-media_frame {
+      display: grid;
+      max-width: 100%;
+
+      &:has(.post-media_item.is-loading:not([width][height])) {
+        width: 100%;
+      }
+    }
+
+    .post-media_frame .post-media_item {
+      grid-area: 1 / 1;
+    }
+
+    /* Own colors to be visible on white and black images in any theme */
+    .post-media_loader {
+      grid-area: 1 / 1;
+      place-self: center;
+      width: 3.5rem;
+      height: 3.5rem;
+      background: var(--media-loader-background);
+      border-radius: 50%;
+
+      /* Cached image should not blink by the loader */
+      animation: --post-media-appear var(--simple-time) 300ms backwards;
+    }
+
+    .post-media_track {
+      stroke: var(--media-loader-track-color);
+    }
+
+    .post-media_spinner {
+      stroke: var(--media-loader-color);
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: --post-media-spin 1.5s linear infinite;
+
+      @media (prefers-reduced-motion: reduce) {
+        animation: none;
+      }
+    }
+
+    @keyframes --post-media-appear {
+      from {
+        opacity: 0%;
+      }
+    }
+
+    @keyframes --post-media-spin {
+      to {
+        transform: rotate(1turn);
       }
     }
 

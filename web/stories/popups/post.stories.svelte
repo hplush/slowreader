@@ -365,8 +365,8 @@
         full:
           '<p>Files are loaded by Telegram’s library, not by URL. ' +
           'The second image is broken. The third one is still loading ' +
-          'and shows a blurred preview. The video is a whole file, ' +
-          'so it waits for the click.</p>',
+          'and shows the loader over a blurred preview. The video is a ' +
+          'whole file, so it waits for the click.</p>',
         media: [
           { type: 'image', url: 'telegram:5/4' },
           { type: 'image', url: 'telegram:5/4/broken' },
