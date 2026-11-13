@@ -33,15 +33,24 @@ function dig(...args: string[]): string[] {
 }
 
 // Resolvers can keep old NS in the cache, so we ask .app registry directly
-let registry = dig('NS', 'app')[0]
-if (!registry) throw new Error('No .app registry servers')
-let servers = dig(
-  '+authority',
-  '+norecurse',
-  `@${registry}`,
-  'NS',
-  'slowreader.app'
-)
+let registry: string | undefined
+let servers: string[] = []
+for (let candidate of dig('NS', 'app')) {
+  try {
+    servers = dig(
+      '+authority',
+      '+norecurse',
+      `@${candidate}`,
+      'NS',
+      'slowreader.app'
+    )
+    registry = candidate
+    break
+  } catch {
+    continue
+  }
+}
+if (!registry) throw new Error('No .app registry servers responded')
 if (servers.length === 0) throw new Error('slowreader.app has no NS records')
 
 let records = servers.map(i => `slowreader.app NS ${i}`)
