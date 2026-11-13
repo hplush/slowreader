@@ -46,6 +46,7 @@
     refreshErrors,
     refreshStatistics,
     refreshStatus,
+    remindUseful,
     removeTrackers,
     requestMethod,
     saveDataMode,
@@ -240,6 +241,7 @@
     openWarnings.set(false)
     removeTrackers.set(true)
     showUsageBalance.set(true)
+    remindUseful.set(true)
     trackUsage.set(true)
     fastPostsMaxAge.set(604800)
     generalFastReader.set('feed')

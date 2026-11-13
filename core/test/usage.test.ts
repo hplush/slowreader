@@ -8,6 +8,7 @@ import {
   getTables,
   lastUsage,
   needUsefulReminder,
+  remindUseful,
   nightLock,
   trackUsage,
   userId,
@@ -73,6 +74,7 @@ describe('usage', () => {
     lastUsage.set(undefined)
     nightLock.set({ enabled: false, from: 23, to: 7 })
     trackUsage.set(true)
+    remindUseful.set(true)
     clock.set(new Date())
     mock.timers.reset()
     await cleanClient()
@@ -351,6 +353,9 @@ describe('usage', () => {
     trackUsage.set(false)
     read('slow', 4)
     equal(needUsefulReminder.get(), true)
+
+    remindUseful.set(false)
+    equal(needUsefulReminder.get(), false)
   })
 
   test('does not remind about Useful after reading it', async t => {

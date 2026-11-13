@@ -7,3 +7,7 @@ A small slider under Useful/Fun switcher shows the balance between them. You can
 The “Enough scrolling” button in Fun is shown only if you spent less than 75% of your reading time in Useful during the last 24 hours. It is also hidden if you read Useful for more than 5 minutes during the last 10 minutes.
 
 You can disable reading time tracking on all your devices on Coach page.
+
+Coach page explains how each feature helps you.
+
+The “Enough scrolling” button in Fun can be disabled on Coach page.

@@ -182,6 +182,7 @@ describe('export page', () => {
         openWarnings: false,
         postFont: 'default',
         postLineHeight: 'normal',
+        remindUseful: true,
         removeTrackers: true,
         showSensitiveMedia: false,
         showUsageBalance: true,

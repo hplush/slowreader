@@ -14,7 +14,7 @@ import {
   openedDatabase,
   type UsageValue
 } from './schema.ts'
-import { trackUsage } from './settings.ts'
+import { remindUseful, trackUsage } from './settings.ts'
 
 export type { UsageValue }
 
@@ -257,8 +257,9 @@ export const usageBalance = computed(usageSum, ({ fast, slow }) => {
 })
 
 export const needUsefulReminder = computed(
-  [usageBalance, usage24hours, clock, trackUsage],
-  (balance, sessions, now, tracking) => {
+  [usageBalance, usage24hours, clock, trackUsage, remindUseful],
+  (balance, sessions, now, tracking, remind) => {
+    if (!remind) return false
     if (!tracking) return true
     let since = now.getTime() - 10 * 60_000
     let readUsefulRecently =

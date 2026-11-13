@@ -14,6 +14,7 @@ import {
   postFont,
   postLineHeight,
   showSensitiveMedia,
+  remindUseful,
   showUsageBalance,
   trackUsage,
   textSize,
@@ -66,6 +67,10 @@ describe('settings', () => {
 
   test('shows reading balance by default', () => {
     equal(showUsageBalance.get(), true)
+  })
+
+  test('reminds about Useful by default', () => {
+    equal(remindUseful.get(), true)
   })
 
   test('tracks reading time by default', () => {

@@ -36,7 +36,7 @@
     <Switch
       disabled
       label="Disabled title"
-      note="Secondary text"
+      note="Description"
       store={storeOff}
       variant="title"
     />
@@ -60,12 +60,7 @@
     <Switch {icon} label="Off" store={storeOff} />
     <Switch disabled {icon} label="Disabled" store={storeOff} />
     <Switch {icon} label="Note" note="Secondary text" store={storeOn} />
-    <Switch
-      label="Title"
-      note="Secondary text"
-      store={storeOn}
-      variant="title"
-    />
+    <Switch label="Title" note="Description" store={storeOn} variant="title" />
   </Section>
   <Section
     active="label:nth-child(2)"

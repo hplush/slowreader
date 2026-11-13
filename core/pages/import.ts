@@ -26,6 +26,7 @@ import {
   openWarnings,
   postFont,
   postLineHeight,
+  remindUseful,
   removeTrackers,
   showSensitiveMedia,
   showUsageBalance,
@@ -198,6 +199,9 @@ export const importPage = createPage('import', () => {
     if (settings.nightLock) nightLock.set(settings.nightLock)
     if (settings.openWarnings !== undefined) {
       openWarnings.set(settings.openWarnings)
+    }
+    if (settings.remindUseful !== undefined) {
+      remindUseful.set(settings.remindUseful)
     }
     if (settings.removeTrackers !== undefined) {
       removeTrackers.set(settings.removeTrackers)

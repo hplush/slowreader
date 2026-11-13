@@ -203,6 +203,8 @@ export const showSensitiveMedia = syncedSetting('showSensitiveMedia', false)
 
 export const openWarnings = syncedSetting('openWarnings', false)
 
+export const remindUseful = syncedSetting('remindUseful', true)
+
 export const removeTrackers = syncedSetting('removeTrackers', true)
 
 export const showUsageBalance = syncedSetting('showUsageBalance', true)
@@ -237,6 +239,7 @@ onClient(() =>
         generalSlowReader,
         nightLock,
         openWarnings,
+        remindUseful,
         removeTrackers,
         showSensitiveMedia,
         showUsageBalance,
@@ -261,6 +264,7 @@ export interface Settings {
   openWarnings: StoreValue<typeof openWarnings>
   postFont: PostFont
   postLineHeight: PostLineHeight
+  remindUseful: StoreValue<typeof remindUseful>
   removeTrackers: StoreValue<typeof removeTrackers>
   showSensitiveMedia: StoreValue<typeof showSensitiveMedia>
   showUsageBalance: StoreValue<typeof showUsageBalance>

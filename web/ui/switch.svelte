@@ -149,8 +149,7 @@
     }
 
     .switch_title-note {
-      font: var(--secondary-font);
-      color: var(--secondary-text-color);
+      font: var(--text-font);
     }
 
     .switch_description {

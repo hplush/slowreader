@@ -3,6 +3,7 @@
     getTables,
     nightLock,
     pages,
+    remindUseful,
     showUsageBalance,
     trackUsage
   } from '@slowreader/core'
@@ -38,6 +39,7 @@
 <Story name="Base" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {
+      remindUseful.set(false)
       trackUsage.set(false)
     }}
     route="coach"

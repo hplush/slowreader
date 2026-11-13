@@ -5,6 +5,7 @@
     formatDuration,
     formatHour,
     i18nFormat,
+    remindUseful,
     settingsMessages,
     showUsageBalance,
     solveNightTask,
@@ -40,10 +41,15 @@
 </script>
 
 <ThinPage title={[$t.pageTitle, $settingsMessages.commonTitle]}>
-  <Stack gap="l">
+  <Stack gap="xl">
     <Card width="stretch">
       <Stack gap="m">
-        <Switch label={$t.usageTitle} store={trackUsage} variant="title" />
+        <Switch
+          label={$t.usageTitle}
+          note={$t.usageNote}
+          store={trackUsage}
+          variant="title"
+        />
         {#if $trackUsage}
           <Stack align="stretch" gap="s">
             <ReadingNumbers
@@ -106,6 +112,14 @@
           </Stack>
         {/if}
       </Stack>
+    </Card>
+    <Card width="stretch">
+      <Switch
+        label={$t.remindUseful}
+        note={$t.remindUsefulNote}
+        store={remindUseful}
+        variant="title"
+      />
     </Card>
   </Stack>
 </ThinPage>
