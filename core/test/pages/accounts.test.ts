@@ -22,6 +22,7 @@ import {
   loaders,
   NetworkError,
   openedPopups,
+  organizeMessages,
   ParseError,
   router,
   UserFacingError,
@@ -453,6 +454,46 @@ describe('accounts page', () => {
         ['New Name', true]
       ]
     )
+  })
+
+  test('opens account popup only after follows sync', async () => {
+    let profile = {
+      display_name: 'User',
+      id: '1',
+      url: 'https://social.example.com/@user',
+      username: 'user'
+    }
+    let syncing = organizeMessages.get().syncingFollows
+    let offline = new NetworkError(new TypeError('offline'))
+
+    let first = follows.nextReject()
+    await startMastodon('social.example.com')
+    let returning = returnFromMastodon(profile)
+    await waitFor(busy, value => !!value && value.label === syncing)
+    equal(getAccountsPage().step.get().type, 'list')
+    deepEqual(router.get().popups, [])
+    await first(offline)
+    await returning
+    equal(busy.get(), false)
+    let [account] = await loadAccounts()
+    deepEqual(router.get().popups, [{ param: account!.id, popup: 'account' }])
+
+    await getTables().accounts.delete(account!.id)
+    let second = follows.nextReject()
+    await startMastodon('social.example.com', false)
+    let { state } = getPending()
+    respond('https://social.example.com/oauth/token', { access_token: 'token' })
+    respond(
+      'https://social.example.com/api/v1/accounts/verify_credentials',
+      profile
+    )
+    returnTo(`code=CODE&state=${state}`)
+    await waitFor(busy, value => !!value && value.label === syncing)
+    openRoute({ params: {}, route: 'about' })
+    await second(offline)
+    await waitFor(busy, value => !value)
+    equal(router.get().route, 'about')
+    deepEqual(router.get().popups, [])
   })
 
   test('opens sign in form by URL', () => {

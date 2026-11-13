@@ -59,14 +59,15 @@ export const accountsPage = createPage('accounts', () => {
     if (step.device) {
       await setDeviceSession(accountId, { device: step.device, service })
     }
+    open({ type: 'list' })
     if (!known.some(i => i.id === accountId)) {
       // Feeds of the account appear only at the end of the sync,
       // so user must see that the app is still working
-      void busyDuring(organizeMessages.get().syncingFollows, () => {
+      await busyDuring(organizeMessages.get().syncingFollows, () => {
         return syncFollows(service)
       })
+      if (router.get().route !== 'accounts') return
     }
-    open({ type: 'list' })
     navigate(
       {
         params: {},
