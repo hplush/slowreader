@@ -337,7 +337,7 @@
 
 <Story name="Loader Media" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
-    feeds={[FEED]}
+    feeds={[{ ...FEED, avatar: 'telegram:5/avatar/a' }]}
     oninit={() => {
       loaders.telegram.getMedia = url => {
         if (url.endsWith('/broken')) return Promise.reject(new Error('No file'))

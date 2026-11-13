@@ -14,6 +14,8 @@ export const organizeMessages = i18n('organize', {
   deleteConform:
     'This will permanently delete the feed, including its statistics and posts. Are you sure?',
   deleteFeed: 'Delete feed',
+  deleteFinalConform:
+    'This will delete the feed and leave the private channel. You can return only by an invite. Are you sure?',
   fast: 'Fun',
   perDay: count({
     many: '{count} posts per day',

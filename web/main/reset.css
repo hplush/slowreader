@@ -67,6 +67,13 @@ dialog {
   border: none;
 }
 
+/* Remove Firefox’s frame of broken image, while we load file of loader’s
+   media like telegram: URL and <img> has no src yet */
+
+img:not([src]) {
+  content: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
+}
+
 /* Replace CanvasText color from browser styles */
 
 dialog {

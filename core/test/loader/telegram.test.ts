@@ -1,4 +1,5 @@
 import { encodeTelegramApp } from '@slowreader/api'
+import { keepMount } from 'nanostores'
 import { deepEqual, equal, rejects } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
@@ -8,7 +9,10 @@ import {
   addAccount,
   addFeed,
   addPost,
+  cacheImages,
   cacheMediaOnRequest,
+  changeAccount,
+  closeLastPopup,
   createDownloadTask,
   createTextResponse,
   deviceSessions,
@@ -24,11 +28,13 @@ import {
   refreshStatistics,
   syncFollows,
   syncMediaCache,
+  TelegramError,
   type TelegramObject,
   testAccount,
   testFeed,
   testPost,
-  UserFacingError
+  UserFacingError,
+  waitLoading
 } from '../../index.ts'
 import type { SignInStep } from '../../loader/common.ts'
 import {
@@ -38,9 +44,13 @@ import {
 } from '../../loader/telegram.ts'
 import {
   checkAndRemoveRequestMock,
+  checkLoadedPopup,
   cleanClient,
   expectRequest,
+  expectWarning,
   mockRequest,
+  openPage,
+  openTestPopup,
   sendTelegramUpdate,
   startClient,
   testTelegram,
@@ -52,6 +62,10 @@ const USER = {
   'first_name': 'Jane',
   'id': 100,
   'last_name': 'Doe',
+  'profile_photo': {
+    '@type': 'profilePhoto',
+    'small': { '@type': 'file', 'id': 61, 'remote': { unique_id: 'me-1' } }
+  },
   'usernames': { '@type': 'usernames', 'active_usernames': ['jane', 'old'] }
 }
 
@@ -159,6 +173,7 @@ describe('telegram loader', () => {
       }),
       {
         account: {
+          avatar: 'telegram:user/100/avatar/me-1',
           handle: '@jane',
           reading: 'slow',
           server: 'https://t.me',
@@ -535,16 +550,25 @@ describe('telegram loader', () => {
     }
   }
 
+  function news(id: unknown, lastRead: number): TelegramObject {
+    return {
+      '@type': 'chat',
+      id,
+      'last_read_inbox_message_id': lastRead * 1048576,
+      'title': 'News',
+      'type': {
+        '@type': 'chatTypeSupergroup',
+        'is_channel': true,
+        'supergroup_id': -1e12 - Number(id)
+      }
+    }
+  }
+
   function mockHistory(
     lastRead: number,
     pages: Record<number, TelegramObject[]>
   ): void {
-    testTelegram.answers.getChat = {
-      '@type': 'chat',
-      'id': -1001,
-      'last_read_inbox_message_id': lastRead * 1048576,
-      'title': 'News'
-    }
+    testTelegram.answers.getChat = ({ chat_id: id }) => news(id, lastRead)
     testTelegram.answers.getChatHistory = ({ from_message_id: from }) => ({
       '@type': 'messages',
       'messages': pages[Number(from) / 1048576] ?? []
@@ -815,10 +839,9 @@ describe('telegram loader', () => {
         message(1, reply(99))
       ]
     })
-    let news = testTelegram.answers.getChat as TelegramObject
     testTelegram.answers.getChat = ({ chat_id: id }) => {
       if (id === -1001) {
-        return news
+        return news(id, 0)
       } else if (id === -1005) {
         return {
           '@type': 'chat',
@@ -893,7 +916,11 @@ describe('telegram loader', () => {
           repostedBy: channel
         },
         {
-          author: { title: 'Jane Doe', url: 'https://t.me/jane' },
+          author: {
+            avatar: 'telegram:user/5/avatar/me-1',
+            title: 'Jane Doe',
+            url: 'https://t.me/jane'
+          },
           full: '<p>Post 6</p>',
           poll: undefined,
           preview: undefined,
@@ -1197,7 +1224,7 @@ describe('telegram loader', () => {
     await rejects(getMedia!('telegram:5/9')!, { name: 'TelegramError' })
   })
 
-  test('gives media to the cache and to the page', async () => {
+  test('gives media to the cache and to the page', async t => {
     deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
     mockHistory(0, {})
     testTelegram.answers.getMessage = photoPost
@@ -1226,6 +1253,28 @@ describe('telegram loader', () => {
     )
     await syncMediaCache()
     equal(await isMediaCached('telegram:5/5/preview'), true)
+
+    // Avatars are on the screen all the time, so they are kept after
+    // the first loading with any cache settings
+    cacheImages.set('never')
+    t.after(() => {
+      cacheImages.set('always')
+    })
+    testTelegram.answers.getMessage = photoPost
+    testTelegram.files = { 12: new Blob(['photo']) }
+    await addAccount(
+      testAccount({
+        avatar: 'telegram:5/4',
+        credentials: null,
+        service: 'telegram'
+      })
+    )
+    equal(await (await loadMediaBlob('telegram:5/4', true)!).text(), 'photo')
+    equal(await (await loadMediaBlob('telegram:5/3', true)!).text(), 'photo')
+    await syncMediaCache()
+    equal(await isMediaCached('telegram:5/4'), true)
+    equal(await isMediaCached('telegram:5/3'), false)
+    equal(await isMediaCached('telegram:5/5/preview'), false)
   })
 
   test('gives ad of the channel as a dynamic post', async () => {
@@ -1341,7 +1390,7 @@ describe('telegram loader', () => {
     }
     deepEqual(await loadDynamic(), [])
     deepEqual(
-      await loaders.telegram.getDynamicPosts!(task, 'https://t.me/a'),
+      await loaders.telegram.getDynamicPosts!(task, 'https://t.me/c/5'),
       []
     )
   })
@@ -1381,10 +1430,9 @@ describe('telegram loader', () => {
 
   test('loads the chat list, when TDLib does not know the channel', async () => {
     mockHistory(1, { 0: [message(2)] })
-    let chat = testTelegram.answers.getChat as TelegramObject
     let known = false
-    testTelegram.answers.getChat = () => {
-      return known ? chat : fail('Chat not found')
+    testTelegram.answers.getChat = ({ chat_id: id }) => {
+      return known ? news(id, 1) : fail('Chat not found')
     }
     testTelegram.answers.loadChats = () => {
       known = true
@@ -1461,7 +1509,7 @@ describe('telegram loader', () => {
     equal((await loadFeed(channel))!.protected, false)
   })
 
-  test('has no posts yet', async () => {
+  test('finds channel by URL and follows it', async () => {
     let auth = {
       account: testAccount({ credentials: null, service: 'telegram' }),
       device: 'name',
@@ -1469,24 +1517,318 @@ describe('telegram loader', () => {
       reload: () => Promise.resolve(undefined),
       save: () => Promise.resolve()
     }
-    let url = 'https://t.me/channel'
-    equal(await account.isFollowing(task, auth, url), false)
-    await rejects(account.follow(task, auth, url))
-    await rejects(account.unfollow(task, auth, url))
+    let { telegram } = loaders
+    let page = createTextResponse('', { url: 'https://t.me/news' })
+    equal(telegram.detectFeedInPage(page, task, page.url), false)
+    deepEqual(telegram.getMineLinksFromText(page), [])
+    deepEqual(telegram.getSuggestedLinksFromText(page), [])
+    equal(await telegram.getPostSource(testFeed(), '1'), undefined)
     let timeline = account.getTimeline(task, auth)
     await timeline.loading
     deepEqual(timeline.get().list, [])
 
-    let { telegram } = loaders
-    let page = createTextResponse('', { url })
-    equal(telegram.isMineUrl(new URL(url), task), false)
-    equal(telegram.detectFeedInPage(page, task, url), false)
-    deepEqual(telegram.getMineLinksFromText(page), [])
-    deepEqual(telegram.getSuggestedLinksFromText(page), [])
-    equal(await telegram.loadFeedData(task, url), undefined)
-    equal(await telegram.getPostSource(testFeed(), '1'), undefined)
-    let posts = telegram.getPosts(task, url)
+    for (let url of [
+      'https://example.com/news',
+      'https://t.me/+invite',
+      'https://t.me/joinchat/code',
+      'https://t.me/c/name'
+    ]) {
+      equal(telegram.isMineUrl(new URL(url), task), false)
+    }
+    equal(await telegram.isMineUrl(new URL('https://t.me/news'), task), false)
+
+    deviceSessions.set({
+      other: { device: 'other', service: 'mastodon' },
+      own: { device: 'name', service: 'telegram' }
+    })
+    mockHistory(0, {
+      0: [message(3)],
+      1: [],
+      3: [message(2), message(1)]
+    })
+    let status = 'chatMemberStatusLeft'
+    testTelegram.answers.getSupergroup = ({ supergroup_id: id }) => ({
+      '@type': 'supergroup',
+      'status': { '@type': status },
+      'usernames': {
+        '@type': 'usernames',
+        'active_usernames': id === 7 ? ['News'] : []
+      }
+    })
+    testTelegram.answers.searchPublicChat = ({ username }) => {
+      if (username === 'news') return news(-1000000000007, 0)
+      if (username === 'group') {
+        return { '@type': 'chat', 'type': { '@type': 'chatTypeBasicGroup' } }
+      }
+      return fail('Not found', 404)
+    }
+
+    deepEqual(
+      await telegram.isMineUrl(new URL('https://t.me/s/news/12'), task),
+      { title: 'News', url: 'https://t.me/News' }
+    )
+    deepEqual(
+      await telegram.isMineUrl(new URL('https://telegram.me/c/8/1'), task),
+      { title: 'News', url: 'https://t.me/c/8' }
+    )
+    equal(await telegram.isMineUrl(new URL('https://t.me/group'), task), false)
+    equal(await telegram.isMineUrl(new URL('https://t.me/lost'), task), false)
+
+    equal(
+      await telegram.getLoaderData!(task, 'https://t.me/news'),
+      '{"id":"-1000000000007"}'
+    )
+    deepEqual(await telegram.loadFeedData(task, 'https://t.me/news'), {
+      title: 'News',
+      url: 'https://t.me/news'
+    })
+    equal(telegram.isFinalUnfollow!('https://t.me/news'), false)
+    equal(telegram.isFinalUnfollow!('https://t.me/c/8'), true)
+
+    // Feed’s preview asks for the second page at once
+    let posts = telegram.getPosts(task, 'https://t.me/news')
     await posts.loading
-    deepEqual(posts.get().list, [])
+    deepEqual(
+      posts.get().list.map(post => post.url),
+      ['https://t.me/news/3', 'https://t.me/news/2', 'https://t.me/news/1']
+    )
+
+    equal(await account.isFollowing(task, auth, 'https://t.me/news'), false)
+    status = 'chatMemberStatusMember'
+    equal(await account.isFollowing(task, auth, 'https://t.me/news'), true)
+
+    testTelegram.answers.joinChat = { '@type': 'ok' }
+    testTelegram.answers.leaveChat = { '@type': 'ok' }
+    testTelegram.requests = []
+    await account.follow(task, auth, 'https://t.me/news')
+    await account.unfollow(task, auth, 'https://t.me/c/8')
+    deepEqual(
+      testTelegram.requests.filter(i => /^(join|leave)Chat$/.test(i['@type'])),
+      [
+        { '@type': 'joinChat', 'chat_id': -1000000000007 },
+        { '@type': 'leaveChat', 'chat_id': -1000000000008 }
+      ]
+    )
+    await rejects(account.follow(task, auth, 'https://example.com/'), {
+      message: 'Not a channel URL'
+    })
+
+    testTelegram.answers.searchPublicChat = () => {
+      throw new Error('TDLib is broken')
+    }
+    await rejects(
+      telegram.isMineUrl(new URL('https://t.me/news'), task) as Promise<false>,
+      { message: 'TDLib is broken' }
+    )
+  })
+
+  test('previews, follows, and leaves channel in feed popup', async () => {
+    // Telegram has no anonymous feeds, so the account follows the channel
+    // also without the setting to follow on subscribing
+    let accountId = await addAccount(
+      testAccount({ credentials: null, service: 'telegram' })
+    )
+    deviceSessions.set({ [accountId]: { device: 'name', service: 'telegram' } })
+    mockHistory(0, { 0: [message(3)], 3: [message(2)] })
+    testTelegram.answers.searchPublicChat = ({ username }) => {
+      return username === 'news' ? news(-1000000000007, 0) : fail('No', 404)
+    }
+    let status = 'chatMemberStatusLeft'
+    testTelegram.answers.getSupergroup = {
+      '@type': 'supergroup',
+      'status': { '@type': status },
+      'usernames': { '@type': 'usernames', 'active_usernames': ['news'] }
+    }
+    testTelegram.answers.joinChat = { '@type': 'ok' }
+    testTelegram.answers.leaveChat = { '@type': 'ok' }
+
+    let opened = openTestPopup('feed', 'https://t.me/news')
+    await waitLoading(opened.loading)
+    let popup = checkLoadedPopup(opened)
+    equal(popup.title, 'News')
+    equal(popup.finalUnfollow, false)
+    equal(popup.noAnonymous, true)
+    equal(popup.followedBy.get(), undefined)
+    deepEqual(
+      popup.previews.get().map(post => post.url),
+      ['https://t.me/news/3', 'https://t.me/news/2']
+    )
+
+    let feedId = await popup.add()
+    let feed = (await loadFeed(feedId!))!
+    equal(feed.accountId, accountId)
+    equal(feed.loaderData, '{"id":"-1000000000007"}')
+    equal(feed.lastOriginId, '3')
+
+    await popup.remove()
+    deepEqual(await loadFeeds(), [])
+    deepEqual(
+      testTelegram.requests.filter(i => /^(join|leave)Chat$/.test(i['@type'])),
+      [
+        { '@type': 'joinChat', 'chat_id': -1000000000007 },
+        { '@type': 'leaveChat', 'chat_id': -1000000000007 }
+      ]
+    )
+
+    closeLastPopup()
+    await changeAccount(accountId, { expired: true })
+    let reopened = openTestPopup('feed', 'https://t.me/news')
+    await waitLoading(reopened.loading)
+    let expired = checkLoadedPopup(reopened)
+    equal(await expired.add(), undefined)
+    equal(expired.accountError.get(), accountsMessages.get().signInOnDevice)
+    deepEqual(await loadFeeds(), [])
+
+    let missing = openTestPopup('feed', 'https://t.me/lost')
+    await waitLoading(missing.loading)
+    equal(missing.notFound, true)
+  })
+
+  test('loads avatars of account, channels, and forward sources', async () => {
+    function avatarOf(fileId: number, unique: string): object {
+      return {
+        small: {
+          '@type': 'file',
+          'id': fileId,
+          'remote': { unique_id: unique }
+        }
+      }
+    }
+    let { telegram } = loaders
+    deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
+
+    mockChats({ 1: ['news'] })
+    let loadChat = testTelegram.answers.getChat as (
+      request: TelegramObject
+    ) => TelegramObject
+    testTelegram.answers.getChat = request => ({
+      ...loadChat(request),
+      photo: avatarOf(71, 'a-1')
+    })
+    deepEqual(
+      (
+        await account.getFollows(task, {
+          account: testAccount({ credentials: null, service: 'telegram' }),
+          device: 'name',
+          expire: () => Promise.resolve(),
+          reload: () => Promise.resolve(undefined),
+          save: () => Promise.resolve()
+        })
+      ).map(author => author.avatar),
+      ['telegram:1/avatar/a-1', 'telegram:2/avatar/a-1']
+    )
+
+    function forward(origin: object): object {
+      return { forward_info: { '@type': 'messageForwardInfo', origin } }
+    }
+    mockHistory(0, {
+      0: [
+        message(
+          2,
+          forward({ '@type': 'messageOriginUser', 'sender_user_id': 5 })
+        ),
+        message(
+          1,
+          forward({
+            '@type': 'messageOriginChannel',
+            'chat_id': -1000000000009
+          })
+        )
+      ]
+    })
+    testTelegram.answers.getChat = ({ chat_id: id }) => ({
+      ...news(id, 0),
+      photo: avatarOf(72, 'b_2')
+    })
+    testTelegram.answers.getUser = {
+      '@type': 'user',
+      'first_name': 'Bob',
+      'id': 5,
+      'last_name': '',
+      'profile_photo': avatarOf(73, 'c3')
+    }
+    testTelegram.answers.getSupergroup = { '@type': 'supergroup' }
+    deepEqual(
+      (await loadFeedPosts('{"id":"-1000000000005"}')).map(post => [
+        post.author?.avatar,
+        post.repostedBy?.avatar
+      ]),
+      [
+        ['telegram:user/5/avatar/c3', 'telegram:5/avatar/b_2'],
+        ['telegram:9/avatar/b_2', 'telegram:5/avatar/b_2']
+      ]
+    )
+    deepEqual(await telegram.loadFeedData(task, 'https://t.me/c/5'), {
+      avatar: 'telegram:5/avatar/b_2',
+      title: 'News',
+      url: 'https://t.me/c/5'
+    })
+
+    testTelegram.answers.downloadFile = ({ file_id: id }) => ({
+      '@type': 'file',
+      id,
+      'size': 6
+    })
+    testTelegram.files = { 72: new Blob(['avatar']), 73: new Blob(['person']) }
+    let avatar = await telegram.getMedia!('telegram:5/avatar/b_2')!
+    equal(avatar.headers.get('Content-Type'), 'image/jpeg')
+    equal(await avatar.text(), 'avatar')
+    let person = await telegram.getMedia!('telegram:user/5/avatar/c3')!
+    equal(await person.text(), 'person')
+
+    testTelegram.answers.getChat = ({ chat_id: id }) => news(id, 0)
+    await rejects(telegram.getMedia!('telegram:5/avatar/b_2')!, {
+      message: 'No Telegram avatar'
+    })
+  })
+
+  test('finds channel on Add page by link and by handle', async () => {
+    let accountId = await addAccount(
+      testAccount({ credentials: null, service: 'telegram' })
+    )
+    deviceSessions.set({ [accountId]: { device: 'name', service: 'telegram' } })
+    mockHistory(0, { 0: [message(3)], 3: [message(2)] })
+    testTelegram.answers.searchPublicChat = ({ username }) => {
+      return username === 'news' ? news(-1000000000007, 0) : fail('No', 404)
+    }
+    testTelegram.answers.getSupergroup = {
+      '@type': 'supergroup',
+      'usernames': { '@type': 'usernames', 'active_usernames': ['news'] }
+    }
+
+    let page = openPage({ params: {}, route: 'add' })
+    keepMount(page.searching)
+    keepMount(page.candidates)
+    page.search('https://t.me/news')
+    await waitLoading(page.searching)
+    equal(page.error.get(), undefined)
+    deepEqual(
+      page.candidates.get().map(i => `${i.name} ${i.title} ${i.url}`),
+      ['telegram News https://t.me/news']
+    )
+
+    page.search('@news')
+    await waitLoading(page.searching)
+    equal(page.error.get(), undefined)
+    deepEqual(
+      page.candidates.get().map(i => `${i.name} ${i.title} ${i.url}`),
+      ['telegram News https://t.me/news']
+    )
+
+    page.search('@lost')
+    await waitLoading(page.searching)
+    equal(page.noResults.get(), true)
+
+    // Telegram’s limit of name searches should not look like unknown channel
+    testTelegram.answers.searchPublicChat = fail('Too Many Requests', 429)
+    await expectWarning(async () => {
+      page.search('https://t.me/news')
+      await waitLoading(page.searching)
+    }, [new TelegramError(429, 'Too Many Requests')])
+    equal(page.error.get(), 'unloadable')
+
+    deviceSessions.set({})
+    deepEqual(await loaders.telegram.getProfilesByHandle!(task, '@news'), [])
+    deepEqual(await loaders.telegram.getProfilesByHandle!(task, '@a@b.c'), [])
   })
 })

@@ -20,6 +20,7 @@ import {
   getTables,
   HTTPStatusError,
   loaders,
+  NetworkError,
   openedPopups,
   ParseError,
   router,
@@ -251,13 +252,13 @@ describe('accounts page', () => {
   beforeEach(() => {
     startClient()
     mockRequest()
-    // Sync must not write to the database after the test
-    follows = spyOn(
-      loaders.mastodon.account!,
-      'getFollows',
-      () => new Promise(() => {})
-    )
-    spyOn(loaders.bluesky.account!, 'getFollows', () => new Promise(() => {}))
+    // Sync must not write to the database after the test, and must end,
+    // since the whole app is busy during it
+    let offline = (): Promise<never> => {
+      return Promise.reject(new NetworkError(new TypeError('offline')))
+    }
+    follows = spyOn(loaders.mastodon.account!, 'getFollows', offline)
+    spyOn(loaders.bluesky.account!, 'getFollows', offline)
   })
 
   afterEach(async () => {
@@ -397,7 +398,7 @@ describe('accounts page', () => {
       url: 'https://social.example.com/@user'
     })
     equal(returned.step.get().type, 'list')
-    equal(busy.get(), false)
+    await waitFor(busy, value => !value)
     deepEqual(router.get(), {
       params: {},
       popups: [{ param: account!.id, popup: 'account' }],

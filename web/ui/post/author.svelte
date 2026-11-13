@@ -2,6 +2,7 @@
   import { type CardAuthor, router } from '@slowreader/core'
 
   import { waitImageDecoded } from '../../lib/image.ts'
+  import { mediaSrc } from '../../lib/media.ts'
   import { getPopupHash } from '../../stores/url-router.ts'
   import BrokenImage from '../broken-image.svelte'
 
@@ -24,6 +25,7 @@
     <img
       class="post-author_avatar"
       class:is-loading={loaded !== author.avatar}
+      {@attach mediaSrc(author.avatar)}
       alt=""
       decoding="async"
       loading="lazy"
@@ -36,7 +38,6 @@
         loaded = src
       }}
       referrerpolicy="no-referrer"
-      src={author.avatar}
     />
   {/if}
   {#if author.url}

@@ -76,7 +76,13 @@
         icon={mdiTrashCanOutline}
         loader={$deleting}
         onclick={() => {
-          if (confirm($t.deleteConform)) {
+          if (
+            confirm(
+              popup.finalUnfollow && $owner
+                ? $t.deleteFinalConform
+                : $t.deleteConform
+            )
+          ) {
             popup.remove()
           }
         }}
@@ -131,7 +137,9 @@
           }}
           value={$feed ? ($feed.accountId ?? '') : ($followedBy?.id ?? '')}
           values={[
-            ['', $t.anonymous],
+            ...(popup.noAnonymous
+              ? []
+              : [['', $t.anonymous] as [string, string]]),
             ...popup.accounts.map(i => [i.id, i.handle] as [string, string])
           ]}
         />
@@ -181,7 +189,7 @@
         </Stack>
         {#if popup.accounts.length > 0}
           {@render accountSelect()}
-        {:else if isAccountService(popup.loader)}
+        {:else if isAccountService(popup.loader) && !popup.noAnonymous}
           <Status label={$t.account}>{$t.anonymous}</Status>
         {/if}
       {/if}

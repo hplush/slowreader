@@ -3,6 +3,7 @@
   import { updateFeedData } from '@slowreader/core'
 
   import { waitImageDecoded } from '../lib/image.ts'
+  import { mediaSrc } from '../lib/media.ts'
   import Icon from './icon.svelte'
 
   let {
@@ -35,6 +36,7 @@
     class:is-medium={size === 'medium'}
     class:is-raster={!/^data:image\/svg|\.svg($|[?#])/i.test(avatar)}
     class:is-round={round}
+    {@attach mediaSrc(avatar, { keep: true })}
     alt=""
     decoding="async"
     loading="lazy"
@@ -48,7 +50,6 @@
       loaded = src
     }}
     referrerpolicy="no-referrer"
-    src={avatar}
   />
 {:else}
   <span

@@ -3,6 +3,7 @@ import { atom, computed, onMount } from 'nanostores'
 import {
   type AccountValue,
   addVirtualFeed,
+  canUseAccount,
   deleteAccountPostsBy,
   followByAccount,
   getUserPostUrls,
@@ -35,6 +36,7 @@ import {
   loaders,
   tryLoadFeedData
 } from '../loader/index.ts'
+import { accountsMessages } from '../messages/index.ts'
 import { collapseThreads, toPreviewPost } from '../post.ts'
 import {
   createPostsList,
@@ -155,6 +157,7 @@ export const feed = definePopup('feed', async url => {
   let service = candidate ? candidate.name : existing?.loader
   if (!service) throw new NotFoundError()
   let accounts = isAccountService(service) ? await loadAccounts(service) : []
+  let noAnonymous = !!loaders[service].account?.noAnonymous
   let accountTask = createDownloadTask()
   let $followedBy = atom<AccountValue | undefined>()
   if (!existing && candidate && accounts.length > 0) {
@@ -298,7 +301,13 @@ export const feed = definePopup('feed', async url => {
     await parsing
     let found = candidate
     if (found) {
-      let account = accounts.find(i => i.follow)
+      let account =
+        accounts.find(i => i.follow) ??
+        (noAnonymous ? accounts.find(canUseAccount) : undefined)
+      if (noAnonymous && !account) {
+        $accountError.set(accountsMessages.get().signInOnDevice)
+        return
+      }
       if (account) {
         let followed = await callAccountApi(() =>
           followByAccount(accountTask, account, found.url)
@@ -365,10 +374,12 @@ export const feed = definePopup('feed', async url => {
       unbindFeeds()
     },
     feed: $feed,
+    finalUnfollow: !!loaders[service].isFinalUnfollow?.(feedUrl),
     followedBy: $followedBy,
     owner: $owner,
     frequency: computed(posts, () => getPostsFrequency(posts)),
     loader: service,
+    noAnonymous,
     posts,
     previews: computed(posts, value =>
       collapseThreads(value.list).map(i => toPreviewPost(i, service))

@@ -247,6 +247,16 @@ async function loadWantedMedia(
   onlySlow: boolean
 ): Promise<Map<string, WantedMedia>> {
   let wanted = new Map<string, WantedMedia>()
+  // Loader needs to start its library to give an avatar again, so the menu
+  // would wait for it on every start. We keep these small files with any
+  // settings, after the page asked for them.
+  let avatars = await getCrdt().select<{ avatar: string }>`
+    SELECT "avatar" FROM "feeds" WHERE "avatar" IS NOT NULL
+    UNION SELECT "avatar" FROM "accounts" WHERE "avatar" IS NOT NULL
+  `
+  for (let { avatar } of avatars) {
+    if (isLoaderMedia(avatar)) addUrl(wanted, avatar, false)
+  }
   if (!images && !videos) return wanted
 
   let db = getDatabase()
@@ -470,17 +480,24 @@ export async function cacheMediaOnRequest(
 /**
  * File for media, which browser can not load by URL on its own, like media
  * with `telegram:` URL. `undefined` for a web URL.
+ *
+ * `keep` saves the loaded file to the cache with any settings. It is for
+ * avatars of feeds and accounts, which are on the screen all the time.
  */
-export function loadMediaBlob(url: string): Promise<Blob> | undefined {
+export function loadMediaBlob(
+  url: string,
+  keep = false
+): Promise<Blob> | undefined {
   if (!isLoaderMedia(url)) return undefined
-  return getEnvironment()
-    .mediaCache.get(url)
-    .then(async cached => {
-      if (cached) return cached
-      let loading = loadLoaderMedia(url)
-      if (!loading) throw new Error(`No loader for ${url}`)
-      return (await loading).blob()
-    })
+  let cache = getEnvironment().mediaCache
+  return cache.get(url).then(async cached => {
+    if (cached) return cached
+    let loading = loadLoaderMedia(url)
+    if (!loading) throw new Error(`No loader for ${url}`)
+    if (!keep) return (await loading).blob()
+    await cache.put(url, await loading)
+    return (await cache.get(url))!
+  })
 }
 
 export function stopMediaCache(): void {

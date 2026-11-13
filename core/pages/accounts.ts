@@ -19,7 +19,7 @@ import type { SignInField, SignInStep } from '../loader/common.ts'
 import { loaders } from '../loader/index.ts'
 import { POPULAR_MASTODON_SERVERS } from '../loader/mastodon.ts'
 import { loadTelegramApp, telegramApp } from '../loader/telegram.ts'
-import { accountsMessages as t } from '../messages/index.ts'
+import { organizeMessages, accountsMessages as t } from '../messages/index.ts'
 import { navigate, router } from '../router.ts'
 import type { AccountService } from '../schema.ts'
 import { createPage, routeParam } from './common.ts'
@@ -59,7 +59,13 @@ export const accountsPage = createPage('accounts', () => {
     if (step.device) {
       await setDeviceSession(accountId, { device: step.device, service })
     }
-    if (!known.some(i => i.id === accountId)) void syncFollows(service)
+    if (!known.some(i => i.id === accountId)) {
+      // Feeds of the account appear only at the end of the sync,
+      // so user must see that the app is still working
+      void busyDuring(organizeMessages.get().syncingFollows, () => {
+        return syncFollows(service)
+      })
+    }
     open({ type: 'list' })
     navigate(
       {

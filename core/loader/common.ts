@@ -197,6 +197,12 @@ export interface AccountLoader<Data = unknown> {
   ): Promise<void>
 
   /**
+   * Service gives posts only to its users. Feed always belongs to an account:
+   * feed popup follows by an account on subscribing and has no “Anonymous”.
+   */
+  noAnonymous?: true
+
+  /**
    * Service has no home timeline. Refresh loads every feed of the account
    * on its own by `getPosts()` with `auth`.
    */
@@ -385,6 +391,12 @@ export type Loader = {
     url: URL,
     task: DownloadTask
   ): false | Promise<false | DetectedFeed> | undefined
+
+  /**
+   * User can not follow this feed again by own wish, like a private channel
+   * without an invite. Feed popup warns about it before unfollowing.
+   */
+  isFinalUnfollow?(url: string): boolean
 
   /**
    * Can `getPostByUrl()` load this URL.
