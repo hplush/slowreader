@@ -41,15 +41,12 @@
   let id = $props.id()
   let isValid = $derived(!error || !errorId)
 
-  let validators = $derived.by(() => {
-    let list = Array.isArray(validate) ? validate : [validate]
-    if (props.required) list.unshift(notEmpty)
-    if (type === 'url') list.unshift(validUrl)
-    return list
-  })
-
   function runValidators(val: string): string | undefined {
-    for (let validator of validators) {
+    for (let validator of [
+      ...(type === 'url' ? [validUrl] : []),
+      ...(props.required ? [notEmpty] : []),
+      ...[validate].flat()
+    ]) {
       let result = validator(val)
       if (result) return result
     }
@@ -82,16 +79,19 @@
     data-anchor={anchor ?? null}
     data-invalid={!!runValidators(value)}
     onblur={e => {
-      value = e.currentTarget.value
-      if (value !== '') error = runValidators(value)
+      let current = e.currentTarget.value
+      if (current !== '') error = runValidators(current)
     }}
     onchange={e => {
-      value = e.currentTarget.value
-      error = runValidators(value)
-      if (onchange) onchange(value, isValid)
+      let current = e.currentTarget.value
+      error = runValidators(current)
+      if (onchange) onchange(current, isValid)
     }}
     oninput={e => {
-      if (oninput) oninput(e.currentTarget.value, isValid)
+      // Chrome fires change and blur on removing the focused field, so only
+      // input event can write, or the old field’s text will go to the next one
+      value = e.currentTarget.value
+      if (oninput) oninput(value, isValid)
     }}
     onkeyup={e => {
       if (e.key === 'Escape' && !e.isComposing) onescape?.()
