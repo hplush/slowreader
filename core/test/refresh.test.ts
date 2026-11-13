@@ -1597,7 +1597,10 @@ describe('auto refresh', () => {
       return Promise.resolve([])
     })
     nightLock.set({ enabled: true, from: 0, to: 24 })
+    // The first refresh was a moment ago
+    lastRefresh.set(0)
     await refreshPosts({ auto: true })
+    equal(refreshStatus.get(), 'start')
     equal(load.callCount, 0)
     equal(follows.callCount, 0)
   })
