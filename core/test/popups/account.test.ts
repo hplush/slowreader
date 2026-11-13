@@ -4,8 +4,10 @@ import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import {
+  accountsMessages,
   addAccount,
   addCategory,
+  busy,
   GENERAL_CATEGORY,
   getTables,
   loaders,
@@ -98,8 +100,15 @@ describe('account popup', () => {
     equal((await getTables().accounts.get(id))?.reading, 'fast')
 
     unbindFollow()
-    await popup.remove()
+    let removing = popup.remove()
     equal(openedPopups.get().length, 0)
+    deepEqual(busy.get(), {
+      blocking: false,
+      label: accountsMessages.get().deleting,
+      progress: undefined
+    })
+    await removing
+    equal(busy.get(), false)
     equal(await getTables().accounts.get(id), undefined)
   })
 

@@ -2,6 +2,7 @@ import type { SqlStore, SqlStoreValue } from '@nanostores/sql'
 import { delay } from 'nanodelay'
 import { computed, effect, type ReadableAtom } from 'nanostores'
 
+import { busyDuring } from './busy.ts'
 import { getClient, onClient } from './client.ts'
 import {
   type DeviceSession,
@@ -208,26 +209,32 @@ onClient(() =>
  * keeps only feeds of the authors, which other accounts follow.
  */
 export async function deleteAccount(accountId: string): Promise<void> {
-  let tables = getTables()
-  let account = await loadAccount(accountId)
-  let feeds = await tables.feeds.load`WHERE "accountId" = ${accountId}`
-  let heir =
-    account && feeds.length > 0
-      ? (await loadAccounts(account.service)).find(i => i.id !== accountId)
-      : undefined
-  await tables.posts.deleteWhere`"accountId" = ${accountId}`
-  if (heir) {
-    await tables.feeds.update(
-      feeds.map(feed => feed.id),
-      { accountId: heir.id }
-    )
-  } else {
-    await tables.posts.deleteWhere`
-      "feedId" IN (SELECT "id" FROM "feeds" WHERE "accountId" = ${accountId})
-    `
-    await tables.feeds.deleteWhere`"accountId" = ${accountId}`
-  }
-  await tables.accounts.delete(accountId)
+  // Account leaves the list only in the end, after seconds of deleting posts
+  let heir = await busyDuring(accountsMessages.get().deleting, async () => {
+    let tables = getTables()
+    let account = await loadAccount(accountId)
+    let feeds = await tables.feeds.load`WHERE "accountId" = ${accountId}`
+    let other =
+      account && feeds.length > 0
+        ? (await loadAccounts(account.service)).find(i => i.id !== accountId)
+        : undefined
+    await tables.posts.deleteWhere`"accountId" = ${accountId}`
+    if (other) {
+      await tables.feeds.update(
+        feeds.map(feed => feed.id),
+        { accountId: other.id }
+      )
+    } else {
+      await tables.posts.deleteWhere`
+        "feedId" IN (
+          SELECT "id" FROM "feeds" WHERE "accountId" = ${accountId}
+        )
+      `
+      await tables.feeds.deleteWhere`"accountId" = ${accountId}`
+    }
+    await tables.accounts.delete(accountId)
+    return other
+  })
   await endDeviceSession(accountId)
   if (heir) {
     // Running sync loaded feeds before they were moved to the heir

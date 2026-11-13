@@ -17,6 +17,7 @@ export const accountsMessages = i18n('accounts', {
   codeFromSms: 'Code from SMS',
   deleteAccount: 'Delete account',
   deleteConfirm: 'Delete this account from Slow Reader?',
+  deleting: 'Deleting account…',
   deviceSignInNote:
     'Signed in on another device. Here you only read synced posts.',
   emailCodeField: 'Code from email',
