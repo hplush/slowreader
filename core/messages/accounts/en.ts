@@ -18,8 +18,7 @@ export const accountsMessages = i18n('accounts', {
   deleteAccount: 'Delete account',
   deleteConfirm: 'Delete this account from Slow Reader?',
   deviceSignInNote:
-    'You signed in on another device. This device shows posts from it, ' +
-    'but can’t load new posts and media.',
+    'Signed in on another device. Here you only read synced posts.',
   emailCodeField: 'Code from email',
   expiredCode: 'The code expired. Cancel and sign in again.',
   feedsType: 'Type of feeds',
