@@ -18,7 +18,9 @@ ENV PNPM_VERSION=12.18.0 \
 RUN dnf install -yq zsh micro git tig psmisc procps-ng awk libatomic wget zip \
   gtk3 nss nspr alsa-lib cups-libs mesa-libgbm dbus-libs libX11-xcb \
   libXcomposite libXdamage libXrandr libXcursor libXi libxkbcommon \
-  google-noto-sans-fonts google-noto-emoji-fonts gh jq bind-utils openssl ansible-core openssh-clients \
+  google-noto-sans-fonts google-noto-emoji-fonts gh jq bind-utils openssl \
+  ansible-core openssh-clients iproute iputils which file lsof strace \
+  nmap-ncat ripgrep \
   && dnf clean all \
   && rm -rf /var/cache/dnf
 
