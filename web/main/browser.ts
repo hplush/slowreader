@@ -237,7 +237,7 @@ let hiddenAt = Date.now()
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
     hiddenAt = Date.now()
-  } else if (Date.now() - hiddenAt >= 5 * 60_000) {
+  } else if (Date.now() - hiddenAt >= 30 * 60_000) {
     void refreshPosts({ auto: true })
   }
 })
