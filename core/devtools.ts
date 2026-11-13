@@ -6,13 +6,15 @@ import { getClient } from './client.ts'
 import { deviceSessions } from './device-sessions.ts'
 import type { TelegramObject, TelegramRequest } from './environment.ts'
 import { HTTPStatusError } from './errors.ts'
-import { changeFeed, loadFeed, loadFeeds } from './feed.ts'
+import { changeFeed, loadFeed, loadFeedByUrl, loadFeeds } from './feed.ts'
 import { loaders } from './loader/index.ts'
 import { sendToTelegram } from './loader/telegram.ts'
 import { loadPopupPost } from './popups/post.ts'
+import { changePost } from './post.ts'
 import { proxyDebug } from './request.ts'
 import { router } from './router.ts'
-import { hasCloud } from './settings.ts'
+import type { FeedChanges, PostChanges } from './schema.ts'
+import { devtoolDisabledLoaderMethods, hasCloud } from './settings.ts'
 
 /**
  * Move refresh markers of all feeds to the past, so the next refresh
@@ -51,6 +53,59 @@ export function enablePostDebug(): void {
     }
   })
 }
+
+/**
+ * Save new values to the post from the opened post popup.
+ */
+export async function changeOpenedPost(changes: PostChanges): Promise<void> {
+  let popup = router.get().popups.findLast(i => i.popup === 'post')
+  let post = popup && (await loadPopupPost(popup.param))
+  if (!post) throw new Error('Open a saved post first')
+  await changePost(post.id, changes)
+}
+
+/**
+ * Save new values to the feed from the opened feed popup, to the feed
+ * of the opened post, or to the feed opened from the slow menu.
+ */
+export async function changeOpenedFeed(changes: FeedChanges): Promise<void> {
+  let page = router.get()
+  let popup = page.popups.findLast(
+    i => i.popup === 'feed' || i.popup === 'post'
+  )
+  let feedId: null | string | undefined =
+    page.route === 'slow' ? page.params.feed : undefined
+  if (popup?.popup === 'feed') {
+    feedId = (await loadFeedByUrl(popup.param))?.id
+  } else if (popup) {
+    feedId = (await loadPopupPost(popup.param))?.feedId
+  }
+  if (!feedId) throw new Error('Open a saved feed or its post first')
+  await changeFeed(feedId, changes)
+}
+
+let disabledMethods: [object, string, unknown][] = []
+
+devtoolDisabledLoaderMethods.subscribe(paths => {
+  for (let [parent, method, original] of disabledMethods.splice(0)) {
+    Reflect.set(parent, method, original)
+  }
+  for (let path of paths) {
+    let keys = path.split('.')
+    let method = keys.pop()!
+    let parent: unknown = loaders
+    for (let key of keys) {
+      parent =
+        typeof parent === 'object' && parent
+          ? Reflect.get(parent, key)
+          : undefined
+    }
+    if (typeof parent === 'object' && parent && method in parent) {
+      disabledMethods.push([parent, method, Reflect.get(parent, method)])
+      Reflect.deleteProperty(parent, method)
+    }
+  }
+})
 
 /**
  * Send a raw request to TDLib, Telegram’s own library, by the Telegram account

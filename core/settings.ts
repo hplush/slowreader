@@ -199,6 +199,15 @@ export const customPostFont = persistentAtom<string>(
 
 let syncedSetting = createSyncedSetting<SettingsValue>()
 
+/**
+ * Paths of optional loader methods, like `mastodon.account.getTimeline`,
+ * which `devtools.ts` removes to test how the app works without them.
+ */
+export const devtoolDisabledLoaderMethods = syncedSetting(
+  'devtoolDisabledLoaderMethods',
+  []
+)
+
 export const showSensitiveMedia = syncedSetting('showSensitiveMedia', false)
 
 export const openWarnings = syncedSetting('openWarnings', false)
@@ -234,6 +243,7 @@ onClient(() =>
       getTables().settings,
       'user',
       [
+        devtoolDisabledLoaderMethods,
         fastPostsMaxAge,
         generalFastReader,
         generalSlowReader,
