@@ -152,18 +152,21 @@
           </Title>
           <Stack gap="l">
             <Stack gap="s">
-              <Input
-                autocomplete={AUTOCOMPLETE[$step.field]}
-                disabled={$submitting}
-                errorId={$error ? 'accounts-error' : undefined}
-                inputmode={AUTOCOMPLETE[$step.field] === 'one-time-code'
-                  ? 'numeric'
-                  : undefined}
-                label={$label ?? $t[`${$step.field}Field`]}
-                required
-                type={TYPES[$step.field]}
-                bind:value={$input}
-              />
+              {#key $step.field}
+                <Input
+                  autocomplete={AUTOCOMPLETE[$step.field]}
+                  autofocus
+                  disabled={$submitting}
+                  errorId={$error ? 'accounts-error' : undefined}
+                  inputmode={AUTOCOMPLETE[$step.field] === 'one-time-code'
+                    ? 'numeric'
+                    : undefined}
+                  label={$label ?? $t[`${$step.field}Field`]}
+                  required
+                  type={TYPES[$step.field]}
+                  bind:value={$input}
+                />
+              {/key}
               {#if $error}
                 <Error id="accounts-error">{$error}</Error>
               {/if}
