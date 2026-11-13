@@ -153,11 +153,7 @@ export interface AccountLoader<Data = unknown> {
    * Continue the sign in with user’s answer to the previous step.
    * Throw `UserFacingError` on wrong answer to ask the same field again.
    */
-  continueSignIn(
-    task: DownloadTask,
-    data: Data,
-    answer: SignInAnswer
-  ): Promise<SignInStep<Data>>
+  continueSignIn(data: Data, answer: SignInAnswer): Promise<SignInStep<Data>>
 
   /**
    * End the session, which the service keeps on this device,
@@ -170,9 +166,9 @@ export interface AccountLoader<Data = unknown> {
    */
   firstField: SignInField
 
-  follow(task: DownloadTask, auth: AccountAuth, url: string): Promise<void>
+  follow(auth: AccountAuth, url: string): Promise<void>
 
-  getFollows(task: DownloadTask, auth: AccountAuth): Promise<LoadedAuthor[]>
+  getFollows(auth: AccountAuth): Promise<LoadedAuthor[]>
 
   /**
    * Home timeline from the newest post. Every post has `author`.
@@ -194,7 +190,6 @@ export interface AccountLoader<Data = unknown> {
    * the same post twice.
    */
   getReadPosts?(
-    task: DownloadTask,
     auth: AccountAuth,
     feed: Pick<FeedValue, 'loaderData' | 'url'>,
     postOriginIds: string[]
@@ -206,7 +201,6 @@ export interface AccountLoader<Data = unknown> {
    * which has no unread posts under it.
    */
   setReadPosition?(
-    task: DownloadTask,
     auth: AccountAuth,
     feed: Pick<FeedValue, 'loaderData' | 'url'>,
     postOriginId: string
@@ -225,19 +219,15 @@ export interface AccountLoader<Data = unknown> {
    */
   getUserPostUrl?(server: string, url: string): string
 
-  isFollowing(
-    task: DownloadTask,
-    auth: AccountAuth,
-    url: string
-  ): Promise<boolean>
+  isFollowing(auth: AccountAuth, url: string): Promise<boolean>
 
   /**
    * Start the sign in by the first field value. For instance, find user’s
    * server and return its OAuth page.
    */
-  startSignIn(task: DownloadTask, input: string): Promise<SignInStep<Data>>
+  startSignIn(input: string): Promise<SignInStep<Data>>
 
-  unfollow(task: DownloadTask, auth: AccountAuth, url: string): Promise<void>
+  unfollow(auth: AccountAuth, url: string): Promise<void>
 }
 
 export type Loader = {
@@ -266,7 +256,7 @@ export type Loader = {
    * New account of the author, who moved to another server.
    * `undefined` if the author did not move.
    */
-  getMovedTo?(task: DownloadTask, url: string): Promise<MovedFeed | undefined>
+  getMovedTo?(url: string): Promise<MovedFeed | undefined>
 
   /**
    * Author’s ID at the source, which does not change with feed’s URL.
@@ -280,7 +270,6 @@ export type Loader = {
    * and show them under its posts. `auth` is passed for a feed of account.
    */
   getDynamicPosts?(
-    task: DownloadTask,
     url: string,
     loaderData?: null | string,
     auth?: AccountAuth
@@ -290,9 +279,6 @@ export type Loader = {
    * Extracts the feed's posts.
    *
    * If the URL’s document was already downloaded during the feed’s search.
-   *
-   * Task is a way to combine multiple HTTP requests (for instance, during
-   * the feed search/preview) to cancel all of them fast.
    *
    * Refresh passes `auth` for the feed of account without `getTimeline()`.
    */
@@ -370,8 +356,8 @@ export type Loader = {
    * from a redirect. Loader can return canonical `url` of the feed.
    */
   detectFeedInPage(
-    response: TextResponse,
     task: DownloadTask,
+    response: TextResponse,
     url: string
   ): false | DetectedFeed | Promise<false | DetectedFeed>
 
@@ -398,8 +384,8 @@ export type Loader = {
    * feed. It returns `undefined`, if only the page can tell.
    */
   isMineUrl(
-    url: URL,
-    task: DownloadTask
+    task: DownloadTask,
+    url: URL
   ): false | Promise<false | DetectedFeed> | undefined
 
   /**

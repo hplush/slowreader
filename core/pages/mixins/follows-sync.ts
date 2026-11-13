@@ -1,7 +1,6 @@
 import { atom, type WritableAtom } from 'nanostores'
 
 import { loadAccounts, needFollowsSync, syncFollows } from '../../account.ts'
-import { createDownloadTask } from '../../lib/download.ts'
 
 export type FollowsSync = 'checking' | 'done' | 'none' | 'syncing'
 
@@ -11,12 +10,8 @@ export type FollowsSync = 'checking' | 'done' | 'none' | 'syncing'
  * `none` means no sync needed on this page, so the page will not reserve space
  *  for the loader.
  */
-export function injectFollowsSync(): {
-  exit(): void
-  sync: WritableAtom<FollowsSync>
-} {
+export function injectFollowsSync(): { sync: WritableAtom<FollowsSync> } {
   let $sync = atom<FollowsSync>('checking')
-  let task = createDownloadTask()
   void loadAccounts().then(accounts => {
     let needUpdate = new Set(
       accounts.filter(needFollowsSync).map(account => account.service)
@@ -26,16 +21,9 @@ export function injectFollowsSync(): {
       return
     }
     $sync.set('syncing')
-    void Promise.all(
-      [...needUpdate].map(service => syncFollows(service, task))
-    ).then(() => {
+    void Promise.all([...needUpdate].map(syncFollows)).then(() => {
       $sync.set('done')
     })
   })
-  return {
-    exit() {
-      task.destroy()
-    },
-    sync: $sync
-  }
+  return { sync: $sync }
 }

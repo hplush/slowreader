@@ -6,7 +6,6 @@ import { onClient } from '../client.ts'
 import { getEnvironment } from '../environment.ts'
 import { isRemoteError } from '../errors.ts'
 import { loadFeed } from '../feed.ts'
-import { createDownloadTask } from '../lib/download.ts'
 import { isSaveData } from '../lib/network.ts'
 import { nextValue } from '../lib/stores.ts'
 import { loaders } from '../loader/index.ts'
@@ -554,7 +553,6 @@ async function loadDynamicPosts(feedId: string): Promise<PreviewPost[]> {
   let account = (await loadAccounts()).find(i => i.id === feed.accountId)
   try {
     let posts = await loaders[feed.loader].getDynamicPosts!(
-      createDownloadTask(),
       feed.url,
       feed.loaderData,
       account && canUseAccount(account) ? getAccountAuth(account) : undefined

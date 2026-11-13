@@ -129,8 +129,8 @@ describe('atom loader', () => {
   test('detects own URLs', () => {
     equal(
       typeof loaders.atom.isMineUrl(
-        new URL('https://dev.to/'),
-        createDownloadTask()
+        createDownloadTask(),
+        new URL('https://dev.to/')
       ),
       'undefined'
     )
@@ -329,21 +329,21 @@ describe('atom loader', () => {
   test('detects titles', async () => {
     deepEqual(
       loaders.atom.detectFeedInPage(
-        exampleAtom('<feed></feed>'),
         createDownloadTask(),
+        exampleAtom('<feed></feed>'),
         'https://example.com/'
       ),
       { title: '' }
     )
     deepEqual(
       loaders.atom.detectFeedInPage(
+        createDownloadTask(),
         exampleAtom(
           `<?xml version="1.0" encoding="utf-8"?>
           <feed xmlns="http://www.w3.org/2005/Atom">
             <title>Test 2</title>
           </feed>`
         ),
-        createDownloadTask(),
         'https://example.com/'
       ),
       { title: 'Test 2' }
@@ -357,21 +357,21 @@ describe('atom loader', () => {
   test('detects content type by content', () => {
     deepEqual(
       loaders.atom.detectFeedInPage(
+        createDownloadTask(),
         createTextResponse('<feed><title>A</title></feed>', {
           headers: new Headers({ 'Content-Type': `text/html` })
         }),
-        createDownloadTask(),
         'https://example.com/'
       ),
       { title: 'A' }
     )
     deepEqual(
       loaders.atom.detectFeedInPage(
+        createDownloadTask(),
         createTextResponse(
           '<?xml version="1.0" encoding="UTF-8"?> ' +
             '<feed><title>B</title></feed>'
         ),
-        createDownloadTask(),
         'https://example.com/'
       ),
       { title: 'B' }
@@ -381,21 +381,21 @@ describe('atom loader', () => {
   test('detects type', async () => {
     deepEqual(
       loaders.atom.detectFeedInPage(
-        exampleAtom('<feed></feed>'),
         createDownloadTask(),
+        exampleAtom('<feed></feed>'),
         'https://example.com/'
       ),
       { title: '' }
     )
     deepEqual(
       loaders.atom.detectFeedInPage(
+        createDownloadTask(),
         exampleAtom(
           `<?xml version="1.0" encoding="utf-8"?>
           <feed xmlns="http://www.w3.org/2005/Atom">
             <title>Test 2</title>
           </feed>`
         ),
-        createDownloadTask(),
         'https://example.com/'
       ),
       { title: 'Test 2' }
@@ -409,13 +409,13 @@ describe('atom loader', () => {
   test('detects popular XML mistakes', () => {
     deepEqual(
       loaders.atom.detectFeedInPage(
+        createDownloadTask(),
         exampleAtom(
           `\r\n\r\n<?xml version="1.0" encoding="utf-8"?>
           <feed xmlns="http://www.w3.org/2005/Atom">
             <title>Space before XML</title>
           </feed>`
         ),
-        createDownloadTask(),
         'https://example.com/'
       ),
       { title: 'Space before XML' }
@@ -425,10 +425,10 @@ describe('atom loader', () => {
   test('ignores text & comment nodes when probing', () => {
     deepEqual(
       loaders.atom.detectFeedInPage(
+        createDownloadTask(),
         exampleAtom(
           '<?xml-stylesheet type="text/xsl" href="/nope"?><feed><title>Test</title></feed>'
         ),
-        createDownloadTask(),
         'https://example.com/'
       ),
       { title: 'Test' }

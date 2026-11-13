@@ -1096,7 +1096,7 @@ function toFeedData(profile: BlueskyProfile): { handle: string } & FeedData {
 }
 
 let blueskyAccount: AccountLoader<BlueskySignIn> = {
-  async continueSignIn(task, data, answer) {
+  async continueSignIn(data, answer) {
     let params =
       answer.type === 'return' ? answer.params : new URLSearchParams()
     if (params.get('iss') !== data.issuer) {
@@ -1118,7 +1118,7 @@ let blueskyAccount: AccountLoader<BlueskySignIn> = {
     }
     return {
       account: {
-        ...toFeedData(await loadProfile(task, data.did)),
+        ...toFeedData(await loadProfile(createDownloadTask(), data.did)),
         credentials: toCredentials(token, {
           clientId: data.clientId,
           dpopKey: data.dpopKey,
@@ -1134,7 +1134,8 @@ let blueskyAccount: AccountLoader<BlueskySignIn> = {
 
   firstField: 'handle',
 
-  async follow(task, auth, url) {
+  async follow(auth, url) {
+    let task = createDownloadTask()
     let profile = await loadProfileByAccount(task, auth, url)
     if (profile.viewer?.following) return
     await requestByAccount(task, auth, 'com.atproto.repo.createRecord', {
@@ -1148,12 +1149,12 @@ let blueskyAccount: AccountLoader<BlueskySignIn> = {
     })
   },
 
-  async getFollows(task, auth) {
+  async getFollows(auth) {
     let authors: LoadedAuthor[] = []
     let cursor: string | undefined
     do {
       let response = await requestByAccount(
-        task,
+        createDownloadTask(),
         auth,
         'app.bsky.graph.getFollows?limit=100' +
           `&actor=${encodeURIComponent(getActor(auth.account.url))}` +
@@ -1183,13 +1184,16 @@ let blueskyAccount: AccountLoader<BlueskySignIn> = {
     )
   },
 
-  async isFollowing(task, auth, url) {
-    let profile = await loadProfileByAccount(task, auth, url)
+  async isFollowing(auth, url) {
+    let profile = await loadProfileByAccount(createDownloadTask(), auth, url)
     return !!profile.viewer?.following
   },
 
-  async startSignIn(task, input) {
-    let { did, handle, server } = await resolveHandle(task, input)
+  async startSignIn(input) {
+    let { did, handle, server } = await resolveHandle(
+      createDownloadTask(),
+      input
+    )
     let resource = await requestJson(
       `${server}/.well-known/oauth-protected-resource`
     )
@@ -1241,7 +1245,8 @@ let blueskyAccount: AccountLoader<BlueskySignIn> = {
     }
   },
 
-  async unfollow(task, auth, url) {
+  async unfollow(auth, url) {
+    let task = createDownloadTask()
     let profile = await loadProfileByAccount(task, auth, url)
     let following = profile.viewer?.following
     if (!following) return
@@ -1352,7 +1357,7 @@ export const bluesky: Loader = {
     )
   },
 
-  async detectFeedInPage(text, task, url) {
+  async detectFeedInPage(task, text, url) {
     let actor: string
     if (isProfile(url)) {
       // Redirect page could have meta of something else
@@ -1384,7 +1389,7 @@ export const bluesky: Loader = {
     return toFeedData(await loadProfile(task, getActor(url)))
   },
 
-  isMineUrl(url, task) {
+  isMineUrl(task, url) {
     if (isDomainRoot(url.href)) return undefined
     if (url.hostname !== 'bsky.app') return false
     let profile = url.pathname.match(PROFILE)

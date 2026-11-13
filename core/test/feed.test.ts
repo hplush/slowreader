@@ -190,9 +190,11 @@ describe('feed', () => {
     expectRequest(
       'https://one.social/api/v1/accounts/lookup?acct=ann'
     ).andRespond(200, old, 'application/json')
-    expectRequest(
-      'https://one.social/api/v1/accounts/lookup?acct=ann'
-    ).andRespond(500)
+    for (let i = 0; i < 3; i++) {
+      expectRequest(
+        'https://one.social/api/v1/accounts/lookup?acct=ann'
+      ).andRespond(500)
+    }
     equal(await updateFeedData(failed), 'https://two.social/ann.png')
     equal((await loadFeed(failed))!.url, 'https://one.social/@ann')
 

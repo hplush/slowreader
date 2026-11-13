@@ -5,7 +5,6 @@ import { onClient } from './client.ts'
 import { getEnvironment } from './environment.ts'
 import { isRemoteError } from './errors.ts'
 import { type FeedValue, loadFeed } from './feed.ts'
-import { createDownloadTask } from './lib/download.ts'
 import { type LoaderName, loaders } from './loader/index.ts'
 import { deletePost, onPostsRead } from './post.ts'
 import { getCrdt } from './schema.ts'
@@ -37,14 +36,12 @@ let sending: ReturnType<typeof setTimeout> | undefined
 export async function sendReadPositions(): Promise<void> {
   clearTimeout(sending)
   let accounts = await loadAccounts()
-  let task = createDownloadTask()
   for (let [feedId, position] of Object.entries(readPositions.get())) {
     let feed = await loadFeed(feedId)
     let account = accounts.find(i => i.id === feed?.accountId)
     if (feed && account && canUseAccount(account)) {
       try {
         await loaders[account.service].account!.setReadPosition?.(
-          task,
           getAccountAuth(account),
           feed,
           position.postOriginId
@@ -136,7 +133,6 @@ export async function deletePostsReadInService(): Promise<void> {
       SELECT "value" FROM json_each(${JSON.stringify(accounts.map(i => i.id))})
     )
   `
-  let task = createDownloadTask()
   let read: string[] = []
   for (let [feedId, posts] of Map.groupBy(unread, post => post.feedId)) {
     let account = accounts.find(i => i.id === posts[0]!.accountId)!
@@ -144,7 +140,6 @@ export async function deletePostsReadInService(): Promise<void> {
     try {
       let readOriginIds = new Set(
         await loaders[account.service].account!.getReadPosts!(
-          task,
           getAccountAuth(account),
           feed,
           posts.map(post => post.originId)

@@ -1175,7 +1175,7 @@ let telegramAccount: AccountLoader<SignInData> = {
     return destroyTelegram(name)
   },
 
-  continueSignIn(task, { name }, answer) {
+  continueSignIn({ name }, answer) {
     let value = answer.type === 'input' ? answer.value.trim() : ''
     let state = getTelegramAuthState(name)?.['@type']
     if (state === 'authorizationStateWaitPassword') {
@@ -1202,7 +1202,7 @@ let telegramAccount: AccountLoader<SignInData> = {
 
   firstField: 'phone',
 
-  async follow(task, auth, url) {
+  async follow(auth, url) {
     let key = getChannelKey(url)
     let result =
       typeof key === 'string' && key.startsWith('+')
@@ -1222,11 +1222,11 @@ let telegramAccount: AccountLoader<SignInData> = {
     }
   },
 
-  async getFollows(task, auth) {
+  async getFollows(auth) {
     return loadChannels(getDevice(auth))
   },
 
-  async getReadPosts(task, auth, feed, postOriginIds) {
+  async getReadPosts(auth, feed, postOriginIds) {
     let chat = await loadChat(
       getDevice(auth),
       Number(readLoaderData(feed.loaderData, 'id'))
@@ -1239,7 +1239,7 @@ let telegramAccount: AccountLoader<SignInData> = {
     })
   },
 
-  async isFollowing(task, auth, url) {
+  async isFollowing(auth, url) {
     let { chat, name } = await findChat(auth, url)
     let supergroup = await sendToTelegram(name, {
       '@type': 'getSupergroup',
@@ -1253,7 +1253,7 @@ let telegramAccount: AccountLoader<SignInData> = {
     )
   },
 
-  async setReadPosition(task, auth, feed, postOriginId) {
+  async setReadPosition(auth, feed, postOriginId) {
     let name = getDevice(auth)
     let chatId = Number(readLoaderData(feed.loaderData, 'id'))
     let messageId = Number(postOriginId) * MESSAGE_ID_STEP
@@ -1270,7 +1270,7 @@ let telegramAccount: AccountLoader<SignInData> = {
 
   noAnonymous: true,
 
-  async startSignIn(task, input) {
+  async startSignIn(input) {
     let name = nanoid()
     keepTelegramRunning(name, true)
     try {
@@ -1284,7 +1284,7 @@ let telegramAccount: AccountLoader<SignInData> = {
     }
   },
 
-  async unfollow(task, auth, url) {
+  async unfollow(auth, url) {
     let { chat, name } = await findChat(auth, url)
     await sendToTelegram(name, { '@type': 'leaveChat', 'chat_id': chat.id })
   }
@@ -1297,7 +1297,7 @@ export const telegram: Loader = {
     return false
   },
 
-  async getDynamicPosts(task, url, loaderData, auth) {
+  async getDynamicPosts(url, loaderData, auth) {
     let { chat, name } = await findChat(auth, url, loaderData)
     let chatId = Number(chat.id)
     let answer = await sendToTelegram(name, {
@@ -1409,7 +1409,7 @@ export const telegram: Loader = {
     return typeof getChannelKey(url) === 'number'
   },
 
-  isMineUrl(url) {
+  isMineUrl(task, url) {
     let link = parseLink(url)
     if (!link) return false
     return askAnySession(async (name): Promise<DetectedFeed | false> => {

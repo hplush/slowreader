@@ -96,7 +96,7 @@ describe('mastodon loader', () => {
     let { mastodon } = loaders
     let task = createDownloadTask()
     function isMine(url: string): ReturnType<typeof mastodon.isMineUrl> {
-      return mastodon.isMineUrl(new URL(url), task)
+      return mastodon.isMineUrl(task, new URL(url))
     }
     equal(isMine('https://mastodon.social/@jane/1'), undefined)
     equal(isMine('https://example.com/@jane'), undefined)
@@ -127,7 +127,7 @@ describe('mastodon loader', () => {
       html?: string,
       requested = url
     ): Promise<false | DetectedFeed> {
-      return mastodon.detectFeedInPage(profile(url, html), task, requested)
+      return mastodon.detectFeedInPage(task, profile(url, html), requested)
     }
 
     deepEqual(await detect('https://mastodon.social/@jane'), {
@@ -144,7 +144,7 @@ describe('mastodon loader', () => {
       'application/json'
     )
     deepEqual(
-      await mastodon.isMineUrl(new URL('https://mastodon.social/@Jane/'), task),
+      await mastodon.isMineUrl(task, new URL('https://mastodon.social/@Jane/')),
       await detect('https://mastodon.social/@Jane/')
     )
     deepEqual(await detect('https://example.com/@jane'), {
@@ -376,7 +376,7 @@ describe('mastodon loader', () => {
     lookup('https://mastodon.social', account('ann', { moved: second }))
     lookup('https://two.social', { ...second, moved: third })
     lookup('https://three.social', { ...third, moved: null })
-    deepEqual(await getMovedTo(task, 'https://mastodon.social/@ann'), {
+    deepEqual(await getMovedTo('https://mastodon.social/@ann'), {
       avatar: undefined,
       handle: '@ann@three.social',
       loaderData: '{"id":"ann-3"}',
@@ -385,19 +385,19 @@ describe('mastodon loader', () => {
     })
 
     lookup('https://mastodon.social', account('ann'))
-    equal(await getMovedTo(task, 'https://mastodon.social/@ann'), undefined)
+    equal(await getMovedTo('https://mastodon.social/@ann'), undefined)
 
     lookup(
       'https://mastodon.social',
       account('ann', { moved: { ...second, url: 'https://two.social/' } })
     )
-    equal(await getMovedTo(task, 'https://mastodon.social/@ann'), undefined)
+    equal(await getMovedTo('https://mastodon.social/@ann'), undefined)
 
     let loop = account('ann', { moved: account('ann') })
     for (let i = 0; i < 6; i++) lookup('https://mastodon.social', loop)
-    equal(await getMovedTo(task, 'https://mastodon.social/@ann'), undefined)
+    equal(await getMovedTo('https://mastodon.social/@ann'), undefined)
 
-    equal(await getMovedTo(task, NEWS.url), undefined)
+    equal(await getMovedTo(NEWS.url), undefined)
   })
 
   test('finds profile from post', () => {
@@ -720,13 +720,13 @@ describe('mastodon loader', () => {
       JSON.stringify({ name: 'News' }),
       'application/json'
     )
-    deepEqual(await mastodon.detectFeedInPage(profile(url), task, url), NEWS)
+    deepEqual(await mastodon.detectFeedInPage(task, profile(url), url), NEWS)
 
     expectRequest(`${API}/tags/News`).andRespond(404)
-    equal(await mastodon.detectFeedInPage(profile(url), task, url), false)
+    equal(await mastodon.detectFeedInPage(task, profile(url), url), false)
 
     expectRequest(`${API}/tags/News`).andRespond(200, '[]', 'application/json')
-    equal(await mastodon.detectFeedInPage(profile(url), task, url), false)
+    equal(await mastodon.detectFeedInPage(task, profile(url), url), false)
 
     equal(await mastodon.loadFeedData(task, url), undefined)
     equal(await mastodon.getLoaderData!(task, url), undefined)
@@ -830,11 +830,11 @@ describe('mastodon loader', () => {
 
     deepEqual(
       await loaders.mastodon.detectFeedInPage(
+        createDownloadTask(),
         profile(
           'https://mastodon.social/@jane',
           PROFILE.replace('Jane Doe (', 'Jane :verified: Doe (')
         ),
-        createDownloadTask(),
         'https://mastodon.social/@jane'
       ),
       { title: 'Jane Doe', url: 'https://mastodon.social/@jane' }
@@ -1471,7 +1471,6 @@ describe('mastodon account', () => {
   })
 
   test('loads follows', async () => {
-    let task = createDownloadTask()
     let own = respond(`${API}/accounts/verify_credentials`, { id: 'me' })
     expectRequest(`${API}/accounts/me/following?limit=80`).andRespond(
       200,
@@ -1493,7 +1492,7 @@ describe('mastodon account', () => {
       { Link: `<${API}/followed_tags?limit=200&max_id=1>; rel="next"` }
     )
     respond(`${API}/followed_tags?limit=200&max_id=1`, [{ name: 'Пиво' }])
-    deepEqual(await signedIn.getFollows(task, auth), [
+    deepEqual(await signedIn.getFollows(auth), [
       {
         avatar: 'https://mastodon.social/bob.png',
         title: 'BOB',
@@ -1509,79 +1508,76 @@ describe('mastodon account', () => {
     checkToken(own)
 
     respond(`${API}/accounts/verify_credentials`, [])
-    let error = await throws(() => signedIn.getFollows(task, auth))
+    let error = await throws(() => signedIn.getFollows(auth))
     equal(error.name, 'ParseError')
 
     respond(`${API}/accounts/verify_credentials`, { id: 'me' })
     respond(`${API}/accounts/me/following?limit=80`, {})
-    error = await throws(() => signedIn.getFollows(task, auth))
+    error = await throws(() => signedIn.getFollows(auth))
     equal(error.name, 'ParseError')
   })
 
   test('follows and unfollows hashtags', async () => {
-    let task = createDownloadTask()
     let tag = respond(`${API}/tags/news`, { following: true, name: 'news' })
-    equal(await signedIn.isFollowing(task, auth, NEWS.url), true)
+    equal(await signedIn.isFollowing(auth, NEWS.url), true)
     checkToken(tag)
 
     respond(`${API}/tags/news`, { name: 'news' })
-    equal(await signedIn.isFollowing(task, auth, NEWS.url), false)
+    equal(await signedIn.isFollowing(auth, NEWS.url), false)
 
     let follow = respond(`${API}/tags/news/follow`, {})
-    await signedIn.follow(task, auth, NEWS.url)
+    await signedIn.follow(auth, NEWS.url)
     equal(follow.sent().method, 'POST')
 
     let unfollow = respond(`${API}/tags/news/unfollow`, {})
-    await signedIn.unfollow(task, auth, NEWS.url)
+    await signedIn.unfollow(auth, NEWS.url)
     equal(unfollow.sent().method, 'POST')
   })
 
   test('follows and unfollows authors', async () => {
-    let task = createDownloadTask()
     let url = 'https://other.social/@bob'
 
     let search = respond(SEARCH, { accounts: [{ id: 'bob-id' }] })
     respond(`${API}/accounts/relationships?id[]=bob-id`, [{ following: true }])
-    equal(await signedIn.isFollowing(task, auth, url), true)
+    equal(await signedIn.isFollowing(auth, url), true)
     checkToken(search)
 
     respond(SEARCH, { accounts: [{ id: 'bob-id' }] })
     respond(`${API}/accounts/relationships?id[]=bob-id`, [{ following: false }])
-    equal(await signedIn.isFollowing(task, auth, url), false)
+    equal(await signedIn.isFollowing(auth, url), false)
 
     respond(SEARCH, { accounts: [{ id: 'bob-id' }] })
     let follow = respond(`${API}/accounts/bob-id/follow`, {})
-    await signedIn.follow(task, auth, url)
+    await signedIn.follow(auth, url)
     equal(follow.sent().method, 'POST')
     checkToken(follow)
 
     respond(SEARCH, { accounts: [{ id: 'bob-id' }] })
     let unfollow = respond(`${API}/accounts/bob-id/unfollow`, {})
-    await signedIn.unfollow(task, auth, url)
+    await signedIn.unfollow(auth, url)
     equal(unfollow.sent().method, 'POST')
   })
 
   test('validates follow answers', async () => {
-    let task = createDownloadTask()
     let url = 'https://other.social/@bob'
 
     respond(SEARCH, { accounts: [] })
-    let error = await throws(() => signedIn.isFollowing(task, auth, url))
+    let error = await throws(() => signedIn.isFollowing(auth, url))
     equal(error.name, NotFoundError.name)
 
     respond(SEARCH, {})
-    error = await throws(() => signedIn.isFollowing(task, auth, url))
+    error = await throws(() => signedIn.isFollowing(auth, url))
     equal(error.name, ParseError.name)
 
     respond(SEARCH, { accounts: [{ id: 'bob-id' }] })
     respond(`${API}/accounts/relationships?id[]=bob-id`, {})
-    error = await throws(() => signedIn.isFollowing(task, auth, url))
+    error = await throws(() => signedIn.isFollowing(auth, url))
     equal(error.name, ParseError.name)
   })
 
   test('does not work without credentials', async () => {
     let error = await throws(async () => {
-      await signedIn.getFollows(createDownloadTask(), {
+      await signedIn.getFollows({
         ...auth,
         account: testAccount({ credentials: null })
       })

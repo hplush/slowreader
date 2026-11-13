@@ -293,7 +293,7 @@ describe('feed reader', () => {
     t.after(() => {
       service.getDynamicPosts = getDynamicPosts
     })
-    service.getDynamicPosts = (task, url, loaderData, auth) => {
+    service.getDynamicPosts = (url, loaderData, auth) => {
       loaded += 1
       if (auth) withAuth.push(url)
       if (failing) return Promise.reject(failing)

@@ -195,7 +195,7 @@ describe('account popup', () => {
     let popup = checkLoadedPopup(opened)
 
     let inputs: string[] = []
-    spyOn(loaders.mastodon.account!, 'startSignIn', (task, input) => {
+    spyOn(loaders.mastodon.account!, 'startSignIn', input => {
       inputs.push(input)
       if (inputs.length === 1) {
         return Promise.reject(new UserFacingError('Server is down'))

@@ -53,7 +53,7 @@ describe('account', () => {
   beforeEach(() => {
     startClient()
     moves = {}
-    spyOn(loaders.mastodon as Required<Loader>, 'getMovedTo', (task, url) => {
+    spyOn(loaders.mastodon as Required<Loader>, 'getMovedTo', url => {
       let moved = moves[url]
       if (moved instanceof Error) return Promise.reject(moved)
       return Promise.resolve(moved)
@@ -99,7 +99,7 @@ describe('account', () => {
   function spyFollows(
     follows: Record<string, PostAuthor[] | Promise<PostAuthor[]>>
   ): Spy<NonNullable<typeof loaders.mastodon.account>['getFollows']> {
-    return spyOn(loaders.mastodon.account!, 'getFollows', (task, auth) => {
+    return spyOn(loaders.mastodon.account!, 'getFollows', auth => {
       return Promise.resolve(follows[auth.account.id] ?? [])
     })
   }

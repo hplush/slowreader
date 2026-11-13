@@ -110,7 +110,7 @@ describe('bluesky loader', () => {
     let { bluesky } = loaders
     let task = createDownloadTask()
     function isMine(url: string): ReturnType<typeof bluesky.isMineUrl> {
-      return bluesky.isMineUrl(new URL(url), task)
+      return bluesky.isMineUrl(task, new URL(url))
     }
     equal(isMine('https://bsky.app/profile/jane.com/post/1'), false)
     equal(isMine('https://example.com/profile/a'), false)
@@ -138,7 +138,7 @@ describe('bluesky loader', () => {
       html?: string,
       requested = url
     ): Promise<false | DetectedFeed> {
-      return bluesky.detectFeedInPage(page(url, html), task, requested)
+      return bluesky.detectFeedInPage(task, page(url, html), requested)
     }
 
     deepEqual(await detect('https://bsky.app/profile/did:plc:jane'), {
@@ -153,12 +153,12 @@ describe('bluesky loader', () => {
       'application/json'
     )
     let byDid = new URL('https://bsky.app/profile/did:plc:jane')
-    deepEqual(await bluesky.isMineUrl(byDid, task), await detect(byDid.href))
+    deepEqual(await bluesky.isMineUrl(task, byDid), await detect(byDid.href))
     expectRequest(did).andRespond(400)
-    equal(await bluesky.isMineUrl(byDid, task), false)
+    equal(await bluesky.isMineUrl(task, byDid), false)
     expectRequest(did).andFail()
     let offline = await throws(async () => {
-      await bluesky.isMineUrl(byDid, createDownloadTask({ tries: 1 }))
+      await bluesky.isMineUrl(createDownloadTask({ tries: 1 }), byDid)
     })
     equal(offline.name, 'NetworkError')
 
@@ -1497,7 +1497,7 @@ describe('bluesky account', () => {
       follows: [{ did: 'did:plc:alice', handle: 'alice.bsky.social' }]
     })
     respond(follows('c2'), { cursor: 'c3', follows: [] })
-    deepEqual(await signedIn.getFollows(createDownloadTask(), auth), [
+    deepEqual(await signedIn.getFollows(auth), [
       {
         avatar: 'https://cdn.bsky.app/bob.jpg',
         loaderData: '{"did":"did:plc:bob"}',
@@ -1514,9 +1514,7 @@ describe('bluesky account', () => {
     equal(getProof(first).authorization, 'DPoP access')
 
     respond(follows(), { follows: {} })
-    let error = await throws(() =>
-      signedIn.getFollows(createDownloadTask(), auth)
-    )
+    let error = await throws(() => signedIn.getFollows(auth))
     equal(error.name, 'ParseError')
   })
 
@@ -1617,15 +1615,14 @@ describe('bluesky account', () => {
       'DPoP-Nonce': 'n2'
     })
     let url = 'https://bsky.app/profile/bob.bsky.social'
-    let task = createDownloadTask()
-    equal(await signedIn.isFollowing(task, auth, url), false)
+    equal(await signedIn.isFollowing(auth, url), false)
     equal(getProof(second).nonce, 'n1')
 
     let third = respond(
       bobProfile(auth),
       profile('bob', { viewer: { following: 'at://follow' } })
     )
-    equal(await signedIn.isFollowing(task, auth, url), true)
+    equal(await signedIn.isFollowing(auth, url), true)
     equal(getProof(third).nonce, 'n2')
 
     respond(bobProfile(auth), {}, 401, {
@@ -1633,7 +1630,7 @@ describe('bluesky account', () => {
       'WWW-Authenticate': 'DPoP error="use_dpop_nonce"'
     })
     let fourth = respond(bobProfile(auth), profile('bob'))
-    await signedIn.isFollowing(task, auth, url)
+    await signedIn.isFollowing(auth, url)
     equal(getProof(fourth).nonce, 'n3')
   })
 
@@ -1724,12 +1721,11 @@ describe('bluesky account', () => {
 
   test('follows and unfollows authors', async () => {
     let { auth } = createAuth()
-    let task = createDownloadTask()
     let url = 'https://bsky.app/profile/bob.bsky.social'
 
     respond(bobProfile(auth), profile('bob'))
     let create = respond(xrpc(auth, 'com.atproto.repo.createRecord'), {})
-    await signedIn.follow(task, auth, url)
+    await signedIn.follow(auth, url)
     equal(getProof(create).htm, 'POST')
     let created = JSON.parse(create.sent().body as string) as {
       record: Record<string, unknown>
@@ -1754,11 +1750,11 @@ describe('bluesky account', () => {
 
     let following = 'at://did:plc:me/app.bsky.graph.follow/rkey1'
     respond(bobProfile(auth), profile('bob', { viewer: { following } }))
-    await signedIn.follow(task, auth, url)
+    await signedIn.follow(auth, url)
 
     respond(bobProfile(auth), profile('bob', { viewer: { following } }))
     let remove = respond(xrpc(auth, 'com.atproto.repo.deleteRecord'), {})
-    await signedIn.unfollow(task, auth, url)
+    await signedIn.unfollow(auth, url)
     deepEqual(JSON.parse(remove.sent().body as string), {
       collection: 'app.bsky.graph.follow',
       repo: 'did:plc:me',
@@ -1766,6 +1762,6 @@ describe('bluesky account', () => {
     })
 
     respond(bobProfile(auth), profile('bob'))
-    await signedIn.unfollow(task, auth, url)
+    await signedIn.unfollow(auth, url)
   })
 })

@@ -1,6 +1,6 @@
 import { ParseError } from '../errors.ts'
 import {
-  createDownloadTask,
+  downloadText,
   type DownloadTask,
   type TextResponse
 } from '../lib/download.ts'
@@ -193,7 +193,7 @@ export const jsonFeed: Loader = {
   },
 
   async getPostSource(feed, originId) {
-    let json = await createDownloadTask().text(feed.url)
+    let json = await downloadText(feed.url)
     return parseFeed(json).items.find(i => i.id === originId)
   },
 
@@ -225,7 +225,7 @@ export const jsonFeed: Loader = {
     }
   },
 
-  detectFeedInPage(text) {
+  detectFeedInPage(task, text) {
     let parsedJson = text.parseJson()
     validate(text.text, parsedJson)
     return { title: parsedJson.title }

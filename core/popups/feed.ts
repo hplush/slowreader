@@ -84,14 +84,13 @@ function swapHttpProtocol(url: string): string | undefined {
  * Offline, refreshed posts of the author tell it.
  */
 async function findFollowingAccount(
-  task: ReturnType<typeof createDownloadTask>,
   accounts: AccountValue[],
   url: string
 ): Promise<AccountValue | undefined> {
   for (let account of accounts) {
     let following: boolean
     try {
-      following = await isFollowingByAccount(task, account, url)
+      following = await isFollowingByAccount(account, url)
     } catch {
       following = await hasAccountPostsBy(account.id, url)
     }
@@ -166,12 +165,9 @@ export const feed = definePopup('feed', async url => {
   if (!service) throw new NotFoundError()
   let accounts = isAccountService(service) ? await loadAccounts(service) : []
   let noAnonymous = !!loaders[service].account?.noAnonymous
-  let accountTask = createDownloadTask()
   let $followedBy = atom<AccountValue | undefined>()
   if (!existing && candidate && accounts.length > 0) {
-    $followedBy.set(
-      await findFollowingAccount(accountTask, accounts, candidate.url)
-    )
+    $followedBy.set(await findFollowingAccount(accounts, candidate.url))
   }
   let $accountError = atom<string | undefined>()
 
@@ -285,11 +281,11 @@ export const feed = definePopup('feed', async url => {
     try {
       // Follows sync would create the feed again by another account
       let unfollowed = await callAccountApi(async () => {
-        if (account) await unfollowByAccount(accountTask, account, feedUrl)
+        if (account) await unfollowByAccount(account, feedUrl)
         for (let other of accounts) {
           if (other === account || other.expired) continue
-          if (await isFollowingByAccount(accountTask, other, feedUrl)) {
-            await unfollowByAccount(accountTask, other, feedUrl)
+          if (await isFollowingByAccount(other, feedUrl)) {
+            await unfollowByAccount(other, feedUrl)
           }
         }
       })
@@ -318,14 +314,14 @@ export const feed = definePopup('feed', async url => {
       }
       if (account) {
         let followed = await callAccountApi(() =>
-          followByAccount(accountTask, account, found.url)
+          followByAccount(account, found.url)
         )
         if (!followed) return
       }
       return await addCandidate(
         found,
         { accountId: account?.id, avatar: $avatar.get() },
-        task,
+        createDownloadTask({ cache: 'read' }),
         response
       )
     }
@@ -343,8 +339,8 @@ export const feed = definePopup('feed', async url => {
     let next = accounts.find(i => i.id === accountId)
     if (prev === next) return
     let changed = await callAccountApi(async () => {
-      if (next) await followByAccount(accountTask, next, feedUrl)
-      if (prev) await unfollowByAccount(accountTask, prev, feedUrl)
+      if (next) await followByAccount(next, feedUrl)
+      if (prev) await unfollowByAccount(prev, feedUrl)
     })
     if (!changed) return
     created ??= await createVirtualFeed()
@@ -356,7 +352,7 @@ export const feed = definePopup('feed', async url => {
     }
     await changeFeed(created.id, changes)
     if (next && !prev) {
-      await loadRecentPosts(created.id, accountTask).catch(() => {})
+      await loadRecentPosts(created.id).catch(() => {})
     }
   }
 
@@ -378,7 +374,6 @@ export const feed = definePopup('feed', async url => {
     deleting: $deleting,
     destroy() {
       task.destroy()
-      accountTask.destroy()
       unbindFeeds()
     },
     feed: $feed,

@@ -81,8 +81,8 @@ describe('json feed loader', () => {
   test('detects own URLs', () => {
     equal(
       typeof loaders.jsonFeed.isMineUrl(
-        new URL('https://dev.to/'),
-        createDownloadTask()
+        createDownloadTask(),
+        new URL('https://dev.to/')
       ),
       'undefined'
     )
@@ -274,14 +274,15 @@ describe('json feed loader', () => {
   test('detects titles', async () => {
     deepEqual(
       loaders.jsonFeed.detectFeedInPage(
-        exampleJson(jsonStub),
         createDownloadTask(),
+        exampleJson(jsonStub),
         'https://example.com/'
       ),
       { title: 'Some JSON Feed title' }
     )
     deepEqual(
       loaders.jsonFeed.detectFeedInPage(
+        createDownloadTask(),
         exampleJson({
           author: {
             name: 'name',
@@ -291,7 +292,6 @@ describe('json feed loader', () => {
           title: 'Title JSON feed version 1',
           version: 'https://jsonfeed.org/version/1'
         }),
-        createDownloadTask(),
         'https://example.com/'
       ),
       { title: 'Title JSON feed version 1' }
@@ -309,6 +309,7 @@ describe('json feed loader', () => {
     )
     deepEqual(
       loaders.jsonFeed.detectFeedInPage(
+        createDownloadTask(),
         exampleJson({
           author: {
             name: 'name',
@@ -318,7 +319,6 @@ describe('json feed loader', () => {
           title: '',
           version: 'https://jsonfeed.org/version/1.1'
         }),
-        createDownloadTask(),
         'https://example.com/'
       ),
       { title: '' }
@@ -328,6 +328,7 @@ describe('json feed loader', () => {
   test('detects content type by content', () => {
     deepEqual(
       loaders.jsonFeed.detectFeedInPage(
+        createDownloadTask(),
         createTextResponse(
           JSON.stringify({
             items: [],
@@ -338,7 +339,6 @@ describe('json feed loader', () => {
             headers: new Headers({ 'Content-Type': `text/html` })
           }
         ),
-        createDownloadTask(),
         'https://example.com/'
       ),
       { title: 'A' }

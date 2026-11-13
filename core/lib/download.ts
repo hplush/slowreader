@@ -49,7 +49,11 @@ export interface TextResponse {
 }
 
 /**
- * Combine all relative HTTP requests to cancel all of them fast.
+ * Group of HTTP requests, which the caller cancels at once. It also keeps
+ * cache, tries, and redirects of these requests.
+ *
+ * Loader’s method takes it only if some caller cancels or caches
+ * its requests. Other methods create own task.
  */
 export interface DownloadTask {
   destroy(): void
@@ -304,6 +308,15 @@ export function createDownloadTask(
       })
     }
   }
+}
+
+/**
+ * Single request, which nobody will cancel.
+ */
+export function downloadText(
+  ...args: Parameters<typeof request>
+): Promise<TextResponse> {
+  return createDownloadTask().text(...args)
 }
 
 /**

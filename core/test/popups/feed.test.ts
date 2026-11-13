@@ -539,7 +539,7 @@ describe('feed popup with accounts', () => {
     spyPosts()
     let other = await addAccount(testAccount({ title: 'A' }))
     let followed = await addAccount(testAccount({ title: 'B' }))
-    let checks = spyOn(account, 'isFollowing', (task, auth) => {
+    let checks = spyOn(account, 'isFollowing', auth => {
       return Promise.resolve(auth.account.id === followed)
     })
 
@@ -551,7 +551,7 @@ describe('feed popup with accounts', () => {
     equal(popup.followedBy.get()?.id, followed)
     equal(popup.feed.get(), undefined)
     deepEqual(
-      checks.calls.map(call => call[2]),
+      checks.calls.map(call => call[1]),
       [AUTHOR, AUTHOR]
     )
   })
@@ -674,9 +674,25 @@ describe('feed popup with accounts', () => {
 
     equal((await loadFeed(feedId!))!.accountId, accountId)
     deepEqual(
-      follows.calls.map(call => [call[1].account.id, call[2]]),
+      follows.calls.map(call => [call[0].account.id, call[1]]),
       [[accountId, AUTHOR]]
     )
+  })
+
+  test('finishes subscribing after the popup was closed', async () => {
+    spyPosts()
+    let popup = await openAuthor()
+    let lookup = expectRequest(
+      'https://mastodon.social/api/v1/accounts/lookup?acct=jane'
+    ).andWait()
+    let adding = popup.add()
+    closeLastPopup()
+    await lookup(
+      200,
+      JSON.stringify({ acct: 'jane', display_name: 'Jane', id: '1' }),
+      'application/json'
+    )
+    equal((await loadFeed((await adding)!))!.loaderData, '{"id":"1"}')
   })
 
   test('keeps author unsubscribed on follow error', async () => {
@@ -701,11 +717,11 @@ describe('feed popup with accounts', () => {
       testFeed({ lastPublishedAt: 1000, loader: 'mastodon', url: AUTHOR })
     )
     let calls: string[] = []
-    spyOn(account, 'follow', (task, auth) => {
+    spyOn(account, 'follow', auth => {
       calls.push(`follow ${auth.account.id}`)
       return Promise.resolve()
     })
-    spyOn(account, 'unfollow', (task, auth) => {
+    spyOn(account, 'unfollow', auth => {
       calls.push(`unfollow ${auth.account.id}`)
       return Promise.resolve()
     })
@@ -772,7 +788,7 @@ describe('feed popup with accounts', () => {
     let popup = await openAuthor()
 
     await popup.changeAccount(undefined)
-    equal(unfollows.calls[0]![1].account.id, a)
+    equal(unfollows.calls[0]![0].account.id, a)
     let [feed] = await loadFeeds()
     equal(feed!.accountId, null)
     equal(feed!.categoryId, categoryId)
@@ -789,7 +805,7 @@ describe('feed popup with accounts', () => {
       testFeed({ accountId, loader: 'mastodon', url: AUTHOR })
     )
     await addPost(testPost({ feedId }))
-    let checks = spyOn(account, 'isFollowing', (task, auth) => {
+    let checks = spyOn(account, 'isFollowing', auth => {
       return Promise.resolve(auth.account.id === other)
     })
     let unfollows = spyOn(account, 'unfollow', () => Promise.resolve())
@@ -800,14 +816,14 @@ describe('feed popup with accounts', () => {
     await removing
     equal(popup.deleting.get(), false)
     deepEqual(
-      unfollows.calls.map(call => [call[1].account.id, call[2]]),
+      unfollows.calls.map(call => [call[0].account.id, call[1]]),
       [
         [accountId, AUTHOR],
         [other, AUTHOR]
       ]
     )
     deepEqual(
-      checks.calls.map(call => call[1].account.id).toSorted(),
+      checks.calls.map(call => call[0].account.id).toSorted(),
       [notFollowing, other].toSorted()
     )
     deepEqual(await loadFeeds(), [])

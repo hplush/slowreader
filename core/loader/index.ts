@@ -100,7 +100,7 @@ export function checkUrl(task: DownloadTask, url: string): UrlCheck {
   let names: LoaderName[] = []
   if (parsed) {
     for (let name of Object.keys(loaders) as LoaderName[]) {
-      let answer = loaders[name].isMineUrl(parsed, task)
+      let answer = loaders[name].isMineUrl(task, parsed)
       if (answer) {
         let feed = answer.then(detected => {
           return detected ? toFeedLoader(name, detected, url) : false
@@ -130,7 +130,7 @@ export async function findFeed(
   for (let name of check.names) {
     let detected: false | DetectedFeed
     try {
-      detected = await loaders[name].detectFeedInPage(response, task, url)
+      detected = await loaders[name].detectFeedInPage(task, response, url)
     } catch {
       detected = false
     }

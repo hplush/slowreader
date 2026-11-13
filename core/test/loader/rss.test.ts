@@ -59,8 +59,8 @@ describe('rss loader', () => {
   test('detects own URLs', () => {
     equal(
       typeof loaders.rss.isMineUrl(
-        new URL('https://dev.to/'),
-        createDownloadTask()
+        createDownloadTask(),
+        new URL('https://dev.to/')
       ),
       'undefined'
     )
@@ -265,6 +265,7 @@ describe('rss loader', () => {
   test('detects titles', async () => {
     deepEqual(
       loaders.rss.detectFeedInPage(
+        createDownloadTask(),
         exampleRss(
           `<?xml version="1.0"?>
           <rss version="2.0">
@@ -273,15 +274,14 @@ describe('rss loader', () => {
             </channel>
           </rss>`
         ),
-        createDownloadTask(),
         'https://example.com/'
       ),
       { title: 'Test 1 XSS' }
     )
     deepEqual(
       loaders.rss.detectFeedInPage(
-        exampleRss('<rss version="2.0"></rss>'),
         createDownloadTask(),
+        exampleRss('<rss version="2.0"></rss>'),
         'https://example.com/'
       ),
       { title: '' }
@@ -295,21 +295,21 @@ describe('rss loader', () => {
   test('detects content type by content', () => {
     deepEqual(
       loaders.rss.detectFeedInPage(
+        createDownloadTask(),
         createTextResponse('<rss><channel><title>A</title></channel></rss>', {
           headers: new Headers({ 'Content-Type': `text/html` })
         }),
-        createDownloadTask(),
         'https://example.com/'
       ),
       { title: 'A' }
     )
     deepEqual(
       loaders.rss.detectFeedInPage(
+        createDownloadTask(),
         createTextResponse(
           '<?xml version="1.0" encoding="UTF-8"?> ' +
             '<rss><channel><title>B</title></channel></rss>'
         ),
-        createDownloadTask(),
         'https://example.com/'
       ),
       { title: 'B' }
@@ -319,6 +319,7 @@ describe('rss loader', () => {
   test('ignores text & comment nodes when probing', () => {
     deepEqual(
       loaders.rss.detectFeedInPage(
+        createDownloadTask(),
         exampleRss(
           `<?xml-stylesheet type="text/xsl" href="/nope"?>
           <rss version="2.0">
@@ -327,7 +328,6 @@ describe('rss loader', () => {
             </channel>
           </rss>`
         ),
-        createDownloadTask(),
         'https://example.com/'
       ),
       { title: 'Test' }

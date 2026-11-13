@@ -8,6 +8,7 @@ import {
 import { blurhashToImage } from '../lib/blurhash.ts'
 import {
   createDownloadTask,
+  downloadText,
   type DownloadTask,
   type TextResponse
 } from '../lib/download.ts'
@@ -901,7 +902,7 @@ function toFeedData(account: MastodonAccount): { handle: string } & FeedData {
 }
 
 let mastodonAccount: AccountLoader<MastodonSignIn> = {
-  async continueSignIn(task, data, answer) {
+  async continueSignIn(data, answer) {
     let code = answer.type === 'return' ? answer.params.get('code') : null
     let token = await requestJson(data.tokenUrl, {
       body: new URLSearchParams({
@@ -934,7 +935,8 @@ let mastodonAccount: AccountLoader<MastodonSignIn> = {
 
   firstField: 'server',
 
-  async follow(task, auth, url) {
+  async follow(auth, url) {
+    let task = createDownloadTask()
     let tag = getTagName(url)
     if (tag) {
       await requestByAccount(task, auth, `${tagApi(tag)}/follow`, 'POST')
@@ -944,7 +946,8 @@ let mastodonAccount: AccountLoader<MastodonSignIn> = {
     await requestByAccount(task, auth, `/api/v1/accounts/${id}/follow`, 'POST')
   },
 
-  async getFollows(task, auth) {
+  async getFollows(auth) {
+    let task = createDownloadTask()
     let own = await requestByAccount(
       task,
       auth,
@@ -975,7 +978,8 @@ let mastodonAccount: AccountLoader<MastodonSignIn> = {
     return createPostsList(() => loadTimelinePage(task, auth))
   },
 
-  async isFollowing(task, auth, url) {
+  async isFollowing(auth, url) {
+    let task = createDownloadTask()
     let tag = getTagName(url)
     if (tag) {
       let response = await requestByAccount(task, auth, tagApi(tag))
@@ -996,8 +1000,8 @@ let mastodonAccount: AccountLoader<MastodonSignIn> = {
     return isObject(relationship) && relationship.following === true
   },
 
-  async startSignIn(task, input) {
-    let server = await resolveServer(task, input)
+  async startSignIn(input) {
+    let server = await resolveServer(createDownloadTask(), input)
     let metadata = await loadMetadata(server)
     let pkce = await createPkce()
     let app = await registerApp(server, pkce.redirect)
@@ -1028,7 +1032,8 @@ let mastodonAccount: AccountLoader<MastodonSignIn> = {
     }
   },
 
-  async unfollow(task, auth, url) {
+  async unfollow(auth, url) {
+    let task = createDownloadTask()
     let tag = getTagName(url)
     if (tag) {
       await requestByAccount(task, auth, `${tagApi(tag)}/unfollow`, 'POST')
@@ -1055,8 +1060,9 @@ export const mastodon: Loader = {
     return [`${url.origin}/${post[1]}`]
   },
 
-  async getMovedTo(task, url) {
+  async getMovedTo(url) {
     if (getTagName(url)) return undefined
+    let task = createDownloadTask()
     let account = await loadAccount(task, url)
     if (!account.moved) return undefined
     for (let step = 0; step < 5 && account.moved; step++) {
@@ -1128,9 +1134,8 @@ export const mastodon: Loader = {
   },
 
   async getPostSource(feed, originId) {
-    let task = createDownloadTask()
     let { origin } = getApi(feed.url)
-    let response = await task.text(`${origin}/api/v1/statuses/${originId}`)
+    let response = await downloadText(`${origin}/api/v1/statuses/${originId}`)
     return response.parseJson()
   },
 
@@ -1177,7 +1182,7 @@ export const mastodon: Loader = {
     return findDocumentLinks(text, 'application/rss+xml')
   },
 
-  async detectFeedInPage(text, task, url) {
+  async detectFeedInPage(task, text, url) {
     if (getTagName(url)) return lookupTag(task, url).catch(() => false)
     if (!isProfile(text, url)) {
       if (!PROFILE.test(new URL(url).pathname)) return false
@@ -1225,7 +1230,7 @@ export const mastodon: Loader = {
     return `@${decodeURIComponent(profile[1]!)}@${url.hostname}`
   },
 
-  isMineUrl(url, task) {
+  isMineUrl(task, url) {
     let profile = url.pathname.match(PROFILE)
     if (!profile && !url.pathname.startsWith('/@')) return false
     if (profile && POPULAR.has(url.hostname)) {

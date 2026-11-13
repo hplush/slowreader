@@ -42,9 +42,9 @@ describe('add page', () => {
     })
     mockRequest()
     // Domain handle check sends a request for every site
-    spyOn(loaders.bluesky, 'detectFeedInPage', (text, task, url) => {
+    spyOn(loaders.bluesky, 'detectFeedInPage', (task, text, url) => {
       if (new URL(url).hostname !== 'bsky.app') return false
-      return detectBluesky(text, task, url)
+      return detectBluesky(task, text, url)
     })
   })
 

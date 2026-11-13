@@ -1,5 +1,5 @@
 import {
-  createDownloadTask,
+  downloadText,
   type DownloadTask,
   type TextResponse
 } from '../lib/download.ts'
@@ -106,7 +106,7 @@ export const rss: Loader = {
   },
 
   async getPostSource(feed, originId) {
-    let xml = await createDownloadTask().text(feed.url)
+    let xml = await downloadText(feed.url)
     return parsePostSources(xml).find(i => {
       return (
         i.querySelector('guid')?.textContent === originId ||
@@ -147,7 +147,7 @@ export const rss: Loader = {
     }
   },
 
-  detectFeedInPage(text) {
+  detectFeedInPage(task, text) {
     let document = text.parseXml()
     if (document.firstElementChild?.nodeName === 'rss') {
       return {

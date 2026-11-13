@@ -114,12 +114,7 @@ export const post = definePopup('post', async loader => {
     service = findPostLoader(target)
     if (!service) throw new NotFoundError()
     let postLoader: Loader = loaders[service]
-    let $byUrl = atom(
-      await postLoader.getPostByUrl!(
-        createDownloadTask({ cache: 'read' }),
-        target
-      )
-    )
+    let $byUrl = atom(await postLoader.getPostByUrl!(task, target))
     updating = loadThreadByUrl(task, postLoader, {
       ...$byUrl.get(),
       url: target

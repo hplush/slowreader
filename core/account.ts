@@ -23,7 +23,7 @@ import {
   moveFeed,
   type NewFeed
 } from './feed.ts'
-import { createDownloadTask, type DownloadTask } from './lib/download.ts'
+import type { DownloadTask } from './lib/download.ts'
 import { getStableId } from './lib/stable-id.ts'
 import type { AccountAuth, SignInAnswer, SignInStep } from './loader/common.ts'
 import { getOriginKey, loaders, tryLoadFeedData } from './loader/index.ts'
@@ -270,36 +270,27 @@ export function getAccountAuth(account: AccountValue): AccountAuth {
 }
 
 export function isFollowingByAccount(
-  task: DownloadTask,
   account: AccountValue,
   url: string
 ): Promise<boolean> {
   return loaders[account.service].account!.isFollowing(
-    task,
     getAccountAuth(account),
     url
   )
 }
 
 export function followByAccount(
-  task: DownloadTask,
   account: AccountValue,
   url: string
 ): Promise<void> {
-  return loaders[account.service].account!.follow(
-    task,
-    getAccountAuth(account),
-    url
-  )
+  return loaders[account.service].account!.follow(getAccountAuth(account), url)
 }
 
 export function unfollowByAccount(
-  task: DownloadTask,
   account: AccountValue,
   url: string
 ): Promise<void> {
   return loaders[account.service].account!.unfollow(
-    task,
     getAccountAuth(account),
     url
   )
@@ -407,10 +398,7 @@ export function needFollowsSync(account: AccountValue): boolean {
  * Feeds are deleted only if follows of every account were loaded, since
  * the account with unknown follows could follow the author.
  */
-async function loadFollows(
-  service: AccountService,
-  task: DownloadTask
-): Promise<void> {
+async function loadFollows(service: AccountService): Promise<void> {
   let tables = getTables()
   let [accounts, feeds] = await Promise.all([
     loadAccounts(service),
@@ -429,7 +417,6 @@ async function loadFollows(
     let follows: LoadedAuthor[]
     try {
       follows = await loaders[service].account!.getFollows(
-        task,
         getAccountAuth(account)
       )
     } catch (e) {
@@ -484,7 +471,7 @@ async function loadFollows(
     if (feedKeys.has(feed.id)) continue
     let moved
     try {
-      moved = await loaders[feed.loader].getMovedTo?.(task, feed.url)
+      moved = await loaders[feed.loader].getMovedTo?.(feed.url)
     } catch (e) {
       if (!isRemoteError(e)) throw e
       // Account was deleted, not moved
@@ -525,13 +512,10 @@ async function loadFollows(
 /**
  * Offline or expired account will be synced again on the next call.
  */
-export function syncFollows(
-  service: AccountService,
-  task = createDownloadTask()
-): Promise<void> {
+export function syncFollows(service: AccountService): Promise<void> {
   let running = followsSyncing.get(service)
   if (running) return running
-  let sync = loadFollows(service, task)
+  let sync = loadFollows(service)
     .catch((e: unknown) => {
       if (!isRemoteError(e)) getEnvironment().warn(e)
     })
@@ -556,7 +540,7 @@ export function startAccountSignIn(
   service: AccountService,
   input: string
 ): Promise<SignInStep<unknown>> {
-  return loaders[service].account!.startSignIn(createDownloadTask(), input)
+  return loaders[service].account!.startSignIn(input)
 }
 
 export function continueAccountSignIn(
@@ -564,11 +548,7 @@ export function continueAccountSignIn(
   data: unknown,
   answer: SignInAnswer
 ): Promise<SignInStep<unknown>> {
-  return loaders[service].account!.continueSignIn(
-    createDownloadTask(),
-    data,
-    answer
-  )
+  return loaders[service].account!.continueSignIn(data, answer)
 }
 
 /**

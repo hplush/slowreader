@@ -303,7 +303,7 @@ export function updateFeedData(
       // Follows sync moves feeds of accounts
       if (data.moved && !feed.accountId) {
         let moved = await loaders[feed.loader]
-          .getMovedTo?.(task, feed.url)
+          .getMovedTo?.(feed.url)
           .catch((e: unknown) => {
             if (!isRemoteError(e)) throw e
             return undefined

@@ -1,5 +1,5 @@
 import {
-  createDownloadTask,
+  downloadText,
   type DownloadTask,
   type TextResponse
 } from '../lib/download.ts'
@@ -199,7 +199,7 @@ export const atom: Loader = {
   },
 
   async getPostSource(feed, originId) {
-    let xml = await createDownloadTask().text(feed.url)
+    let xml = await downloadText(feed.url)
     return parsePostSources(xml).find(i => {
       return i.querySelector('id')?.textContent === originId
     })?.outerHTML
@@ -242,7 +242,7 @@ export const atom: Loader = {
     }
   },
 
-  detectFeedInPage(text) {
+  detectFeedInPage(task, text) {
     let document = text.parseXml()
     if (document.firstElementChild?.nodeName === 'feed') {
       return {

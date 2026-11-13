@@ -902,14 +902,14 @@ describe('accounts page', () => {
   test('asks more fields from the loader', async () => {
     let account = loaders.mastodon.account!
     let answers: unknown[] = []
-    spyOn(account, 'startSignIn', (task, input) => {
+    spyOn(account, 'startSignIn', input => {
       return Promise.resolve({
         data: { first: input },
         field: 'handle',
         type: 'ask'
       })
     })
-    spyOn(account, 'continueSignIn', (task, data, answer) => {
+    spyOn(account, 'continueSignIn', (data, answer) => {
       answers.push([data, answer])
       if (answer.type === 'input' && answer.value === 'wrong') {
         return Promise.reject(new UserFacingError('Wrong code'))

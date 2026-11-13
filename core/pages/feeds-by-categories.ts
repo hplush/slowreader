@@ -44,7 +44,6 @@ export const feedsByCategoriesPage = createPage('feedsByCategories', () => {
   return {
     ...openedFeedMixin,
     exit() {
-      followsSyncMixin.exit()
       unbind()
     },
     groups: $groups,
