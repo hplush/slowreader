@@ -1,4 +1,4 @@
-import { deepEqual, equal } from 'node:assert/strict'
+import { deepEqual, equal, rejects } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
@@ -1026,6 +1026,73 @@ describe('mastodon loader', () => {
     equal(posts.get().error?.name, 'HTTPStatusError')
   })
 
+  test('takes hidden author from post URL', async () => {
+    expectRequest(`${API}/accounts/lookup?acct=jane`).andRespond(
+      200,
+      JSON.stringify(account('jane')),
+      'application/json'
+    )
+    expectRequest(
+      `${API}/accounts/jane-id/statuses?exclude_replies=true`
+    ).andRespond(
+      200,
+      JSON.stringify([
+        status('1', {
+          reblog: status('mastodon', {
+            account: {},
+            url: 'https://other.social/@eloy/1'
+          })
+        }),
+        status('2', {
+          reblog: status('old', {
+            account: {},
+            uri: 'https://other.social/users/eloy/statuses/2',
+            url: null
+          })
+        }),
+        status('3', {
+          reblog: status('pleroma', {
+            account: {},
+            url: 'https://other.social/objects/ebee64b3-9bc9-4a16-853a-8d8b571fe5ac'
+          })
+        })
+      ]),
+      'application/json'
+    )
+    let posts = loaders.mastodon.getPosts(
+      createDownloadTask(),
+      'https://mastodon.social/@jane'
+    )
+    await posts.loading
+    deepEqual(
+      posts.get().list.map(post => [post.author, post.repostedBy?.title]),
+      [
+        [{ title: 'eloy', url: 'https://other.social/@eloy' }, 'JANE'],
+        [{ title: 'eloy', url: 'https://other.social/@eloy' }, 'JANE'],
+        [undefined, 'JANE']
+      ]
+    )
+
+    expectRequest(`${API}/statuses/r/context`).andRespond(
+      200,
+      JSON.stringify({ ancestors: [], descendants: [] }),
+      'application/json'
+    )
+    expectRequest(`${API}/statuses/r`).andRespond(
+      200,
+      JSON.stringify(status('r', { reblog: status('1', { account: {} }) })),
+      'application/json'
+    )
+    deepEqual(
+      await loaders.mastodon.getThreadDescendants!(
+        createDownloadTask(),
+        'https://mastodon.social/@jane',
+        'r'
+      ),
+      []
+    )
+  })
+
   test('skips position of quoted thread part on errors', async () => {
     let quote = (id: string): Record<string, unknown> =>
       status(`q${id}`, {
@@ -1268,6 +1335,16 @@ describe('mastodon loader', () => {
     equal(mastodon.isPostUrl!(new URL('https://other.social/@jane/1')), true)
     equal(mastodon.isPostUrl!(new URL('https://other.social/@jane')), false)
     equal(mastodon.isPostUrl!(new URL('https://other.social/notes/1')), false)
+    equal(mastodon.isPostUrl!(new URL('https://other.social/notice/Ab1')), true)
+    equal(
+      mastodon.isPostUrl!(
+        new URL(
+          'https://other.social/objects/ebee64b3-9bc9-4a16-853a-8d8b571fe5ac'
+        )
+      ),
+      true
+    )
+    equal(mastodon.isPostUrl!(new URL('https://other.social/objects/1')), false)
     equal(mastodon.isProfileUrl!(new URL('https://other.social/@jane')), true)
     equal(
       mastodon.isProfileUrl!(new URL('https://other.social/@jane/1')),
@@ -1308,6 +1385,50 @@ describe('mastodon loader', () => {
         publishedAt: 1767225600,
         url: 'https://mastodon.social/@jane/1'
       }
+    )
+
+    expectRequest('https://other.social/api/v1/statuses/Ab1').andRespond(
+      200,
+      JSON.stringify(status('Ab1')),
+      'application/json'
+    )
+    equal(
+      (
+        await mastodon.getPostByUrl!(
+          createDownloadTask(),
+          'https://other.social/notice/Ab1'
+        )
+      ).originId,
+      'Ab1'
+    )
+
+    let object =
+      'https://other.social/objects/ebee64b3-9bc9-4a16-853a-8d8b571fe5ac'
+    let task = createDownloadTask()
+    let request = task.request.bind(task)
+    task.request = async (url, ...args) => {
+      let response = await request(url, ...args)
+      if (url !== object) return response
+      let moved = new Response('')
+      Object.defineProperty(moved, 'url', {
+        value: 'https://other.social/notice/Ab2'
+      })
+      return moved
+    }
+    expectRequest(object).andRespond(200)
+    expectRequest('https://other.social/api/v1/statuses/Ab2').andRespond(
+      200,
+      JSON.stringify(status('Ab2')),
+      'application/json'
+    )
+    let redirected = await mastodon.getPostByUrl!(task, object)
+    equal(redirected.id, object)
+    equal(redirected.originId, 'Ab2')
+
+    expectRequest(object).andRespond(200)
+    await rejects(
+      mastodon.getPostByUrl!(createDownloadTask(), object),
+      ParseError
     )
 
     expectRequest('https://other.social/api/v1/statuses/2').andRespond(

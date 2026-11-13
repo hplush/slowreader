@@ -121,6 +121,8 @@ const TAG = /^\/tags\/([^/]+)\/?$/
 
 const POST = /^\/(@[^/]+)\/(\d+)\/?$/
 
+const PLEROMA_POST = /^\/(?:notice\/(\w+)|objects\/[\da-f-]{36})\/?$/
+
 const HANDLE = /^@([^@\s/]+)@([^@\s/]+)$/
 
 const SHORTCODE = /:(\w{2,}):/g
@@ -221,6 +223,18 @@ function toAuthor(account: MastodonAccount): PostAuthor {
   }
   if (account.avatar) author.avatar = account.avatar
   return author
+}
+
+/**
+ * Pleroma sends an empty object instead of a remote author
+ * to anonymous requests, so only post’s URL could tell the name.
+ */
+function toPostAuthor(status: MastodonStatus): PostAuthor | undefined {
+  if (status.account.url) return toAuthor(status.account)
+  let url = URL.parse(status.url ?? status.uri)
+  let name = url?.pathname.match(/^\/(?:@|users\/)([^/]+)\/./)?.[1]
+  if (!url || !name) return undefined
+  return { title: name, url: `${url.origin}/@${name}` }
 }
 
 function addEmojis(parent: Node, images: Map<string, string>): void {
@@ -356,7 +370,7 @@ function unwrapQuote(
 function toQuoted(status: MastodonStatus): QuotedPost {
   let quoted: QuotedPost = {
     ...parseContent(status),
-    author: toAuthor(status.account),
+    author: toPostAuthor(status),
     missing: false
   }
   let deeper = status.quote && unwrapQuote(status.quote)
@@ -385,7 +399,7 @@ function parseStatus(status: MastodonStatus): ParsedPost {
     originId: shown.id
   }
   if (status.reblog) {
-    post.author = toAuthor(shown.account)
+    post.author = toPostAuthor(shown)
     post.repostedBy = toAuthor(status.account)
     post.sortedAt = toTime(status.created_at)
   }
@@ -586,7 +600,7 @@ async function loadTagPage(
   let posts = await parseStatuses(task, origin, shown)
   return [
     posts.map((post, index) => ({
-      author: toAuthor(shown[index]!.account),
+      author: toPostAuthor(shown[index]!),
       ...post
     })),
     last ? () => loadTagPage(task, origin, name, last.id) : undefined
@@ -857,7 +871,7 @@ async function loadTimelinePage(
   return [
     posts.map((post, index) => {
       let status = shown[index]!
-      let origin: ParsedPost = { author: toAuthor(status.account), ...post }
+      let origin: ParsedPost = { author: toPostAuthor(status), ...post }
       let followedTag = findFollowedTag(status, tags)
       if (followedTag) origin.followedTag = followedTag
       return origin
@@ -1096,13 +1110,17 @@ export const mastodon: Loader = {
 
   async getPostByUrl(task, url) {
     let parsed = new URL(url)
+    let id =
+      parsed.pathname.match(POST)?.[2] ??
+      parsed.pathname.match(PLEROMA_POST)?.[1] ??
+      // Pleroma has the ID only in the URL, where it redirects from the object
+      new URL((await task.text(url)).url).pathname.match(PLEROMA_POST)?.[1]
+    if (!id) throw new ParseError('Mastodon post URL has no ID', url)
     let status = parseStatusResponse(
-      await task.text(
-        `${parsed.origin}/api/v1/statuses/${parsed.pathname.match(POST)![2]}`
-      )
+      await task.text(`${parsed.origin}/api/v1/statuses/${id}`)
     )
     return {
-      author: toAuthor(status.account),
+      author: toPostAuthor(status),
       ...parseStatus(status),
       id: url
     }
@@ -1166,7 +1184,8 @@ export const mastodon: Loader = {
     let { reblog } = parseStatusResponse(
       await task.text(`${origin}/api/v1/statuses/${originId}`)
     )
-    if (!reblog) return []
+    // Hidden authors have no ID to tell the thread from other’s replies
+    if (!reblog || !reblog.account.id) return []
     return findNextParts(
       await loadDescendants(task, origin, reblog.id),
       reblog.id,
@@ -1243,7 +1262,10 @@ export const mastodon: Loader = {
   // sites have the same paths. In post’s text we trust only a link from
   // Mastodon’s post, or a profile, which text looks like a handle.
   isPostUrl(url, link) {
-    return POST.test(url.pathname) && (!link || link.postLoader === 'mastodon')
+    return (
+      (POST.test(url.pathname) || PLEROMA_POST.test(url.pathname)) &&
+      (!link || link.postLoader === 'mastodon')
+    )
   },
 
   isProfileUrl(url, link) {
