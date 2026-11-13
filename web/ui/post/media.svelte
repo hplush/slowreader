@@ -12,7 +12,7 @@
   import type { Attachment } from 'svelte/attachments'
   import { SvelteSet } from 'svelte/reactivity'
 
-  import { waitImageDecoded } from '../../lib/image.ts'
+  import { blurredBackground, waitImageDecoded } from '../../lib/image.ts'
   import { mediaSrc } from '../../lib/media.ts'
   import BrokenImage from '../broken-image.svelte'
   import Button from '../button.svelte'
@@ -121,9 +121,19 @@
             <BrokenImage alt={item.alt} />
           </span>
         {:else if item.type.startsWith('image')}
+          <!-- Firefox makes loader’s image square until it gets src -->
           <img
+            style:aspect-ratio={!loaded.has(item.url) &&
+            item.size?.width &&
+            item.size.height
+              ? `${item.size.width} / ${item.size.height}`
+              : undefined}
             style:background-image={item.placeholder && !loaded.has(item.url)
-              ? `url("${item.placeholder}")`
+              ? blurredBackground(
+                  item.placeholder,
+                  item.size?.width,
+                  item.size?.height
+                )
               : undefined}
             class="post-media_item"
             class:is-loading={!loaded.has(item.url)}

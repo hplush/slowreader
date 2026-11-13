@@ -23,11 +23,24 @@
     `<img class="emoji" src="${new URL(emojiExample, location.href).href}" ` +
     'alt=":blob:" title=":blob:">'
 
-  // 4×3 pixels, like the tiny preview, which a service puts into the post
+  // 40×25 pixels, like the tiny preview, which Telegram puts into the post
   const TINY =
-    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAAMElE' +
-    'QVR4nGOwiVoQ1XPixIKoOxUBDEYBPSnT9u1blXepJ4pBwy0voGLatGkVW5pSAGK0EhfIheknAAAA' +
-    'AElFTkSuQmCC'
+    'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBs' +
+    'gKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDA' +
+    'RweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKS' +
+    'kpKSkpKSkpKT/wAARCAAZACgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFB' +
+    'gcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRV' +
+    'S0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1d' +
+    'nd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19j' +
+    'Z2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/' +
+    '8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnL' +
+    'RChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g' +
+    'oOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uP' +
+    'k5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwBHlVXP7uPZ2wc7vp/OpoDDN92HqM8Hp9apL' +
+    'CYnJ2FgVwecD8P89qlRrsH/AFfB4HGR1pc8u5nyR7FqJFfrAB6EODSkQA48sA4zyf8APpVQho+' +
+    'TKBzwN/rUYuFkRw5GRymT1P5cevWmpT7i5Ydiw08AUMIRgjPL474445/Cis6WV3ypb5dxO0dBR' +
+    'Wicu5DS7GgdQjIUHewGcg4xinvfQMnG05HIbI5/AfT/APXWVRU8iK5mWryaK6ffjY2OW5JPYD8' +
+    'qikjt0ztneT6R4H6moaKpIVxW2fwbvxoptFMR/9k='
 
   const FEED = {
     id: 'feed',
@@ -341,6 +354,7 @@
     oninit={() => {
       loaders.telegram.getMedia = url => {
         if (url.endsWith('/broken')) return Promise.reject(new Error('No file'))
+        if (url.endsWith('/loading')) return new Promise(() => {})
         return fetch(url === 'telegram:5/3' ? videoExample : imgExample)
       }
       open()()
@@ -350,11 +364,13 @@
         feedId: 'feed',
         full:
           '<p>Files are loaded by Telegram’s library, not by URL. ' +
-          'The second image is broken. The video is a whole file, ' +
+          'The second image is broken. The third one is still loading ' +
+          'and shows a blurred preview. The video is a whole file, ' +
           'so it waits for the click.</p>',
         media: [
           { type: 'image', url: 'telegram:5/4' },
           { type: 'image', url: 'telegram:5/4/broken' },
+          { placeholder: TINY, type: 'image', url: 'telegram:5/4/loading' },
           {
             placeholder: TINY,
             poster: 'telegram:5/3/poster',
@@ -365,6 +381,7 @@
         mediaSizes: [
           { height: 441, width: 700 },
           { height: 1080, width: 1920 },
+          { height: 441, width: 700 },
           { bytes: 28089, height: 1080, width: 1920 }
         ],
         preview: {
