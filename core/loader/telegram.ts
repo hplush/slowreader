@@ -10,7 +10,7 @@ import {
   type TelegramObject,
   type TelegramRequest
 } from '../environment.ts'
-import { TelegramError, UserFacingError } from '../errors.ts'
+import { NotFoundError, TelegramError, UserFacingError } from '../errors.ts'
 import { escapeXml } from '../lib/html.ts'
 import { accountsMessages as t } from '../messages/index.ts'
 import type {
@@ -32,6 +32,7 @@ import { request } from '../request.ts'
 import {
   type AccountAuth,
   type AccountLoader,
+  type DetectedFeed,
   isObject,
   type Loader,
   readLoaderData,
@@ -470,19 +471,64 @@ async function askAnySession<Answer>(
 /**
  * TDLib chat ID of a private channel, or username of a public one.
  */
+/**
+ * `channel` is TDLib chat ID of a private channel, username of a public one,
+ * or invite code with `+`, which a username can not have.
+ */
+function parseLink(
+  url: null | URL
+): { channel: number | string; post: string | undefined } | undefined {
+  if (!url || !/^(t|telegram)\.me$/.test(url.hostname)) return undefined
+  let invite = /^\/(?:\+|joinchat\/)([\w-]+)\/?$/.exec(url.pathname)
+  if (invite) return { channel: `+${invite[1]!}`, post: undefined }
+  let match = /^\/(?:c\/(\d+)|(?:s\/)?([a-z]\w{3,31}))(?:\/(\d+))?\/?$/i.exec(
+    url.pathname
+  )
+  if (!match) return undefined
+  return {
+    channel: match[1] ? -1e12 - Number(match[1]) : match[2]!,
+    post: match[3]
+  }
+}
+
+function checkInvite(name: string, code: string): Promise<TelegramObject> {
+  return sendToTelegram(name, {
+    '@type': 'checkChatInviteLink',
+    'invite_link': `https://t.me/${code}`
+  })
+}
+
+async function loadChatByKey(
+  name: string,
+  key: number | string
+): Promise<TelegramObject> {
+  if (typeof key === 'number') return loadChat(name, key)
+  if (!key.startsWith('+')) {
+    return sendToTelegram(name, {
+      '@type': 'searchPublicChat',
+      'username': key
+    })
+  }
+  let invite = await checkInvite(name, key)
+  // Telegram shows only the title of a private channel before joining it
+  if (!invite.chat_id) throw new TelegramError(403, 'Join the channel first')
+  return loadChat(name, Number(invite.chat_id))
+}
+
 function getChannelKey(
   url: string,
   loaderData?: null | string
 ): number | string | undefined {
   let id = readLoaderData(loaderData, 'id')
-  if (id) return Number(id)
-  let parsed = URL.parse(url)
-  if (!parsed || !/^(t|telegram)\.me$/.test(parsed.hostname)) return undefined
-  let match = /^\/(?:c\/(\d+)|(?:s\/)?([a-z]\w{3,31}))(?:\/\d+)?\/?$/i.exec(
-    parsed.pathname
-  )
-  if (!match) return undefined
-  return match[1] ? -1e12 - Number(match[1]) : match[2]
+  return id ? Number(id) : parseLink(URL.parse(url))?.channel
+}
+
+/**
+ * Without a session here the app can not open Telegram links by itself,
+ * so they should go to Telegram’s site.
+ */
+function hasSession(): boolean {
+  return Object.values(deviceSessions.get()).some(i => i.service === 'telegram')
 }
 
 async function findChat(
@@ -495,16 +541,7 @@ async function findChat(
     name: string
   ): Promise<{ chat: TelegramObject; name: string }> {
     if (key === undefined) throw new TelegramError(404, 'Not a channel URL')
-    return {
-      chat:
-        typeof key === 'number'
-          ? await loadChat(name, key)
-          : await sendToTelegram(name, {
-              '@type': 'searchPublicChat',
-              'username': key
-            }),
-      name
-    }
+    return { chat: await loadChatByKey(name, key), name }
   }
   return auth ? ask(getDevice(auth)) : askAnySession(ask)
 }
@@ -594,6 +631,32 @@ function formatInside(
   return html + escapeText(text.slice(position, end))
 }
 
+/**
+ * Telegram has several forms of the same link. The app opens in own popups
+ * only `https://t.me/` one.
+ */
+function normalizeLink(href: string): string {
+  let url = URL.parse(href)
+  if (!url) return href
+  let domain = url.searchParams.get('domain')
+  if (url.protocol === 'tg:' && url.hostname === 'resolve' && domain) {
+    let post = url.searchParams.get('post')
+    return `https://t.me/${domain}${post ? `/${post}` : ''}`
+  }
+  let invite = url.searchParams.get('invite')
+  if (url.protocol === 'tg:' && url.hostname === 'join' && invite) {
+    return `https://t.me/+${invite}`
+  }
+  let name = /^([a-z]\w{3,31})\.t\.me$/i.exec(url.hostname)
+  if (name) {
+    return `https://t.me/${name[1]!}${url.pathname.replace(/^\/$/, '')}`
+  }
+  if (/^(t|telegram)\.me$/.test(url.hostname)) {
+    return `https://t.me${url.pathname}${url.search}${url.hash}`
+  }
+  return href
+}
+
 function formatEntity(text: string, entity: TextEntity): string {
   let raw = text.slice(entity.start, entity.end)
   let inside = formatInside(text, entity.start, entity.end, entity.children)
@@ -612,8 +675,8 @@ function formatEntity(text: string, entity: TextEntity): string {
   let href = {
     EmailAddress: `mailto:${raw}`,
     Mention: `https://t.me/${raw.slice(1)}`,
-    TextUrl: String(entity.type.url),
-    Url: /^[a-z][\w+.-]*:/i.test(raw) ? raw : `https://${raw}`
+    TextUrl: normalizeLink(String(entity.type.url)),
+    Url: normalizeLink(/^[a-z][\w+.-]*:/i.test(raw) ? raw : `https://${raw}`)
   }[type]
   if (tag === 'pre') {
     return `<pre>${escapeXml(raw)}</pre>`
@@ -1054,7 +1117,14 @@ function loadChannelPosts(
 
   async function loadPage(from: number): Promise<PostsListResult> {
     if (from === 0) {
-      let found = await findChat(auth, url, loaderData)
+      let found: Awaited<ReturnType<typeof findChat>>
+      try {
+        found = await findChat(auth, url, loaderData)
+      } catch (e) {
+        // Preview of a private channel by its invite link
+        if (TelegramError.is(e) && e.code === 403) return [[], undefined]
+        throw e
+      }
       name = found.name
       chatId = Number(found.chat.id)
       read = Number(found.chat.last_read_inbox_message_id)
@@ -1133,8 +1203,23 @@ let telegramAccount: AccountLoader<SignInData> = {
   firstField: 'phone',
 
   async follow(task, auth, url) {
-    let { chat, name } = await findChat(auth, url)
-    await sendToTelegram(name, { '@type': 'joinChat', 'chat_id': chat.id })
+    let key = getChannelKey(url)
+    let result =
+      typeof key === 'string' && key.startsWith('+')
+        ? await sendToTelegram(getDevice(auth), {
+            '@type': 'joinChatByInviteLink',
+            'invite_link': `https://t.me/${key}`
+          })
+        : await findChat(auth, url).then(({ chat, name }) => {
+            return sendToTelegram(name, {
+              '@type': 'joinChat',
+              'chat_id': chat.id
+            })
+          })
+    // Join request, which admin must approve, or a check by channel’s bot
+    if (/^chatJoinResult(?!Success)/.test(result['@type'])) {
+      throw new UserFacingError(t.get().telegramJoinFailed)
+    }
   },
 
   async getFollows(task, auth) {
@@ -1286,6 +1371,27 @@ export const telegram: Loader = {
     return readLoaderData(loaderData, 'id')
   },
 
+  async getPostByUrl(task, url) {
+    let { chat, name } = await findChat(undefined, url)
+    let chatId = Number(chat.id)
+    let id = getChannelId(chat)
+    if (id === undefined) throw new NotFoundError()
+    let channel: PostAuthor = {
+      title: String(chat.title),
+      url: await loadChannelUrl(name, id),
+      ...getAvatar('channel', id, chat.photo)
+    }
+    let post = await toPost(name, channel, chatId, [
+      await sendToTelegram(name, {
+        '@type': 'getMessage',
+        'chat_id': chatId,
+        'message_id': Number(parseLink(URL.parse(url))!.post) * MESSAGE_ID_STEP
+      })
+    ])
+    if (!post) throw new NotFoundError()
+    return { author: channel, ...post, id: url }
+  },
+
   getPosts(task, url, text, refreshedAt, loaderData, auth) {
     return loadChannelPosts(auth, url, loaderData)
   },
@@ -1293,10 +1399,7 @@ export const telegram: Loader = {
   getProfilesByHandle(task, handle) {
     let match = /^@([a-z]\w{3,31})$/i.exec(handle)
     return Promise.resolve(
-      match &&
-        Object.values(deviceSessions.get()).some(i => i.service === 'telegram')
-        ? [`https://t.me/${match[1]!}`]
-        : []
+      match && hasSession() ? [`https://t.me/${match[1]!}`] : []
     )
   },
 
@@ -1313,25 +1416,43 @@ export const telegram: Loader = {
   },
 
   isMineUrl(url) {
-    if (getChannelKey(url.href) === undefined) return false
-    return findChat(undefined, url.href).then(
-      async ({ chat, name }) => {
-        let id = getChannelId(chat)
-        if (id === undefined) return false
-        return {
-          title: String(chat.title),
-          url: await loadChannelUrl(name, id)
-        }
-      },
-      (e: unknown) => {
-        // No session here, unknown name, or channel of another account.
-        // Other errors, like flood limit, must be visible to the user.
-        if (TelegramError.is(e) && [400, 401, 404].includes(e.code)) {
+    let link = parseLink(url)
+    if (!link) return false
+    return askAnySession(async (name): Promise<DetectedFeed | false> => {
+      let key = link.channel
+      if (typeof key === 'string' && key.startsWith('+')) {
+        let invite = await checkInvite(name, key)
+        if (
+          !isObject(invite.type) ||
+          invite.type['@type'] !== 'inviteLinkChatTypeChannel'
+        ) {
           return false
         }
-        throw e
+        if (!invite.chat_id) {
+          return { title: String(invite.title), url: `https://t.me/${key}` }
+        }
       }
-    )
+      let chat = await loadChatByKey(name, key)
+      let id = getChannelId(chat)
+      if (id === undefined) return false
+      return { title: String(chat.title), url: await loadChannelUrl(name, id) }
+    }).catch((e: unknown) => {
+      // No session here, unknown name, or channel of another account.
+      // Other errors, like flood limit, must be visible to the user.
+      if (TelegramError.is(e) && [400, 401, 404].includes(e.code)) {
+        return false
+      }
+      throw e
+    })
+  },
+
+  isPostUrl(url) {
+    return hasSession() && !!parseLink(url)?.post
+  },
+
+  isProfileUrl(url) {
+    let link = parseLink(url)
+    return hasSession() && !!link && !link.post
   },
 
   async loadFeedData(task, url) {

@@ -248,6 +248,7 @@ export const post = definePopup('post', async loader => {
       unbindRead()
     },
     feed: $feed,
+    loader: service,
     post: computed($start, value => addHandles(value, service)),
     publishedAt: $publishedAt,
     read,

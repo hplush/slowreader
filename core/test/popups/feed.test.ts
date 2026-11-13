@@ -8,7 +8,6 @@ import {
   addCategory,
   addFeed,
   addPost,
-  canOpenMention,
   changeAccount,
   changeFeed,
   closeLastPopup,
@@ -16,6 +15,7 @@ import {
   createPostsList,
   type FeedPopup,
   GENERAL_CATEGORY,
+  getLinkPopup,
   getPopupId,
   HTTPStatusError,
   loaders,
@@ -59,17 +59,22 @@ describe('feed popup', () => {
     checkAndRemoveRequestMock()
   })
 
-  test('opens mentions', () => {
-    equal(canOpenMention('@jane', 'https://bsky.app/profile/did:plc:1'), true)
-    equal(canOpenMention('@jane', 'https://other.social/@jane'), true)
-    equal(canOpenMention('Jane', 'https://other.social/@jane'), false)
-    equal(canOpenMention('@jane', 'http://other.social/@jane'), false)
-    equal(
-      canOpenMention('@jane', 'https://bsky.app/profile/jane/post/1'),
-      false
-    )
-    equal(canOpenMention('@jane', 'https://example.com/jane'), false)
-    equal(canOpenMention('@jane', 'https:'), false)
+  test('opens links from the text', () => {
+    let profile = 'https://bsky.app/profile/jane'
+    equal(getLinkPopup('Jane', profile, 'rss'), 'feed')
+    equal(getLinkPopup('link', `${profile}/post/1`, 'mastodon'), 'post')
+
+    // Other sites have Mastodon’s paths too
+    let mastodon = 'https://other.social/@jane'
+    equal(getLinkPopup('@jane', mastodon, 'bluesky'), 'feed')
+    equal(getLinkPopup('Jane', mastodon, 'mastodon'), undefined)
+    equal(getLinkPopup('link', `${mastodon}/1`, 'mastodon'), 'post')
+    equal(getLinkPopup('@jane', `${mastodon}/1`, 'bluesky'), undefined)
+    equal(getLinkPopup('@jane', `${mastodon}/1`, undefined), undefined)
+
+    equal(getLinkPopup('@jane', 'https://example.com/jane', 'rss'), undefined)
+    equal(getLinkPopup('@jane', 'http://other.social/@jane', 'rss'), undefined)
+    equal(getLinkPopup('@jane', 'https:', 'mastodon'), undefined)
   })
 
   test('loads 404 for feeds by URL popup', async () => {

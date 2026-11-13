@@ -89,6 +89,7 @@
     <Stack gap="xxl">
       <Stack gap="s">
         <Post
+          loader={popup.loader}
           post={$post}
           protect={(feed && $feed!.protected) ||
             ('protected' in $post && $post.protected)}
@@ -98,6 +99,7 @@
         {#each $thread as part (part.id)}
           <PostThreadPart
             afterFirst={part.afterFirstText}
+            loader={popup.loader}
             post={part}
             publishedAt={part.publishedAtText}
             userPostUrl={$userPostUrl}

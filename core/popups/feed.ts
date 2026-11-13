@@ -33,6 +33,7 @@ import {
   type FeedLoader,
   findFeed,
   hasPersonAvatar,
+  type LoaderName,
   loaders,
   tryLoadFeedData
 } from '../loader/index.ts'
@@ -49,15 +50,22 @@ import { addThreadStarts } from '../thread.ts'
 import { type CreatedLoadedPopup, definePopup } from './common.ts'
 
 /**
- * Link text is checked too, because Mastodon’s `/@user` path is used
- * by other sites like Medium, which have no feed on the profile URL.
+ * Which popup opens a link from post’s text instead of a new tab.
+ * `postLoader` is the loader of this post.
  */
-export function canOpenMention(text: string, url: string): boolean {
+export function getLinkPopup(
+  text: string,
+  url: string,
+  postLoader: LoaderName | null | undefined
+): 'feed' | 'post' | undefined {
   let parsed = URL.parse(url)
-  if (!text.trim().startsWith('@') || parsed?.protocol !== 'https:') {
-    return false
+  if (parsed?.protocol !== 'https:') return undefined
+  let link = { postLoader: postLoader ?? undefined, text }
+  for (let loader of Object.values(loaders)) {
+    if (loader.isProfileUrl?.(parsed, link)) return 'feed'
+    if (loader.isPostUrl?.(parsed, link)) return 'post'
   }
-  return Object.values(loaders).some(i => i.isProfileUrl?.(parsed))
+  return undefined
 }
 
 function swapHttpProtocol(url: string): string | undefined {

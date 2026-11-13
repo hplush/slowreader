@@ -9,6 +9,7 @@ import type {
 } from '../post.ts'
 import type { PostsList, PostsListResult } from '../posts-list.ts'
 import type { AccountCredentials, AccountValue, NewAccount } from '../schema.ts'
+import type { LoaderName } from './index.ts'
 
 export interface DetectedFeed {
   title: string
@@ -100,6 +101,18 @@ export type SignInAnswer =
  * Account with tokens for requests. Loader changes `account.credentials`
  * after the token refresh.
  */
+/**
+ * Link from post’s text. Loader, which is not sure by URL alone,
+ * can check where the link is from.
+ */
+export interface TextLink {
+  /**
+   * Loader of the post with this link.
+   */
+  postLoader: LoaderName | undefined
+  text: string
+}
+
 export interface AccountAuth {
   account: AccountValue
 
@@ -399,14 +412,16 @@ export type Loader = {
   isFinalUnfollow?(url: string): boolean
 
   /**
-   * Can `getPostByUrl()` load this URL.
+   * Can `getPostByUrl()` load this URL. `link` is passed, when the URL
+   * is a link from post’s text, to decide to open it in the app.
    */
-  isPostUrl?(url: URL): boolean
+  isPostUrl?(url: URL, link?: TextLink): boolean
 
   /**
-   * Can feed popup open this URL as author’s profile.
+   * Can feed popup open this URL as author’s profile. `link` is passed,
+   * when the URL is a link from post’s text, to decide to open it in the app.
    */
-  isProfileUrl?(url: URL): boolean
+  isProfileUrl?(url: URL, link?: TextLink): boolean
 }
 
 export function getCredentials(account: AccountValue): AccountCredentials {

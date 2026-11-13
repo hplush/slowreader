@@ -1,5 +1,6 @@
 <script lang="ts">
   import type {
+    LoaderName,
     OriginPost,
     PostValue,
     UserPostUrl,
@@ -11,11 +12,13 @@
 
   let {
     afterFirst,
+    loader,
     post,
     publishedAt,
     userPostUrl
   }: {
     afterFirst: string | undefined
+    loader?: LoaderName | null
     post: WithHandles<OriginPost | PostValue>
     publishedAt: string | undefined
     userPostUrl: UserPostUrl
@@ -35,7 +38,7 @@
       </SmallLink>
     {/if}
   </div>
-  <Post {post} {userPostUrl} />
+  <Post {loader} {post} {userPostUrl} />
 </article>
 
 <style lang="postcss">

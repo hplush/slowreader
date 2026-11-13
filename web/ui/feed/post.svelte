@@ -154,12 +154,18 @@
     {#if post.replied && !post.replied.missing}
       <PostQuote
         caption={$postMessages.replyingTo}
+        loader={post.loader}
         quoted={post.replied}
         {userPostUrl}
       />
     {/if}
     <PostWarning lang={post.lang} warning={post.warning}>
-      <FormattedText html={intro} lang={post.lang} simple />
+      <FormattedText
+        html={intro}
+        lang={post.lang}
+        loader={post.loader}
+        simple
+      />
       {#if post.poll}
         <PostPoll lang={post.lang} poll={post.poll} {post} {userPostUrl} />
       {/if}
@@ -168,7 +174,7 @@
         protect={post.protected}
       />
       {#if post.quoted}
-        <PostQuote quoted={post.quoted} {userPostUrl} />
+        <PostQuote loader={post.loader} quoted={post.quoted} {userPostUrl} />
       {/if}
       {#if post.preview}
         <PostPreview preview={post.preview} protect={post.protected} />

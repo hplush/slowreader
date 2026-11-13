@@ -53,6 +53,8 @@ export const accountsMessages = i18n('accounts', {
   signInExpired: 'Sign in expired',
   signInFailed: 'The service did not accept the sign in. Try again.',
   signInOnDevice: 'Sign in on this device',
+  telegramJoinFailed:
+    'Telegram asks for more steps to join this channel. Join it in the official Telegram app, and it will appear here.',
   telegramOfficialApp:
     'Finish this step in the official Telegram app, then sign in here again',
   telegramTitle: 'Telegram sign in',

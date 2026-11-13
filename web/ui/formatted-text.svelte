@@ -3,9 +3,11 @@
   /* eslint svelte/no-at-html-tags: "off" */
 
   import {
-    canOpenMention,
+    getLinkPopup,
     isMediaCached,
+    type LoaderName,
     openPopup,
+    router,
     sanitizeDOM
   } from '@slowreader/core'
   import { mount, unmount } from 'svelte'
@@ -13,17 +15,20 @@
   import { on } from 'svelte/events'
 
   import { waitImageDecoded } from '../lib/image.ts'
+  import { getPopupHash } from '../stores/url-router.ts'
   import BrokenImage from './broken-image.svelte'
   import ClickToLoad from './click-to-load.svelte'
 
   let {
     html,
     lang,
+    loader,
     scroll = true,
     simple = false
   }: {
     html: Element | string | undefined
     lang?: null | string
+    loader?: LoaderName | null
     scroll?: boolean
     simple?: boolean
   } = $props()
@@ -132,14 +137,20 @@
             ?.scrollIntoView()
         })
       } else {
-        link.setAttribute('target', '_blank')
-        link.setAttribute('rel', 'noopener')
-        if (href && canOpenMention(link.textContent, href)) {
+        let popup = href
+          ? getLinkPopup(link.textContent, href, loader)
+          : undefined
+        if (href && popup) {
+          // Link to the app itself, so a new tab opens the popup too
+          link.setAttribute('href', getPopupHash(router.get(), popup, href))
           on(link, 'click', event => {
             if (event.ctrlKey || event.metaKey || event.shiftKey) return
             event.preventDefault()
-            openPopup('feed', href)
+            openPopup(popup, href)
           })
+        } else {
+          link.setAttribute('target', '_blank')
+          link.setAttribute('rel', 'noopener')
         }
       }
     })

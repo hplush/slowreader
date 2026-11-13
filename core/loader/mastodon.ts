@@ -1234,11 +1234,16 @@ export const mastodon: Loader = {
     return undefined
   },
 
-  isPostUrl(url) {
-    return POST.test(url.pathname)
+  // Mastodon has many servers, so we know its links only by path, and other
+  // sites have the same paths. In post’s text we trust only a link from
+  // Mastodon’s post, or a profile, which text looks like a handle.
+  isPostUrl(url, link) {
+    return POST.test(url.pathname) && (!link || link.postLoader === 'mastodon')
   },
 
-  isProfileUrl(url) {
-    return PROFILE.test(url.pathname)
+  isProfileUrl(url, link) {
+    return (
+      PROFILE.test(url.pathname) && (!link || link.text.trim().startsWith('@'))
+    )
   }
 }

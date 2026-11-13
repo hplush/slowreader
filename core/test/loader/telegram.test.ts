@@ -16,6 +16,7 @@ import {
   createDownloadTask,
   createTextResponse,
   deviceSessions,
+  getLinkPopup,
   isMediaCached,
   loaders,
   loadFeed,
@@ -1529,8 +1530,8 @@ describe('telegram loader', () => {
 
     for (let url of [
       'https://example.com/news',
-      'https://t.me/+invite',
-      'https://t.me/joinchat/code',
+      'https://t.me/addstickers/pack',
+      'https://t.me/share/url',
       'https://t.me/c/name'
     ]) {
       equal(telegram.isMineUrl(new URL(url), task), false)
@@ -1830,5 +1831,185 @@ describe('telegram loader', () => {
     deviceSessions.set({})
     deepEqual(await loaders.telegram.getProfilesByHandle!(task, '@news'), [])
     deepEqual(await loaders.telegram.getProfilesByHandle!(task, '@a@b.c'), [])
+  })
+
+  test('opens channels and posts by links from the text', async () => {
+    let { telegram } = loaders
+    // Without a session the link goes to Telegram’s site
+    equal(getLinkPopup('link', 'https://t.me/news', 'mastodon'), undefined)
+    equal(getLinkPopup('link', 'https://t.me/news/3', 'mastodon'), undefined)
+
+    deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
+    equal(getLinkPopup('link', 'https://t.me/news', 'mastodon'), 'feed')
+    equal(getLinkPopup('link', 'https://t.me/s/news/3', 'mastodon'), 'post')
+    equal(getLinkPopup('link', 'https://t.me/c/7/3', 'mastodon'), 'post')
+    equal(
+      getLinkPopup('link', 'https://t.me/addstickers/pack', 'mastodon'),
+      undefined
+    )
+
+    mockHistory(0, {})
+    testTelegram.answers.searchPublicChat = ({ username }) => {
+      return username === 'news'
+        ? news(-1000000000007, 0)
+        : { '@type': 'chat', 'type': { '@type': 'chatTypeBasicGroup' } }
+    }
+    testTelegram.answers.getSupergroup = {
+      '@type': 'supergroup',
+      'usernames': { '@type': 'usernames', 'active_usernames': ['news'] }
+    }
+    testTelegram.answers.getMessage = ({ message_id: id }) => {
+      return Number(id) === 3 * 1048576
+        ? message(3)
+        : message(4, { content: { '@type': 'messagePinMessage' } })
+    }
+
+    let post = await telegram.getPostByUrl!(task, 'https://t.me/news/3')
+    deepEqual(
+      [post.id, post.author, post.full, post.originId, post.url],
+      [
+        'https://t.me/news/3',
+        { title: 'News', url: 'https://t.me/news' },
+        '<p>Post 3</p>',
+        '3',
+        'https://t.me/news/3'
+      ]
+    )
+    for (let url of ['https://t.me/news/4', 'https://t.me/group/3']) {
+      await rejects(telegram.getPostByUrl!(task, url), {
+        name: 'NotFoundError'
+      })
+    }
+
+    let opened = openTestPopup('post', 'https://t.me/news/3')
+    await waitLoading(opened.loading)
+    equal(checkLoadedPopup(opened).post.get().full, '<p>Post 3</p>')
+
+    // Telegram has other forms of the same links, which would open its site
+    let links = [
+      'http://t.me/news',
+      'https://telegram.me/news/3?single',
+      'tg://resolve?domain=news',
+      'tg://resolve?domain=news&post=3',
+      'https://news.t.me',
+      'http://news.t.me/3',
+      'tg://join?invite=a-B_1',
+      'https://example.com/a',
+      'tg://settings',
+      'https://'
+    ]
+    mockHistory(0, {
+      0: [
+        message(1, {
+          content: {
+            '@type': 'messageText',
+            'text': {
+              '@type': 'formattedText',
+              'entities': links.map((url, index) => ({
+                '@type': 'textEntity',
+                'length': 1,
+                'offset': index,
+                'type': { '@type': 'textEntityTypeTextUrl', url }
+              })),
+              'text': 'abcdefghij'
+            }
+          }
+        })
+      ]
+    })
+    deepEqual(
+      [...(await loadFeedPosts())[0]!.full!.matchAll(/href="([^"]+)"/g)].map(
+        match => match[1]
+      ),
+      [
+        'https://t.me/news',
+        'https://t.me/news/3?single',
+        'https://t.me/news',
+        'https://t.me/news/3',
+        'https://t.me/news',
+        'https://t.me/news/3',
+        'https://t.me/+a-B_1',
+        'https://example.com/a',
+        'tg://settings',
+        'https://'
+      ]
+    )
+  })
+
+  test('joins private channel by invite link', async () => {
+    let auth = {
+      account: testAccount({ credentials: null, service: 'telegram' }),
+      device: 'name',
+      expire: () => Promise.resolve(),
+      reload: () => Promise.resolve(undefined),
+      save: () => Promise.resolve()
+    }
+    let { telegram } = loaders
+    let link = 'https://t.me/+a-B_1'
+    deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
+    mockHistory(0, { 0: [message(3)], 3: [] })
+    testTelegram.answers.getSupergroup = { '@type': 'supergroup' }
+    let chatId = 0
+    let type = 'inviteLinkChatTypeChannel'
+    testTelegram.answers.checkChatInviteLink = () => ({
+      '@type': 'chatInviteLinkInfo',
+      'chat_id': chatId,
+      'title': 'Secret',
+      'type': { '@type': type }
+    })
+    async function loadUrls(): Promise<(string | undefined)[]> {
+      let posts = telegram.getPosts(task, link)
+      await posts.loading
+      if (posts.get().error) throw posts.get().error!
+      return posts.get().list.map(post => post.url)
+    }
+
+    // Telegram gives only the title before the join
+    equal(getLinkPopup('link', link, 'mastodon'), 'feed')
+    deepEqual(await telegram.isMineUrl(new URL(link), task), {
+      title: 'Secret',
+      url: link
+    })
+    deepEqual(
+      await telegram.isMineUrl(new URL('https://t.me/joinchat/a-B_1'), task),
+      { title: 'Secret', url: link }
+    )
+    deepEqual(await loadUrls(), [])
+    type = 'inviteLinkChatTypeSupergroup'
+    equal(await telegram.isMineUrl(new URL(link), task), false)
+    type = 'inviteLinkChatTypeChannel'
+
+    testTelegram.answers.joinChatByInviteLink = {
+      '@type': 'chatJoinResultSuccess',
+      'chat_id': -1000000000008
+    }
+    await account.follow(task, auth, link)
+    deepEqual(testTelegram.requests.at(-1), {
+      '@type': 'joinChatByInviteLink',
+      'invite_link': link
+    })
+
+    chatId = -1000000000008
+    deepEqual(await telegram.isMineUrl(new URL(link), task), {
+      title: 'News',
+      url: 'https://t.me/c/8'
+    })
+    equal(await telegram.getLoaderData!(task, link), '{"id":"-1000000000008"}')
+    deepEqual(await loadUrls(), ['https://t.me/+a-B_1/3'])
+
+    // Admin must approve the request, or channel’s bot asks for a check
+    testTelegram.answers.joinChatByInviteLink = {
+      '@type': 'chatJoinResultRequestSent'
+    }
+    await rejects(account.follow(task, auth, link), {
+      message: accountsMessages.get().telegramJoinFailed
+    })
+    testTelegram.answers.joinChat = { '@type': 'chatJoinResultDeclined' }
+    await rejects(account.follow(task, auth, 'https://t.me/c/8'), {
+      message: accountsMessages.get().telegramJoinFailed
+    })
+
+    testTelegram.answers.checkChatInviteLink = fail('Too Many Requests', 429)
+    await rejects(loadUrls(), { name: 'TelegramError' })
   })
 })

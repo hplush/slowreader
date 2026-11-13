@@ -6,6 +6,7 @@
     getMediaOutsideText,
     getPostBadges,
     getQuotedIntro,
+    type LoaderName,
     router,
     sanitizeDOM,
     postMessages as t,
@@ -25,12 +26,14 @@
     caption,
     full,
     linked,
+    loader,
     quoted,
     userPostUrl
   }: {
     caption?: string
     full?: boolean
     linked?: boolean
+    loader?: LoaderName | null
     quoted: CardQuoted
     userPostUrl: UserPostUrl
   } = $props()
@@ -83,7 +86,12 @@
       {/if}
       <PostWarning lang={quoted.lang} warning={quoted.warning}>
         {#snippet children(warningClicked)}
-          <FormattedText html={text} lang={quoted.lang} simple={!full} />
+          <FormattedText
+            html={text}
+            lang={quoted.lang}
+            {loader}
+            simple={!full}
+          />
           {#if quoted.poll}
             <PostPoll
               lang={quoted.lang}

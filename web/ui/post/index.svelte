@@ -3,6 +3,7 @@
   import {
     addMediaSizes,
     getMediaOutsideText,
+    type LoaderName,
     type OriginPost,
     type PostValue,
     sanitizeDOM,
@@ -21,11 +22,13 @@
   import PostWarning from './warning.svelte'
 
   let {
+    loader,
     post,
     protect = false,
     repostHref,
     userPostUrl
   }: {
+    loader?: LoaderName | null
     post: WithHandles<OriginPost | PostValue>
     protect?: boolean | null
     repostHref?: string
@@ -60,6 +63,7 @@
       caption={$t.replyingTo}
       full
       linked
+      {loader}
       quoted={post.replied}
       {userPostUrl}
     />
@@ -67,7 +71,7 @@
   <PostWarning lang={post.lang} warning={post.warning}>
     {#snippet children(warningClicked)}
       {#if post.full || post.intro}
-        <FormattedText html={text} lang={post.lang} />
+        <FormattedText html={text} lang={post.lang} {loader} />
       {/if}
       {#if post.poll}
         <PostPoll lang={post.lang} poll={post.poll} {post} {userPostUrl} />
@@ -84,7 +88,7 @@
       />
 
       {#if post.quoted}
-        <PostQuote full linked quoted={post.quoted} {userPostUrl} />
+        <PostQuote full linked {loader} quoted={post.quoted} {userPostUrl} />
       {/if}
       {#if post.preview}
         <PostPreview preview={post.preview} {protect} />
