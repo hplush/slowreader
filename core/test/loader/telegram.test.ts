@@ -1493,9 +1493,10 @@ describe('telegram loader', () => {
       ])
     )
     equal((await loadFeed(channel))!.lastOriginId, '2')
-    // Every channel is a separate request, so the progress counts it
-    equal(refreshStatistics.get().totalFeeds, 4)
-    equal(refreshStatistics.get().processedFeeds, 4)
+    // Every channel is a separate request, so the progress counts it,
+    // and the account itself has no timeline to load
+    equal(refreshStatistics.get().totalFeeds, 2)
+    equal(refreshStatistics.get().processedFeeds, 2)
     equal(!!(await loadFeed(channel))!.protected, false)
 
     // Author forbids or allows copying for all posts of the channel at once
@@ -1524,9 +1525,7 @@ describe('telegram loader', () => {
     deepEqual(telegram.getMineLinksFromText(page), [])
     deepEqual(telegram.getSuggestedLinksFromText(page), [])
     equal(await telegram.getPostSource(testFeed(), '1'), undefined)
-    let timeline = account.getTimeline(task, auth)
-    await timeline.loading
-    deepEqual(timeline.get().list, [])
+    equal(account.getTimeline, undefined)
 
     for (let url of [
       'https://example.com/news',

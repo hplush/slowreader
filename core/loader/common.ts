@@ -178,8 +178,11 @@ export interface AccountLoader<Data = unknown> {
    * Home timeline from the newest post. Every post has `author`.
    * Replies to other authors are skipped like in profile feeds.
    * Posts of followed hashtags have `followedTag`.
+   *
+   * Service without a home timeline does not have this method. Refresh
+   * loads every feed of its account on its own by `getPosts()` with `auth`.
    */
-  getTimeline(
+  getTimeline?(
     task: DownloadTask,
     auth: AccountAuth,
     refreshedAt?: number
@@ -214,12 +217,6 @@ export interface AccountLoader<Data = unknown> {
    * feed popup follows by an account on subscribing and has no “Anonymous”.
    */
   noAnonymous?: true
-
-  /**
-   * Service has no home timeline. Refresh loads every feed of the account
-   * on its own by `getPosts()` with `auth`.
-   */
-  noTimeline?: true
 
   /**
    * Post’s URL on user’s server, where user can vote or reply.
@@ -297,7 +294,7 @@ export type Loader = {
    * Task is a way to combine multiple HTTP requests (for instance, during
    * the feed search/preview) to cancel all of them fast.
    *
-   * Refresh passes `auth` for the feed of account with `noTimeline`.
+   * Refresh passes `auth` for the feed of account without `getTimeline()`.
    */
   getPosts(
     task: DownloadTask,

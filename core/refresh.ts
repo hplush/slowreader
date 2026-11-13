@@ -519,7 +519,7 @@ function loadTargetPosts(target: RefreshTarget, task: DownloadTask): PostsList {
     )
   } else {
     let { account } = target
-    return loaders[account.service].account!.getTimeline(
+    return loaders[account.service].account!.getTimeline!(
       task,
       getAccountAuth(account),
       account.refreshedAt ?? undefined
@@ -617,7 +617,7 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
   // Device without the account’s session gets its posts from other devices
   let owners = accounts.filter(account => {
     return (
-      loaders[account.service].account!.noTimeline && canUseAccount(account)
+      !loaders[account.service].account!.getTimeline && canUseAccount(account)
     )
   })
   let feeds = await loadFeedsForRefresh(owners.map(account => account.id))
@@ -630,7 +630,9 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
   let maxAge = fastPostsMaxAge.get()
   if (maxAge > 0) await deleteFastPostsBefore(refreshedAt - maxAge)
   let targets: RefreshTarget[] = [
-    ...accounts.map(account => ({ account })),
+    ...accounts
+      .filter(account => loaders[account.service].account!.getTimeline)
+      .map(account => ({ account })),
     ...feeds.map(feed => ({
       feed,
       owner: owners.find(account => account.id === feed.accountId)

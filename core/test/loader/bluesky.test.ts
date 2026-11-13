@@ -1549,7 +1549,7 @@ describe('bluesky account', () => {
         repost(bobPost('3'))
       ]
     })
-    let posts = signedIn.getTimeline(createDownloadTask(), auth, 0)
+    let posts = signedIn.getTimeline!(createDownloadTask(), auth, 0)
     await posts.loading
     let proof = getProof(first)
     equal(proof.authorization, 'DPoP access')
@@ -1599,7 +1599,7 @@ describe('bluesky account', () => {
   test('stops timeline on the previous refresh', async () => {
     let { auth } = createAuth()
     respond(timeline(auth), { cursor: 'c1', feed: [{ post: bobPost('1') }] })
-    let posts = signedIn.getTimeline(
+    let posts = signedIn.getTimeline!(
       createDownloadTask(),
       auth,
       Math.round(Date.now() / 1000)
@@ -1645,7 +1645,7 @@ describe('bluesky account', () => {
       refresh_token: 'refresh2'
     })
     let request = respond(timeline(auth), { feed: [] })
-    let posts = signedIn.getTimeline(createDownloadTask(), auth)
+    let posts = signedIn.getTimeline!(createDownloadTask(), auth)
     await posts.loading
     let body = refresh.sent().body as URLSearchParams
     equal(body.get('grant_type'), 'refresh_token')
@@ -1664,7 +1664,7 @@ describe('bluesky account', () => {
     respond(timeline(auth), { error: 'invalid_token' }, 401)
     respond(TOKEN, { access_token: 'access2', refresh_token: 'refresh2' })
     let retry = respond(timeline(auth), { feed: [] })
-    let posts = signedIn.getTimeline(createDownloadTask(), auth)
+    let posts = signedIn.getTimeline!(createDownloadTask(), auth)
     await posts.loading
     equal(posts.get().error, undefined)
     equal(getProof(retry).authorization, 'DPoP access2')
@@ -1684,7 +1684,7 @@ describe('bluesky account', () => {
     )
     respond(TOKEN, { error: 'invalid_grant' }, 400)
     let request = respond(timeline(auth), { feed: [] })
-    let posts = signedIn.getTimeline(createDownloadTask(), auth)
+    let posts = signedIn.getTimeline!(createDownloadTask(), auth)
     await posts.loading
     equal(getProof(request).authorization, 'DPoP other')
     equal(saved.length, 0)
@@ -1693,7 +1693,7 @@ describe('bluesky account', () => {
   test('asks to sign in again', async () => {
     let { auth, expired } = createAuth({ expiresAt: 1 })
     respond(TOKEN, { error: 'invalid_grant' }, 400)
-    let posts = signedIn.getTimeline(createDownloadTask(), auth)
+    let posts = signedIn.getTimeline!(createDownloadTask(), auth)
     await posts.loading
     equal(posts.get().error?.message, accountsMessages.get().signInExpired)
     deepEqual(expired, [true])
@@ -1702,19 +1702,19 @@ describe('bluesky account', () => {
   test('throws other errors', async () => {
     let { auth } = createAuth()
     respond(timeline(auth), {}, 500)
-    let posts = signedIn.getTimeline(createDownloadTask({ tries: 1 }), auth)
+    let posts = signedIn.getTimeline!(createDownloadTask({ tries: 1 }), auth)
     await posts.loading
     equal(HTTPStatusError.is(posts.get().error, [500]), true)
 
     respond(timeline(auth), {}, 400)
-    posts = signedIn.getTimeline(createDownloadTask({ tries: 1 }), auth)
+    posts = signedIn.getTimeline!(createDownloadTask({ tries: 1 }), auth)
     await posts.loading
     equal(HTTPStatusError.is(posts.get().error, [400]), true)
 
     respond(timeline(auth), {}, 401)
     respond(TOKEN, {}, 500)
     let error = await throws(async () => {
-      posts = signedIn.getTimeline(createDownloadTask({ tries: 1 }), auth)
+      posts = signedIn.getTimeline!(createDownloadTask({ tries: 1 }), auth)
       await posts.loading
       let failed = posts.get().error
       if (failed) throw failed

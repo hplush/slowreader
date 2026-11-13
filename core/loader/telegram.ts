@@ -1226,10 +1226,6 @@ let telegramAccount: AccountLoader<SignInData> = {
     return loadChannels(getDevice(auth))
   },
 
-  getTimeline() {
-    return createPostsList(() => Promise.resolve([[], undefined]))
-  },
-
   async getReadPosts(task, auth, feed, postOriginIds) {
     let chat = await loadChat(
       getDevice(auth),
@@ -1273,8 +1269,6 @@ let telegramAccount: AccountLoader<SignInData> = {
   },
 
   noAnonymous: true,
-
-  noTimeline: true,
 
   async startSignIn(task, input) {
     let name = nanoid()

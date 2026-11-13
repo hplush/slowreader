@@ -1422,7 +1422,7 @@ describe('mastodon account', () => {
       })
     ])
     respond(`${API}/followed_tags?limit=200`, [{ name: 'News' }, {}])
-    let posts = signedIn.getTimeline(createDownloadTask(), auth)
+    let posts = signedIn.getTimeline!(createDownloadTask(), auth)
     await posts.loading
     checkToken(first)
     deepEqual(
@@ -1457,7 +1457,7 @@ describe('mastodon account', () => {
       status('1', { account: account('bob'), tags: [{ name: 'news' }] })
     ])
     expectRequest(`${API}/followed_tags?limit=200`).andRespond(404)
-    let posts = signedIn.getTimeline(createDownloadTask(), auth)
+    let posts = signedIn.getTimeline!(createDownloadTask(), auth)
     await posts.loading
     equal(posts.get().list[0]?.followedTag, undefined)
   })
@@ -1465,7 +1465,7 @@ describe('mastodon account', () => {
   test('validates followed tags', async () => {
     respond(`${API}/timelines/home?limit=40`, [])
     respond(`${API}/followed_tags?limit=200`, {})
-    let posts = signedIn.getTimeline(createDownloadTask(), auth)
+    let posts = signedIn.getTimeline!(createDownloadTask(), auth)
     await posts.loading
     equal(posts.get().error?.name, 'ParseError')
   })
