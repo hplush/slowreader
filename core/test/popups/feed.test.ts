@@ -664,7 +664,14 @@ describe('feed popup with accounts', () => {
   test('follows by default account on subscribing', async () => {
     spyPosts()
     await addAccount(testAccount({ title: 'A' }))
-    let accountId = await addAccount(testAccount({ follow: true, title: 'B' }))
+    let accountId = await addAccount(
+      testAccount({
+        categoryId: await addCategory({ title: 'Social' }),
+        follow: true,
+        reading: 'slow',
+        title: 'B'
+      })
+    )
     spyOn(account, 'isFollowing', () => Promise.resolve(false))
     let follows = spyOn(account, 'follow', () => Promise.resolve())
 
@@ -672,7 +679,15 @@ describe('feed popup with accounts', () => {
     equal(popup.followedBy.get(), undefined)
     let feedId = await popup.add()
 
-    equal((await loadFeed(feedId!))!.accountId, accountId)
+    let feed = (await loadFeed(feedId!))!
+    equal(feed.accountId, accountId)
+    equal(feed.categoryId, null)
+    equal(feed.reading, null)
+    equal(popup.reading.get(), 'slow')
+    deepEqual(
+      (await loadPostsByFeed(feedId!)).map(i => i.reading),
+      ['slow']
+    )
     deepEqual(
       follows.calls.map(call => [call[0].account.id, call[1]]),
       [[accountId, AUTHOR]]

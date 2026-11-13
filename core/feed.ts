@@ -225,14 +225,14 @@ export async function addCandidate(
   let lastPost = posts.get().list[0]
 
   let feed = {
-    categoryId: GENERAL_CATEGORY,
+    categoryId: fields.accountId ? null : GENERAL_CATEGORY,
     lastOriginId: lastPost?.originId,
     lastPublishedAt:
       (lastPost && getSortedAt(lastPost)) ?? Math.round(Date.now() / 1000),
     loader: candidate.name,
     loaderData,
     originTitle: candidate.title,
-    reading: 'slow' as const,
+    reading: fields.accountId ? null : ('slow' as const),
     title: candidate.title,
     url: candidate.url,
     ...fields,
@@ -249,9 +249,12 @@ export async function addCandidate(
       .slice(0, 10)
       .flatMap(({ threadParts, ...start }) => [start, ...(threadParts ?? [])])
   )
+  let account = feed.accountId
+    ? await getTables().accounts.get(feed.accountId)
+    : undefined
   await addPost(
     linked.map(origin =>
-      processOriginPost(origin, { feedId }, feed.reading ?? 'fast')
+      processOriginPost(origin, { feedId }, getFeedReading(feed, account))
     )
   )
   return feedId
