@@ -53,12 +53,13 @@ async function fromCache(url: string): Promise<Response> {
 
 async function fromCacheOrSave(url: string): Promise<Response> {
   let cache = await caches.open(commit)
-  if (!(await cache.match(url))) {
-    let response = await fetch(url, { integrity: lazyAssets[url] })
-    if (!response.ok) return response
-    await cache.put(url, response)
-  }
-  return fromCache(url)
+  // Firefox blocks fromCache() response without URL in Telegram worker,
+  // because its CSP has a path in connect-src
+  let cached = await cache.match(url)
+  if (cached) return cached
+  let response = await fetch(url, { integrity: lazyAssets[url] })
+  if (response.ok) await cache.put(url, response.clone())
+  return response
 }
 
 /**
