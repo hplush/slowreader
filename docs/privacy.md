@@ -32,6 +32,14 @@ Without the Slow Reader browser extension, the web app downloads feeds through o
 
 With the extension, the app downloads feeds directly, so feed websites see your IP address.
 
+## Telegram
+
+The app connects from your device right to Telegram, not through our proxy. So Telegram sees your IP address, and our servers never get your credentials.
+
+The app signs in to your whole Telegram account, because Telegram can’t give access only to channels. The app loads only channels. It never saves or sends your private chats.
+
+Posts you read here are marked as read in Telegram.
+
 ## Analytics
 
 We have two separate counters. Neither can link data to you. The only cookie keeps you signed in to the cloud.
@@ -70,4 +78,4 @@ If you email us, we use your email address and message only to answer you. We de
 
 ## Changes
 
-We may change this policy at any time. Check this page for the latest version. Last change: November 10, 2026. See <a href="https://github.com/hplush/slowreader/commits/main/docs/privacy.md" target="_blank">the history of changes</a> of this policy.
+We may change this policy at any time. Check this page for the latest version. Last change: November 13, 2026. See <a href="https://github.com/hplush/slowreader/commits/main/docs/privacy.md" target="_blank">the history of changes</a> of this policy.
