@@ -49,6 +49,7 @@ import {
   testPost,
   waitLoading
 } from '../index.ts'
+import type { AccountLoader } from '../loader/common.ts'
 import {
   checkAndRemoveRequestMock,
   cleanClient,
@@ -984,7 +985,7 @@ describe('refresh of accounts', () => {
     checkAndRemoveRequestMock()
   })
 
-  let signedIn = loaders.mastodon.account!
+  let signedIn = loaders.mastodon.account! as Required<AccountLoader>
 
   function by(
     name: string,
@@ -1203,24 +1204,28 @@ describe('refresh of accounts', () => {
       title: 'Bob',
       url: 'https://bsky.app/profile/bob'
     }
-    spyOn(loaders.bluesky.account!, 'getTimeline', () => {
-      return createPostsList(() =>
-        Promise.resolve([
-          [
-            { author: renamed, originId: 'a1', publishedAt: 300 },
-            {
-              author: bob,
-              originId: 'b1',
-              publishedAt: 100,
-              repostedBy: renamed,
-              sortedAt: 290
-            },
-            { author: bob, originId: 'b2', publishedAt: 280 }
-          ],
-          undefined
-        ])
-      )
-    })
+    spyOn(
+      loaders.bluesky.account! as Required<AccountLoader>,
+      'getTimeline',
+      () => {
+        return createPostsList(() =>
+          Promise.resolve([
+            [
+              { author: renamed, originId: 'a1', publishedAt: 300 },
+              {
+                author: bob,
+                originId: 'b1',
+                publishedAt: 100,
+                repostedBy: renamed,
+                sortedAt: 290
+              },
+              { author: bob, originId: 'b2', publishedAt: 280 }
+            ],
+            undefined
+          ])
+        )
+      }
+    )
 
     await refreshPosts()
     let feeds = await loadFeeds()
