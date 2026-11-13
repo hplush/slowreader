@@ -5,11 +5,15 @@ on:
       - main
     paths:
       - '.github/workflows/audit.yml'
+      - '.node-version'
+      - 'scripts/check-node.ts'
       - '.github/actions/init-node/action.yml'
       - pnpm-lock.yaml
   pull_request:
     paths:
       - '.github/workflows/audit.yml'
+      - '.node-version'
+      - 'scripts/check-node.ts'
       - '.github/actions/init-node/action.yml'
       - pnpm-lock.yaml
   schedule:
@@ -42,7 +46,7 @@ jobs:
         with:
           install: false
       - name: Check Node.js version for vulnerabilities
-        run: pnpm dlx is-my-node-vulnerable
+        run: node ./scripts/check-node.ts
       - name: Check dependencies for vulnerabilities
         run: node --run test:online:audit
   socket:
