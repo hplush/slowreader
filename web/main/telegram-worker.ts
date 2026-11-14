@@ -99,6 +99,7 @@ async function load(): Promise<(message: ToTelegramWorker) => void> {
 
   let client: number | undefined
   let timer: ReturnType<typeof setTimeout> | undefined
+  let closing = false
 
   function receiveAll(): void {
     clearTimeout(timer)
@@ -107,6 +108,7 @@ async function load(): Promise<(message: ToTelegramWorker) => void> {
     while (json) {
       post({ json, type: 'receive' })
       if (json.includes('"authorizationStateReady"')) void save()
+      if (json.includes('"authorizationStateClosing"')) closing = true
       if (json.includes('"authorizationStateClosed"')) closed = true
       json = receive()
     }
@@ -115,7 +117,9 @@ async function load(): Promise<(message: ToTelegramWorker) => void> {
         post({ type: 'closed' })
       })
     } else {
-      timer = setTimeout(receiveAll, getTimeout() * 1000)
+      // TDLib needs one more call to end closing, but asks to sleep 10000 s.
+      // Only WebSocket close event was waking it up, and offline there is none.
+      timer = setTimeout(receiveAll, closing ? 0 : getTimeout() * 1000)
     }
   }
 
