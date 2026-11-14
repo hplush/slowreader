@@ -30,7 +30,7 @@ It allows us to verify that client and server use the same API.
 
 ## Database
 
-We are using PostgreSQL database to store credentials and user’s log. For development, we are using [pglite](https://github.com/neondatabase/electric-pglite) to work with PostgreSQL without running a separated DB service. For tests, we are using in-memory pglite.
+We are using PostgreSQL database to store credentials and user’s log. For development, we are using [pglite](https://pglite.dev/) to work with PostgreSQL without running a separated DB service. For tests, we are using in-memory pglite.
 
 To use SQL with TypeScript we are using [Drizzle](https://orm.drizzle.team/docs/overview).
 
