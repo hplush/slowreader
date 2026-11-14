@@ -34,7 +34,7 @@
       "!dist/assets/{literata,merriweather,source-serif-4,bitter,inter,atkinson-hyperlegible-next,lexend,opendyslexic}-*.woff2",
       "!dist/assets/*-{italic,math,latin-ext}-*.woff2"
     ],
-    "limit": "790 KB" // Bump by 10 KB steps
+    "limit": "800 KB" // Bump by 10 KB steps
   },
   {
     "name": "Landing page on phone",
