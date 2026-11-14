@@ -746,6 +746,7 @@ describe('telegram loader', () => {
                 entity('example.com', 'Url'),
                 entity('@channel', 'Mention'),
                 entity('#tag', 'Hashtag'),
+                entity('Use', 'Spoiler'),
                 entity('<code>', 'Code'),
                 entity('link', 'TextUrl', {
                   url: 'https://example.com/?a=1&b=2'
@@ -769,7 +770,7 @@ describe('telegram loader', () => {
       '<p><b>Title 🚀</b></p>' +
         '<p>See <a href="https://example.com">example.com</a>, ' +
         '<a href="https://t.me/channel">@channel</a> and #tag<br>' +
-        'Use <code>&lt;code&gt;</code> &amp; ' +
+        '<span class="spoiler">Use</span> <code>&lt;code&gt;</code> &amp; ' +
         '<a href="https://example.com/?a=1&amp;b=2"><b>link</b></a>.</p>' +
         '<blockquote>Quoted text</blockquote>' +
         '<pre>let a = 1 &lt; 2</pre>' +
@@ -1447,7 +1448,8 @@ describe('telegram loader', () => {
             '<p><b>Why?</b></p>' +
             '<p>List:<br>1. One<br>2. Two</p>' +
             '<p>-- <br><a href="https://t.me/news">Join</a> | ' +
-            '<a href="https://t.me/news/200">Best</a><br>Bye</p>',
+            '<a href="https://t.me/news/200">Best</a><br>' +
+            '<span class="spoiler">Bye</span></p>',
           unsupported: undefined
         },
         {

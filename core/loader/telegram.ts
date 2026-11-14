@@ -850,8 +850,10 @@ function formatEntity(text: string, entity: TextEntity): string {
     return `<${tag}>${inside}</${tag}>`
   } else if (href) {
     return `<a href="${escapeXml(href)}">${inside}</a>`
+  } else if (type === 'Spoiler') {
+    return `<span class="spoiler">${inside}</span>`
   } else {
-    // Hashtag, custom emoji, spoiler, and other entities without HTML tag
+    // Hashtag, custom emoji, and other entities without HTML tag
     return inside
   }
 }

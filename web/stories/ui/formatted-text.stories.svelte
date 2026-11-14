@@ -117,6 +117,16 @@
   let codeInline =
     '<p>This is a paragraph of text. Here is an example of inline code: <code>console.log("Hello, world!");</code></p>'
 
+  let spoilers =
+    '<p>Hidden text is covered until the click: ' +
+    '<span class="spoiler">normal</span>, ' +
+    '<span class="spoiler">hover</span>, ' +
+    '<span class="spoiler">pressed</span>, ' +
+    '<span class="spoiler">focus</span>, and ' +
+    '<span class="spoiler">a long one with <b>bold text</b>, ' +
+    '<a href="https://example.com">a link</a>, and enough words to ' +
+    'go to the next lines, where every line has own cover</span>.</p>'
+
   let tableExample =
     '<table><thead>' +
     '<tr><th>Header 1</th><th>Header 2</th><th>Header 3</th><th>Header 4</th></tr></thead>' +
@@ -139,6 +149,14 @@
   </Section>
   <Section>
     <FormattedText html={inlineTagsExample} />
+  </Section>
+  <Section
+    active=".formatted-text_spoiler:nth-of-type(3)"
+    focus=".formatted-text_spoiler:nth-of-type(4)"
+    hover=".formatted-text_spoiler:nth-of-type(2)"
+    width={400}
+  >
+    <FormattedText html={spoilers} />
   </Section>
   <Section>
     <FormattedText html={unorderedList} />
@@ -174,6 +192,14 @@
     </Section>
     <Section>
       <FormattedText html={inlineTagsExample} />
+    </Section>
+    <Section
+      active=".formatted-text_spoiler:nth-of-type(3)"
+      focus=".formatted-text_spoiler:nth-of-type(4)"
+      hover=".formatted-text_spoiler:nth-of-type(2)"
+      width={400}
+    >
+      <FormattedText html={spoilers} />
     </Section>
     <Section>
       <FormattedText html={unorderedList} />
@@ -214,6 +240,14 @@
   <Section>
     <FormattedText html={inlineTagsExample} />
   </Section>
+  <Section
+    active=".formatted-text_spoiler:nth-of-type(3)"
+    focus=".formatted-text_spoiler:nth-of-type(4)"
+    hover=".formatted-text_spoiler:nth-of-type(2)"
+    width={400}
+  >
+    <FormattedText html={spoilers} />
+  </Section>
   <Section>
     <FormattedText html={unorderedList} />
     <FormattedText html={orderedList} />
@@ -252,6 +286,14 @@
     </Section>
     <Section>
       <FormattedText html={inlineTagsExample} />
+    </Section>
+    <Section
+      active=".formatted-text_spoiler:nth-of-type(3)"
+      focus=".formatted-text_spoiler:nth-of-type(4)"
+      hover=".formatted-text_spoiler:nth-of-type(2)"
+      width={400}
+    >
+      <FormattedText html={spoilers} />
     </Section>
     <Section>
       <FormattedText html={unorderedList} />

@@ -62,7 +62,7 @@ describe('html', () => {
     )
   })
 
-  test('keeps only emoji class', () => {
+  test('keeps only emoji and spoiler classes', () => {
     equal(
       sanitize(
         '<p class="emoji">A<img class="emoji big" src="https://a.com/e.png">' +
@@ -71,6 +71,13 @@ describe('html', () => {
       '<p>A<img class="emoji" src="https://a.com/e.png" loading="eager" ' +
         'decoding="async"><img src="https://a.com/p.png" loading="eager" ' +
         'decoding="async"></p>'
+    )
+    equal(
+      sanitize(
+        '<p class="spoiler"><span class="big spoiler">A</span>' +
+          '<span class="emoji">B</span><b class="spoiler">C</b></p>'
+      ),
+      '<p><span class="spoiler">A</span><span>B</span><b>C</b></p>'
     )
   })
 

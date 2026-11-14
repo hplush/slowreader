@@ -19,6 +19,7 @@ export const postMessages = i18n('post', {
   share: 'Share post',
   repostedBy: params('Reposted by {name}'),
   showSensitive: 'Show sensitive media',
+  showSpoiler: 'Show hidden text',
   showWarning: 'Show post',
   thread: params('{position}/{size}'),
   threadLabel: params('Thread of {size} posts'),

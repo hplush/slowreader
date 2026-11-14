@@ -256,10 +256,9 @@ function getPurify(): ReturnType<typeof createDOMPurify> {
         data.keepAttr = false
       } else if (data.attrName === 'class') {
         // Emoji should stay inside the text line, unlike other images
-        data.keepAttr =
-          node.localName === 'img' &&
-          data.attrValue.split(' ').includes('emoji')
-        data.attrValue = 'emoji'
+        let known = { img: 'emoji', span: 'spoiler' }[node.localName]
+        data.keepAttr = !!known && data.attrValue.split(' ').includes(known)
+        if (known) data.attrValue = known
       } else if (
         data.attrName === 'src' &&
         node.localName === 'img' &&
@@ -420,6 +419,9 @@ export function parseRichTranslation(
  */
 export function stripHTML(html: string): string {
   let root = parseDocument(html).documentElement
+  for (let spoiler of root.querySelectorAll('span.spoiler')) {
+    spoiler.textContent = '…'
+  }
   for (let block of root.querySelectorAll(
     'blockquote, br, div, h1, h2, h3, h4, h5, h6, li, p, pre, tr'
   )) {

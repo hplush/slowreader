@@ -312,6 +312,13 @@ describe('post', () => {
     equal(getPostTitle({ full: 'b', intro: 'a<img />', originId: 'id' }), 'a')
     equal(
       getPostTitle({
+        full: 'Killer is <span class="spoiler">the <b>cook</b></span>',
+        originId: 'id'
+      }),
+      'Killer is …'
+    )
+    equal(
+      getPostTitle({
         full: 'b',
         intro: 'a',
         originId: 'id',

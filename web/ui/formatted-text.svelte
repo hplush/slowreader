@@ -9,7 +9,8 @@
     type LoaderName,
     openPopup,
     router,
-    sanitizeDOM
+    sanitizeDOM,
+    postMessages as t
   } from '@slowreader/core'
   import { mount, unmount } from 'svelte'
   import type { Attachment } from 'svelte/attachments'
@@ -189,6 +190,30 @@
         }
       }
     })
+    node.querySelectorAll<HTMLElement>('.spoiler').forEach(spoiler => {
+      let cover = document.createElement('span')
+      cover.className = 'formatted-text_spoiler'
+      cover.setAttribute('role', 'button')
+      cover.tabIndex = 0
+      // Reading the translation outside would render the whole text again
+      $effect(() => {
+        cover.setAttribute('aria-label', $t.showSpoiler)
+      })
+      spoiler.replaceWith(cover)
+      cover.append(spoiler)
+      function show(event: Event): void {
+        // Link or post’s card around the spoiler reacts to the click too
+        event.preventDefault()
+        event.stopPropagation()
+        cover.replaceWith(spoiler)
+        spoiler.tabIndex = -1
+        spoiler.focus({ preventScroll: true })
+      }
+      on(cover, 'click', show)
+      on(cover, 'keydown', event => {
+        if (event.key === 'Enter' || event.key === ' ') show(event)
+      })
+    })
     return () => {
       for (let component of mounted) void unmount(component)
       for (let stop of stopLoading) stop()
@@ -276,6 +301,32 @@
       max-width: 100%;
       aspect-ratio: 16 / 9;
       margin: 0.625em auto;
+    }
+
+    .formatted-text_spoiler {
+      position: relative;
+      background: --tune-background(--placeholder);
+      border-radius: 0.25em;
+      box-decoration-break: clone;
+
+      html:not(.is-quiet-cursor) & {
+        cursor: pointer;
+      }
+
+      &:hover,
+      &:active,
+      &:focus-visible {
+        background: --tune-background(--placeholder --placeholder-hover);
+      }
+
+      /* Inline element can not be moved by translate */
+      &:active {
+        top: var(--min-size);
+      }
+    }
+
+    .formatted-text_spoiler > * {
+      visibility: hidden;
     }
 
     .formatted-text p {
