@@ -3,8 +3,22 @@
 
   import Feed from '../../ui/feed/index.svelte'
 
-  let { feedUrl, reader }: { feedUrl?: string; reader: FeedReader } = $props()
+  let {
+    autoread,
+    feedUrl,
+    reader
+  }: {
+    autoread: boolean
+    feedUrl?: string
+    reader: FeedReader
+  } = $props()
   let { authors, list, userPostUrl } = $derived(reader)
 </script>
 
-<Feed authors={$authors} {feedUrl} posts={$list} userPostUrl={$userPostUrl} />
+<Feed
+  authors={$authors}
+  {autoread}
+  {feedUrl}
+  posts={$list}
+  userPostUrl={$userPostUrl}
+/>

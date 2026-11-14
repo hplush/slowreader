@@ -11,12 +11,14 @@
 
   let {
     authors,
+    autoread = false,
     feedUrl,
     highlight = true,
     posts,
     userPostUrl
   }: {
     authors?: ReadonlyMap<string, FeedAuthor>
+    autoread?: boolean
     feedUrl?: string
     highlight?: boolean
     posts: readonly (PreviewPost | ReaderPost)[]
@@ -29,6 +31,7 @@
     {@const author = getFeedAuthor(post, authors)}
     <FeedPost
       {author}
+      {autoread}
       feedUrl={author?.url ?? feedUrl}
       {highlight}
       {post}

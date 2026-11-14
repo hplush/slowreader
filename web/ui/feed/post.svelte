@@ -41,12 +41,14 @@
 
   let {
     author,
+    autoread,
     feedUrl,
     highlight,
     post,
     userPostUrl
   }: {
     author: FeedAuthor | undefined
+    autoread: boolean
     feedUrl: string | undefined
     highlight: boolean
     post: PreviewPost | ReaderPost
@@ -54,7 +56,7 @@
   } = $props()
 
   let [intro, more] = $derived(getPostIntro(post))
-  let param = $derived(getPostPopupParam(post))
+  let param = $derived(getPostPopupParam(post, autoread))
   let current = $derived(highlight && isOpenedPost($openedPost, post))
 
   let url = $derived(userPostUrl(post))
