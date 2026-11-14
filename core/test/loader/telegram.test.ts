@@ -1666,6 +1666,43 @@ describe('telegram loader', () => {
     await rejects(getMedia!('telegram:5/9')!, { name: 'TelegramError' })
   })
 
+  test('downloads file once for parallel requests', async () => {
+    let { getMedia } = loaders.telegram
+    deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
+    mockHistory(0, {})
+    testTelegram.answers.getMessage = photoPost
+    testTelegram.answers.downloadFile = ({ file_id: id }) => {
+      testTelegram.files = { 12: new Blob(['photo']) }
+      return { '@type': 'file', id, 'size': 5 }
+    }
+    // Like real TDLib, which can not read the deleted file
+    testTelegram.answers.deleteFile = () => {
+      testTelegram.files = {}
+      return { '@type': 'ok' }
+    }
+    function countDownloads(): number {
+      return testTelegram.requests.filter(i => i['@type'] === 'downloadFile')
+        .length
+    }
+
+    let [page, cache] = await Promise.all([
+      getMedia!('telegram:5/4')!,
+      getMedia!('telegram:5/4')!
+    ])
+    equal(await page.text(), 'photo')
+    equal(await cache.text(), 'photo')
+    equal(countDownloads(), 1)
+
+    equal(await (await getMedia!('telegram:5/4')!).text(), 'photo')
+    equal(countDownloads(), 2)
+
+    testTelegram.answers.downloadFile = fail('No file', 404)
+    await rejects(getMedia!('telegram:5/4')!, { name: 'TelegramError' })
+    testTelegram.answers.downloadFile = { '@type': 'file', 'id': 12, 'size': 5 }
+    testTelegram.files = { 12: new Blob(['again']) }
+    equal(await (await getMedia!('telegram:5/4')!).text(), 'again')
+  })
+
   test('gives media to the cache and to the page', async t => {
     deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
     mockHistory(0, {})

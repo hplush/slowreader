@@ -101,6 +101,11 @@ interface Session {
    */
   depth: number
   /**
+   * Page and media cache ask for the same file at once. TDLib’s copy
+   * is deleted after the reading, so the second reader would find nothing.
+   */
+  downloads: Map<number, Promise<Blob>>
+  /**
    * We asked TDLib to end the session, so it is not user’s sign out
    * in another Telegram app.
    */
@@ -180,6 +185,7 @@ function getSession(name: string): Session {
     client: creator({ ...app, name }),
     connected: false,
     depth: Infinity,
+    downloads: new Map(),
     ending: false,
     idle: undefined,
     keep: false,
@@ -1406,38 +1412,42 @@ function toMedia(
   return [media, file.size]
 }
 
-async function readTelegramFile(
-  name: string,
-  file: MediaFile,
-  bytes: number
-): Promise<Response> {
-  let session = getSession(name)
-  clearTimeout(session.idle)
-  try {
-    return new Response(await session.client.readFile(file.id, 0, bytes), {
-      headers: { 'Content-Type': file.type }
-    })
-  } finally {
-    closeOnIdle(session)
-  }
-}
-
-async function downloadFile(name: string, file: MediaFile): Promise<Response> {
+async function moveFileFromTdlib(name: string, id: number): Promise<Blob> {
   let downloaded = await sendToTelegram(name, {
     '@type': 'downloadFile',
-    'file_id': file.id,
+    'file_id': id,
     'limit': 0,
     'offset': 0,
     'priority': 1,
     'synchronous': true
   })
-  let response = await readTelegramFile(name, file, Number(downloaded.size))
+  let session = getSession(name)
+  clearTimeout(session.idle)
+  let blob: Blob
+  try {
+    blob = await session.client.readFile(id, 0, Number(downloaded.size))
+  } finally {
+    closeOnIdle(session)
+  }
   // TDLib keeps downloaded files in memory, and we have own media cache
-  await sendToTelegram(name, {
-    '@type': 'deleteFile',
-    'file_id': file.id
-  }).catch(() => {})
-  return response
+  await sendToTelegram(name, { '@type': 'deleteFile', 'file_id': id }).catch(
+    () => {}
+  )
+  return blob
+}
+
+async function downloadFile(name: string, file: MediaFile): Promise<Response> {
+  let downloads = getSession(name).downloads
+  let downloading = downloads.get(file.id)
+  if (!downloading) {
+    downloading = moveFileFromTdlib(name, file.id).finally(() => {
+      downloads.delete(file.id)
+    })
+    downloads.set(file.id, downloading)
+  }
+  return new Response(await downloading, {
+    headers: { 'Content-Type': file.type }
+  })
 }
 
 function loadMedia(
