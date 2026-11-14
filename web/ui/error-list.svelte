@@ -11,7 +11,7 @@
 </script>
 
 <ul class="error-list">
-  {#each list as item (item.url)}
+  {#each list as item, index (`${item.url}${index}`)}
     <li class="error-list_item">
       <a class="error-list_link" href={item.url} target={item.target}>
         {item.title || item.feedId}

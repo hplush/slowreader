@@ -111,6 +111,12 @@
           item: { title: 'Dangerous' },
           mark: mdiChevronRight,
           variant: 'dangerous'
+        },
+        {
+          href: '#',
+          id: 'Hint',
+          item: { title: 'Same ID' },
+          mark: mdiChevronRight
         }
       ]}
     />

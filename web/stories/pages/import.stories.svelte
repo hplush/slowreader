@@ -45,7 +45,9 @@
       pages.import().done.set(3)
       pages.import().feedErrors.set([
         ['https://example.com/feed1.xml', 'unloadable'],
-        ['https://example.com/feed2.xml', 'unknown']
+        ['https://example.com/feed2.xml', 'unknown'],
+        ['https://example.com/feed3.xml', 'exists'],
+        ['https://example.com/feed3.xml', 'exists']
       ])
     }}
     route="import"

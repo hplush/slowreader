@@ -73,7 +73,7 @@
 </script>
 
 {#snippet sources(item: ReaderMedia)}
-  {#each item.sources ?? [] as source (source.url)}
+  {#each item.sources ?? [] as source, index (`${source.url}${index}`)}
     <source src={source.url} type={source.type} />
   {/each}
   {#if !isLoaderMedia(item.url)}

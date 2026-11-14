@@ -32,10 +32,21 @@
     item: Snippet<[Value]>
     links: Link<Value>[]
   } = $props()
+
+  // Svelte crashes the whole app on equal keys, and some IDs are from
+  // outside, like feed’s URL
+  let keys = $derived.by(() => {
+    let used = new Set<string>()
+    return links.map((link, index) => {
+      if (used.has(link.id)) return index
+      used.add(link.id)
+      return link.id
+    })
+  })
 </script>
 
 <ul {id} class="links" aria-hidden="true" role="menu">
-  {#each links as i (i.id)}
+  {#each links as i, index (keys[index])}
     <li>
       <Clickable
         class={{
