@@ -129,24 +129,17 @@
     {@attach () => reportLoader('media')}
     aria-label={$commonMessages.loading}
     role="progressbar"
-    viewBox="0 0 12 12"
+    viewBox="0 0 56 56"
   >
     <circle
-      class="post-media_track"
-      cx="6"
-      cy="6"
-      fill="none"
-      r="3"
-      stroke-width="1"
-    />
-    <circle
       class="post-media_spinner"
-      cx="6"
-      cy="6"
+      cx="28"
+      cy="28"
       fill="none"
-      r="3"
-      stroke-dasharray="4.7 100"
-      stroke-width="1"
+      r="25"
+      stroke-dasharray="40 200"
+      stroke-linecap="round"
+      stroke-width="3.5"
     />
   </svg>
 {/snippet}
@@ -365,10 +358,6 @@
 
       /* Cached image should not blink by the loader */
       animation: --post-media-appear var(--simple-time) 300ms backwards;
-    }
-
-    .post-media_track {
-      stroke: var(--media-loader-track-color);
     }
 
     .post-media_spinner {
