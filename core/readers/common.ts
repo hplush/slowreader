@@ -268,6 +268,8 @@ export function loadPostsPage(
         "publishedAt", "sortedAt", "read", "title", "url", "author", "preview",
         (SELECT "protected" FROM "feeds"
           WHERE "feeds"."id" = "posts"."feedId") AS "protected",
+        (SELECT "loader" FROM "feeds"
+          WHERE "feeds"."id" = "posts"."feedId") AS "loader",
         "quoted", "lang", "poll",
         "replied", "repostedBy", "threadId", "unsupported", "warning",
         (SELECT COUNT(*) FROM "posts" AS "thread"
@@ -353,6 +355,8 @@ export function loadPostsRange(
         "publishedAt", "sortedAt", "read", "title", "url", "author", "preview",
         (SELECT "protected" FROM "feeds"
           WHERE "feeds"."id" = "posts"."feedId") AS "protected",
+        (SELECT "loader" FROM "feeds"
+          WHERE "feeds"."id" = "posts"."feedId") AS "loader",
         "quoted", "lang", "poll",
         "replied", "repostedBy", "threadId", "unsupported", "warning",
         (SELECT COUNT(*) FROM "posts" AS "thread"

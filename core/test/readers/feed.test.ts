@@ -23,7 +23,12 @@ import {
   toPreviewPost,
   waitLoading
 } from '../../index.ts'
-import { loadReadPostIds } from '../../readers/common.ts'
+import {
+  loadPostsPage,
+  loadPostsRange,
+  loadReadPostIds,
+  topCursor
+} from '../../readers/common.ts'
 import {
   cleanClient,
   numberPagination,
@@ -237,6 +242,13 @@ describe('feed reader', () => {
     let [first, , feedPost] = reader.list.get()
     equal(getFeedAuthor(first!, authors), undefined)
     equal(first!.loader, 'mastodon')
+    // Text loads images with loader’s URL only for posts of this loader
+    for (let posts of [
+      await loadPostsPage({ feedId, reading: 'fast' }, topCursor(), 10),
+      await loadPostsRange({ feedId, reading: 'fast' }, topCursor(), undefined)
+    ]) {
+      equal(posts[0]!.loader, 'mastodon')
+    }
     equal(getFeedAuthor(feedPost!, authors)?.feedId, feedId)
     equal(getFeedAuthor(feedPost!, authors)?.round, true)
     equal(getFeedAuthor(feedPost!, authors)?.handle, '@a@chaos.social')
