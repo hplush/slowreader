@@ -4,6 +4,7 @@ Add your Telegram account on the Accounts page to read its channels here:
 
 - Every channel you follow becomes a feed. Subscribing to a `t.me` link joins the channel, deleting the feed leaves it.
 - Posts keep formatting, photos, videos, polls, forwards, replies, and link previews.
+- Posts with rich formatting keep headings, lists, quotes, tables, and photos between paragraphs.
 - Read posts are synced with Telegram both ways.
 - You sign in on every device, since the sign-in key never leaves the device. Refresh shows an error on a device without the sign-in.
 - On a computer you sign in by scanning a QR code in Telegram’s app, without a phone number and a code.

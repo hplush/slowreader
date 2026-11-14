@@ -5,11 +5,12 @@ import { deviceSessions } from './device-sessions.ts'
 import { type CachedMedia, getEnvironment } from './environment.ts'
 import { HTTPStatusError } from './errors.ts'
 import { createDownloadTask } from './lib/download.ts'
+import { isLoaderMedia } from './lib/html.ts'
 import { canUseNetwork } from './lib/network.ts'
 import { createQueue } from './lib/queue.ts'
 import { increaseKey } from './lib/stores.ts'
 import { loadLoaderMedia } from './loader/index.ts'
-import { changePost, isLoaderMedia, loadPost } from './post.ts'
+import { changePost, loadPost } from './post.ts'
 import {
   getCrdt,
   getDatabase,

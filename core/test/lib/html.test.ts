@@ -103,6 +103,19 @@ describe('html', () => {
     )
   })
 
+  test('keeps loader URL schema only in images', () => {
+    equal(
+      sanitize(
+        '<img src="telegram:5/8/0" width="800">' +
+          '<a href="telegram:5/8/0">Link</a>' +
+          '<video src="telegram:5/8/0"></video>'
+      ),
+      '<img src="telegram:5/8/0" width="800" loading="eager" ' +
+        'decoding="async"><a>Link</a>' +
+        '<video controls="" preload="none"></video>'
+    )
+  })
+
   test('removes relative URLs', () => {
     equal(
       sanitize(

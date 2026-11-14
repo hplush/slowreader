@@ -1233,6 +1233,367 @@ describe('telegram loader', () => {
     )
   })
 
+  function plain(text: string): object {
+    return { '@type': 'richTextPlain', text }
+  }
+
+  function styled(type: string, text: string, fields: object = {}): object {
+    return { '@type': `richText${type}`, 'text': plain(text), ...fields }
+  }
+
+  function paragraph(...texts: object[]): object {
+    return {
+      '@type': 'pageBlockParagraph',
+      'text': { '@type': 'richTexts', texts }
+    }
+  }
+
+  function richPhoto(id: number, fields: object = {}): object {
+    return {
+      '@type': 'pageBlockPhoto',
+      'has_spoiler': false,
+      'photo': {
+        '@type': 'photo',
+        'minithumbnail': { '@type': 'minithumbnail', 'data': 'AAAA' },
+        'sizes': [
+          { height: 320, photo: file(id, 100), width: 320 },
+          { height: 800, photo: file(id + 1, 1000), width: 800 }
+        ]
+      },
+      'url': '',
+      ...fields
+    }
+  }
+
+  function rich(post: number, blocks: object[], full = true): TelegramObject {
+    return message(post, {
+      chat_id: -1000000000005,
+      content: {
+        '@type': 'messageRichMessage',
+        'message': { '@type': 'richMessage', blocks, 'is_full': full }
+      }
+    })
+  }
+
+  test('loads posts with rich formatting', async () => {
+    mockHistory(0, {
+      0: [
+        // Shortened real post
+        rich(8, [
+          paragraph(
+            styled('Bold', 'Title!\n'),
+            plain('\nShort text.\n\n'),
+            styled('Url', 'Link', { url: 'https://example.com/' }),
+            plain('!\n\nSecond.\n\n\n')
+          ),
+          {
+            '@type': 'pageBlockCollage',
+            'blocks': [richPhoto(61), richPhoto(63)]
+          },
+          paragraph(
+            plain('\n\n'),
+            styled('Bold', 'Why?'),
+            plain('\n\nList:\n1. One\n2. Two\n\n-- \n'),
+            styled('Url', 'Join', { url: 'https://t.me/news' }),
+            plain(' | '),
+            styled('Url', 'Best', { url: 'https://t.me/news/200' }),
+            plain('\n'),
+            styled('Spoiler', 'Bye')
+          )
+        ]),
+        rich(7, [
+          {
+            '@type': 'pageBlockSectionHeading',
+            'size': 2,
+            'text': styled('Italic', 'Heading')
+          },
+          {
+            '@type': 'pageBlockList',
+            'items': [
+              { blocks: [paragraph(plain('One'))], type: '1', value: 1 },
+              { blocks: [paragraph(plain('Two'))], type: '1', value: 2 }
+            ]
+          },
+          {
+            '@type': 'pageBlockList',
+            'items': [
+              {
+                blocks: [paragraph(plain('Done'))],
+                has_checkbox: true,
+                is_checked: true,
+                type: ''
+              },
+              {
+                blocks: [paragraph(plain('To do'))],
+                has_checkbox: true,
+                is_checked: false,
+                type: ''
+              }
+            ]
+          },
+          {
+            '@type': 'pageBlockBlockQuote',
+            'blocks': [paragraph(plain('Quote'))],
+            'credit': plain('Author')
+          },
+          { '@type': 'pageBlockPullQuote', 'text': plain('Pull') },
+          {
+            '@type': 'pageBlockPreformatted',
+            'language': 'js',
+            'text': styled('Bold', 'a < b')
+          },
+          { '@type': 'pageBlockMathematicalExpression', 'expression': 'x^2' },
+          { '@type': 'pageBlockDivider' },
+          {
+            '@type': 'pageBlockTable',
+            'caption': plain('Table'),
+            'cells': [
+              [
+                { colspan: 2, is_header: true, rowspan: 1, text: plain('Head') }
+              ],
+              [
+                { colspan: 1, rowspan: 1, text: plain('A') },
+                { colspan: 1, rowspan: 2, text: styled('Fixed', 'B') }
+              ]
+            ]
+          },
+          {
+            '@type': 'pageBlockDetails',
+            'blocks': [paragraph(plain('Hidden'))],
+            'header': plain('More'),
+            'is_open': true
+          },
+          richPhoto(71, {
+            caption: {
+              '@type': 'pageBlockCaption',
+              'credit': plain(''),
+              'text': plain('Caption')
+            }
+          }),
+          richPhoto(73, { has_spoiler: true }),
+          {
+            '@type': 'pageBlockVideo',
+            'caption': { '@type': 'pageBlockCaption', 'text': plain('Video') },
+            'video': {
+              '@type': 'video',
+              'height': 848,
+              'mime_type': 'video/mp4',
+              'thumbnail': {
+                '@type': 'thumbnail',
+                'file': file(75, 50),
+                'format': { '@type': 'thumbnailFormatJpeg' }
+              },
+              'video': file(76, 5000),
+              'width': 464
+            }
+          },
+          { '@type': 'pageBlockAnchor', 'name': 'end' },
+          paragraph(
+            styled('Superscript', 'up'),
+            styled('Marked', 'mark'),
+            styled('EmailAddress', 'mail', { email_address: 'a@example.com' }),
+            styled('Mention', '@news', { username: 'news' }),
+            { '@type': 'richTextCustomEmoji', 'alternative_text': '🙂' },
+            { '@type': 'richTextMathematicalExpression', 'expression': 'y^2' },
+            {
+              '@type': 'richTextBold',
+              'text': styled('Italic', 'both')
+            }
+          ),
+          { '@type': 'pageBlockFooter', 'footer': plain('Footer') }
+        ]),
+        rich(6, [paragraph(plain('Text')), { '@type': 'pageBlockMap' }]),
+        {
+          ...rich(5, [richPhoto(91), paragraph(plain('No saving'))]),
+          can_be_saved: false
+        }
+      ]
+    })
+    let posts = await loadFeedPosts('{"id":"-1000000000005"}')
+    deepEqual(
+      posts.map(post => ({
+        media: post.media,
+        sizes: post.mediaSizes,
+        text: post.full,
+        unsupported: post.unsupported
+      })),
+      [
+        {
+          media: [
+            {
+              fromText: true,
+              placeholder: 'data:image/jpeg;base64,AAAA',
+              type: 'image',
+              url: 'telegram:5/8/0'
+            },
+            {
+              fromText: true,
+              placeholder: 'data:image/jpeg;base64,AAAA',
+              type: 'image',
+              url: 'telegram:5/8/1'
+            }
+          ],
+          sizes: [
+            { bytes: 1000, height: 800, width: 800 },
+            { bytes: 1000, height: 800, width: 800 }
+          ],
+          text:
+            '<p><b>Title!</b></p>' +
+            '<p>Short text.</p>' +
+            '<p><a href="https://example.com/">Link</a>!</p>' +
+            '<p>Second.</p>' +
+            '<img src="telegram:5/8/0" alt="" width="800" height="800">' +
+            '<img src="telegram:5/8/1" alt="" width="800" height="800">' +
+            '<p><b>Why?</b></p>' +
+            '<p>List:<br>1. One<br>2. Two</p>' +
+            '<p>-- <br><a href="https://t.me/news">Join</a> | ' +
+            '<a href="https://t.me/news/200">Best</a><br>Bye</p>',
+          unsupported: undefined
+        },
+        {
+          media: [
+            {
+              fromText: true,
+              placeholder: 'data:image/jpeg;base64,AAAA',
+              type: 'image',
+              url: 'telegram:5/7/0'
+            },
+            {
+              placeholder: 'data:image/jpeg;base64,AAAA',
+              sensitive: true,
+              type: 'image',
+              url: 'telegram:5/7/1'
+            },
+            {
+              poster: 'telegram:5/7/2/poster',
+              type: 'video',
+              url: 'telegram:5/7/2'
+            }
+          ],
+          sizes: [
+            { bytes: 1000, height: 800, width: 800 },
+            { bytes: 1000, height: 800, width: 800 },
+            { bytes: 5000, height: 848, width: 464 }
+          ],
+          text:
+            '<h2><i>Heading</i></h2>' +
+            '<ol><li><p>One</p></li><li><p>Two</p></li></ol>' +
+            '<ul><li>☑ <p>Done</p></li><li>☐ <p>To do</p></li></ul>' +
+            '<blockquote><p>Quote</p><p><cite>Author</cite></p></blockquote>' +
+            '<blockquote><p>Pull</p></blockquote>' +
+            '<pre>a &lt; b</pre>' +
+            '<pre>x^2</pre>' +
+            '<hr>' +
+            '<table><caption>Table</caption>' +
+            '<tr><th colspan="2">Head</th></tr>' +
+            '<tr><td>A</td><td rowspan="2"><code>B</code></td></tr></table>' +
+            '<details open><summary>More</summary><p>Hidden</p></details>' +
+            '<figure>' +
+            '<img src="telegram:5/7/0" alt="" width="800" height="800">' +
+            '<figcaption>Caption</figcaption></figure>' +
+            '<p>Video</p>' +
+            '<p><sup>up</sup><mark>mark</mark>' +
+            '<a href="mailto:a@example.com">mail</a>' +
+            '<a href="https://t.me/news">@news</a>🙂<code>y^2</code>' +
+            '<b><i>both</i></b></p>' +
+            '<p>Footer</p>',
+          unsupported: undefined
+        },
+        {
+          media: undefined,
+          sizes: undefined,
+          text: '<p>Text</p>',
+          unsupported: true
+        },
+        {
+          media: [
+            {
+              placeholder: 'data:image/jpeg;base64,AAAA',
+              type: 'image',
+              url: 'telegram:5/5/0'
+            }
+          ],
+          sizes: [{ bytes: 1000, height: 800, width: 800 }],
+          text: '<p>No saving</p>',
+          unsupported: undefined
+        }
+      ]
+    )
+  })
+
+  test('loads the rest of long posts with rich formatting', async () => {
+    deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
+    mockHistory(1, {
+      0: [
+        rich(2, [paragraph(plain('Cut 2'))], false),
+        rich(1, [paragraph(plain('Cut 1'))], false)
+      ]
+    })
+    testTelegram.answers.getFullRichMessage = ({ message_id: id }) => ({
+      '@type': 'richMessage',
+      'blocks': [
+        paragraph(plain(`Full ${Number(id) / 1048576}`)),
+        richPhoto(81),
+        richPhoto(83)
+      ],
+      'is_full': true
+    })
+    let posts = await loadFeedPosts('{"id":"-1000000000005"}')
+    deepEqual(
+      posts.map(post => [post.full, post.media?.length, post.old]),
+      [
+        [
+          '<p>Full 2</p>' +
+            '<img src="telegram:5/2/0" alt="" width="800" height="800">' +
+            '<img src="telegram:5/2/1" alt="" width="800" height="800">',
+          2,
+          undefined
+        ],
+        ['<p>Cut 1</p>', undefined, true]
+      ]
+    )
+    deepEqual(
+      testTelegram.requests.filter(i => i['@type'] === 'getFullRichMessage'),
+      [
+        {
+          '@type': 'getFullRichMessage',
+          'chat_id': -1000000000005,
+          'message_id': 2 * 1048576
+        }
+      ]
+    )
+
+    testTelegram.answers.getMessage = rich(
+      3,
+      [paragraph(plain('Cut 3'))],
+      false
+    )
+    testTelegram.answers.downloadFile = ({ file_id: id }) => ({
+      '@type': 'file',
+      id,
+      'size': 5
+    })
+    testTelegram.files = { 84: new Blob(['photo']) }
+    let { getMedia, getPostByUrl } = loaders.telegram
+    equal(await (await getMedia!('telegram:5/3/1')!).text(), 'photo')
+    await rejects(getMedia!('telegram:5/3/2')!, {
+      message: 'Telegram post has no such media'
+    })
+    await rejects(getMedia!('telegram:5/3')!, {
+      message: 'Telegram post has no such media'
+    })
+    testTelegram.answers.getMessage = rich(
+      3,
+      [paragraph(plain('Cut 3'))],
+      false
+    )
+    testTelegram.answers.getSupergroup = { '@type': 'supergroup' }
+    equal(
+      (await getPostByUrl!(task, 'https://t.me/c/5/3')).full?.slice(0, 13),
+      '<p>Full 3</p>'
+    )
+  })
+
   test('loads media files by TDLib', async () => {
     let { getMedia } = loaders.telegram
     equal(getMedia!('https://example.com/a.jpg'), undefined)

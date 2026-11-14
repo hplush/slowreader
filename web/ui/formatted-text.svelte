@@ -4,6 +4,7 @@
 
   import {
     getLinkPopup,
+    isLoaderMedia,
     isMediaCached,
     type LoaderName,
     openPopup,
@@ -15,6 +16,7 @@
   import { on } from 'svelte/events'
 
   import { waitImageDecoded } from '../lib/image.ts'
+  import { mediaSrc } from '../lib/media.ts'
   import { getPopupHash } from '../stores/url-router.ts'
   import BrokenImage from './broken-image.svelte'
   import ClickToLoad from './click-to-load.svelte'
@@ -37,9 +39,24 @@
     // A node is already sanitized by `sanitizeDOM()` of the caller.
     // Cloned, because moving its children empties it for the next mount.
     let content =
-      typeof html === 'object' ? html.cloneNode(true) : sanitizeDOM(html ?? '')
+      typeof html === 'object'
+        ? (html.cloneNode(true) as Element)
+        : sanitizeDOM(html ?? '')
+    // Browser can not load loader’s image by URL and would show it as broken
+    // before we load the file
+    let loaderUrls = new Map<Element, string>()
+    for (let image of content.querySelectorAll('img')) {
+      let url = image.getAttribute('src') ?? image.getAttribute('data-src')
+      if (!url || !isLoaderMedia(url)) continue
+      // RSS article must not ask for files by user’s Telegram account
+      let own = url.startsWith(`${String(loader)}:`)
+      if (own && image.hasAttribute('src')) loaderUrls.set(image, url)
+      if (!own) image.removeAttribute('data-src')
+      image.removeAttribute('src')
+    }
     node.replaceChildren(...content.childNodes)
     let mounted = new Set<ReturnType<typeof mount>>()
+    let stopLoading = new Set<() => void>()
     function showBroken(image: HTMLImageElement): void {
       if (image.classList.contains('emoji')) {
         image.replaceWith(image.alt)
@@ -59,7 +76,8 @@
       )
     }
     function watchLoading(image: HTMLImageElement): void {
-      if (image.complete) {
+      let loaderUrl = loaderUrls.get(image)
+      if (!loaderUrl && image.complete) {
         if (image.naturalWidth === 0) showBroken(image)
         return
       }
@@ -67,10 +85,19 @@
       on(image, 'load', async () => {
         await waitImageDecoded(image)
         image.classList.remove('is-loading')
+        image.style.aspectRatio = ''
       })
       on(image, 'error', () => {
         showBroken(image)
       })
+      if (loaderUrl) {
+        // Browsers make image without a file square
+        let width = image.getAttribute('width')
+        let height = image.getAttribute('height')
+        if (width && height) image.style.aspectRatio = `${width} / ${height}`
+        let stop = mediaSrc(loaderUrl)(image)
+        if (stop) stopLoading.add(stop)
+      }
     }
     function restoreSources(image: HTMLImageElement): void {
       let elements = [
@@ -81,8 +108,12 @@
         for (let attr of ['src', 'srcset']) {
           let value = element.getAttribute(`data-${attr}`)
           if (value === null) continue
-          element.setAttribute(attr, value)
           element.removeAttribute(`data-${attr}`)
+          if (attr === 'src' && isLoaderMedia(value)) {
+            loaderUrls.set(element, value)
+          } else {
+            element.setAttribute(attr, value)
+          }
         }
       }
       watchLoading(image)
@@ -160,6 +191,7 @@
     })
     return () => {
       for (let component of mounted) void unmount(component)
+      for (let stop of stopLoading) stop()
     }
   }
 </script>

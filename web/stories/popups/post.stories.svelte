@@ -365,7 +365,7 @@
   play={playLastVideo}
 >
   <Scene
-    feeds={[{ ...FEED, avatar: 'telegram:5/avatar/a' }]}
+    feeds={[{ ...FEED, avatar: 'telegram:5/avatar/a', loader: 'telegram' }]}
     oninit={() => {
       loaders.telegram.getMedia = url => {
         if (url.endsWith('/broken')) return Promise.reject(new Error('No file'))
@@ -382,7 +382,12 @@
           'The second image is broken. The third one is still loading ' +
           'and shows the loader over a blurred preview. The video is a ' +
           'whole file, so it waits for the click. The second video was ' +
-          'clicked and shows the loader until the file is ready.</p>',
+          'clicked and shows the loader until the file is ready.</p>' +
+          '<p>Images inside the text are loaded the same way: ' +
+          'normal, still loading, and broken.</p>' +
+          '<img src="telegram:5/6" alt="" width="700" height="441">' +
+          '<img src="telegram:5/6/loading" alt="" width="700" height="441">' +
+          '<img src="telegram:5/6/broken" alt="" width="700" height="441">',
         media: [
           { type: 'image', url: 'telegram:5/4' },
           { type: 'image', url: 'telegram:5/4/broken' },

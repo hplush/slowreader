@@ -830,9 +830,12 @@ function formatEntity(text: string, entity: TextEntity): string {
     Code: 'code',
     ExpandableBlockQuote: 'blockquote',
     Italic: 'i',
+    Marked: 'mark',
     Pre: 'pre',
     PreCode: 'pre',
     Strikethrough: 's',
+    Subscript: 'sub',
+    Superscript: 'sup',
     Underline: 'u'
   }[type]
   let href = {
@@ -902,12 +905,271 @@ function formatText(formatted: unknown): string {
     .join('')
 }
 
-function getText(message: Record<string, unknown>): string {
+interface FormattedText {
+  entities: object[]
+  text: string
+}
+
+/**
+ * Post with rich formatting has own text format: a tree instead of a string
+ * with entities. We flatten it to format both by the same code.
+ */
+function flattenRichText(
+  rich: unknown,
+  formatted: FormattedText = { entities: [], text: '' }
+): FormattedText {
+  if (!isObject(rich)) return formatted
+  if (Array.isArray(rich.texts)) {
+    for (let text of rich.texts) flattenRichText(text, formatted)
+    return formatted
+  }
+  let offset = formatted.text.length
+  let inside = rich.text ?? (isObject(rich.button) ? rich.button.text : '')
+  if (isObject(inside)) {
+    flattenRichText(inside, formatted)
+  } else {
+    let text = inside || (rich.alternative_text ?? rich.expression)
+    if (typeof text === 'string') formatted.text += text
+  }
+  // Authors put the blank line between paragraphs inside the bold text
+  let trimmed = formatted.text.slice(offset).replace(/^\n+/, '')
+  let length = trimmed.replace(/\n+$/, '').length
+  let type = String(rich['@type']).replace('richText', '')
+  // Entity around the plain text would hide its blank lines from paragraphs
+  if (length === 0 || type === 'Plain') return formatted
+  let url = rich.url
+  if (typeof rich.email_address === 'string') {
+    url = `mailto:${rich.email_address}`
+  } else if (typeof rich.username === 'string') {
+    url = `https://t.me/${rich.username}`
+  }
+  // Outer entity must be before the inner one with the same text
+  formatted.entities.unshift({
+    length,
+    offset: formatted.text.length - trimmed.length,
+    type: url
+      ? { '@type': 'textEntityTypeTextUrl', url }
+      : {
+          '@type':
+            'textEntityType' +
+            (/^(Fixed|MathematicalExpression)$/.test(type) ? 'Code' : type)
+        }
+  })
+  return formatted
+}
+
+function formatRichLine(rich: unknown): string {
+  let { entities, text } = flattenRichText(rich)
+  return formatInside(text, 0, text.length, nestEntities(entities)).replaceAll(
+    /^(<br>)+|(<br>)+$/g,
+    ''
+  )
+}
+
+interface RichPost {
+  /**
+   * Photo and video blocks by their number at the end of media URL.
+   */
+  files: Record<string, unknown>[]
+  html: string
+  /**
+   * Channel can forbid saving, and only media under the text blocks it.
+   */
+  inline: boolean
+  media: [PostMedia, MediaSize][]
+  unsupported: boolean
+  url: string
+}
+
+function formatBlocks(post: RichPost, blocks: unknown): string {
+  return (Array.isArray(blocks) ? blocks : [])
+    .map(block => formatBlock(post, block))
+    .join('')
+}
+
+function formatBlock(post: RichPost, block: unknown): string {
+  if (!isObject(block)) return ''
+  let type = String(block['@type']).replace('pageBlock', '')
+  // Table has only text in the caption, media has also a credit there
+  let caption = formatRichLine(
+    isObject(block.caption) && block.caption['@type'] === 'pageBlockCaption'
+      ? block.caption.text
+      : block.caption
+  )
+  if (type === 'Paragraph' || type === 'Footer') {
+    return formatText(flattenRichText(block.text ?? block.footer))
+  } else if (type === 'SectionHeading') {
+    let tag = `h${String(Math.min(Math.max(Number(block.size) || 2, 1), 6))}`
+    return `<${tag}>${formatRichLine(block.text)}</${tag}>`
+  } else if (type === 'Preformatted' || type === 'MathematicalExpression') {
+    return (
+      '<pre>' +
+      escapeXml(
+        typeof block.expression === 'string'
+          ? block.expression
+          : flattenRichText(block.text).text
+      ) +
+      '</pre>'
+    )
+  } else if (type === 'Divider') {
+    return '<hr>'
+  } else if (type === 'Anchor' || type === 'Thinking') {
+    return ''
+  } else if (type === 'List') {
+    let items = (Array.isArray(block.items) ? block.items : []).filter(isObject)
+    let tag = items[0]?.type ? 'ol' : 'ul'
+    return (
+      `<${tag}>` +
+      items
+        .map(item => {
+          let checkbox = item.is_checked ? '☑ ' : '☐ '
+          return (
+            '<li>' +
+            (item.has_checkbox ? checkbox : '') +
+            formatBlocks(post, item.blocks) +
+            '</li>'
+          )
+        })
+        .join('') +
+      `</${tag}>`
+    )
+  } else if (type.endsWith('Quote')) {
+    return (
+      '<blockquote>' +
+      (block.blocks
+        ? formatBlocks(post, block.blocks)
+        : formatText(flattenRichText(block.text))) +
+      (block.credit
+        ? `<p><cite>${formatRichLine(block.credit)}</cite></p>`
+        : '') +
+      '</blockquote>'
+    )
+  } else if (type === 'Collage' || type === 'Slideshow') {
+    return formatBlocks(post, block.blocks) + (caption && `<p>${caption}</p>`)
+  } else if (type === 'Details') {
+    return (
+      `<details${block.is_open ? ' open' : ''}>` +
+      `<summary>${formatRichLine(block.header)}</summary>` +
+      formatBlocks(post, block.blocks) +
+      '</details>'
+    )
+  } else if (type === 'Table') {
+    return (
+      '<table>' +
+      (caption && `<caption>${caption}</caption>`) +
+      (Array.isArray(block.cells) ? block.cells : [])
+        .map((row: unknown) => {
+          return (
+            '<tr>' +
+            (Array.isArray(row) ? row : [])
+              .filter(isObject)
+              .map(cell => {
+                let tag = cell.is_header ? 'th' : 'td'
+                return (
+                  `<${tag}` +
+                  ['colspan', 'rowspan']
+                    .filter(span => Number(cell[span]) > 1)
+                    .map(span => ` ${span}="${String(Number(cell[span]))}"`)
+                    .join('') +
+                  `>${formatRichLine(cell.text)}</${tag}>`
+                )
+              })
+              .join('') +
+            '</tr>'
+          )
+        })
+        .join('') +
+      '</table>'
+    )
+  } else if (/^(Photo|Video|Animation)$/.test(type)) {
+    let url = `${post.url}/${String(post.files.length)}`
+    let media = toMedia(url, block)
+    if (media) {
+      post.files.push(block)
+      post.media.push(media)
+      // Video is a whole file, so it waits for the click under the text.
+      // Spoiler needs the cover, which only media under the text has.
+      if (media[0].type !== 'image' || media[0].sensitive || !post.inline) {
+        return caption && `<p>${caption}</p>`
+      }
+      media[0].fromText = true
+      let image =
+        `<img src="${url}" alt="" width="${String(media[1].width)}" ` +
+        `height="${String(media[1].height)}">`
+      return caption
+        ? `<figure>${image}<figcaption>${caption}</figcaption></figure>`
+        : image
+    }
+  }
+  post.unsupported = true
+  return ''
+}
+
+function getMediaUrl(chatId: number, message: Record<string, unknown>): string {
+  return (
+    // Channel ID as in t.me/c/ links
+    `telegram:${String(-chatId - 1e12)}/` +
+    String(Number(message.id) / MESSAGE_ID_STEP)
+  )
+}
+
+/**
+ * Post with rich formatting, where photos stay between paragraphs.
+ */
+function parseRichMessage(
+  chatId: number,
+  message: Record<string, unknown>
+): RichPost | undefined {
+  let content = message.content
+  if (
+    !isObject(content) ||
+    content['@type'] !== 'messageRichMessage' ||
+    !isObject(content.message)
+  ) {
+    return undefined
+  }
+  let post: RichPost = {
+    files: [],
+    html: '',
+    inline: message.can_be_saved !== false,
+    media: [],
+    unsupported: false,
+    url: getMediaUrl(chatId, message)
+  }
+  post.html = formatBlocks(post, content.message.blocks)
+  return post
+}
+
+/**
+ * Telegram cuts long post with rich formatting in the chat history.
+ */
+async function completeCutText(
+  name: string,
+  message: TelegramObject
+): Promise<boolean> {
+  let content = message.content
+  if (
+    !isObject(content) ||
+    !isObject(content.message) ||
+    content.message.is_full !== false
+  ) {
+    return false
+  }
+  content.message = await sendToTelegram(name, {
+    '@type': 'getFullRichMessage',
+    'chat_id': message.chat_id,
+    'message_id': message.id
+  })
+  return true
+}
+
+function getText(chatId: number, message: Record<string, unknown>): string {
   let content = message.content
   if (!isObject(content)) return ''
   if (isObject(content.text)) return formatText(content.text)
-  return formatText(
-    isObject(content.poll) ? content.poll.question : content.caption
+  return (
+    parseRichMessage(chatId, message)?.html ??
+    formatText(isObject(content.poll) ? content.poll.question : content.caption)
   )
 }
 
@@ -1037,7 +1299,7 @@ async function loadSources(
     let message = known.get(id)
     post.replied = message
       ? {
-          full: getText(message) || undefined,
+          full: getText(chatId, message) || undefined,
           missing: false,
           publishedAt: Number(message.date),
           url: `${channel.url!}/${String(id / MESSAGE_ID_STEP)}`
@@ -1080,14 +1342,11 @@ function toMediaFile(
 }
 
 /**
- * File of the post by the end of media URL: the media itself, video’s
- * `poster`, or image of link `preview`.
+ * File of the post’s content or of a block of the post with rich formatting
+ * by the end of media URL: the media itself, video’s `poster`,
+ * or image of link `preview`.
  */
-function getMediaFile(
-  message: TelegramObject,
-  part?: string
-): MediaFile | undefined {
-  let content = message.content
+function getMediaFile(content: unknown, part?: string): MediaFile | undefined {
   if (!isObject(content)) return undefined
   if (part === 'preview') {
     let link = content.link_preview
@@ -1125,16 +1384,15 @@ function getMediaFile(
 
 function toMedia(
   url: string,
-  message: TelegramObject
+  content: unknown
 ): [PostMedia, MediaSize] | undefined {
-  let file = getMediaFile(message)
-  if (!file) return undefined
-  let content = message.content as Record<string, unknown>
+  let file = getMediaFile(content)
+  if (!file || !isObject(content)) return undefined
   let media: PostMedia = {
     type: content.animation ? 'video;mode=gif' : file.type.split('/')[0]!,
     url
   }
-  if (getMediaFile(message, 'poster')) media.poster = `${url}/poster`
+  if (getMediaFile(content, 'poster')) media.poster = `${url}/poster`
   if (content.has_spoiler) media.sensitive = true
   // Telegram puts a tiny blurred copy of the image into the post itself
   let source =
@@ -1183,19 +1441,24 @@ async function downloadFile(name: string, file: MediaFile): Promise<Response> {
 function loadMedia(
   chatId: number,
   messageId: number,
-  part: string | undefined
+  part: string | undefined,
+  richFile: string | undefined
 ): Promise<Response> {
   return askAnySession(async name => {
     await loadChat(name, chatId)
-    let file = getMediaFile(
+    let message =
       getSession(name).sponsored.get(`${chatId}/${messageId}`) ??
-        (await sendToTelegram(name, {
-          '@type': 'getMessage',
-          'chat_id': chatId,
-          'message_id': messageId
-        })),
-      part
-    )
+      (await sendToTelegram(name, {
+        '@type': 'getMessage',
+        'chat_id': chatId,
+        'message_id': messageId
+      }))
+    let content = message.content
+    if (richFile) {
+      await completeCutText(name, message)
+      content = parseRichMessage(chatId, message)?.files[Number(richFile)]
+    }
+    let file = getMediaFile(content, part)
     if (!file) throw new Error('Telegram post has no such media')
     return downloadFile(name, file)
   })
@@ -1237,19 +1500,17 @@ function toPost(
     publishedAt: Number(first.date),
     url: `${channel.url!}/${String(Number(first.id) / MESSAGE_ID_STEP)}`
   }
-  let text = messages.map(getText).find(Boolean)
+  let rich = parseRichMessage(chatId, first)
+  let text =
+    rich?.html ??
+    messages.map(message => getText(chatId, message)).find(Boolean)
   if (text) post.full = text
-  let media = messages
-    .toReversed()
-    .map(message => {
-      return toMedia(
-        // Channel ID as in t.me/c/ links
-        `telegram:${String(-chatId - 1e12)}/` +
-          String(Number(message.id) / MESSAGE_ID_STEP),
-        message
-      )
-    })
-    .filter(item => !!item)
+  let media =
+    rich?.media ??
+    messages
+      .toReversed()
+      .map(message => toMedia(getMediaUrl(chatId, message), message.content))
+      .filter(item => !!item)
   if (media.length > 0) {
     post.media = media.map(([item]) => item)
     post.mediaSizes = media.map(([, size]) => size)
@@ -1259,17 +1520,17 @@ function toPost(
   let poll = getPoll(content)
   if (poll) post.poll = poll
   let preview = getPreview(content)
-  if (getMediaFile(first, 'preview')) {
+  if (getMediaFile(content, 'preview')) {
     preview = {
       ...preview,
-      image:
-        `telegram:${String(-chatId - 1e12)}/` +
-        `${String(Number(first.id) / MESSAGE_ID_STEP)}/preview`,
+      image: `${getMediaUrl(chatId, first)}/preview`,
       url: String((content.link_preview as Record<string, unknown>).url)
     }
   }
   if (preview) post.preview = preview
-  if (!text && !post.media && !poll) post.unsupported = true
+  if ((!text && !post.media && !poll) || rich?.unsupported) {
+    post.unsupported = true
+  }
   if (messages.some(message => message.can_be_saved === false)) {
     post.protected = true
   }
@@ -1382,6 +1643,13 @@ function loadChannelPosts(
       // Refresh does not save old posts
       if (!auth || !post.old) news.set(post, group.at(-1)!)
     }
+    await Promise.all(
+      [...news].map(async ([post, message]) => {
+        if (await completeCutText(name, message)) {
+          Object.assign(post, toPost(channel, chatId, [message]))
+        }
+      })
+    )
     await loadSources(name, channel, chatId, news, page)
     return [
       posts,
@@ -1543,7 +1811,7 @@ export const telegram: Loader = {
     let post: ParsedPost = {
       dynamic: found.is_recommended ? 'recommended' : 'sponsored',
       full:
-        getText(message) +
+        getText(chatId, message) +
         `<p><a href="${escapeXml(link)}">` +
         `${escapeText(String(found.button_text))}</a></p>` +
         [found.sponsor.info, found.additional_info]
@@ -1556,7 +1824,7 @@ export const telegram: Loader = {
     }
     let media = toMedia(
       `telegram:${String(-chatId - 1e12)}/sponsored/${id}`,
-      message
+      message.content
     )
     if (media) {
       post.media = [media[0]]
@@ -1574,12 +1842,15 @@ export const telegram: Loader = {
     let avatar = /^telegram:(user\/)?(\d+)\/avatar\/[\w-]*$/.exec(url)
     if (avatar) return loadAvatar(!!avatar[1], Number(avatar[2]))
     let match =
-      /^telegram:(\d+)\/(sponsored\/)?(\d+)(?:\/(poster|preview))?$/.exec(url)
+      /^telegram:(\d+)\/(sponsored\/)?(\d+)(?:\/(\d+))?(?:\/(poster|preview))?$/.exec(
+        url
+      )
     return match
       ? loadMedia(
           -1e12 - Number(match[1]),
           // Ads have own IDs outside of post numbers
           Number(match[3]) * (match[2] ? 1 : MESSAGE_ID_STEP),
+          match[5],
           match[4]
         )
       : undefined
@@ -1610,6 +1881,7 @@ export const telegram: Loader = {
       'chat_id': chatId,
       'message_id': Number(parseLink(URL.parse(url))!.post) * MESSAGE_ID_STEP
     })
+    await completeCutText(name, message)
     let post = toPost(channel, chatId, [message])
     if (!post) throw new NotFoundError()
     await loadSources(name, channel, chatId, new Map([[post, message]]), [])

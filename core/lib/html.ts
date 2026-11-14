@@ -182,6 +182,14 @@ export function isAbsoluteUrl(value: string): boolean {
 }
 
 /**
+ * Browser can not load this media by URL on its own, since the loader
+ * has own URL schema for it, like `telegram:`.
+ */
+export function isLoaderMedia(url: string): boolean {
+  return /^(?!https?:|data:|blob:)[a-z][\w+.-]*:/i.test(url)
+}
+
+/**
  * Only web pages, since feed could put `javascript:` to the link.
  */
 export function onlyWebLink(
@@ -252,6 +260,13 @@ function getPurify(): ReturnType<typeof createDOMPurify> {
           node.localName === 'img' &&
           data.attrValue.split(' ').includes('emoji')
         data.attrValue = 'emoji'
+      } else if (
+        data.attrName === 'src' &&
+        node.localName === 'img' &&
+        isLoaderMedia(data.attrValue)
+      ) {
+        // DOMPurify removes URLs with unknown schema
+        data.forceKeepAttr = true
       }
     })
   }

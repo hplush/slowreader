@@ -10,6 +10,7 @@ import { humanizeUrl } from './format.ts'
 import { $locale } from './i18n.ts'
 import {
   endsWithEllipsis,
+  isLoaderMedia,
   sanitizeDOM,
   stripHTML,
   truncateDOM
@@ -568,14 +569,6 @@ export function getPostIntro(
     intro.append(ellipsis)
   }
   return [intro, more]
-}
-
-/**
- * Browser can not load this media by URL on its own, since the loader
- * has own URL schema for it, like `telegram:`.
- */
-export function isLoaderMedia(url: string): boolean {
-  return /^(?!https?:|data:|blob:)[a-z][\w+.-]*:/i.test(url)
 }
 
 export function waitsClick(
