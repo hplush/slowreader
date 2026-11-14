@@ -73,8 +73,8 @@ export function mediaSrc(
         element.setAttribute(attribute, local)
       },
       () => {
-        // Components show the broken image by this event
-        element.dispatchEvent(new Event('error'))
+        // Components show the broken media by this event
+        if (attribute === 'src') element.dispatchEvent(new Event('error'))
       }
     )
     return () => {

@@ -51,6 +51,17 @@
       element.focus({ preventScroll: true })
     }
   }
+
+  /**
+   * Browser shows broken video icon in controls until video gets the file,
+   * and loader’s file is ready only seconds after the click.
+   */
+  function waitsFile(item: ReaderMedia): boolean {
+    return (
+      isLoaderMedia(item.url) && !loaded.has(item.url) && !broken.has(item.url)
+    )
+  }
+
   let sensitiveShown = $derived(
     revealed || warningClicked || $showSensitiveMedia
   )
@@ -112,6 +123,68 @@
   />
 {/snippet}
 
+{#snippet loader()}
+  <svg
+    class="post-media_loader"
+    {@attach () => reportLoader('media')}
+    aria-label={$commonMessages.loading}
+    role="progressbar"
+    viewBox="0 0 12 12"
+  >
+    <circle
+      class="post-media_track"
+      cx="6"
+      cy="6"
+      fill="none"
+      r="3"
+      stroke-width="1"
+    />
+    <circle
+      class="post-media_spinner"
+      cx="6"
+      cy="6"
+      fill="none"
+      r="3"
+      stroke-dasharray="4.7 100"
+      stroke-width="1"
+    />
+  </svg>
+{/snippet}
+
+{#snippet video(item: ReaderMedia)}
+  <!-- svelte-ignore a11y_media_has_caption: feeds have no captions -->
+  <video
+    class="post-media_item"
+    {@attach focusClicked(item.url)}
+    {@attach mediaSrc(item.url, { web: false })}
+    {@attach mediaSrc($saveData ? undefined : item.poster, {
+      attribute: 'poster'
+    })}
+    aria-busy={waitsFile(item)}
+    aria-label={item.alt}
+    autoplay={clicked === item.url}
+    controls={!waitsFile(item)}
+    controlslist={protect ? 'nodownload noremoteplayback' : undefined}
+    disablepictureinpicture={!!protect}
+    height={item.size?.height}
+    onerror={() => {
+      broken.add(item.url)
+    }}
+    onloadeddata={event => {
+      playAfterClick(item.url, event.currentTarget)
+    }}
+    onloadstart={() => {
+      loaded.add(item.url)
+    }}
+    playsinline
+    preload="none"
+    title={item.alt}
+    width={item.size?.width}
+  >
+    {@render sources(item)}
+  </video>
+{/snippet}
+
 {#if media.length > 0}
   <div
     class="post-media"
@@ -157,31 +230,7 @@
           <span class="post-media_frame">
             {@render image(item)}
             {#if !loaded.has(item.url)}
-              <svg
-                class="post-media_loader"
-                {@attach () => reportLoader('media')}
-                aria-label={$commonMessages.loading}
-                role="progressbar"
-                viewBox="0 0 12 12"
-              >
-                <circle
-                  class="post-media_track"
-                  cx="6"
-                  cy="6"
-                  fill="none"
-                  r="3"
-                  stroke-width="1"
-                />
-                <circle
-                  class="post-media_spinner"
-                  cx="6"
-                  cy="6"
-                  fill="none"
-                  r="3"
-                  stroke-dasharray="4.7 100"
-                  stroke-width="1"
-                />
-              </svg>
+              {@render loader()}
             {/if}
           </span>
         {:else if item.type.startsWith('image')}
@@ -204,31 +253,15 @@
           >
             {@render sources(item)}
           </video>
+        {:else if item.type.startsWith('video') && isLoaderMedia(item.url)}
+          <span class="post-media_frame">
+            {@render video(item)}
+            {#if waitsFile(item)}
+              {@render loader()}
+            {/if}
+          </span>
         {:else if item.type.startsWith('video')}
-          <!-- svelte-ignore a11y_media_has_caption: feeds have no captions -->
-          <video
-            class="post-media_item"
-            {@attach focusClicked(item.url)}
-            {@attach mediaSrc(item.url, { web: false })}
-            {@attach mediaSrc($saveData ? undefined : item.poster, {
-              attribute: 'poster'
-            })}
-            aria-label={item.alt}
-            autoplay={clicked === item.url}
-            controls
-            controlslist={protect ? 'nodownload noremoteplayback' : undefined}
-            disablepictureinpicture={!!protect}
-            height={item.size?.height}
-            onloadeddata={event => {
-              playAfterClick(item.url, event.currentTarget)
-            }}
-            playsinline
-            preload="none"
-            title={item.alt}
-            width={item.size?.width}
-          >
-            {@render sources(item)}
-          </video>
+          {@render video(item)}
         {:else if item.type.startsWith('audio')}
           <audio
             class="post-media_audio"
@@ -362,6 +395,7 @@
     }
 
     video.post-media_item,
+    video.post-media_item + .post-media_loader,
     .post-media_audio {
       position: relative;
       z-index: 2;

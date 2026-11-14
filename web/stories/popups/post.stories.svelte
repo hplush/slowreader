@@ -216,7 +216,17 @@
 </script>
 
 <script lang="ts">
+  import type { StoryContext } from 'storybook/internal/types'
+
   let popup: Popup<'post'> | undefined = $state()
+
+  async function playLastVideo({
+    canvas,
+    userEvent
+  }: StoryContext): Promise<void> {
+    let buttons = await canvas.findAllByRole('button', { name: /^Play video/ })
+    await userEvent.setup({}).click(buttons.at(-1)!)
+  }
 
   function open(autoread = false, feedId = 'feed'): () => void {
     return () => {
@@ -348,7 +358,12 @@
   </Scene>
 </Story>
 
-<Story name="Loader Media" asChild parameters={{ layout: 'fullscreen' }}>
+<Story
+  name="Loader Media"
+  asChild
+  parameters={{ layout: 'fullscreen' }}
+  play={playLastVideo}
+>
   <Scene
     feeds={[{ ...FEED, avatar: 'telegram:5/avatar/a' }]}
     oninit={() => {
@@ -366,7 +381,8 @@
           '<p>Files are loaded by Telegram’s library, not by URL. ' +
           'The second image is broken. The third one is still loading ' +
           'and shows the loader over a blurred preview. The video is a ' +
-          'whole file, so it waits for the click.</p>',
+          'whole file, so it waits for the click. The second video was ' +
+          'clicked and shows the loader until the file is ready.</p>',
         media: [
           { type: 'image', url: 'telegram:5/4' },
           { type: 'image', url: 'telegram:5/4/broken' },
@@ -376,12 +392,19 @@
             poster: 'telegram:5/3/poster',
             type: 'video',
             url: 'telegram:5/3'
+          },
+          {
+            placeholder: TINY,
+            poster: 'telegram:5/3/poster',
+            type: 'video',
+            url: 'telegram:5/3/loading'
           }
         ],
         mediaSizes: [
           { height: 441, width: 700 },
           { height: 1080, width: 1920 },
           { height: 441, width: 700 },
+          { bytes: 28089, height: 1080, width: 1920 },
           { bytes: 28089, height: 1080, width: 1920 }
         ],
         preview: {
