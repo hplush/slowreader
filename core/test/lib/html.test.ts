@@ -131,6 +131,20 @@ describe('html', () => {
     )
   })
 
+  test('removes templates', () => {
+    let html =
+      '<p>A</p><template shadowrootmode="open"><style>p{}</style>' +
+      '<Template><img src="https://example.com/a.png"></Template>B' +
+      '</template><p>C</p>'
+    equal(sanitize(html), '<p>A</p><p>C</p>')
+    equal(parseDocument(html).body.innerHTML, '<p>A</p><p>C</p>')
+    equal(
+      parseDocument('<a><template>B</template></a>', 'text/xml').documentElement
+        .outerHTML,
+      '<a><template>B</template></a>'
+    )
+  })
+
   test('keeps tracking pixels by settings', () => {
     removeTrackers.set(false)
     equal(

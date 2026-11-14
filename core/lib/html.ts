@@ -147,14 +147,26 @@ export function createTrustedPolicy(
 let getRichPolicy = createTrustedPolicy('slowreader-rich')
 let getParsePolicy = createTrustedPolicy('slowreader-parse')
 
+// Chrome checks styles inside <template> even in DOMParser against app’s
+// Content-Security-Policy and logs an error for each of them
+function renameTemplates(html: string): string {
+  return html.replace(/<(\/?)template(?=[\s/>])/gi, '<$1renamed-template')
+}
+
 export function parseDocument(
   content: string,
   type: DOMParserSupportedType = 'text/html'
 ): Document {
-  return new DOMParser().parseFromString(
-    getParsePolicy().createHTML(content) as string,
+  let document = new DOMParser().parseFromString(
+    getParsePolicy().createHTML(
+      type === 'text/html' ? renameTemplates(content) : content
+    ) as string,
     type
   )
+  for (let template of document.querySelectorAll('renamed-template')) {
+    template.remove()
+  }
+  return document
 }
 
 export function escapeXml(value: string): string {
@@ -224,7 +236,9 @@ function getPurify(): ReturnType<typeof createDOMPurify> {
       let element = node as Element
       if (
         node.nodeType === ELEMENT_NODE &&
-        (isHidden(element) || (removeTrackers.get() && isTracker(element)))
+        (element.localName === 'renamed-template' ||
+          isHidden(element) ||
+          (removeTrackers.get() && isTracker(element)))
       ) {
         element.remove()
       }
@@ -303,7 +317,7 @@ function delayMediaLoading(node: Element): void {
 }
 
 export function sanitizeDOM(html: string): Element {
-  let node = getPurify().sanitize(html, {
+  let node = getPurify().sanitize(renameTemplates(html), {
     ALLOW_ARIA_ATTR: false,
     ALLOW_DATA_ATTR: false,
     ALLOWED_ATTR: [
