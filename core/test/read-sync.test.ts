@@ -387,4 +387,39 @@ describe('read sync', () => {
       [new Error('TDLib is broken'), new Error('TDLib is broken')]
     )
   })
+
+  test('does not trust the answer of the service without connection', async () => {
+    let [first, second] = await addPosts(feedId, 2)
+    await changeRead([first!], true)
+    let position = { [feedId]: { postOriginId: '1', sortedAt: 1001 } }
+
+    testTelegram.connecting = true
+    await sendReadPositions()
+    equal(getViews().length, 1)
+    deepEqual(readPositions.get(), position)
+
+    // TDLib moved its own copy of the position by the previous answer
+    mockReadPosition(1)
+    await sendReadPositions()
+    equal(getViews().length, 1)
+    deepEqual(readPositions.get(), position)
+
+    sendTelegramUpdate({
+      '@type': 'updateConnectionState',
+      'state': { '@type': 'connectionStateReady' }
+    })
+    await sendReadPositions()
+    equal(getViews().length, 1)
+    deepEqual(readPositions.get(), {})
+
+    await changeRead([second!], true)
+    restartTdlib()
+    testTelegram.connecting = true
+    testTelegram.running.clear()
+    await sendReadPositions()
+    equal(getViews().length, 2)
+    deepEqual(readPositions.get(), {
+      [feedId]: { postOriginId: '2', sortedAt: 1002 }
+    })
+  })
 })

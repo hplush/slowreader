@@ -50,6 +50,11 @@ export interface TestTelegram {
   >
 
   /**
+   * Fake TDLib has no connection with Telegram, like on the plane.
+   */
+  connecting: boolean
+
+  /**
    * Database names of deleted TDLib instances.
    */
   destroyed: string[]
@@ -123,6 +128,18 @@ export const testTelegramCreator: NonNullable<
         : Promise.reject(new Error(`No Telegram file ${fileId}`))
     },
     async send(request) {
+      if (!testTelegram.running.has(name)) {
+        for (let listener of listeners) {
+          listener({
+            '@type': 'updateConnectionState',
+            'state': {
+              '@type': testTelegram.connecting
+                ? 'connectionStateConnecting'
+                : 'connectionStateReady'
+            }
+          })
+        }
+      }
       testTelegram.running.add(name)
       testTelegram.requests.push(request)
       let answer = testTelegram.answers[request['@type']]
@@ -236,6 +253,7 @@ export function getTestEnvironment(): Environment {
   testOAuthPages = []
   testTelegram = {
     answers: {},
+    connecting: false,
     destroyed: [],
     files: {},
     requests: [],

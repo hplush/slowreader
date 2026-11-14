@@ -91,6 +91,11 @@ interface Session {
   channels: Map<number, TelegramObject>
   client: TelegramClient
   /**
+   * TDLib answers OK to the read position even without the connection and
+   * forgets it on the stop.
+   */
+  connected: boolean
+  /**
    * Chat list is sorted by the last activity and is loaded from the top.
    * It is the date of the oldest loaded chat, or `0` for the whole list.
    */
@@ -173,6 +178,7 @@ function getSession(name: string): Session {
     active: 0,
     channels: new Map(),
     client: creator({ ...app, name }),
+    connected: false,
     depth: Infinity,
     ending: false,
     idle: undefined,
@@ -184,6 +190,12 @@ function getSession(name: string): Session {
     waiting: []
   }
   created.client.onUpdate(update => {
+    if (update['@type'] === 'updateConnectionState') {
+      created.connected =
+        isObject(update.state) &&
+        update.state['@type'] === 'connectionStateReady'
+      return
+    }
     if (update['@type'] !== 'updateAuthorizationState') {
       trackChat(created, update)
       return
@@ -194,6 +206,7 @@ function getSession(name: string): Session {
     // TDLib forgets chats on every restart
     if (state['@type'] !== 'authorizationStateReady') {
       created.channels.clear()
+      created.connected = false
       created.depth = Infinity
     }
     for (let waiter of created.waiters) waiter(created.state)
@@ -1470,13 +1483,17 @@ let telegramAccount: AccountLoader<SignInData> = {
     let messageId = Number(postOriginId) * MESSAGE_ID_STEP
     let chat = await loadChat(name, chatId)
     // Read position only grows
-    if (messageId <= Number(chat.last_read_inbox_message_id)) return
-    await sendToTelegram(name, {
-      '@type': 'viewMessages',
-      'chat_id': chatId,
-      'force_read': true,
-      'message_ids': [messageId]
-    })
+    if (messageId > Number(chat.last_read_inbox_message_id)) {
+      await sendToTelegram(name, {
+        '@type': 'viewMessages',
+        'chat_id': chatId,
+        'force_read': true,
+        'message_ids': [messageId]
+      })
+    }
+    if (!getSession(name).connected) {
+      throw new TelegramError(503, 'No connection with Telegram')
+    }
   },
 
   noAnonymous: true,
