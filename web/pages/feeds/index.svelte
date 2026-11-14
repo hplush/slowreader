@@ -1,3 +1,7 @@
+<script lang="ts" module>
+  let menuScroll = { fast: 0, slow: 0 }
+</script>
+
 <script lang="ts">
   import {
     mdiCheckboxMultipleMarkedOutline,
@@ -13,6 +17,8 @@
     router,
     feedsMessages as t
   } from '@slowreader/core'
+  import type { Attachment } from 'svelte/attachments'
+  import { on } from 'svelte/events'
 
   import { getPopupHash } from '../../stores/url-router.ts'
   import Button from '../../ui/button.svelte'
@@ -52,15 +58,33 @@
   let pages = $derived(
     reader?.pagination.type === 'number' ? reader.pagination.pages : undefined
   )
+
+  function keepMenuScroll(reading: FeedsPage['reading']): Attachment {
+    return element => {
+      let main = element.closest('.main')
+      if (!main) return
+      main.scrollTop = menuScroll[reading]
+      // Svelte removes the menu before teardown, so it can’t read the scroll
+      let unbind = on(main, 'scroll', () => {
+        menuScroll[reading] = main.scrollTop
+      })
+      return () => {
+        unbind()
+        main.scrollTop = 0
+      }
+    }
+  }
 </script>
 
 {#if $menu}
   <ThinPage title={page.reading === 'slow' ? $navbar.slow : $navbar.fast}>
-    {#if page.reading === 'slow'}
-      <NavbarSlow />
-    {:else}
-      <NavbarFast />
-    {/if}
+    <div {@attach keepMenuScroll(page.reading)}>
+      {#if page.reading === 'slow'}
+        <NavbarSlow />
+      {:else}
+        <NavbarFast />
+      {/if}
+    </div>
   </ThinPage>
 {:else if $locked.locked}
   <ThinPage title={$navbar.fast}>
