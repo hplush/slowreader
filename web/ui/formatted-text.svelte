@@ -149,6 +149,10 @@
             openPopup(popup, href)
           })
         } else {
+          // Post could open app’s popup with own data by `#popup=param`
+          if (link.origin === location.origin && link.hash.includes('=')) {
+            link.hash = ''
+          }
           link.setAttribute('target', '_blank')
           link.setAttribute('rel', 'noopener')
         }

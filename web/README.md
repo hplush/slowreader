@@ -32,7 +32,7 @@ We use **Svelte** as the UI framework and **Vite** as the builder.
   - [`extension.ts`](./main/extension.ts): make network request through the browser extension.
   - [`telegram.ts`](./main/telegram.ts): start and stop Telegram’s library in its worker and pass requests to it.
   - [`telegram-worker.ts`](./main/telegram-worker.ts): worker with Telegram’s library. See [Telegram library](#telegram-library).
-- [`benchmark/`](./benchmark/): UI performance benchmark, which is loaded only by `?benchmark` in URL. See [benchmark guide](../docs/development/benchmark.md).
+- [`benchmark/`](./benchmark/): UI performance benchmark, which is loaded only by `?benchmark` in URL on local server, `dev.slowreader.app`, and PR previews. See [benchmark guide](../docs/development/benchmark.md).
 - [`demo/`](./demo/): the page which copies the files of the [demo](#demo-mode) database and the script to build it.
 - [`pages/`](./pages/): Svelte components for pages.
 - [`ui/`](./ui/): shared components between different pages. Some people call it “UI kit”.

@@ -39,10 +39,10 @@ let iconTag = document.querySelector<HTMLLinkElement>(
   'link[type="image/svg+xml"]'
 )
 let appIcon = iconTag?.href
-if (
+let staging =
   location.hostname === 'dev.slowreader.app' ||
   location.hostname.endsWith('.slowreader.hplush.dev')
-) {
+if (staging) {
   document.querySelector('link[href="/favicon.ico"]')?.remove()
   appIcon = '/icon-staging.svg'
 }
@@ -151,12 +151,14 @@ window.addEventListener('load', () => {
   void import('./devtools.ts').then(() => {})
 })
 
-if (location.search.includes('benchmark')) {
-  let debug = location.search.includes('benchmark=debug')
-  sessionStorage.setItem('benchmark', debug ? 'debug' : '1')
-}
-if (sessionStorage.getItem('benchmark')) {
-  void import('../benchmark/benchmark.ts').then(() => {})
+if (staging || ['127.0.0.1', 'localhost'].includes(location.hostname)) {
+  if (location.search.includes('benchmark')) {
+    let debug = location.search.includes('benchmark=debug')
+    sessionStorage.setItem('benchmark', debug ? 'debug' : '1')
+  }
+  if (sessionStorage.getItem('benchmark')) {
+    void import('../benchmark/benchmark.ts').then(() => {})
+  }
 }
 onSignOut(() => {
   sessionStorage.removeItem('benchmark')

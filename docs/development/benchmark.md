@@ -2,7 +2,7 @@
 
 Benchmark fills the client with a lot of data, replays user actions in the real app, and reports loader durations and main thread freezes.
 
-It runs inside the real web client (lazy chunk, loaded only with `?benchmark`), not in a special page, so numbers include real bundle, real Svelte components, real SQLite in OPFS.
+It runs inside the real web client (lazy chunk, loaded only with `?benchmark` on local server, `dev.slowreader.app`, and PR previews), not in a special page, so numbers include real bundle, real Svelte components, real SQLite in OPFS.
 
 Benchmark user is a cloud user on a local sync server, because the log tracking and the sync are a big part of every write.
 
