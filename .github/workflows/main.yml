@@ -53,7 +53,7 @@ jobs:
       - name: Download passkey providers
         run: pnpm -F server aaguids
       - name: Run tests
-        run: pnpm run --aggregate-output --parallel -F '*' -F '!loader-tests' '/^test:/'
+        run: pnpm run --parallel -F '*' -F '!loader-tests' '/^test:/'
         env:
           FORCE_COLOR: 1
   build:
