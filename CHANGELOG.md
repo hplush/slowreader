@@ -1,5 +1,126 @@
 # Change Log
 
+## 0.20261114.0
+
+_2026-11-14 · +21186 −3235_
+
+### Accounts Useful by default
+
+Now you can choose account to mark its authors as Useful by default and render them as separated feeds in Useful menu.
+
+Every Mastodon hashtag you follow will be rendered as feed too in menu.
+
+Also Feeds by Category now will contain accounts's feeds for both Useful and Fun accounts.
+
+### Moved Feeds
+
+Feed keeps its posts and settings when the author moves it:
+
+- Bluesky: new handle.
+- Mastodon: move to another server.
+- RSS, Atom, and JSON Feed: permanent redirect to the new URL for 3 days.
+
+### Blurred Media Preview
+
+Mastodon & Telegram images and videos show a blurred preview while they load, and behind the load button in Save Data mode. The preview anyway comes with the post, so it needs no extra request.
+
+### Metrics
+
+Self-hosters can read usage metrics in Prometheus format by `GET /metrics` with `ANALYTICS_TOKEN`. It replaces `GET /analytics`, and `ANALYTICS_IPS` was removed. Old daily statistics are removed from the database.
+
+### Multi-Tab Support
+
+The app now works in several browser tabs at once in every browser, including Safari, which showed the “No multi-tab” error before. Tabs share one database, so they no longer crash or show “database is locked” errors.
+
+### Posts settings
+
+New Posts page in settings with content warnings, sensitive media, and a new option to keep trackers in RSS and Atom posts.
+
+### One Device Checks for New Posts
+
+Only one device or tab checks for new posts at a time. Others show that another device is checking.
+
+### Save Data mode
+
+In this mode, images load only when you click them. Feeds don't refresh on start, media isn't saved for offline, feed icons don't update, and the app doesn't check for updates on start: use Check updates on the About page.
+
+New Save Data setting on the Network page. It follows the system setting by default, or you can turn it on only for cellular networks.
+
+### Feed view for social feeds
+
+Telegram, Mastodon, and Bluesky feeds in Useful now open in feed view by default, since their posts have no titles for the list. You can still switch a feed back to the list. Opening a post from feed view in Useful marks it as read, like in the list.
+
+### Telegram Channels
+
+Add your Telegram account on the Accounts page to read its channels here:
+
+- Every channel you follow becomes a feed. Subscribing to a `t.me` link joins the channel, deleting the feed leaves it.
+- Posts keep formatting, photos, videos, polls, forwards, replies, and link previews.
+- Posts with rich formatting keep headings, lists, quotes, tables, and photos between paragraphs.
+- Hidden text (spoiler) stays covered until you click it.
+- Read posts are synced with Telegram both ways.
+- You sign in on every device, since the sign-in key never leaves the device. Refresh shows an error on a device without the sign-in.
+- On a computer you sign in by scanning a QR code in Telegram’s app, without a phone number and a code.
+- Posts of channels, which forbid copying, can’t be copied, saved, or exported.
+- Sponsored messages are shown under a channel, as Telegram requires.
+- Add page asks to add the account, if you open a `t.me` link without it.
+- Welcome page has buttons to add Bluesky, Telegram, or Mastodon account right away.
+- Link to a user, bot, or group tells that only channels are supported, and offers to open it in the browser.
+
+Self-hosters need their own app ID in `TELEGRAM_API_ID` and `TELEGRAM_API_HASH`.
+
+### Reading Time
+
+App now tracks locally how much time you spent in Useful and Fun during the last 24 hours and render this data for user on Coach page.
+
+A small slider under Useful/Fun switcher shows the balance between them. You can hide it on Coach page.
+
+The “Enough scrolling” button in Fun is shown only if you spent less than 75% of your reading time in Useful during the last 24 hours. It is also hidden if you read Useful for more than 5 minutes during the last 10 minutes.
+
+You can disable reading time tracking on all your devices on Coach page.
+
+Coach page explains how each feature helps you.
+
+The “Enough scrolling” button in Fun can be disabled on Coach page.
+
+### Security & Privacy
+
+- Link to the app itself in post’s text can’t open app’s popups with post’s own data.
+- Benchmark mode starts only on local and staging servers, so a link can’t replace user’s account with the test one.
+- Production server deploys only images, which our verifier checked.
+- DNS records of `slowreader.app` are signed by DNSSEC.
+- Production server reboots at night after a security update, since Livepatch doesn’t fix every kernel vulnerability.
+- CI checks Node.js for security releases by our own script instead of a third-party npm package with many nested dependencies.
+- Telegram’s library is our own build from pinned sources and runs in a separate worker, which can connect only to our domain and Telegram’s servers.
+- Updated Node.js to 26.13.1 to fix CVE-2026-123828, CVE-2026-123829, CVE-2026-123862, CVE-2026-123863, CVE-2026-123864, CVE-2026-123865, CVE-2026-123866, CVE-2026-123867, CVE-2026-123868, CVE-2026-123871, CVE-2026-123872, CVE-2026-123873, CVE-2026-123874, CVE-2026-123875, CVE-2026-123877, CVE-2026-126051.
+
+### Fixes
+
+- Fixed deleted account staying in the list for seconds without any loader while its posts are deleted.
+- New feed, which you follow by an account, now uses the account’s category and Useful or Fun type instead of General and Useful.
+- Accounts page shows handle and service name instead of display name.
+- Fixed Add page crash on a feed address, which redirects to another one.
+- Fixed missing profile handle of Mastodon and Bluesky authors in account’s timeline, reposts, and quotes, and for authors from any Mastodon server.
+- Fixed loader jump inside a pressed button.
+- Feeds from OPML import and the demo get their icons right away.
+- Fixed feed/list switch in General category.
+- Fixed server restarting every 10 minutes and dropping connections.
+- Fixed menu scroll position on mobile after returning from a feed.
+- Show “Migrating local database” instead of “Loading local data” after the app update.
+- Fixed scroll jump on clicking More posts in feed popup.
+- Night lock unlocks as soon as you type the right answer, without pressing Enter.
+- Fixed error in Pleroma and Akkoma feeds with reposts, where the server hides the author.
+- Fixed opening replies, quotes, and links to Pleroma and Akkoma posts inside the app.
+- Fixed feed added without posts after closing the feed popup before subscribing finished.
+- Fixed tapping a handle in a post in the installed app on Android opening the browser together with the feed.
+- Fixed slow switch between feed and list views, especially in Firefox.
+- Fixed already read posts appearing again in feeds.
+- Fixed feeds being checked twice, when refresh was stopped and started again.
+- Fixed too frequent refresh: the app refreshes feeds on return only after 30 minutes away, not 5.
+- Fixed too sharp corners of slider line in Chrome.
+- Fixed endless loading on the app update button.
+- Fixed content warning button jumping to the next line with bigger text size.
+
 ## 0.20261105.0
 
 _2026-11-05 · +1430 −432_
