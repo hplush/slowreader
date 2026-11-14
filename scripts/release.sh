@@ -46,9 +46,10 @@ deploy() {
   step "Waiting for the verifier"
   PUBLISHED=""
   PIPELINE=""
-  until curl -fsS -o "$WORK/verified.json" \
-    "https://gitlab.com/hplush/slowreader-verifier/-/raw/main/releases/$VERSION.json" \
-    2> /dev/null; do
+  while CODE=$(curl -sS -o "$WORK/verified.json" -w '%{http_code}' \
+    "https://hplush.gitlab.io/slowreader-verifier/releases/$VERSION.json"); \
+    [ "$CODE" != 200 ]; do
+    [ "$CODE" = 404 ] || highlight "Verifier result: HTTP $CODE"
     # GitHub API returns 404 for a few seconds after the release
     if [ -z "$PUBLISHED" ]; then
       PUBLISHED=$(curl -fsS "https://api.github.com/repos/$REPO/releases/tags/$VERSION" \
