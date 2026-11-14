@@ -586,6 +586,37 @@
           'on print.</p>',
         media: [{ type: 'image', url: imgExample }],
         reading: 'slow'
+      },
+      {
+        author: {
+          avatar: imgExample,
+          title:
+            'Another channel with a very long name, which does not fit ' +
+            'into one line of the card even on a wide screen of a desktop',
+          url:
+            'https://t.me/another_channel_with_a_very_long_address_which_' +
+            'does_not_fit_into_one_line_of_the_card_even_on_a_wide_screen'
+        },
+        feedId: 'shop',
+        full: '<p>Repost from a channel with a long name</p>',
+        publishedAt: 2,
+        reading: 'slow',
+        repostedBy: {
+          title:
+            'Channel with ads, which forbids copying and has a long name ' +
+            'to wrap the line even on a wide screen of a desktop'
+        }
+      },
+      {
+        author: {
+          title:
+            'Author with a very long name, which does not fit into one ' +
+            'line of the card too even on a wide screen of a desktop'
+        },
+        feedId: 'shop',
+        full: '<p>Signed post</p>',
+        publishedAt: 1,
+        reading: 'slow'
       }
     ]}
     route={{ params: { feed: 'shop' }, route: 'slow' }}

@@ -54,8 +54,10 @@
   :global {
     .post-author {
       display: flex;
+      flex-shrink: 1;
       gap: 0.5rem;
       align-items: center;
+      min-width: 0;
       max-width: 100%;
       font: var(--secondary-title-font);
       color: var(--text-color);
@@ -88,11 +90,14 @@
 
     .post-author_names {
       display: flex;
+      flex-shrink: 1;
       flex-direction: column;
       min-width: 0;
     }
 
     .post-author_title {
+      flex-shrink: 1;
+      min-width: 0;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;

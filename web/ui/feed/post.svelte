@@ -23,6 +23,7 @@
     feedsMessages as t,
     type UserPostUrl
   } from '@slowreader/core'
+  import type { Snippet } from 'svelte'
 
   import { pauseVideosWhenScrolledOut } from '../../lib/media.ts'
   import { canShare, shareUrl } from '../../lib/share.ts'
@@ -65,8 +66,9 @@
   let dynamic = $derived('dynamic' in post ? post.dynamic : undefined)
 </script>
 
-{#snippet byline()}
+{#snippet byline(aside: Snippet | undefined)}
   <PostByline
+    {aside}
     author={post.author}
     repostHref={feedUrl && getPopupHash($router, 'feed', feedUrl)}
     repostedBy={post.repostedBy}
@@ -137,16 +139,16 @@
               variant="secondary"
             />
           </div>
+          {@render date()}
         {:else}
           <div class="feed-post_byline">
-            {@render byline()}
+            {@render byline(date)}
           </div>
         {/if}
-        {@render date()}
       </header>
     {/if}
     {#if hasByline && (author || !post.publishedAt)}
-      {@render byline()}
+      {@render byline(undefined)}
     {/if}
     {#if hasByline && post.title}
       <h2 class="feed-post_title">
@@ -241,6 +243,9 @@
       --feed-post-background: var(--current-background);
 
       position: relative;
+
+      /* Long name in one line makes the whole list wider in Firefox */
+      contain: inline-size;
 
       &.is-protected {
         user-select: none;
@@ -352,6 +357,7 @@
     }
 
     .feed-post_byline {
+      flex: 1 1 0;
       min-width: 0;
     }
 
