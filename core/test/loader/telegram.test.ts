@@ -25,6 +25,7 @@ import {
   loadFeeds,
   loadMediaBlob,
   loadPosts,
+  mediaErrors,
   type OriginPost,
   refreshErrors,
   refreshPosts,
@@ -1329,6 +1330,11 @@ describe('telegram loader', () => {
         reading: 'slow'
       })
     )
+    deviceSessions.set({})
+    await syncMediaCache()
+    equal(await isMediaCached('telegram:5/5/preview'), false)
+    deepEqual(mediaErrors.get(), [])
+    deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
     await syncMediaCache()
     equal(await isMediaCached('telegram:5/5/preview'), true)
 
@@ -1532,7 +1538,7 @@ describe('telegram loader', () => {
       })
     )
     let other = await addAccount(
-      testAccount({ credentials: null, service: 'telegram', title: 'Other' })
+      testAccount({ credentials: null, handle: '@other', service: 'telegram' })
     )
     deviceSessions.set({ [signedIn]: { device: 'name', service: 'telegram' } })
     let channel = await addFeed(
@@ -1564,7 +1570,7 @@ describe('telegram loader', () => {
     await refreshPosts()
     deepEqual(refreshErrors.get(), [
       {
-        account: { id: other, title: 'Other' },
+        account: { handle: '@other', id: other, service: 'telegram' },
         error: new UserFacingError(accountsMessages.get().notSignedInHere)
       }
     ])

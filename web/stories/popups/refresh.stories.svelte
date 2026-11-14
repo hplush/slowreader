@@ -116,11 +116,15 @@
           feed: testFeed()
         },
         {
-          account: { id: 'account', title: 'Андрей Ситник' },
+          account: {
+            handle: '@sitnik@mastodon.social',
+            id: 'account',
+            service: 'mastodon'
+          },
           error: new UserFacingError(accountsMessages.get().signInExpired)
         },
         {
-          account: { id: 'telegram', title: 'Telegram' },
+          account: { handle: '@sitnik', id: 'telegram', service: 'telegram' },
           error: new UserFacingError(accountsMessages.get().notSignedInHere)
         },
         {

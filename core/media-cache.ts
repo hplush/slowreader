@@ -1,6 +1,7 @@
 import type { Database } from '@nanostores/sql'
 import { atom, computed, effect, map } from 'nanostores'
 
+import { deviceSessions } from './device-sessions.ts'
 import { type CachedMedia, getEnvironment } from './environment.ts'
 import { HTTPStatusError } from './errors.ts'
 import { createDownloadTask } from './lib/download.ts'
@@ -376,6 +377,15 @@ async function saveSizes(found: [SizeTarget, CachedMedia][]): Promise<void> {
 let queue = createQueue<string>([])
 let stopped = false
 
+function canLoadOnThisDevice(url: string): boolean {
+  return (
+    !isLoaderMedia(url) ||
+    Object.values(deviceSessions.get()).some(session => {
+      return url.startsWith(`${session.service}:`)
+    })
+  )
+}
+
 /**
  * Download missing media of posts and delete media, which nobody
  * needs anymore. Deleted or read posts are found here, because the deleted
@@ -400,7 +410,11 @@ export async function syncMediaCache(): Promise<void> {
   let downloadVideos = canUseNetwork(videos)
   let missing = [...wanted]
     .filter(([url, item]) => {
-      return !cached.has(url) && (item.video ? downloadVideos : downloadImages)
+      return (
+        !cached.has(url) &&
+        (item.video ? downloadVideos : downloadImages) &&
+        canLoadOnThisDevice(url)
+      )
     })
     .map(([url]) => url)
   if (stopped || missing.length === 0) return

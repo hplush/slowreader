@@ -1413,7 +1413,10 @@ describe('refresh of accounts', () => {
 
   test('shows account errors', async () => {
     let accountId = await addAccount(
-      syncedAccount({ title: 'Me', url: 'https://mastodon.social/@me' })
+      syncedAccount({
+        handle: '@me@mastodon.social',
+        url: 'https://mastodon.social/@me'
+      })
     )
     let error = new ParseError('broken')
     spyOn(signedIn, 'getTimeline', () => {
@@ -1421,7 +1424,14 @@ describe('refresh of accounts', () => {
     })
     await expectWarning(() => refreshPosts(), [error])
     deepEqual(refreshErrors.get(), [
-      { account: { id: accountId, title: 'Me' }, error }
+      {
+        account: {
+          handle: '@me@mastodon.social',
+          id: accountId,
+          service: 'mastodon'
+        },
+        error
+      }
     ])
   })
 

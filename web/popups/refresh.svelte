@@ -1,6 +1,7 @@
 <script lang="ts">
   import { mdiRefresh, mdiStop } from '@mdi/js'
   import {
+    addMessages,
     errorToMessage,
     extensionState,
     isRefreshing,
@@ -115,7 +116,7 @@
                 if ('account' in item) {
                   return {
                     errorText: errorToMessage(item.error),
-                    title: item.account.title,
+                    title: `${$addMessages[`${item.account.service}Loader`]} ${item.account.handle}`,
                     url: getPopupHash($router, 'account', item.account.id)
                   }
                 } else {

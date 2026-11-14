@@ -93,7 +93,7 @@ export const refreshStatistics = map({ ...DEFAULT_REFRESH_STATISTICS })
  * Feed or account, which failed. Account is shown like a feed.
  */
 export type RefreshError =
-  | { account: Pick<AccountValue, 'id' | 'title'>; error: Error }
+  | { account: Pick<AccountValue, 'handle' | 'id' | 'service'>; error: Error }
   | { error: Error; feed: Pick<FeedValue, 'id' | 'title' | 'url'> }
 
 export const refreshErrors = atom<RefreshError[]>([])
@@ -667,7 +667,11 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
   if (unsigned.length > 0) {
     refreshErrors.set(
       unsigned.map(account => ({
-        account: { id: account.id, title: account.title },
+        account: {
+          handle: account.handle,
+          id: account.id,
+          service: account.service
+        },
         error: new UserFacingError(accountsMessages.get().notSignedInHere)
       }))
     )
@@ -698,7 +702,11 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
           'feed' in target
             ? { error, feed: target.feed }
             : {
-                account: { id: target.account.id, title: target.account.title },
+                account: {
+                  handle: target.account.handle,
+                  id: target.account.id,
+                  service: target.account.service
+                },
                 error
               }
         ])
