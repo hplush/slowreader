@@ -4,26 +4,43 @@ on:
     branches:
       - main
     paths:
+      - 'core/loader/**'
+      - '!core/loader/telegram.ts'
+      - 'core/lib/download.ts'
+      - 'core/lib/html.ts'
+      - 'core/lib/text.ts'
+      - 'core/request.ts'
+      - 'core/node.ts'
+      - 'core/pages/add.ts'
+      - 'proxy/**'
+      - '!proxy/test/**'
+      - '!proxy/**/*.md'
       - 'loader-tests/test-loaders.ts'
       - 'loader-tests/utils.ts'
       - 'loader-tests/feeds.yml'
-      - 'core/**/*.ts'
-      - '!core/test/**'
-      - 'pnpm-lock.yaml'
       - '.github/workflows/test-loaders.yml'
-      - '.github/actions/init-node/action.yml'
   pull_request:
     paths:
+      - 'core/loader/**'
+      - '!core/loader/telegram.ts'
+      - 'core/lib/download.ts'
+      - 'core/lib/html.ts'
+      - 'core/lib/text.ts'
+      - 'core/request.ts'
+      - 'core/node.ts'
+      - 'core/pages/add.ts'
+      - 'proxy/**'
+      - '!proxy/test/**'
+      - '!proxy/**/*.md'
       - 'loader-tests/test-loaders.ts'
       - 'loader-tests/utils.ts'
       - 'loader-tests/feeds.yml'
-      - 'core/**/*.ts'
-      - '!core/test/**'
-      - 'pnpm-lock.yaml'
       - '.github/workflows/test-loaders.yml'
-      - '.github/actions/init-node/action.yml'
   schedule:
     - cron: '00 23 * * *' # Every day at 23:00 UTC
+concurrency:
+  group: loaders-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
