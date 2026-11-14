@@ -14,6 +14,7 @@
   let {
     alt,
     bytes,
+    focus = false,
     height,
     onload,
     placeholder,
@@ -25,6 +26,7 @@
   }: {
     alt?: null | string
     bytes?: null | number
+    focus?: boolean
     height?: null | number
     onload: () => void
     placeholder?: null | string
@@ -72,6 +74,9 @@
   <span class="click-to-load_content">
     <Clickable
       class="click-to-load_download"
+      {@attach (button: HTMLElement) => {
+        if (focus) button.focus()
+      }}
       aria-describedby={alt ? id : undefined}
       aria-label={[
         label,

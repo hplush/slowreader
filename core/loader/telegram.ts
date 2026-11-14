@@ -103,8 +103,9 @@ interface Session {
   /**
    * Page and media cache ask for the same file at once. TDLib’s copy
    * is deleted after the reading, so the second reader would find nothing.
+   * Download is cancelled only when all `readers` stopped waiting.
    */
-  downloads: Map<number, Promise<Blob>>
+  downloads: Map<number, { blob: Promise<Blob>; readers: number }>
   /**
    * We asked TDLib to end the session, so it is not user’s sign out
    * in another Telegram app.
@@ -1423,38 +1424,66 @@ async function moveFileFromTdlib(name: string, id: number): Promise<Blob> {
   })
   let session = getSession(name)
   clearTimeout(session.idle)
-  let blob: Blob
   try {
-    blob = await session.client.readFile(id, 0, Number(downloaded.size))
+    return await session.client.readFile(id, 0, Number(downloaded.size))
   } finally {
     closeOnIdle(session)
+    // TDLib keeps downloaded and cancelled files in memory
+    await sendToTelegram(name, { '@type': 'deleteFile', 'file_id': id }).catch(
+      () => {}
+    )
   }
-  // TDLib keeps downloaded files in memory, and we have own media cache
-  await sendToTelegram(name, { '@type': 'deleteFile', 'file_id': id }).catch(
-    () => {}
-  )
-  return blob
 }
 
-async function downloadFile(name: string, file: MediaFile): Promise<Response> {
+async function downloadFile(
+  name: string,
+  file: MediaFile,
+  signal: AbortSignal | undefined
+): Promise<Response> {
+  signal?.throwIfAborted()
   let downloads = getSession(name).downloads
-  let downloading = downloads.get(file.id)
-  if (!downloading) {
-    downloading = moveFileFromTdlib(name, file.id).finally(() => {
-      downloads.delete(file.id)
-    })
-    downloads.set(file.id, downloading)
+  let download = downloads.get(file.id)
+  if (!download) {
+    let created = { blob: moveFileFromTdlib(name, file.id), readers: 0 }
+    created.blob
+      .finally(() => {
+        if (downloads.get(file.id) === created) downloads.delete(file.id)
+      })
+      .catch(() => {})
+    downloads.set(file.id, created)
+    download = created
   }
-  return new Response(await downloading, {
-    headers: { 'Content-Type': file.type }
+  let current = download
+  current.readers += 1
+  let blob = await new Promise<Blob>((resolve, reject) => {
+    function stop(): void {
+      current.readers -= 1
+      if (current.readers === 0) {
+        downloads.delete(file.id)
+        sendToTelegram(name, {
+          '@type': 'cancelDownloadFile',
+          'file_id': file.id,
+          'only_if_pending': false
+        }).catch(() => {})
+      }
+      reject(signal!.reason as Error)
+    }
+    signal?.addEventListener('abort', stop, { once: true })
+    current.blob
+      .finally(() => {
+        signal?.removeEventListener('abort', stop)
+      })
+      .then(resolve, reject)
   })
+  return new Response(blob, { headers: { 'Content-Type': file.type } })
 }
 
 function loadMedia(
   chatId: number,
   messageId: number,
   part: string | undefined,
-  richFile: string | undefined
+  richFile: string | undefined,
+  signal: AbortSignal | undefined
 ): Promise<Response> {
   return askAnySession(async name => {
     await loadChat(name, chatId)
@@ -1472,7 +1501,7 @@ function loadMedia(
     }
     let file = getMediaFile(content, part)
     if (!file) throw new Error('Telegram post has no such media')
-    return downloadFile(name, file)
+    return downloadFile(name, file, signal)
   })
 }
 
@@ -1488,7 +1517,7 @@ function loadAvatar(user: boolean, id: number): Promise<Response> {
       { height: 160, width: 160 }
     )
     if (!file) throw new Error('No Telegram avatar')
-    return downloadFile(name, file)
+    return downloadFile(name, file, undefined)
   })
 }
 
@@ -1850,7 +1879,7 @@ export const telegram: Loader = {
     return JSON.stringify({ id: String(chat.id) })
   },
 
-  getMedia(url) {
+  getMedia(url, signal) {
     let avatar = /^telegram:(user\/)?(\d+)\/avatar\/[\w-]*$/.exec(url)
     if (avatar) return loadAvatar(!!avatar[1], Number(avatar[2]))
     let match =
@@ -1863,7 +1892,8 @@ export const telegram: Loader = {
           // Ads have own IDs outside of post numbers
           Number(match[3]) * (match[2] ? 1 : MESSAGE_ID_STEP),
           match[5],
-          match[4]
+          match[4],
+          signal
         )
       : undefined
   },

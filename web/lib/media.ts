@@ -7,9 +7,9 @@ export function pauseVideosWhenScrolledOut(node: Element): () => void {
   observer ??= new IntersectionObserver(entries => {
     for (let entry of entries) {
       if (!entry.isIntersecting) {
-        // GIF-like videos have no controls to start them again
+        // Looped GIF-like videos have no controls to start them again
         for (let video of entry.target.querySelectorAll<HTMLVideoElement>(
-          'video:not([autoplay])'
+          'video:not([loop])'
         )) {
           video.pause()
         }
@@ -20,6 +20,14 @@ export function pauseVideosWhenScrolledOut(node: Element): () => void {
   return () => {
     observer?.unobserve(node)
   }
+}
+
+export function playIfVisible(video: HTMLVideoElement): void {
+  let visibility = new IntersectionObserver(([entry]) => {
+    visibility.disconnect()
+    if (entry?.isIntersecting) video.play().catch(() => {})
+  })
+  visibility.observe(video)
 }
 
 /**
@@ -46,7 +54,8 @@ export function mediaSrc(
   } = {}
 ): Attachment<HTMLElement> {
   return element => {
-    let loading = url ? loadMediaBlob(url, keep) : undefined
+    let controller = new AbortController()
+    let loading = url ? loadMediaBlob(url, keep, controller.signal) : undefined
     if (!loading) {
       if (web && url) {
         element.setAttribute(attribute, url)
@@ -73,12 +82,14 @@ export function mediaSrc(
         element.setAttribute(attribute, local)
       },
       () => {
+        if (removed) return
         // Components show the broken media by this event
         if (attribute === 'src') element.dispatchEvent(new Event('error'))
       }
     )
     return () => {
       removed = true
+      controller.abort()
       if (local) URL.revokeObjectURL(local)
     }
   }

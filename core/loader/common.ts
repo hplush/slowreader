@@ -268,8 +268,10 @@ export type Loader = {
   /**
    * File of the post’s media, which only the loader can load, like media
    * with `telegram:` URL. `undefined` if it is not such URL.
+   *
+   * Page aborts `signal`, when user stops the video loading.
    */
-  getMedia?(url: string): Promise<Response> | undefined
+  getMedia?(url: string, signal?: AbortSignal): Promise<Response> | undefined
 
   /**
    * New account of the author, who moved to another server.

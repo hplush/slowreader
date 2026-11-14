@@ -1703,6 +1703,69 @@ describe('telegram loader', () => {
     equal(await (await getMedia!('telegram:5/4')!).text(), 'again')
   })
 
+  test('cancels download only when all readers stop', async () => {
+    let { getMedia } = loaders.telegram
+    deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
+    mockHistory(0, {})
+    testTelegram.answers.getMessage = photoPost
+    let finish: (() => void) | undefined
+    testTelegram.answers.downloadFile = ({ file_id: id }) => {
+      return new Promise(resolve => {
+        finish = () => {
+          resolve({ '@type': 'file', id, 'size': 5 })
+        }
+      })
+    }
+    testTelegram.answers.cancelDownloadFile = () => {
+      finish!()
+      return { '@type': 'ok' }
+    }
+    testTelegram.answers.deleteFile = { '@type': 'ok' }
+    testTelegram.files = { 12: new Blob(['photo']) }
+    function countRequests(type: string): number {
+      return testTelegram.requests.filter(i => i['@type'] === type).length
+    }
+
+    let feed = new AbortController()
+    let popup = new AbortController()
+    let feedLoading = getMedia!('telegram:5/4', feed.signal)!
+    let popupLoading = getMedia!('telegram:5/4', popup.signal)!
+    await setTimeout(10)
+    equal(countRequests('downloadFile'), 1)
+
+    feed.abort()
+    await rejects(feedLoading, { name: 'AbortError' })
+    equal(countRequests('cancelDownloadFile'), 0)
+
+    popup.abort()
+    await rejects(popupLoading, { name: 'AbortError' })
+    deepEqual(
+      testTelegram.requests.filter(i => i['@type'] === 'cancelDownloadFile'),
+      [
+        {
+          '@type': 'cancelDownloadFile',
+          'file_id': 12,
+          'only_if_pending': false
+        }
+      ]
+    )
+    await setTimeout(10)
+    equal(countRequests('deleteFile'), 1)
+
+    let again = getMedia!('telegram:5/4')!
+    await setTimeout(10)
+    finish!()
+    equal(await (await again).text(), 'photo')
+    equal(countRequests('downloadFile'), 2)
+
+    let stopped = new AbortController()
+    stopped.abort()
+    await rejects(getMedia!('telegram:5/4', stopped.signal)!, {
+      name: 'AbortError'
+    })
+    equal(countRequests('downloadFile'), 2)
+  })
+
   test('gives media to the cache and to the page', async t => {
     deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
     mockHistory(0, {})

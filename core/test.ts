@@ -46,7 +46,8 @@ export interface TestTelegram {
    */
   answers: Record<
     string,
-    ((request: TelegramRequest) => TelegramObject) | TelegramObject
+    | ((request: TelegramRequest) => Promise<TelegramObject> | TelegramObject)
+    | TelegramObject
   >
 
   /**
@@ -148,7 +149,9 @@ export const testTelegramCreator: NonNullable<
       }
       // Real TDLib never answers in the same tick
       await Promise.resolve()
-      let object = typeof answer === 'function' ? answer(request) : answer
+      let object = await (typeof answer === 'function'
+        ? answer(request)
+        : answer)
       if (object['@type'] === 'error') {
         throw new TelegramError(Number(object.code), String(object.message))
       }

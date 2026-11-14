@@ -501,13 +501,14 @@ export async function cacheMediaOnRequest(
  */
 export function loadMediaBlob(
   url: string,
-  keep = false
+  keep = false,
+  signal?: AbortSignal
 ): Promise<Blob> | undefined {
   if (!isLoaderMedia(url)) return undefined
   let cache = getEnvironment().mediaCache
   return cache.get(url).then(async cached => {
     if (cached) return cached
-    let loading = loadLoaderMedia(url)
+    let loading = loadLoaderMedia(url, signal)
     if (!loading) throw new Error(`No loader for ${url}`)
     if (!keep) return (await loading).blob()
     await cache.put(url, await loading)

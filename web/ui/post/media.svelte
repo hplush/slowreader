@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mdiEyeOutline } from '@mdi/js'
+  import { mdiClose, mdiEyeOutline } from '@mdi/js'
   import {
     commonMessages,
     isLoaderMedia,
@@ -15,10 +15,12 @@
   import { SvelteSet } from 'svelte/reactivity'
 
   import { blurredBackground, waitImageDecoded } from '../../lib/image.ts'
-  import { mediaSrc } from '../../lib/media.ts'
+  import { mediaSrc, playIfVisible } from '../../lib/media.ts'
   import BrokenImage from '../broken-image.svelte'
   import Button from '../button.svelte'
   import ClickToLoad from '../click-to-load.svelte'
+  import Clickable from '../clickable.svelte'
+  import Icon from '../icon.svelte'
 
   let {
     media,
@@ -35,7 +37,13 @@
   }
 
   function playAfterClick(url: string, video: HTMLVideoElement): void {
-    if (clicked === url && video.paused) video.play().catch(() => {})
+    if (clicked === url && video.paused) playIfVisible(video)
+  }
+
+  function stopLoading(url: string): void {
+    clicked = undefined
+    stopped = url
+    downloaded.delete(url)
   }
 
   let broken = new SvelteSet<string>()
@@ -43,6 +51,7 @@
   let downloaded = new SvelteSet<string>()
   let revealed = $state(false)
   let clicked = $state<string>()
+  let stopped = $state<string>()
 
   function focusClicked(url: string): Attachment<HTMLElement> {
     return element => {
@@ -123,6 +132,19 @@
   />
 {/snippet}
 
+{#snippet spinner()}
+  <circle
+    class="post-media_spinner"
+    cx="28"
+    cy="28"
+    fill="none"
+    r="25"
+    stroke-dasharray="40 200"
+    stroke-linecap="round"
+    stroke-width="3.5"
+  />
+{/snippet}
+
 {#snippet loader()}
   <svg
     class="post-media_loader"
@@ -131,17 +153,29 @@
     role="progressbar"
     viewBox="0 0 56 56"
   >
-    <circle
-      class="post-media_spinner"
-      cx="28"
-      cy="28"
-      fill="none"
-      r="25"
-      stroke-dasharray="40 200"
-      stroke-linecap="round"
-      stroke-width="3.5"
-    />
+    {@render spinner()}
   </svg>
+{/snippet}
+
+{#snippet stop(url: string)}
+  <Clickable
+    class="post-media_stop"
+    aria-label={$t.stopLoading}
+    onclick={() => {
+      stopLoading(url)
+    }}
+    title={$t.stopLoading}
+  >
+    <svg
+      class="post-media_ring"
+      {@attach () => reportLoader('media')}
+      aria-hidden="true"
+      viewBox="0 0 56 56"
+    >
+      {@render spinner()}
+    </svg>
+    <Icon path={mdiClose} />
+  </Clickable>
 {/snippet}
 
 {#snippet video(item: ReaderMedia)}
@@ -155,7 +189,7 @@
     })}
     aria-busy={waitsFile(item)}
     aria-label={item.alt}
-    autoplay={clicked === item.url}
+    autoplay={clicked === item.url && !isLoaderMedia(item.url)}
     controls={!waitsFile(item)}
     controlslist={protect ? 'nodownload noremoteplayback' : undefined}
     disablepictureinpicture={!!protect}
@@ -193,10 +227,12 @@
           <ClickToLoad
             alt={item.alt}
             bytes={item.size?.approximate ? undefined : item.size?.bytes}
+            focus={stopped === item.url}
             height={item.size?.height}
             onload={() => {
               if (item.sensitive) revealed = true
               clicked = item.url
+              stopped = undefined
               downloaded.add(item.url)
             }}
             placeholder={item.sensitive && !sensitiveShown
@@ -250,7 +286,7 @@
           <span class="post-media_frame">
             {@render video(item)}
             {#if waitsFile(item)}
-              {@render loader()}
+              {@render stop(item.url)}
             {/if}
           </span>
         {:else if item.type.startsWith('video')}
@@ -358,6 +394,41 @@
 
       /* Cached image should not blink by the loader */
       animation: --post-media-appear var(--simple-time) 300ms backwards;
+    }
+
+    .post-media_stop {
+      @mixin clickable;
+
+      --icon-size: 1.5rem;
+
+      position: relative;
+      z-index: 2;
+      display: flex;
+      grid-area: 1 / 1;
+      place-self: center;
+      align-items: center;
+      justify-content: center;
+      width: 3.5rem;
+      height: 3.5rem;
+      padding: 0;
+      color: var(--media-loader-color);
+      background: var(--media-loader-background);
+      border-radius: 50%;
+      animation: --post-media-appear var(--simple-time) 300ms backwards;
+
+      &:hover,
+      &:focus-visible {
+        background: var(--media-loader-hover-background);
+      }
+
+      html:not(.is-quiet-cursor) & {
+        cursor: pointer;
+      }
+    }
+
+    .post-media_ring {
+      position: absolute;
+      inset: 0;
     }
 
     .post-media_spinner {

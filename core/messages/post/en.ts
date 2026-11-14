@@ -9,6 +9,7 @@ export const postMessages = i18n('post', {
   sensitiveMedia: 'Sensitive media',
   hideWarning: 'Hide',
   playVideo: 'Play video',
+  stopLoading: 'Stop loading',
   poll: 'Poll options',
   quoteMissing: 'Quoted post is unavailable',
   quoteOfQuote: 'Quote…',
