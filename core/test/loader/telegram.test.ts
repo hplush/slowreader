@@ -29,6 +29,7 @@ import {
   refreshErrors,
   refreshPosts,
   refreshStatistics,
+  refreshStatus,
   syncFollows,
   syncMediaCache,
   TelegramError,
@@ -1531,7 +1532,7 @@ describe('telegram loader', () => {
       })
     )
     let other = await addAccount(
-      testAccount({ credentials: null, service: 'telegram' })
+      testAccount({ credentials: null, service: 'telegram', title: 'Other' })
     )
     deviceSessions.set({ [signedIn]: { device: 'name', service: 'telegram' } })
     let channel = await addFeed(
@@ -1561,7 +1562,13 @@ describe('telegram loader', () => {
     mockHistory(1, { 0: [message(2)], 2: [message(1)] })
     mockChatList([news(-1001, 1), news(-1003, 1)])
     await refreshPosts()
-    deepEqual(refreshErrors.get(), [])
+    deepEqual(refreshErrors.get(), [
+      {
+        account: { id: other, title: 'Other' },
+        error: new UserFacingError(accountsMessages.get().notSignedInHere)
+      }
+    ])
+    equal(refreshStatus.get(), 'error')
     deepEqual(
       new Set((await loadPosts()).map(post => `${post.feedId} ${post.url}`)),
       new Set([
@@ -1571,9 +1578,11 @@ describe('telegram loader', () => {
     )
     equal((await loadFeed(channel))!.lastOriginId, '2')
     // Every channel is a separate request, so the progress counts it,
-    // and the account itself has no timeline to load
-    equal(refreshStatistics.get().totalFeeds, 2)
-    equal(refreshStatistics.get().processedFeeds, 2)
+    // and the account itself has no timeline to load. Account without
+    // a session here is counted as failed.
+    equal(refreshStatistics.get().totalFeeds, 3)
+    equal(refreshStatistics.get().processedFeeds, 3)
+    equal(refreshStatistics.get().errorFeeds, 1)
     equal(!!(await loadFeed(channel))!.protected, false)
 
     // Author forbids or allows copying for all posts of the channel at once
@@ -1589,7 +1598,7 @@ describe('telegram loader', () => {
       })
     }
     await refreshPosts()
-    deepEqual(refreshErrors.get(), [])
+    equal(refreshErrors.get().length, 1)
     equal((await loadFeed(channel))!.protected, true)
     equal(!!(await loadFeed(second))!.protected, false)
     equal((await loadPosts()).filter(i => i.originId === '3').length, 2)

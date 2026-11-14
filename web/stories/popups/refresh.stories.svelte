@@ -120,6 +120,10 @@
           error: new UserFacingError(accountsMessages.get().signInExpired)
         },
         {
+          account: { id: 'telegram', title: 'Telegram' },
+          error: new UserFacingError(accountsMessages.get().notSignedInHere)
+        },
+        {
           error: new HTTPStatusError(500, 'server is down', '', new Headers()),
           feed: testFeed({
             title:

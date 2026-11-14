@@ -36,6 +36,7 @@ export const accountsMessages = i18n('accounts', {
   name: 'Name',
   noAccounts:
     'Add your social media accounts to read their feed in Slow Reader',
+  notSignedInHere: 'Not signed in on this device',
   oldMastodon:
     'Your server runs Mastodon older than 4.3. Ask its admin to update it.',
   pageTitle: 'Accounts',

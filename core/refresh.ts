@@ -8,11 +8,14 @@ import {
   loadAccount,
   loadAccounts,
   needFollowsSync,
+  needsDeviceSignIn,
   syncAccounts,
   toVirtualFeed
 } from './account.ts'
 import { onClient, waitSyncOrOffline } from './client.ts'
+import { deviceSessions } from './device-sessions.ts'
 import { getEnvironment } from './environment.ts'
+import { UserFacingError } from './errors.ts'
 import { cleanFeedRedirects, trackFeedRedirect } from './feed-redirects.ts'
 import {
   changeFeed,
@@ -39,6 +42,7 @@ import {
   stopMediaCache,
   syncMediaCache
 } from './media-cache.ts'
+import { accountsMessages } from './messages/index.ts'
 import { nightLocked } from './night-lock.ts'
 import {
   deleteFastPostsBefore,
@@ -650,11 +654,25 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
       owner: owners.find(account => account.id === feed.accountId)
     }))
   ]
+  let unsigned = accounts.filter(account => {
+    return needsDeviceSignIn(account, deviceSessions.get())
+  })
   refreshStatistics.set({
     ...refreshStatistics.get(),
+    errorFeeds: unsigned.length,
     initializing: false,
-    totalFeeds: targets.length
+    processedFeeds: unsigned.length,
+    totalFeeds: targets.length + unsigned.length
   })
+  if (unsigned.length > 0) {
+    refreshErrors.set(
+      unsigned.map(account => ({
+        account: { id: account.id, title: account.title },
+        error: new UserFacingError(accountsMessages.get().notSignedInHere)
+      }))
+    )
+    refreshStatus.set('refreshingError')
+  }
 
   queue = createQueue(targets)
   await queue.start(
