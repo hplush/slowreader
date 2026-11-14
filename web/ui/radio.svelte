@@ -31,6 +31,24 @@
   }
 
   let position = $derived(values.findIndex(i => i[0] === current))
+
+  function hideIconsOnWrap(gutter: HTMLElement): () => void {
+    let observer = new ResizeObserver(() => {
+      gutter.classList.remove('is-iconless')
+      gutter.classList.toggle(
+        'is-iconless',
+        [...gutter.querySelectorAll('.radio_name')].some(name => {
+          let range = document.createRange()
+          range.selectNodeContents(name)
+          return range.getClientRects().length > 1
+        })
+      )
+    })
+    observer.observe(gutter)
+    return () => {
+      observer.disconnect()
+    }
+  }
 </script>
 
 <fieldset
@@ -42,7 +60,7 @@
   {#if !labelless}
     <Label tag="legend">{label}</Label>
   {/if}
-  <div class="radio_gutter">
+  <div class="radio_gutter" {@attach size !== 'icon' && hideIconsOnWrap}>
     <div
       style:--radio-width={`${100 / values.length}%`}
       style:--radio-position={position}
@@ -65,10 +83,12 @@
             value={key}
           />
           {#if icon}
-            <Icon path={icon} />
+            <span class="radio_icon">
+              <Icon path={icon} />
+            </span>
           {/if}
           {#if size !== 'icon'}
-            {name}
+            <span class="radio_name">{name}</span>
           {/if}
         </div>
       </label>
@@ -164,6 +184,18 @@
         width: var(--control-height);
         padding: 0;
       }
+    }
+
+    .radio_icon {
+      display: contents;
+
+      .radio_gutter.is-iconless & {
+        display: none;
+      }
+    }
+
+    .radio_name {
+      flex-shrink: 1;
     }
 
     .radio_input {
