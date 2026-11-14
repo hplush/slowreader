@@ -41,6 +41,12 @@
   })
 </script>
 
+{#snippet date()}
+  <SmallLink href={url} target="_blank">
+    {$publishedAt}
+  </SmallLink>
+{/snippet}
+
 <Popup id={getPopupId(popup.name, popup.param)}>
   {#snippet header()}
     {#if popup.read}
@@ -69,26 +75,27 @@
     {/if}
   {/snippet}
   <Stack>
-    <Stack justify="space-between" row width="stretch">
-      {#if feed}
-        <FeedLink
-          avatar={$feed!.avatar}
-          avatarRound={hasPersonAvatar($feed!.loader)}
-          feedId={$feed!.id}
-          href={getPopupHash($router, 'feed', $feed!.url)}
-          title={$feed!.title}
-          variant="secondary"
-        />
-      {:else}
-        <div></div>
-      {/if}
-      <SmallLink href={url} target="_blank">
-        {$publishedAt}
-      </SmallLink>
-    </Stack>
+    {#if !$post.repostedBy}
+      <Stack justify="space-between" row width="stretch">
+        {#if feed}
+          <FeedLink
+            avatar={$feed!.avatar}
+            avatarRound={hasPersonAvatar($feed!.loader)}
+            feedId={$feed!.id}
+            href={getPopupHash($router, 'feed', $feed!.url)}
+            title={$feed!.title}
+            variant="secondary"
+          />
+        {:else}
+          <div></div>
+        {/if}
+        {@render date()}
+      </Stack>
+    {/if}
     <Stack gap="xxl">
       <Stack gap="s">
         <Post
+          aside={$post.repostedBy ? date : undefined}
           loader={popup.loader}
           post={$post}
           protect={(feed && $feed!.protected) ||

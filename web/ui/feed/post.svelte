@@ -63,6 +63,7 @@
   let url = $derived(userPostUrl(post))
   let badges = $derived(getPostBadges(post))
   let hasByline = $derived(!!(author || post.author || post.repostedBy))
+  let feedInHeader = $derived(!!author && !post.repostedBy)
   let dynamic = $derived('dynamic' in post ? post.dynamic : undefined)
 </script>
 
@@ -70,6 +71,7 @@
   <PostByline
     {aside}
     author={post.author}
+    bigAvatar={!!author && !feedInHeader}
     repostHref={feedUrl && getPopupHash($router, 'feed', feedUrl)}
     repostedBy={post.repostedBy}
   />
@@ -126,7 +128,7 @@
       </div>
     {:else if author || post.publishedAt}
       <header class="feed-post_header">
-        {#if author}
+        {#if author && feedInHeader}
           <div class="feed-post_author">
             <FeedLink
               avatar={author.avatar}
@@ -147,7 +149,7 @@
         {/if}
       </header>
     {/if}
-    {#if hasByline && (author || !post.publishedAt)}
+    {#if hasByline && (feedInHeader || !post.publishedAt)}
       {@render byline(undefined)}
     {/if}
     {#if hasByline && post.title}

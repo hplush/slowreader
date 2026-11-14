@@ -15,11 +15,13 @@
   let {
     aside,
     author,
+    bigAvatar = false,
     repostedBy,
     repostHref
   }: {
     aside?: Snippet
     author: CardAuthor | null | undefined
+    bigAvatar?: boolean
     repostedBy: null | PostAuthor | undefined
     repostHref?: string
   } = $props()
@@ -49,15 +51,15 @@
             {$t.repostedBy({ name: repostedBy.title })}
           {/if}
         </div>
-        {@render aside?.()}
+        {#if !author}
+          {@render aside?.()}
+        {/if}
       </div>
     {/if}
     {#if author}
       <div class="post-byline_line">
-        <PostAuthorLine {author} />
-        {#if !repostedBy}
-          {@render aside?.()}
-        {/if}
+        <PostAuthorLine {author} big={bigAvatar} />
+        {@render aside?.()}
       </div>
     {/if}
   </div>
@@ -69,6 +71,7 @@
       display: flex;
       flex-direction: column;
       gap: 0.375rem;
+      width: stretch;
       max-width: 100%;
     }
 
@@ -91,6 +94,7 @@
       display: flex;
       gap: 0.5rem;
       align-items: flex-start;
+      justify-content: space-between;
     }
 
     .post-byline_repost {

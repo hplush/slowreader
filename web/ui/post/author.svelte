@@ -6,7 +6,7 @@
   import { getPopupHash } from '../../stores/url-router.ts'
   import BrokenImage from '../broken-image.svelte'
 
-  let { author }: { author: CardAuthor } = $props()
+  let { author, big = false }: { author: CardAuthor; big?: boolean } = $props()
 
   let broken = $state<null | string>()
   let loaded = $state<null | string>()
@@ -18,12 +18,13 @@
   href={author.url && getPopupHash($router, 'feed', author.url)}
 >
   {#if author.avatar && broken === author.avatar}
-    <span class="post-author_avatar">
+    <span class="post-author_avatar" class:is-big={big}>
       <BrokenImage />
     </span>
   {:else if author.avatar}
     <img
       class="post-author_avatar"
+      class:is-big={big}
       class:is-loading={loaded !== author.avatar}
       {@attach mediaSrc(author.avatar)}
       alt=""
@@ -82,6 +83,11 @@
       height: 1.5rem;
       overflow: hidden;
       border-radius: 50%;
+
+      &.is-big {
+        width: 2.5rem;
+        height: 2.5rem;
+      }
 
       &.is-loading {
         background: --tune-background(--image-placeholder);

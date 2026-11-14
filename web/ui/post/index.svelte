@@ -11,6 +11,7 @@
     type UserPostUrl,
     type WithHandles
   } from '@slowreader/core'
+  import type { Snippet } from 'svelte'
 
   import FormattedText from '../formatted-text.svelte'
   import Note from '../note.svelte'
@@ -22,12 +23,14 @@
   import PostWarning from './warning.svelte'
 
   let {
+    aside,
     loader,
     post,
     protect = false,
     repostHref,
     userPostUrl
   }: {
+    aside?: Snippet
     loader?: LoaderName | null
     post: WithHandles<OriginPost | PostValue>
     protect?: boolean | null
@@ -45,7 +48,12 @@
     if (protect) event.preventDefault()
   }}
 >
-  <PostByline author={post.author} {repostHref} repostedBy={post.repostedBy} />
+  <PostByline
+    {aside}
+    author={post.author}
+    {repostHref}
+    repostedBy={post.repostedBy}
+  />
   {#if post.title}
     <h1 class="post_title">
       {#if post.url}
