@@ -123,6 +123,10 @@ export const isRefreshing = computed(refreshStatus, icon => {
 
 let doneTimeout: NodeJS.Timeout | undefined
 
+// Stopped refresh can wake up from a long wait, like the sync of follows,
+// when the next refresh is already running
+let currentRun = 0
+
 export const refreshProgress = computed(refreshStatistics, stats => {
   if (stats.initializing || stats.totalFeeds === 0) {
     return 0
@@ -480,8 +484,10 @@ function loadKnown(target: RefreshTarget): Promise<string[]> {
 }
 
 async function processPage(
-  state: TargetRefresh
+  state: TargetRefresh,
+  run: number
 ): Promise<QueueCallback | void> {
+  if (run !== currentRun) return
   sortPage(state.page)
   let marker = getMarker(state.target)
   let enough = state.page.some(i => isOld(marker, i))
@@ -509,7 +515,7 @@ async function processPage(
       state.page = await state.pages.next()
       let error = state.pages.get().error
       if (error) throw error
-      return processPage(state)
+      return processPage(state, run)
     }
   } else {
     if (exists) await finishTarget(state)
@@ -597,6 +603,8 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
     clearTimeout(doneTimeout)
     doneTimeout = undefined
   }
+  currentRun += 1
+  let run = currentRun
   refreshStatus.set('refreshing')
   refreshErrors.set([])
   refreshStatistics.set({ ...DEFAULT_REFRESH_STATISTICS, initializing: true })
@@ -606,12 +614,12 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
 
   // Other device could already load these posts and move feed markers
   await waitSyncOrOffline()
-  if (!isRefreshing.get()) return
+  if (run !== currentRun) return
   if (!(await requestRefreshLock(stopRefreshing))) {
     refreshStatus.set(refreshLock.get() === 'other' ? 'other' : 'start')
     return
   }
-  if (!isRefreshing.get()) {
+  if (run !== currentRun) {
     releaseRefreshLock()
     return
   }
@@ -628,7 +636,7 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
   let accounts = await loadAccounts()
   if (accounts.some(needFollowsSync)) {
     await syncAccounts(accounts)
-    if (!isRefreshing.get()) return
+    if (run !== currentRun) return
   }
   // Device without the account’s session gets its posts from other devices
   let owners = accounts.filter(account => {
@@ -645,6 +653,7 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
   cleanFeedRedirects(feeds)
   let maxAge = fastPostsMaxAge.get()
   if (maxAge > 0) await deleteFastPostsBefore(refreshedAt - maxAge)
+  if (run !== currentRun) return
   let targets: RefreshTarget[] = [
     ...accounts
       .filter(account => loaders[account.service].account!.getTimeline)
@@ -688,7 +697,7 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
         let error = pages.get().error
         if (error) throw error
         if ('feed' in target) await trackFeedRedirect(target.feed, task)
-        return processPage(createState(target, pages, task))
+        return processPage(createState(target, pages, task), run)
       }
     },
     {
@@ -716,6 +725,7 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
       }
     }
   )
+  if (run !== currentRun) return
 
   // Read position to and from services, like Telegram
   try {
@@ -734,16 +744,16 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
   if (untouchedAccounts.length > 0) {
     await getTables().accounts.update(untouchedAccounts, { refreshedAt })
   }
+  if (run !== currentRun) return
   // Every device caches own media
   releaseRefreshLock()
 
-  if (isRefreshing.get()) {
-    try {
-      await syncMediaCache()
-    } catch (e) {
-      getEnvironment().warn(e)
-    }
+  try {
+    await syncMediaCache()
+  } catch (e) {
+    getEnvironment().warn(e)
   }
+  if (run !== currentRun) return
 
   lastRefresh.set(Date.now())
   if (refreshStatus.get() === 'refreshingError') {
@@ -764,6 +774,7 @@ onClient(() =>
 
 export function stopRefreshing(): void {
   if (!isRefreshing.get()) return
+  currentRun += 1
   refreshStatus.set('start')
   releaseRefreshLock()
   queue.stop()

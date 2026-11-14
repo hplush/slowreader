@@ -634,7 +634,7 @@ describe('refresh', () => {
       processedFeeds: 2,
       totalFeeds: 2
     })
-    deepEqual(icons, ['done', 'refreshing', 'refreshingError', 'error'])
+    deepEqual(icons, ['start', 'refreshing', 'refreshingError', 'error'])
     deepEqual(
       refreshErrors.get().map(i => ['feed' in i && i.feed.id, i.error.name]),
       [[feed2, 'HTTPStatusError']]
@@ -1467,6 +1467,24 @@ describe('refresh of accounts', () => {
     await refreshing
     equal(timeline.callCount, 0)
     equal(refreshStatus.get(), 'start')
+  })
+
+  test('does not continue stopped refresh after the next start', async () => {
+    await addAccount(testAccount())
+    let timeline = spyTimeline([])
+    let follows = Promise.withResolvers<LoadedAuthor[]>()
+    spyOn(signedIn, 'getFollows', () => follows.promise)
+
+    let stopped = refreshPosts()
+    await setTimeout(10)
+    stopRefreshing()
+    let refreshing = refreshPosts()
+    await setTimeout(10)
+    follows.resolve([])
+    await Promise.all([stopped, refreshing])
+    equal(timeline.callCount, 1)
+    equal(refreshStatistics.get().processedFeeds, 1)
+    equal(refreshStatus.get(), 'done')
   })
 
   test('loads recent posts of the feed', async () => {
