@@ -45,6 +45,7 @@ export const accountsMessages = i18n('accounts', {
     'Our server can’t use your {service} account. We’re open source, so anyone can check.'
   ),
   safeTitle: 'Your sign-in stays on your devices',
+  scanCode: 'QR code to sign in',
   sendCode: 'Send code',
   sendingCode: 'Sending code…',
   serverField: 'Server or your handle',
@@ -59,8 +60,12 @@ export const accountsMessages = i18n('accounts', {
     'Finish this step in the official Telegram app, then sign in here again',
   telegramOnlyChannels:
     'Slow Reader supports only Telegram channels, not users, bots, or groups',
+  telegramScan: 'Scan in Telegram on your phone:',
+  telegramScanPath: 'Settings → Devices → Link Desktop Device',
   telegramTitle: 'Telegram sign in',
   tooManyAttempts:
     'Too many attempts. Telegram asks to wait before the next one.',
-  unknownHandle: 'Can’t find this handle'
+  unknownHandle: 'Can’t find this handle',
+  useForm: 'Sign-in by code instead',
+  useScan: 'Sign in by QR code'
 })

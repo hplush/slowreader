@@ -127,6 +127,21 @@
   </Scene>
 </Story>
 
+<Story name="Telegram QR Code" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      pages.accounts().step.set({
+        link: 'tg://login?token=AQJqKjRnh0bR6Z5kq1hPpQpEoQeTnYcVb3mM2sXw',
+        service: 'telegram',
+        type: 'scan'
+      })
+    }}
+    route="accounts"
+  >
+    <AccountsPage page={pages.accounts()} />
+  </Scene>
+</Story>
+
 <Story
   name="Telegram Code Dark"
   asChild

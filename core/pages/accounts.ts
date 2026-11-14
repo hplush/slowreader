@@ -13,7 +13,7 @@ import {
   syncFollows
 } from '../account.ts'
 import { busyDuring } from '../busy.ts'
-import { getEnvironment } from '../environment.ts'
+import { getEnvironment, layoutType } from '../environment.ts'
 import { showCrash } from '../errors.ts'
 import type { SignInField, SignInStep } from '../loader/common.ts'
 import { loaders } from '../loader/index.ts'
@@ -26,6 +26,11 @@ import { createPage, routeParam } from './common.ts'
 
 export type AccountsStep =
   | { field: SignInField; service: AccountService; type: 'form' }
+  | {
+      link: string | undefined
+      service: AccountService
+      type: 'scan'
+    }
   | { type: 'list' }
 
 export const accountsPage = createPage('accounts', () => {
@@ -41,6 +46,8 @@ export const accountsPage = createPage('accounts', () => {
    * Data of the loader between form fields.
    */
   let asked: { data: unknown } | undefined
+
+  let scanning: object | undefined
 
   function open(step: AccountsStep, label?: string): void {
     asked = undefined
@@ -111,6 +118,12 @@ export const accountsPage = createPage('accounts', () => {
     } else if (step.type === 'ask') {
       open({ field: step.field, service, type: 'form' }, step.label)
       asked = { data: step.data }
+    } else if (step.type === 'scan') {
+      open({ link: step.link, service, type: 'scan' })
+      let current = { data: step.data }
+      asked = current
+      let following = await step.wait()
+      if (asked === current) await next(service, following)
     } else {
       // Web never returns here, only native clients with in-app browser
       /* node:coverage ignore next 6 */
@@ -151,21 +164,57 @@ export const accountsPage = createPage('accounts', () => {
    */
   function leaveForm(): void {
     let step = $step.get()
-    if (step.type === 'form' && asked) {
+    if (step.type !== 'list' && asked) {
       void loaders[step.service].account!.cancelSignIn?.(asked.data)
+    }
+    asked = undefined
+    scanning = undefined
+  }
+
+  function openForm(service: AccountService): void {
+    leaveForm()
+    open({
+      field: loaders[service].account!.firstField,
+      service,
+      type: 'form'
+    })
+  }
+
+  async function scan(service: AccountService): Promise<void> {
+    leaveForm()
+    open({ link: undefined, service, type: 'scan' })
+    let current = {}
+    scanning = current
+    let account = loaders[service].account!
+    try {
+      let step = await account.scanSignIn!()
+      if (scanning === current) {
+        await next(service, step)
+      } else if (step.type !== 'done') {
+        void account.cancelSignIn?.(step.data)
+      }
+    } catch (e) {
+      // User could cancel the sign in during the waiting
+      if (scanning !== current) return
+      openForm(service)
+      $error.set(signInErrorToMessage(e))
     }
   }
 
   let unbindService = $service.subscribe(service => {
     leaveForm()
-    if (service) {
-      open({
-        field: loaders[service].account!.firstField,
-        service,
-        type: 'form'
-      })
-    } else {
+    if (!service) {
       open({ type: 'list' })
+    } else if (
+      loaders[service].account!.scanSignIn &&
+      // Phone can not scan the code from its own screen
+      layoutType.get() !== 'mobile' &&
+      // Telegram can not start before its app ID is loaded from the server
+      (service !== 'telegram' || hasTelegram.get())
+    ) {
+      void scan(service)
+    } else {
+      openForm(service)
     }
   })
 
@@ -210,6 +259,7 @@ export const accountsPage = createPage('accounts', () => {
      */
     opened: computed(router, route => route.popups[0]?.param),
     params: { service: $service },
+    scan,
     signInTo(server: string): Promise<void> {
       $input.set(server)
       return submit()
@@ -217,7 +267,8 @@ export const accountsPage = createPage('accounts', () => {
     step: $step,
     submit,
     submitting: $submitting,
-    telegram: hasTelegram
+    telegram: hasTelegram,
+    useForm: openForm
   }
 })
 

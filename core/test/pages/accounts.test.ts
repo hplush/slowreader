@@ -26,7 +26,8 @@ import {
   ParseError,
   router,
   UserFacingError,
-  waitLoading
+  waitLoading,
+  setLayoutType
 } from '../../index.ts'
 import { sha256 } from '../../lib/oauth.ts'
 import { getBlueskyClientId } from '../../loader/bluesky.ts'
@@ -1077,6 +1078,7 @@ describe('accounts page with Telegram', () => {
   })
 
   test('signs in to Telegram on this device', async () => {
+    setLayoutType('mobile')
     testTelegram.answers.setAuthenticationPhoneNumber = moveTo('WaitCode', {
       code_info: {
         '@type': 'authenticationCodeInfo',
@@ -1146,6 +1148,7 @@ describe('accounts page with Telegram', () => {
   })
 
   test('deletes session key on leaving the sign in', async () => {
+    setLayoutType('mobile')
     testTelegram.answers.setAuthenticationPhoneNumber = moveTo('WaitCode')
     let page = openAccounts()
     openRoute({ params: { service: 'telegram' }, route: 'accounts' })
@@ -1182,5 +1185,93 @@ describe('accounts page with Telegram', () => {
     equal(page.step.get().type, 'form')
     await waitFor(page.step, step => step.type === 'list')
     deepEqual(testHistory.at(-1), { hash: '', params: {}, route: 'accounts' })
+  })
+
+  function scanStep(link: string | undefined): object {
+    return { link, service: 'telegram', type: 'scan' }
+  }
+
+  test('signs in to Telegram by QR code on wide screens', async () => {
+    testTelegram.answers.requestQrCodeAuthentication = moveTo(
+      'WaitOtherDeviceConfirmation',
+      { link: 'tg://login?token=1' }
+    )
+    testTelegram.answers.checkAuthenticationPassword = moveTo('Ready')
+    let page = openAccounts()
+    openRoute({ params: { service: 'telegram' }, route: 'accounts' })
+    deepEqual(page.step.get(), scanStep(undefined))
+    await waitFor(page.step, step => step.type === 'scan' && !!step.link)
+    deepEqual(page.step.get(), scanStep('tg://login?token=1'))
+
+    // Telegram replaces the link every 30 seconds
+    moveTo('WaitOtherDeviceConfirmation', { link: 'tg://login?token=2' })()
+    await setTimeout(10)
+    deepEqual(page.step.get(), scanStep('tg://login?token=2'))
+
+    moveTo('WaitPassword')()
+    await setTimeout(10)
+    deepEqual(page.step.get(), {
+      field: 'password',
+      service: 'telegram',
+      type: 'form'
+    })
+    page.input.set('secret')
+    await page.submit()
+    await waitAccountPopup()
+    equal((await loadAccounts())[0]!.handle, '@jane')
+    deepEqual(testTelegram.destroyed, [])
+  })
+
+  test('switches between QR code and phone number', async () => {
+    testTelegram.answers.requestQrCodeAuthentication = moveTo(
+      'WaitOtherDeviceConfirmation',
+      { link: 'tg://login?token=1' }
+    )
+    let page = openAccounts()
+    openRoute({ params: { service: 'telegram' }, route: 'accounts' })
+    await waitFor(page.step, step => step.type === 'scan' && !!step.link)
+
+    page.useForm('telegram')
+    equal(testTelegram.destroyed.length, 1)
+    deepEqual(page.step.get(), {
+      field: 'phone',
+      service: 'telegram',
+      type: 'form'
+    })
+    // TDLib tells about the end of the deleted session
+    moveTo('Closed')()
+    await setTimeout(10)
+    equal(page.step.get().type, 'form')
+    equal(page.error.get(), undefined)
+
+    // User left before Telegram gave the first link
+    void page.scan('telegram')
+    page.cancel()
+    equal(page.step.get().type, 'list')
+    await setTimeout(10)
+    equal(testTelegram.destroyed.length, 2)
+    equal(page.step.get().type, 'list')
+
+    testTelegram.answers.requestQrCodeAuthentication = {
+      '@type': 'error',
+      'code': 429,
+      'message': 'Too Many Requests: retry after 100'
+    }
+    await page.scan('telegram')
+    equal(testTelegram.destroyed.length, 3)
+    equal(page.step.get().type, 'form')
+    equal(page.error.get(), accountsMessages.get().tooManyAttempts)
+
+    // Step, which we do not support, ends the sign in
+    testTelegram.answers.requestQrCodeAuthentication = moveTo(
+      'WaitOtherDeviceConfirmation',
+      { link: 'tg://login?token=1' }
+    )
+    void page.scan('telegram')
+    await waitFor(page.step, step => step.type === 'scan' && !!step.link)
+    moveTo('WaitRegistration')()
+    await setTimeout(10)
+    equal(page.step.get().type, 'form')
+    equal(page.error.get(), accountsMessages.get().telegramOfficialApp)
   })
 })

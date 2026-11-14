@@ -446,6 +446,17 @@ async function toStep(
     return { data: { name }, field: 'emailCode', type: 'ask' }
   } else if (state['@type'] === 'authorizationStateWaitPassword') {
     return { data: { name }, field: 'password', type: 'ask' }
+  } else if (
+    state['@type'] === 'authorizationStateWaitOtherDeviceConfirmation'
+  ) {
+    return {
+      data: { name },
+      link: String(state.link),
+      type: 'scan',
+      async wait() {
+        return toStep(name, await waitTelegramAuthState(name, state))
+      }
+    }
   } else if (state['@type'] === 'authorizationStateReady') {
     let done = await loadAccount(name)
     keepTelegramRunning(name, false)
@@ -468,6 +479,19 @@ async function sendAnswer(
     throw toUserError(e)
   }
   return toStep(name, await waitTelegramAuthState(name, previous))
+}
+
+async function startSession(
+  body: TelegramRequest
+): Promise<SignInStep<SignInData>> {
+  let name = nanoid()
+  keepTelegramRunning(name, true)
+  try {
+    return await sendAnswer(name, body)
+  } catch (e) {
+    await destroyTelegram(name)
+    throw e
+  }
 }
 
 function getDevice(auth: AccountAuth): string {
@@ -1457,18 +1481,18 @@ let telegramAccount: AccountLoader<SignInData> = {
 
   noAnonymous: true,
 
-  async startSignIn(input) {
-    let name = nanoid()
-    keepTelegramRunning(name, true)
-    try {
-      return await sendAnswer(name, {
-        '@type': 'setAuthenticationPhoneNumber',
-        'phone_number': input.replace(/[^\d+]/g, '')
-      })
-    } catch (e) {
-      await destroyTelegram(name)
-      throw e
-    }
+  scanSignIn() {
+    return startSession({
+      '@type': 'requestQrCodeAuthentication',
+      'other_user_ids': []
+    })
+  },
+
+  startSignIn(input) {
+    return startSession({
+      '@type': 'setAuthenticationPhoneNumber',
+      'phone_number': input.replace(/[^\d+]/g, '')
+    })
   },
 
   async unfollow(auth, url) {

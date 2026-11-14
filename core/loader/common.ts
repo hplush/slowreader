@@ -55,8 +55,8 @@ export type SignInField =
 
 /**
  * Next step of the sign in. Loader could ask user for the form field
- * (like a code from SMS), open service’s page (like OAuth),
- * or finish the sign in.
+ * (like a code from SMS), open service’s page (like OAuth), show QR code
+ * for the service’s app, or finish the sign in.
  */
 export type SignInStep<Data> =
   | {
@@ -87,6 +87,12 @@ export type SignInStep<Data> =
       state: string
       type: 'open'
       url: string
+    }
+  | {
+      data: Data
+      link: string
+      type: 'scan'
+      wait(): Promise<SignInStep<Data>>
     }
 
 /**
@@ -227,6 +233,12 @@ export interface AccountLoader<Data = unknown> {
   getUserPostUrl?(server: string, url: string): string
 
   isFollowing(auth: AccountAuth, url: string): Promise<boolean>
+
+  /**
+   * Start the sign in by QR code. Wide screens start from it,
+   * since user needs another device with the service’s app to scan it.
+   */
+  scanSignIn?(): Promise<SignInStep<Data>>
 
   /**
    * Start the sign in by the first field value. For instance, find user’s

@@ -5,6 +5,7 @@
     mdiChevronLeft,
     mdiChevronRight,
     mdiLogin,
+    mdiQrcodeScan,
     mdiSend,
     mdiShieldCheckOutline
   } from '@mdi/js'
@@ -30,6 +31,7 @@
   import Links from '../ui/links.svelte'
   import Loader from '../ui/loader.svelte'
   import Note from '../ui/note.svelte'
+  import Qr from '../ui/qr.svelte'
   import Stack from '../ui/stack.svelte'
   import ThinPage from '../ui/thin-page.svelte'
   import Title from '../ui/title.svelte'
@@ -144,6 +146,46 @@
       </Stack>
     </Stack>
   </ThinPage>
+{:else if $step.type === 'scan'}
+  <ThinPage
+    align="center"
+    title={[$t.pageTitle, $settingsMessages.commonTitle]}
+  >
+    <Stack align="center" gap="xl">
+      <Title center>
+        {$t[`${$step.service}Title`]}
+      </Title>
+      <Stack align="center" gap="l">
+        <Qr
+          hint={$t.telegramScan}
+          label={$t.scanCode}
+          path={$t.telegramScanPath}
+          text={$step.link}
+        />
+        <Stack gap="s">
+          <Button
+            icon={mdiCellphoneMessage}
+            onclick={page.useForm.bind(null, $step.service)}
+            size="wide"
+            variant="secondary"
+          >
+            {$t.useForm}
+          </Button>
+          <Button
+            icon={mdiChevronLeft}
+            onclick={page.cancel}
+            size="wide"
+            variant="secondary"
+          >
+            {$t.cancel}
+          </Button>
+        </Stack>
+      </Stack>
+      <Note icon={mdiShieldCheckOutline} title={$t.safeTitle} variant="good">
+        {$t.safeDesc({ service: $addMessages[`${$step.service}Loader`] })}
+      </Note>
+    </Stack>
+  </ThinPage>
 {:else}
   <ThinPage
     align="center"
@@ -212,6 +254,17 @@
                 {submit.label}
               </Button>
             </Stack>
+            {#if $step.field === 'phone'}
+              <Button
+                disabled={$submitting}
+                icon={mdiQrcodeScan}
+                onclick={page.scan.bind(null, $step.service)}
+                size="wide"
+                variant="secondary"
+              >
+                {$t.useScan}
+              </Button>
+            {/if}
           </Stack>
         </Stack>
         <Note icon={mdiShieldCheckOutline} title={$t.safeTitle} variant="good">

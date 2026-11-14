@@ -102,6 +102,7 @@
     "postcss-mixins": "12.1.2",
     "postcss-smooth-corners": "0.2.0",
     "postcss-smooth-shadow": "0.3.2",
+    "qr": "0.7.2",
     "rollup": "4.68.2",
     "sharp": "0.35.5",
     "storybook": "10.6.7",
