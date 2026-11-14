@@ -266,8 +266,8 @@ export const addPage = createPage('add', () => {
    * Adds a possible feed URL, its meta and type, to the list of possible URLs.
    */
   function addCandidate(url: string, candidate: FeedLoader): void {
-    if ($candidates.get().some(i => i.url === url)) return
     $links.setKey(url, { state: 'processed' })
+    if ($candidates.get().some(i => i.url === candidate.url)) return
     $candidates.set([...$candidates.get(), candidate])
   }
 

@@ -16,6 +16,7 @@ import {
   openedPopups,
   router,
   setLayoutType,
+  setRequestMethod,
   testAccount,
   waitLoading
 } from '../../index.ts'
@@ -1069,6 +1070,39 @@ describe('add page', () => {
         url: 'https://example.com/feed.atom'
       }
     ])
+  })
+
+  test('shows redirected feed with a link to itself once', async () => {
+    let page = openPage({
+      params: {},
+      route: 'add'
+    })
+    setRequestMethod(() => {
+      let response = new Response(
+        `<?xml version="1.0"?>
+        <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+          <channel>
+            <title>Feed</title>
+            <atom:link href="https://example.com/feed/" rel="self"
+              type="application/rss+xml" />
+          </channel>
+        </rss>`,
+        { headers: { 'Content-Type': 'application/rss+xml' } }
+      )
+      Object.defineProperty(response, 'url', {
+        value: 'https://example.com/feed/'
+      })
+      return Promise.resolve(response)
+    })
+
+    page.search('http://example.com/feed/')
+    await waitLoading(page.searching)
+    await waitLoading(getPopup('feed').loading)
+
+    deepEqual(
+      page.candidates.get().map(i => i.url),
+      ['https://example.com/feed/']
+    )
   })
 
   test('loads avatars of candidates', async () => {
