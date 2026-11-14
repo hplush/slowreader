@@ -75,7 +75,17 @@ import {
 } from './settings.ts'
 import { linkThreads } from './thread.ts'
 
-export const DEFAULT_REFRESH_STATISTICS = {
+export interface RefreshStatistics {
+  errorFeeds: number
+  errorRequests: number
+  foundFast: number
+  foundSlow: number
+  initializing: 'feeds' | 'follows' | 'lock' | 'sync' | false
+  processedFeeds: number
+  totalFeeds: number
+}
+
+export const DEFAULT_REFRESH_STATISTICS: RefreshStatistics = {
   errorFeeds: 0,
   errorRequests: 0,
   foundFast: 0,
@@ -85,9 +95,9 @@ export const DEFAULT_REFRESH_STATISTICS = {
   totalFeeds: 0
 }
 
-export type RefreshStatistics = typeof DEFAULT_REFRESH_STATISTICS
-
-export const refreshStatistics = map({ ...DEFAULT_REFRESH_STATISTICS })
+export const refreshStatistics = map<RefreshStatistics>({
+  ...DEFAULT_REFRESH_STATISTICS
+})
 
 /**
  * Feed or account, which failed. Account is shown like a feed.
@@ -607,7 +617,7 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
   let run = currentRun
   refreshStatus.set('refreshing')
   refreshErrors.set([])
-  refreshStatistics.set({ ...DEFAULT_REFRESH_STATISTICS, initializing: true })
+  refreshStatistics.set({ ...DEFAULT_REFRESH_STATISTICS, initializing: 'sync' })
   mediaStatistics.set({ ...DEFAULT_MEDIA_STATISTICS })
   mediaErrors.set([])
   lastRefresh.set(Date.now())
@@ -615,6 +625,7 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
   // Other device could already load these posts and move feed markers
   await waitSyncOrOffline()
   if (run !== currentRun) return
+  refreshStatistics.setKey('initializing', 'lock')
   if (!(await requestRefreshLock(stopRefreshing))) {
     refreshStatus.set(refreshLock.get() === 'other' ? 'other' : 'start')
     return
@@ -624,6 +635,7 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
     return
   }
 
+  refreshStatistics.setKey('initializing', 'feeds')
   refreshedAt = Math.round(Date.now() / 1000)
   untouched = new Map()
   untouchedAccounts = []
@@ -635,8 +647,10 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
   }
   let accounts = await loadAccounts()
   if (accounts.some(needFollowsSync)) {
+    refreshStatistics.setKey('initializing', 'follows')
     await syncAccounts(accounts)
     if (run !== currentRun) return
+    refreshStatistics.setKey('initializing', 'feeds')
   }
   // Device without the account’s session gets its posts from other devices
   let owners = accounts.filter(account => {

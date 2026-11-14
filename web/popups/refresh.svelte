@@ -71,6 +71,14 @@
             {$t.checked({
               all: $refreshStatistics.processedFeeds
             })}
+          {:else if $refreshStatistics.initializing === 'sync'}
+            {$t.initializingSync}
+          {:else if $refreshStatistics.initializing === 'lock'}
+            {$t.initializingLock}
+          {:else if $refreshStatistics.initializing === 'follows'}
+            {$t.initializingFollows}
+          {:else if $refreshStatistics.initializing === 'feeds'}
+            {$t.initializingFeeds}
           {:else}
             {$t.count({
               all: $refreshStatistics.totalFeeds,

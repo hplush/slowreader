@@ -58,6 +58,25 @@
   </Scene>
 </Story>
 
+<Story name="Preparing" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      refreshStatus.set('refreshing')
+      refreshStatistics.set({
+        errorFeeds: 0,
+        errorRequests: 0,
+        foundFast: 0,
+        foundSlow: 0,
+        initializing: 'lock',
+        processedFeeds: 0,
+        totalFeeds: 0
+      })
+    }}
+  >
+    <RefreshPopup />
+  </Scene>
+</Story>
+
 <Story name="Saving Media" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {

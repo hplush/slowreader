@@ -122,6 +122,7 @@ describe('refresh', () => {
     let finished = refreshPosts()
     await setTimeout(10)
     equal(refreshStatus.get(), 'refreshing')
+    equal(refreshStatistics.get().initializing, 'sync')
     equal(load.callCount, 0)
 
     changeState('synchronized')
@@ -209,7 +210,7 @@ describe('refresh', () => {
       errorRequests: 0,
       foundFast: 0,
       foundSlow: 0,
-      initializing: true,
+      initializing: 'sync',
       processedFeeds: 0,
       totalFeeds: 0
     })
@@ -347,7 +348,7 @@ describe('refresh', () => {
       errorRequests: 0,
       foundFast: 0,
       foundSlow: 0,
-      initializing: true,
+      initializing: 'sync',
       processedFeeds: 0,
       totalFeeds: 0
     })
@@ -1462,6 +1463,7 @@ describe('refresh of accounts', () => {
 
     let refreshing = refreshPosts()
     await setTimeout(10)
+    equal(refreshStatistics.get().initializing, 'follows')
     stopRefreshing()
     follows.resolve([])
     await refreshing

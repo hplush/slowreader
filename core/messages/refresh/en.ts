@@ -8,6 +8,10 @@ export const refreshMessages = i18n('refresh', {
   errors: 'Errors',
   extension:
     'The extension may fix it by loading feeds privately from your browser.',
+  initializingFeeds: 'Preparing feeds…',
+  initializingFollows: 'Loading your follows…',
+  initializingLock: 'Asking other devices to wait…',
+  initializingSync: 'Syncing with other devices…',
   other: 'Another device is checking for new posts',
   media: params('Saving media for offline: {done}/{all}'),
   mediaDone: params('Saved media for offline: {done}'),

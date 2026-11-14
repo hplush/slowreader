@@ -27,6 +27,7 @@ import {
   loaders,
   type PostsListResult,
   refreshPosts,
+  refreshStatistics,
   refreshStatus,
   refreshTotalProgress,
   requestRefreshLock,
@@ -265,6 +266,7 @@ describe('refresh lock', () => {
           refreshLock.listen(lock => {
             if (lock === 'waiting') {
               deepEqual(refreshTotalProgress.get(), { stage: 'waiting' })
+              equal(refreshStatistics.get().initializing, 'lock')
               stopRefreshing()
             }
           })
