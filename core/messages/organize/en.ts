@@ -4,7 +4,7 @@ import { i18n } from '../../i18n.ts'
 
 export const organizeMessages = i18n('organize', {
   account: 'Account',
-  accountReading: 'Account’s',
+  accountReading: 'Account',
   addFeed: 'Subscribe',
   anonymous: 'Anonymous',
   byCategoryTitle: 'By category',
