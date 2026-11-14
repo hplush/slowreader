@@ -30,10 +30,5 @@ export const fatalMessages = i18n('fatal', {
   newVersionButton: 'Update to new version',
   reloadButton: 'Reload the app',
   reportButton: 'Report an issue',
-  secondTabDescription:
-    'Safari and some other browsers can save the data only from a single ' +
-    'tab. Close the other tab, and this page will open the app by itself.',
-  secondTabText: 'Slow Reader is open in another tab',
-  secondTabTitle: 'No multi-tab',
   updateButton: 'Update client now'
 })

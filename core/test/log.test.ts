@@ -898,6 +898,22 @@ describe('log', () => {
     await waitUntil(async () => (await logTypes()).length === 0)
   })
 
+  test('keeps the data when another tab made the database busy', async () => {
+    await signUpCloudUser()
+    await addFeed(testFeed({ title: 'A' }))
+    await waitSync()
+
+    lastReset.set(undefined)
+    let error = new Error('SQLITE_BUSY: transaction was lost')
+    expectWarning(() => {
+      reportDatabaseError(error)
+    }, [error])
+
+    await setTimeout(SETTLE)
+    equal(lastReset.get(), undefined)
+    deepEqual(await logTypes(), ['shadow'])
+  })
+
   test('uploads local data on the sign up', async () => {
     let credentials = generateCredentials()
     await startLocalUser(credentials)

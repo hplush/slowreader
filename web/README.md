@@ -70,7 +70,7 @@ We use **Svelte** as the UI framework and **Vite** as the builder.
 
 ## Client Storage
 
-We keep SQLite as a file in OPFS, but only cross-origin isolated pages can do it. Browsers without the isolation, like Safari, use the [`opfs-sahpool` VFS](https://sqlite.org/wasm/doc/trunk/persistence.md), which works without multi-tab support.
+We keep SQLite as a file in OPFS, but only cross-origin isolated pages can do it. Browsers without the isolation, like Safari, use the [`opfs-sahpool` VFS](https://sqlite.org/wasm/doc/trunk/persistence.md). Only one tab opens the database, and other tabs send queries to its worker.
 
 The engine is chosen on the first start and saved as `slowreader:vfs` in `localStorage`, since the engines can not read each other’s files.
 

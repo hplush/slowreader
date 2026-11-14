@@ -45,7 +45,7 @@ describe('events', () => {
   test('sends fatal errors once a day', async () => {
     fatal.set({ error: undefined, type: 'noDb' })
     fatal.set(undefined)
-    fatal.set({ type: 'secondTab' })
+    fatal.set({ type: 'outdated' })
     fatal.set({ error: undefined, type: 'noDb' })
     fatal.set({ error: 'Error', type: 'crash' })
     await waitUntil(() => sent.length === 2)

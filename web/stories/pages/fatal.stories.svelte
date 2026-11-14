@@ -102,15 +102,6 @@
   </Scene>
 </Story>
 
-<Story name="Second Tab" asChild parameters={{ layout: 'fullscreen' }}>
-  <Scene
-    route={{ params: { reason: 'secondTab' }, route: 'fatal' }}
-    user={false}
-  >
-    <FatalPage page={pages.fatal()} />
-  </Scene>
-</Story>
-
 <Story name="Rejected" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {

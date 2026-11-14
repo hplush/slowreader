@@ -10,7 +10,6 @@
     mdiDeleteAlert,
     mdiFire,
     mdiReload,
-    mdiTabRemove,
     mdiTimerSandComplete,
     mdiUpdate
   } from '@mdi/js'
@@ -39,8 +38,7 @@
     noDb: mdiDatabaseOff,
     notFound: mdiBookOpenPageVariant,
     outdated: mdiTimerSandComplete,
-    rejected: mdiCloudAlert,
-    secondTab: mdiTabRemove
+    rejected: mdiCloudAlert
   }
 
   let { page }: { page: FatalPage } = $props()
@@ -169,8 +167,6 @@
         {:else}
           {@render reportButton($reason.error)}
         {/if}
-      {:else if $reason.type === 'secondTab'}
-        <p>{$t.secondTabDescription}</p>
       {:else if $reason.type === 'rejected'}
         <DebugInfo
           error={$reason.error}

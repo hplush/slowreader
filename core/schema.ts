@@ -509,7 +509,11 @@ export async function getTableActions(
 
 export function reportDatabaseError(error: unknown): void {
   getEnvironment().warn(error)
-  if (hasDatabase() && hasCloud.get()) {
+  if (
+    hasDatabase() &&
+    hasCloud.get() &&
+    !String(error).includes('SQLITE_BUSY')
+  ) {
     void resetDatabase('broken-db', error)
   }
 }

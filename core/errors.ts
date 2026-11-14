@@ -12,8 +12,7 @@ export const fatalReasons = [
   'noDb',
   'notFound',
   'outdated',
-  'rejected',
-  'secondTab'
+  'rejected'
 ] as const
 
 export type Fatal =
