@@ -147,6 +147,11 @@
     </Stack>
     <Stack gap="m">
       <Title>{$t.refreshGroup}</Title>
+      {#if $saveData && $autoRefresh !== 'never'}
+        <Note icon={mdiDownloadOff} variant="neutral">
+          {$t.saveDataRefresh}
+        </Note>
+      {/if}
       {#if wifi}
         <Radio
           label={$t.autoRefresh}

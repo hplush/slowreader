@@ -30,6 +30,7 @@ export const networkMessages = i18n('network', {
   saveDataAuto: 'Auto',
   saveDataLabel: 'Images by click, no auto-downloads',
   saveDataCache: 'Save Data mode is on. Media is not saved.',
+  saveDataRefresh: 'Save Data mode is on. Auto-refresh is off.',
   saveDataOff: 'Off',
   saveDataOn: 'On',
   saveDataPaid: 'Paid',
