@@ -1986,6 +1986,9 @@ describe('telegram loader', () => {
       ['2']
     )
 
+    testTelegram.answers.getChat = fail('Chat not found')
+    deepEqual(await loadFeedPosts(), [])
+
     testTelegram.answers.getChat = () => {
       throw new Error('TDLib is broken')
     }

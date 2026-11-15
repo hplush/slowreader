@@ -1646,8 +1646,12 @@ function loadChannelPosts(
       try {
         found = await findChat(auth, url, loaderData)
       } catch (e) {
+        if (!TelegramError.is(e)) throw e
         // Preview of a private channel by its invite link
-        if (TelegramError.is(e) && e.code === 403) return [[], undefined]
+        if (e.code === 403) return [[], undefined]
+        // Account left the channel in Telegram’s app,
+        // follows sync will delete the feed later
+        if (auth && e.message === 'Chat not found') return [[], undefined]
         throw e
       }
       name = found.name
