@@ -74,6 +74,7 @@
       align-self: center;
       padding-inline-start: 0.25rem;
       font: var(--secondary-font);
+      line-height: 1.3;
     }
 
     .post-warning_icon {

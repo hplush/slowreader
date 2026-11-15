@@ -580,7 +580,7 @@
         url: 'https://mastodon.social/@Mastodon/2',
         warning:
           'Movie spoilers for the whole trilogy, including the ending of ' +
-          `the last part and the post-credits scene ${EMOJI}`
+          `the last part and the credits scene ${EMOJI}`
       }
     ]}
   >
