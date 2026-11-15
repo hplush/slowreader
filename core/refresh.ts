@@ -135,6 +135,10 @@ export const isRefreshing = computed(refreshStatus, status => {
   return status.startsWith('refreshing') || status === 'other'
 })
 
+export const openRefresh = computed(refreshStatus, status => {
+  return status !== 'no' && status !== 'done'
+})
+
 let doneTimeout: NodeJS.Timeout | undefined
 
 // Stopped refresh can wake up from a long wait, like the sync of follows,

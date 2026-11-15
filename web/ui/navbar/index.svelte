@@ -5,6 +5,7 @@
     isRefreshing,
     layoutType,
     menuSlider,
+    openRefresh,
     refreshPosts,
     refreshStatus,
     refreshTotalProgress,
@@ -54,7 +55,7 @@
         dot={$refreshStatus === 'error' || $refreshStatus === 'refreshingError'}
         href={getPopupHash($router, 'refresh', '1')}
         onclick={e => {
-          if (!$isRefreshing) {
+          if (!$openRefresh) {
             e.preventDefault()
             void refreshPosts()
           }
