@@ -5,7 +5,6 @@ import { i18n } from '../../i18n.ts'
 export const organizeMessages = i18n('organize', {
   account: 'Account',
   accountReading: 'Account',
-  addFeed: 'Subscribe',
   anonymous: 'Anonymous',
   byCategoryTitle: 'By category',
   deleteCategory: 'Delete category',
@@ -13,7 +12,6 @@ export const organizeMessages = i18n('organize', {
     'All feeds in this category will be moved to General. Are you sure you want to continue?',
   deleteConform:
     'This will permanently delete the feed, including its statistics and posts. Are you sure?',
-  deleteFeed: 'Delete feed',
   deleteFinalConform:
     'This will delete the feed and leave the private channel. You can return only by an invite. Are you sure?',
   fast: 'Fun',
@@ -36,6 +34,7 @@ export const organizeMessages = i18n('organize', {
   feedPosts: 'Recent posts',
   feedsTitle: 'Feeds',
   feedUrl: 'Feed URL',
+  follow: 'Follow',
   morePosts: 'More posts',
   openWebsite: 'Open website',
   renameCategory: 'Rename category',
@@ -44,5 +43,6 @@ export const organizeMessages = i18n('organize', {
   syncingFollows: 'Loading your follows…',
   title: 'Feed name',
   tooFrequent: 'Feed posts too often',
-  type: 'Feed type'
+  type: 'Feed type',
+  unfollow: 'Unfollow'
 })

@@ -69,7 +69,7 @@
         onclick={popup.add}
         variant="main"
       >
-        {$t.addFeed}
+        {$t.follow}
       </Button>
     {:else}
       <Button
@@ -88,7 +88,7 @@
         }}
         variant="secondary-dangerous"
       >
-        {$t.deleteFeed}
+        {$t.unfollow}
       </Button>
     {/if}
     {#if $site}
