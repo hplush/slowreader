@@ -169,6 +169,22 @@ describe('refresh lock', () => {
     equal(refreshLock.get(), 'free')
   })
 
+  test('stops refresh on disconnect during waiting', async t => {
+    await signUp()
+    t.after(
+      refreshLock.listen(lock => {
+        if (lock === 'waiting') {
+          queueMicrotask(() => {
+            getClient().node.connection.disconnect()
+          })
+        }
+      })
+    )
+    await refreshPosts()
+    equal(refreshStatus.get(), 'no')
+    equal(refreshLock.get(), 'free')
+  })
+
   test('loses lock after server unlock', async () => {
     await signUp()
     let lost = 0

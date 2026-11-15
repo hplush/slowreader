@@ -220,6 +220,38 @@ describe('media cache', () => {
     await waitUntil(async () => (await cached()).length === 1)
   })
 
+  test('warns on broken cache for posts from another device', async () => {
+    let error = new Error('Cache is broken')
+    let checked = false
+    setupEnvironment({
+      ...getTestEnvironment(),
+      mediaCache: {
+        ...getTestEnvironment().mediaCache,
+        keys() {
+          checked = true
+          return Promise.reject(error)
+        }
+      }
+    })
+    await expectWarning(async () => {
+      await getClient().log.add(
+        {
+          fields: {
+            media: [{ type: 'image', url: 'https://img.com/1.jpg' }],
+            publishedAt: 1000,
+            read: false,
+            reading: 'slow',
+            sortedAt: 1000
+          },
+          id: 'broken-post',
+          type: 'posts/created'
+        },
+        { id: '2 10:other:1 0', reasons: ['test'], time: Date.now() }
+      )
+      await waitUntil(() => checked)
+    }, [error])
+  })
+
   test('ignores posts from another device without saving or network', async () => {
     await getEnvironment().mediaCache.put(
       'https://old.com/a.png',
