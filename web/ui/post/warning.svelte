@@ -80,7 +80,7 @@
     .post-warning_icon {
       --icon-size: 1.25rem;
 
-      color: --tune-background(--note);
+      color: --tune-background(--note-icon);
     }
 
     .post-warning_button {

@@ -1569,7 +1569,8 @@ function toPost(
     }
   }
   if (preview) post.preview = preview
-  if ((!text && !post.media && !poll) || rich?.unsupported) {
+  if (content['@type'] === 'messagePaidMedia') post.paid = true
+  if ((!text && !post.media && !poll && !post.paid) || rich?.unsupported) {
     post.unsupported = true
   }
   if (messages.some(message => message.can_be_saved === false)) {

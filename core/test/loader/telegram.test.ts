@@ -1938,12 +1938,22 @@ describe('telegram loader', () => {
     deepEqual(await loaders.telegram.getDynamicPosts!('https://t.me/c/5'), [])
   })
 
-  test('skips service messages and marks unknown content', async () => {
+  test('skips service messages and marks unknown and paid content', async () => {
     mockHistory(9, {
       0: [message(9, { content: null }), message(8)],
       8: [
         message(7, { content: { '@type': 'messageVideoNote' } }),
         message(6, { content: { '@type': 'messagePinMessage' } })
+      ],
+      6: [
+        message(5, {
+          content: {
+            '@type': 'messagePaidMedia',
+            'caption': { '@type': 'formattedText', 'entities': [], 'text': '' },
+            'media': [{ '@type': 'paidMediaPreview', 'height': 0, 'width': 0 }],
+            'star_count': 50
+          }
+        })
       ]
     })
     deepEqual(await loadFeedPosts(), [
@@ -1967,6 +1977,13 @@ describe('telegram loader', () => {
         publishedAt: 1007,
         unsupported: true,
         url: 'https://t.me/news/7'
+      },
+      {
+        old: true,
+        originId: '5',
+        paid: true,
+        publishedAt: 1005,
+        url: 'https://t.me/news/5'
       }
     ])
   })

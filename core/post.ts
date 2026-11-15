@@ -77,6 +77,7 @@ export type ParsedPost = {
    */
   old?: true
   originId: string
+  paid?: true
   poll?: PostPoll
   preview?: PostPreview
   protected?: true
@@ -160,6 +161,7 @@ export type ReaderPostWith<Media> = {
   | 'id'
   | 'lang'
   | 'originId'
+  | 'paid'
   | 'poll'
   | 'preview'
   | 'publishedAt'
@@ -680,6 +682,7 @@ export function testPost(post: Partial<PostValue> = {}): PostValue {
     mediaSizes: null,
     merged: false,
     originId: `test-${testPostId}`,
+    paid: null,
     poll: null,
     preview: null,
     publishedAt: 1000,

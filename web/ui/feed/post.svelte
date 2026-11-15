@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { mdiChevronRight, mdiOpenInNew, mdiPuzzleOutline } from '@mdi/js'
+  import {
+    mdiCashLock,
+    mdiChevronRight,
+    mdiOpenInNew,
+    mdiPuzzleOutline
+  } from '@mdi/js'
   import {
     type FeedAuthor,
     formatRelativeTime,
@@ -24,10 +29,10 @@
   import Button from '../button.svelte'
   import FeedLink from '../feed-link.svelte'
   import FormattedText from '../formatted-text.svelte'
-  import Note from '../note.svelte'
   import PostBadges from '../post/badges.svelte'
   import PostByline from '../post/byline.svelte'
   import PostMedia from '../post/media.svelte'
+  import PostOpenNote from '../post/open-note.svelte'
   import PostPoll from '../post/poll.svelte'
   import PostPreview from '../post/preview.svelte'
   import PostQuote from '../post/quote.svelte'
@@ -179,10 +184,21 @@
         <PostPreview preview={post.preview} protect={post.protected} />
       {/if}
     </PostWarning>
+    {#if post.paid}
+      <PostOpenNote
+        icon={mdiCashLock}
+        text={$postMessages.paid}
+        {url}
+        variant="good"
+      />
+    {/if}
     {#if post.unsupported}
-      <Note icon={mdiPuzzleOutline} variant="neutral">
-        {$postMessages.unsupported}
-      </Note>
+      <PostOpenNote
+        icon={mdiPuzzleOutline}
+        text={$postMessages.unsupported}
+        {url}
+        variant="warning"
+      />
     {/if}
     {#if !dynamic}
       <footer class="feed-post_actions">

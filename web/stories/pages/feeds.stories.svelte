@@ -618,6 +618,14 @@
         full: '<p>Signed post</p>',
         publishedAt: 1,
         reading: 'slow'
+      },
+      {
+        feedId: 'shop',
+        intro: null,
+        paid: true,
+        publishedAt: 0,
+        reading: 'slow',
+        url: 'https://t.me/shop/5'
       }
     ]}
     route={{ params: { feed: 'shop' }, route: 'slow' }}

@@ -262,6 +262,7 @@ export const postsTable = defineCrdtTable(
     // Thread’s parts after the first post, which readers show in its card
     merged: boolean({ default: false }),
     originId: string(),
+    paid: optional(boolean()),
     poll: optional(json(pollShape)),
     preview: optional(json(previewShape)),
     publishedAt: bigint(),

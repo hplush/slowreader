@@ -17,6 +17,8 @@ export const postMessages = i18n('post', {
   read: 'Mark post was read',
   readCheckbox: 'Post was read',
   replyingTo: 'In reply to',
+  openInApp: 'Open in the app',
+  paid: 'Paid content',
   rightAfter: 'Right after',
   share: 'Share post',
   repostedBy: params('Reposted by {name}'),
@@ -27,7 +29,7 @@ export const postMessages = i18n('post', {
   threadLabel: params('Thread of {size} posts'),
   threadPartLabel: params('Post {position} of thread of {size} posts'),
   unread: 'Mark post as unread',
-  unsupported: 'Some parts of this post are not supported yet',
+  unsupported: 'Unsupported',
   url: 'Open post link',
   vote: 'Open post to vote'
 })

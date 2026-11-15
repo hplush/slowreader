@@ -79,6 +79,8 @@
     --image-placeholder-l: -0.02;
     --note-l: -0.1;
     --note-c: 0.03;
+    --note-icon-l: -0.15;
+    --note-icon-c: 0.03;
     --field-l: 0.025;
     --current-l: 0.025;
     --balance-marker-l: -0.09;
@@ -164,6 +166,8 @@
     --image-placeholder-l: 0.02;
     --note-l: 0.2;
     --note-c: 0.03;
+    --note-icon-l: 0.3;
+    --note-icon-c: 0.03;
     --note-good-background: oklch(0.25 0.03 140);
     --note-dangerous-background: oklch(0.25 0.03 20);
     --note-warning-background: oklch(0.25 0.05 95);

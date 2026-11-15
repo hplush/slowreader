@@ -72,7 +72,7 @@
       position: absolute;
       inset-inline-start: 0.312rem;
       top: 0.312rem;
-      color: --tune-background(--note);
+      color: --tune-background(--note-icon);
     }
 
     .note_footer {

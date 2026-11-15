@@ -229,7 +229,7 @@ export function loadPostsPage(
         "posts"."sortedAt", "posts"."lang", "posts"."poll",
         "posts"."read", "posts"."title", "posts"."url", "posts"."author",
         "posts"."preview", "feeds"."protected", "posts"."quoted",
-        "posts"."replied",
+        "posts"."paid", "posts"."replied",
         "posts"."repostedBy", "posts"."threadId", "posts"."unsupported",
         "posts"."warning", (SELECT COUNT(*) FROM "posts" AS "thread"
           WHERE "thread"."threadId" = "posts"."threadId"
@@ -264,7 +264,7 @@ export function loadPostsPage(
     `
   } else {
     rows = getCrdt().select<ReaderPostRow>`
-      SELECT "id", "feedId", "media", "mediaSizes", "originId",
+      SELECT "id", "feedId", "media", "mediaSizes", "originId", "paid",
         "publishedAt", "sortedAt", "read", "title", "url", "author", "preview",
         (SELECT "protected" FROM "feeds"
           WHERE "feeds"."id" = "posts"."feedId") AS "protected",
@@ -316,7 +316,7 @@ export function loadPostsRange(
         "posts"."sortedAt", "posts"."lang", "posts"."poll",
         "posts"."read", "posts"."title", "posts"."url", "posts"."author",
         "posts"."preview", "feeds"."protected", "posts"."quoted",
-        "posts"."replied",
+        "posts"."paid", "posts"."replied",
         "posts"."repostedBy", "posts"."threadId", "posts"."unsupported",
         "posts"."warning", (SELECT COUNT(*) FROM "posts" AS "thread"
           WHERE "thread"."threadId" = "posts"."threadId"
@@ -351,7 +351,7 @@ export function loadPostsRange(
     `
   } else {
     rows = getCrdt().select<ReaderPostRow>`
-      SELECT "id", "feedId", "media", "mediaSizes", "originId",
+      SELECT "id", "feedId", "media", "mediaSizes", "originId", "paid",
         "publishedAt", "sortedAt", "read", "title", "url", "author", "preview",
         (SELECT "protected" FROM "feeds"
           WHERE "feeds"."id" = "posts"."feedId") AS "protected",

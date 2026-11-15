@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mdiPuzzleOutline } from '@mdi/js'
+  import { mdiCashLock, mdiPuzzleOutline } from '@mdi/js'
   import {
     addMediaSizes,
     getMediaOutsideText,
@@ -14,9 +14,9 @@
   import type { Snippet } from 'svelte'
 
   import FormattedText from '../formatted-text.svelte'
-  import Note from '../note.svelte'
   import PostByline from './byline.svelte'
   import PostMedia from './media.svelte'
+  import PostOpenNote from './open-note.svelte'
   import PostPoll from './poll.svelte'
   import PostPreview from './preview.svelte'
   import PostQuote from './quote.svelte'
@@ -104,8 +104,21 @@
     {/snippet}
   </PostWarning>
 
+  {#if post.paid}
+    <PostOpenNote
+      icon={mdiCashLock}
+      text={$t.paid}
+      url={userPostUrl(post)}
+      variant="good"
+    />
+  {/if}
   {#if post.unsupported}
-    <Note icon={mdiPuzzleOutline} variant="neutral">{$t.unsupported}</Note>
+    <PostOpenNote
+      icon={mdiPuzzleOutline}
+      text={$t.unsupported}
+      url={userPostUrl(post)}
+      variant="warning"
+    />
   {/if}
 </article>
 

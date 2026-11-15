@@ -514,6 +514,7 @@
           { height: 441, width: 700 },
           { bytes: 28089, height: 1080, width: 1920 }
         ],
+        paid: true,
         preview: {
           image: 'telegram:5/5/preview',
           title: 'Link title',

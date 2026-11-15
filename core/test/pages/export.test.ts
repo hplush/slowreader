@@ -155,6 +155,7 @@ describe('export page', () => {
           mediaSizes: null,
           merged: false,
           originId: 'test-1',
+          paid: null,
           poll: null,
           preview: null,
           publishedAt: 1000,
