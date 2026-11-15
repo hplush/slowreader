@@ -2,9 +2,11 @@ import { equal } from 'node:assert/strict'
 import { describe, test } from 'node:test'
 
 import {
+  autoplayVideos,
   cacheImages,
   cacheMediaReading,
   cacheVideos,
+  canAutoplayVideos,
   customPostFont,
   fastPostsMaxAge,
   requestMethod,
@@ -31,6 +33,11 @@ describe('settings', () => {
     equal(cacheImages.get(), 'always')
     equal(cacheVideos.get(), 'never')
     equal(cacheMediaReading.get(), 'all')
+  })
+
+  test('has store for video autoplay', () => {
+    equal(autoplayVideos.get(), 'always')
+    equal(canAutoplayVideos.get(), true)
   })
 
   test('has store for request method', () => {

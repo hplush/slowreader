@@ -1,10 +1,13 @@
+import { atom } from 'nanostores'
 import { equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
   canDetectSaveData,
   canUseNetwork,
+  followNetworkUse,
   isSaveData,
+  type NetworkUse,
   saveData,
   saveDataMode,
   setupEnvironment
@@ -63,6 +66,26 @@ describe('network', () => {
     setTestNetwork({ saveData: true, type: 'free' })
     equal(saveData.get(), false)
     equal(canUseNetwork('always'), true)
+  })
+
+  test('follows setting, network, and Save Data changes', t => {
+    let setting = atom<NetworkUse>('never')
+    let allowed = followNetworkUse(setting)
+    let unbind = allowed.listen(() => {})
+    t.after(unbind)
+    equal(allowed.get(), false)
+
+    setting.set('free')
+    equal(allowed.get(), true)
+
+    setTestNetwork({ saveData: false, type: 'paid' })
+    equal(allowed.get(), false)
+
+    setting.set('always')
+    equal(allowed.get(), true)
+
+    saveDataMode.set('on')
+    equal(allowed.get(), false)
   })
 
   test('ignores Save Data without network type', () => {

@@ -53,8 +53,18 @@ export function isSaveData(): boolean {
   return saveData.get()
 }
 
+function allows(use: NetworkUse, saving: boolean, network: Network): boolean {
+  if (saving) return false
+  if (use !== 'free') return use === 'always'
+  return network.type !== 'paid'
+}
+
 export function canUseNetwork(setting: NetworkUse): boolean {
-  if (isSaveData()) return false
-  if (setting !== 'free') return setting === 'always'
-  return $network.get().type !== 'paid'
+  return allows(setting, isSaveData(), $network.get())
+}
+
+export function followNetworkUse(
+  setting: ReadableAtom<NetworkUse>
+): ReadableAtom<boolean> {
+  return computed([setting, saveData, $network], allows)
 }

@@ -4,6 +4,7 @@
     addCategory,
     addFeed,
     addPost,
+    autoplayVideos,
     autoRefresh,
     type BaseRoute,
     busy,
@@ -253,6 +254,7 @@
     nightLock.set({ enabled: false, from: 23, to: 4 })
     cacheMediaReading.set('all')
     autoRefresh.set('never')
+    autoplayVideos.set('never')
     cacheImages.set('always')
     cacheVideos.set('never')
     saveDataMode.set('auto')

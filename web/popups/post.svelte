@@ -9,6 +9,7 @@
   } from '@slowreader/core'
   import { onMount } from 'svelte'
 
+  import { autoplayOnlyInside } from '../lib/media.ts'
   import { onNextVisibility } from '../lib/visitibility.ts'
   import { getPopupHash } from '../stores/url-router.ts'
   import Button from '../ui/button.svelte'
@@ -43,7 +44,7 @@
   </SmallLink>
 {/snippet}
 
-<Popup id={getPopupId(popup.name, popup.param)}>
+<Popup id={getPopupId(popup.name, popup.param)} {@attach autoplayOnlyInside}>
   {#snippet header()}
     {#if popup.read}
       <Toggle

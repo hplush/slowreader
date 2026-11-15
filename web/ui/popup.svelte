@@ -9,6 +9,7 @@
   } from '@slowreader/core'
   import type { Snippet } from 'svelte'
   import { onMount } from 'svelte'
+  import type { Attachment } from 'svelte/attachments'
   import { on } from 'svelte/events'
 
   import Button from './button.svelte'
@@ -17,8 +18,10 @@
     children,
     header,
     id,
-    reading
+    reading,
+    ...attachments
   }: {
+    [attachment: symbol]: Attachment<HTMLDialogElement>
     children: Snippet
     header?: Snippet
     id: string
@@ -40,6 +43,7 @@
   class="popup"
   class:is-comfort-mode={reading === 'slow'}
   class:is-non-comfort-mode={reading === 'fast'}
+  {...attachments}
   data-anchor="popup"
   open
 >

@@ -17,7 +17,7 @@
   import { on } from 'svelte/events'
 
   import { waitImageDecoded } from '../lib/image.ts'
-  import { mediaSrc } from '../lib/media.ts'
+  import { mediaSrc, watchVideo } from '../lib/media.ts'
   import { getPopupHash } from '../stores/url-router.ts'
   import BrokenImage from './broken-image.svelte'
   import ClickToLoad from './click-to-load.svelte'
@@ -57,7 +57,7 @@
     }
     node.replaceChildren(...content.childNodes)
     let mounted = new Set<ReturnType<typeof mount>>()
-    let stopLoading = new Set<() => void>()
+    let cleanups = new Set<() => void>()
     function showBroken(image: HTMLImageElement): void {
       if (image.classList.contains('emoji')) {
         image.replaceWith(image.alt)
@@ -97,7 +97,7 @@
         let height = image.getAttribute('height')
         if (width && height) image.style.aspectRatio = `${width} / ${height}`
         let stop = mediaSrc(loaderUrl)(image)
-        if (stop) stopLoading.add(stop)
+        if (stop) cleanups.add(stop)
       }
     }
     function restoreSources(image: HTMLImageElement): void {
@@ -156,6 +156,10 @@
       } else {
         watchLoading(image)
       }
+    })
+    node.querySelectorAll('video').forEach(video => {
+      let unwatch = watchVideo({ auto: false })(video)
+      if (unwatch) cleanups.add(unwatch)
     })
     node.querySelectorAll('a').forEach(link => {
       let href = link.getAttribute('href')
@@ -216,7 +220,7 @@
     })
     return () => {
       for (let component of mounted) void unmount(component)
-      for (let stop of stopLoading) stop()
+      for (let cleanup of cleanups) cleanup()
     }
   }
 </script>

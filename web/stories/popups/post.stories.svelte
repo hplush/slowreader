@@ -1,5 +1,6 @@
 <script lang="ts" module>
   import {
+    autoplayVideos,
     type FeedValue,
     getPostPopupParam,
     loaders,
@@ -417,6 +418,58 @@
           title: 'Link title',
           url: 'https://example.com/'
         },
+        title: null,
+        url: 'https://t.me/news/4'
+      }
+    ]}
+  >
+    {#if popup}
+      <LoadedPopup {popup}>
+        {#snippet loaded(loadedPopup)}
+          <PostPopupComponent popup={loadedPopup} />
+        {/snippet}
+      </LoadedPopup>
+    {/if}
+  </Scene>
+</Story>
+
+<Story name="Autoplay" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    feeds={[{ ...FEED, loader: 'telegram' }]}
+    oninit={() => {
+      autoplayVideos.set('always')
+      loaders.telegram.getMedia = url => {
+        if (url.endsWith('/loading')) return new Promise(() => {})
+        return fetch(imgExample)
+      }
+      open()()
+    }}
+    posts={[
+      {
+        feedId: 'feed',
+        full:
+          '<p>Video starts by itself without sound. Telegram’s video ' +
+          'downloads the file first and shows the loader without the click. ' +
+          'Only the upper of two videos on the screen plays, so the next ' +
+          'video waits for its turn.</p>',
+        media: [
+          {
+            placeholder: TINY,
+            poster: 'telegram:5/3/poster',
+            type: 'video',
+            url: 'telegram:5/3/loading'
+          },
+          {
+            alt: 'Video',
+            poster: imgExample,
+            type: 'video',
+            url: videoExample
+          }
+        ],
+        mediaSizes: [
+          { bytes: 28089, height: 180, width: 320 },
+          { height: 180, width: 320 }
+        ],
         title: null,
         url: 'https://t.me/news/4'
       }

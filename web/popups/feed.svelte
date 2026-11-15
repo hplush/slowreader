@@ -19,6 +19,7 @@
     organizeMessages as t
   } from '@slowreader/core'
 
+  import { autoplayOnlyInside } from '../lib/media.ts'
   import Button from '../ui/button.svelte'
   import CategorySelect from '../ui/category-select.svelte'
   import FeedAvatar from '../ui/feed-avatar.svelte'
@@ -57,6 +58,7 @@
 
 <Popup
   id={getPopupId(popup.name, popup.param)}
+  {@attach autoplayOnlyInside}
   reading={subscribed ? $reading : undefined}
 >
   {#snippet header()}

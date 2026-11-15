@@ -20,7 +20,6 @@
   } from '@slowreader/core'
   import type { Snippet } from 'svelte'
 
-  import { pauseVideosWhenScrolledOut } from '../../lib/media.ts'
   import { getPopupHash } from '../../stores/url-router.ts'
   import Button from '../button.svelte'
   import FeedLink from '../feed-link.svelte'
@@ -94,7 +93,6 @@
   class:is-current={current}
   class:is-protected={post.protected}
   class:is-read={'read' in post && post.read}
-  {@attach pauseVideosWhenScrolledOut}
   oncopy={event => {
     if (post.protected) event.preventDefault()
   }}

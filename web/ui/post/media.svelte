@@ -1,6 +1,8 @@
 <script lang="ts">
   import { mdiClose, mdiEyeOutline } from '@mdi/js'
   import {
+    canAutoloadVideo,
+    canAutoplayVideos,
     commonMessages,
     isLoaderMedia,
     isMediaCached,
@@ -15,7 +17,7 @@
   import { SvelteSet } from 'svelte/reactivity'
 
   import { blurredBackground, waitImageDecoded } from '../../lib/image.ts'
-  import { mediaSrc, playIfVisible } from '../../lib/media.ts'
+  import { mediaSrc, playIfVisible, watchVideo } from '../../lib/media.ts'
   import BrokenImage from '../broken-image.svelte'
   import Button from '../button.svelte'
   import ClickToLoad from '../click-to-load.svelte'
@@ -43,12 +45,15 @@
   function stopLoading(url: string): void {
     clicked = undefined
     stopped = url
+    declined.add(url)
     downloaded.delete(url)
   }
 
   let broken = new SvelteSet<string>()
   let loaded = new SvelteSet<string>()
   let downloaded = new SvelteSet<string>()
+  let declined = new SvelteSet<string>()
+  let autoloaded = new Set<string>()
   let revealed = $state(false)
   let clicked = $state<string>()
   let stopped = $state<string>()
@@ -85,6 +90,28 @@
   function shownPoster(item: ReaderMedia): string | undefined {
     if (!item.poster) return undefined
     return !$saveData || downloaded.has(item.poster) ? item.poster : undefined
+  }
+
+  function autoplay(item: ReaderMedia): Attachment<HTMLElement> {
+    return watchVideo({
+      auto:
+        $canAutoplayVideos &&
+        !hidden &&
+        !(item.sensitive && !sensitiveShown) &&
+        clicked !== item.url &&
+        !declined.has(item.url) &&
+        !broken.has(item.url) &&
+        (!waitsClick(item, $saveData, downloaded) || canAutoloadVideo(item)),
+      leave() {
+        if (autoloaded.delete(item.url) && waitsFile(item)) {
+          downloaded.delete(item.url)
+        }
+      },
+      load() {
+        autoloaded.add(item.url)
+        downloaded.add(item.url)
+      }
+    })
   }
 
   $effect(() => {
@@ -218,6 +245,30 @@
   </video>
 {/snippet}
 
+{#snippet click(item: ReaderMedia)}
+  <ClickToLoad
+    alt={item.alt}
+    bytes={item.size?.approximate ? undefined : item.size?.bytes}
+    focus={stopped === item.url}
+    height={item.size?.height}
+    onload={() => {
+      if (item.sensitive) revealed = true
+      clicked = item.url
+      stopped = undefined
+      downloaded.add(item.url)
+    }}
+    placeholder={item.sensitive && !sensitiveShown
+      ? undefined
+      : item.placeholder}
+    play={item.type.startsWith('video') && !item.type.endsWith(';mode=gif')}
+    poster={item.sensitive && !sensitiveShown ? undefined : shownPoster(item)}
+    sensitive={!!item.sensitive && !sensitiveShown}
+    url={item.url}
+    video={!item.type.startsWith('image')}
+    width={item.size?.width}
+  />
+{/snippet}
+
 {#if media.length > 0}
   <div
     class="post-media"
@@ -229,31 +280,19 @@
   >
     <div class="post-media_list" inert={hidden}>
       {#each media as item, index (`${item.url}${index}`)}
-        {#if waitsClick(item, $saveData, downloaded)}
-          <ClickToLoad
-            alt={item.alt}
-            bytes={item.size?.approximate ? undefined : item.size?.bytes}
-            focus={stopped === item.url}
-            height={item.size?.height}
-            onload={() => {
-              if (item.sensitive) revealed = true
-              clicked = item.url
-              stopped = undefined
-              downloaded.add(item.url)
-            }}
-            placeholder={item.sensitive && !sensitiveShown
-              ? undefined
-              : item.placeholder}
-            play={item.type.startsWith('video') &&
-              !item.type.endsWith(';mode=gif')}
-            poster={item.sensitive && !sensitiveShown
-              ? undefined
-              : shownPoster(item)}
-            sensitive={!!item.sensitive && !sensitiveShown}
-            url={item.url}
-            video={!item.type.startsWith('image')}
-            width={item.size?.width}
-          />
+        {#if item.type.startsWith('video') && !item.type.endsWith(';mode=gif')}
+          <span class="post-media_frame" {@attach autoplay(item)}>
+            {#if waitsClick(item, $saveData, downloaded)}
+              {@render click(item)}
+            {:else}
+              {@render video(item)}
+              {#if waitsFile(item)}
+                {@render stop(item.url)}
+              {/if}
+            {/if}
+          </span>
+        {:else if waitsClick(item, $saveData, downloaded)}
+          {@render click(item)}
         {:else if item.type.startsWith('image') && broken.has(item.url)}
           <span
             style:width={item.size?.width && `${item.size.width}px`}
@@ -291,15 +330,6 @@
           >
             {@render sources(item)}
           </video>
-        {:else if item.type.startsWith('video') && isLoaderMedia(item.url)}
-          <span class="post-media_frame">
-            {@render video(item)}
-            {#if waitsFile(item)}
-              {@render stop(item.url)}
-            {/if}
-          </span>
-        {:else if item.type.startsWith('video')}
-          {@render video(item)}
         {:else if item.type.startsWith('audio')}
           <audio
             class="post-media_audio"

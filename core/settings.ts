@@ -4,6 +4,7 @@ import { atom, computed, effect, type StoreValue } from 'nanostores'
 import type { FillStatistics } from './benchmark.ts'
 import { busyDuring } from './busy.ts'
 import { onClient } from './client.ts'
+import { followNetworkUse } from './lib/network.ts'
 import { waitLoading } from './lib/stores.ts'
 import { createSyncedSetting, syncSettings } from './lib/synced-setting.ts'
 import { commonMessages } from './messages/index.ts'
@@ -100,6 +101,13 @@ export const autoRefresh = persistentAtom<NetworkUse>(
   'slowreader:autoRefresh',
   'always'
 )
+
+export const autoplayVideos = persistentAtom<NetworkUse>(
+  'slowreader:autoplayVideos',
+  'always'
+)
+
+export const canAutoplayVideos = followNetworkUse(autoplayVideos)
 
 export const lastRefresh = persistentAtom<number>('slowreader:lastRefresh', 0, {
   decode: Number,
