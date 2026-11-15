@@ -7,6 +7,7 @@
     postMessages as t
   } from '@slowreader/core'
 
+  import { mediaSrc } from '../lib/media.ts'
   import Clickable from './clickable.svelte'
   import Icon from './icon.svelte'
   import Loader from './loader.svelte'
@@ -19,6 +20,7 @@
     onload,
     placeholder,
     play = false,
+    poster,
     sensitive = false,
     url,
     video = false,
@@ -31,6 +33,7 @@
     onload: () => void
     placeholder?: null | string
     play?: boolean
+    poster?: null | string
     sensitive?: boolean
     url: string
     video?: boolean
@@ -44,6 +47,7 @@
   })
   let ratio = $derived(width && height ? [width, height] : [1600, 900])
   let loading = $state(false)
+  let broken = $state<string>()
 
   async function download(): Promise<void> {
     if (play) {
@@ -60,7 +64,7 @@
   }
 </script>
 
-<span class="click-to-load" class:is-blurred={placeholder}>
+<span class="click-to-load" class:is-pictured={placeholder || poster}>
   <svg
     class="click-to-load_ratio"
     aria-hidden="true"
@@ -70,6 +74,16 @@
   ></svg>
   {#if placeholder}
     <img class="click-to-load_blur" alt="" src={placeholder} />
+  {/if}
+  {#if poster && broken !== poster}
+    <img
+      class="click-to-load_poster"
+      {@attach mediaSrc(poster)}
+      alt=""
+      onerror={() => {
+        broken = poster
+      }}
+    />
   {/if}
   <span class="click-to-load_content">
     <Clickable
@@ -124,18 +138,23 @@
       background: --tune-background(--image-placeholder);
       border-radius: var(--base-radius);
 
-      &.is-blurred {
+      &.is-pictured {
         position: relative;
         overflow: hidden;
       }
     }
 
-    .click-to-load_blur {
+    .click-to-load_blur,
+    .click-to-load_poster {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
+      pointer-events: none;
       object-fit: cover;
+    }
+
+    .click-to-load_blur {
       filter: blur(1rem);
 
       /* Blur makes the edges of the image transparent */
@@ -159,7 +178,7 @@
       min-width: 0;
       padding: 1rem;
 
-      .click-to-load.is-blurred & {
+      .click-to-load.is-pictured & {
         position: relative;
       }
     }
@@ -212,8 +231,8 @@
       font: var(--control-secondary-font);
     }
 
-    .click-to-load.is-blurred .click-to-load_size,
-    .click-to-load.is-blurred .click-to-load_alt {
+    .click-to-load.is-pictured .click-to-load_size,
+    .click-to-load.is-pictured .click-to-load_alt {
       padding: 0.125rem 0.375rem;
       color: var(--text-color);
       background: var(--current-background);

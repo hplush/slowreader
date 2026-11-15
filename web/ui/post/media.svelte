@@ -82,12 +82,20 @@
       )
   )
 
+  function shownPoster(item: ReaderMedia): string | undefined {
+    if (!item.poster) return undefined
+    return !$saveData || downloaded.has(item.poster) ? item.poster : undefined
+  }
+
   $effect(() => {
     if (!$saveData) return
     for (let item of media) {
-      void isMediaCached(item.url).then(cached => {
-        if (cached) downloaded.add(item.url)
-      })
+      for (let url of [item.url, item.poster]) {
+        if (!url) continue
+        void isMediaCached(url).then(cached => {
+          if (cached) downloaded.add(url)
+        })
+      }
     }
   })
 </script>
@@ -184,9 +192,7 @@
     class="post-media_item"
     {@attach focusClicked(item.url)}
     {@attach mediaSrc(item.url, { web: false })}
-    {@attach mediaSrc($saveData ? undefined : item.poster, {
-      attribute: 'poster'
-    })}
+    {@attach mediaSrc(shownPoster(item), { attribute: 'poster' })}
     aria-busy={waitsFile(item)}
     aria-label={item.alt}
     autoplay={clicked === item.url && !isLoaderMedia(item.url)}
@@ -240,6 +246,9 @@
               : item.placeholder}
             play={item.type.startsWith('video') &&
               !item.type.endsWith(';mode=gif')}
+            poster={item.sensitive && !sensitiveShown
+              ? undefined
+              : shownPoster(item)}
             sensitive={!!item.sensitive && !sensitiveShown}
             url={item.url}
             video={!item.type.startsWith('image')}
