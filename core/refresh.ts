@@ -1,3 +1,4 @@
+import { isSameClient } from '@logux/core'
 import { atom, computed, effect, map } from 'nanostores'
 
 import {
@@ -29,11 +30,13 @@ import {
   type NewFeed
 } from './feed.ts'
 import { type FilterChecker, loadFilterChecker } from './filter.ts'
+import { debounceTask } from './lib/debounce.ts'
 import { createDownloadTask, type DownloadTask } from './lib/download.ts'
 import { canUseNetwork } from './lib/network.ts'
 import { createQueue, type QueueCallback } from './lib/queue.ts'
 import { increaseKey, waitLoading } from './lib/stores.ts'
 import { getOriginKey, loaders } from './loader/index.ts'
+import { isFromLog } from './log.ts'
 import {
   DEFAULT_MEDIA_STATISTICS,
   mediaErrors,
@@ -770,6 +773,7 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
   // Every device caches own media
   releaseRefreshLock()
 
+  await remotePostsMedia.wait()
   try {
     await syncMediaCache()
   } catch (e) {
@@ -788,15 +792,42 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
   }
 }
 
-onClient(() =>
+let remotePostsMedia = debounceTask(async () => {
+  if (isRefreshing.get()) return
+  try {
+    await syncMediaCache()
+  } catch (e) {
+    getEnvironment().warn(e)
+  }
+}, 1000)
+
+onClient(logux =>
   effect(openedDatabase, db => {
     if (!db) return
     void refreshPosts({ auto: true })
-    return clock.listen(now => {
-      if (now.getTime() - lastRefresh.get() >= 15 * 60_000) {
-        void refreshPosts({ auto: true })
-      }
-    })
+    let unbinds = [
+      clock.listen(now => {
+        if (now.getTime() - lastRefresh.get() >= 15 * 60_000) {
+          void refreshPosts({ auto: true })
+        }
+      }),
+      getTables().posts.on('created', (tx, rows, action, meta) => {
+        if (
+          !isFromLog(meta) ||
+          isSameClient(meta.id, logux.clientId) ||
+          cacheMediaReading.get() === 'none' ||
+          (!canUseNetwork(cacheImages.get()) &&
+            !canUseNetwork(cacheVideos.get()))
+        ) {
+          return
+        }
+        remotePostsMedia.call()
+      })
+    ]
+    return () => {
+      remotePostsMedia.cancel()
+      for (let unbind of unbinds) unbind()
+    }
   })
 )
 

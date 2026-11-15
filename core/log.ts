@@ -29,6 +29,10 @@ function toReasons(cells: CrdtCell[]): string[] {
 
 const TABLE_ACTION_KEYS = new Set(['fields', 'id', 'ids', 'records', 'type'])
 
+export function isFromLog(meta: ClientMeta | MetaTime): meta is ClientMeta {
+  return 'reasons' in meta
+}
+
 /**
  * Action of any table, even of the one, which only the newer app knows.
  * Server actions have other keys, like `userId`.
@@ -133,7 +137,7 @@ export function trackLog(logux: Client, crdt: CrdtDatabase): LogTracker {
         })
       }
     }
-    if ('reasons' in meta) {
+    if (isFromLog(meta)) {
       if (lost.length > 0) {
         await logux.log.removeReason(lost, { id: meta.id })
       }
@@ -312,7 +316,7 @@ export function trackLog(logux: Client, crdt: CrdtDatabase): LogTracker {
       }
       // The action, which came from the server, will never be sent back,
       // so there is no `logux/processed` to wait for
-      if ('reasons' in meta && !meta.sync) {
+      if (isFromLog(meta) && !meta.sync) {
         tasks.add(() => shadowAction(meta.id))
       }
     }),

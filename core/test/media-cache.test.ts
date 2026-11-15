@@ -1,5 +1,6 @@
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
+import { setTimeout } from 'node:timers/promises'
 
 import {
   addFeed,
@@ -198,6 +199,59 @@ describe('media cache', () => {
       { id: '1 10:other:1 0', reasons: ['test'], time: Date.now() }
     )
     await waitUntil(async () => (await cached()).length === 0)
+  })
+
+  test('downloads media of posts from another device', async () => {
+    expectRequest('https://img.com/1.jpg').andRespond(200, '1')
+    await getClient().log.add(
+      {
+        fields: {
+          media: [{ type: 'image', url: 'https://img.com/1.jpg' }],
+          publishedAt: 1000,
+          read: false,
+          reading: 'slow',
+          sortedAt: 1000
+        },
+        id: 'other-post',
+        type: 'posts/created'
+      },
+      { id: '1 10:other:1 0', reasons: ['test'], time: Date.now() }
+    )
+    await waitUntil(async () => (await cached()).length === 1)
+  })
+
+  test('ignores posts from another device without saving or network', async () => {
+    await getEnvironment().mediaCache.put(
+      'https://old.com/a.png',
+      new Response('a')
+    )
+    function addRemotePost(id: string): Promise<unknown> {
+      return getClient().log.add(
+        {
+          fields: {
+            media: [{ type: 'image', url: `https://img.com/${id}.jpg` }],
+            publishedAt: 1000,
+            read: false,
+            reading: 'slow',
+            sortedAt: 1000
+          },
+          id,
+          type: 'posts/created'
+        },
+        { id: `1 10:other:${id} 0`, reasons: ['test'], time: Date.now() }
+      )
+    }
+
+    cacheMediaReading.set('none')
+    await addRemotePost('1')
+    await setTimeout(1100)
+    deepEqual(await cached(), ['https://old.com/a.png'])
+
+    cacheMediaReading.set('all')
+    saveDataMode.set('on')
+    await addRemotePost('2')
+    await setTimeout(1100)
+    deepEqual(await cached(), ['https://old.com/a.png'])
   })
 
   test('deletes media with the feed', async () => {
