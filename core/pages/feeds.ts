@@ -4,7 +4,6 @@ import { type CategoryValue, changeCategory, getCategory } from '../category.ts'
 import { layoutType } from '../environment.ts'
 import { changeFeed, type FeedValue, getFeed } from '../feed.ts'
 import { waitLoading } from '../lib/stores.ts'
-import { loaders } from '../loader/index.ts'
 import {
   firstUnreadSlowFeedId,
   menuLoading,
@@ -245,12 +244,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
               : undefined) ??
             feed?.[readerProp] ??
             category?.[readerProp] ??
-            (reading === 'fast' ||
-            (feed &&
-              (feed.loader === 'telegram' ||
-                loaders[feed.loader].account?.getTimeline))
-              ? 'feed'
-              : 'list')
+            'feed'
         }
 
         let filter: PostFilter

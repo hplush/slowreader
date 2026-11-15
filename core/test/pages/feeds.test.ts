@@ -46,7 +46,7 @@ describe('feeds page', () => {
     openRoute({ params: {}, route: 'about' })
     nightLock.set({ enabled: false, from: 23, to: 7 })
     generalFastReader.set('feed')
-    generalSlowReader.set('list')
+    generalSlowReader.set('feed')
     await cleanClient()
   })
 
@@ -109,7 +109,7 @@ describe('feeds page', () => {
     equal(page.params.feed.get(), feed2)
     equal(page.loading.get(), true)
     await waitLoading(page.loading)
-    equal(page.posts.get()!.name, 'list')
+    equal(page.posts.get()!.name, 'feed')
 
     page = openPage({
       params: {},
@@ -146,7 +146,7 @@ describe('feeds page', () => {
 
     await waitLoading(page.loading)
     equal(page.params.feed.get(), feed)
-    equal(page.posts.get()!.name, 'list')
+    equal(page.posts.get()!.name, 'feed')
   })
 
   test('opens the feed from URL before the encryption key', async () => {
@@ -172,7 +172,7 @@ describe('feeds page', () => {
     encryptionKey.set(key)
     await waitLoading(page.loading)
     equal(page.feed.get()?.id, feed)
-    equal(page.posts.get()!.name, 'list')
+    equal(page.posts.get()!.name, 'feed')
   })
 
   test('shows the menu instead of the redirect outside of the desktop', async () => {
@@ -220,7 +220,7 @@ describe('feeds page', () => {
     })
     equal(page.menu.get(), false)
     await waitLoading(page.loading)
-    equal(page.posts.get()!.name, 'list')
+    equal(page.posts.get()!.name, 'feed')
   })
 
   test('opens the next feed after the last page was read', async () => {
@@ -547,32 +547,32 @@ describe('feeds page', () => {
       route: 'slow'
     })
     await setTimeout(10)
-    equal(page.posts.get()!.name, 'list')
+    equal(page.posts.get()!.name, 'feed')
 
     page = openPage({
       params: { feed: feed1 },
       route: 'slow'
     })
     await setTimeout(10)
-    equal(page.posts.get()!.name, 'list')
-
-    page.changeReader('feed')
-    await setTimeout(1)
     equal(page.posts.get()!.name, 'feed')
+
+    page.changeReader('list')
+    await setTimeout(1)
+    equal(page.posts.get()!.name, 'list')
 
     page = openPage({
       params: { feed: feed2 },
       route: 'slow'
     })
     await setTimeout(10)
-    equal(page.posts.get()!.name, 'list')
+    equal(page.posts.get()!.name, 'feed')
 
     page = openPage({
       params: { feed: feed1 },
       route: 'slow'
     })
     await setTimeout(10)
-    equal(page.posts.get()!.name, 'feed')
+    equal(page.posts.get()!.name, 'list')
 
     page = openPage({
       params: { category: category1 },
@@ -612,34 +612,20 @@ describe('feeds page', () => {
     equal(page.posts.get()!.name, 'list')
   })
 
-  test('reads Bluesky, Mastodon, and Telegram as a feed by default', async () => {
-    for (let loader of ['bluesky', 'mastodon', 'telegram'] as const) {
-      let feed = await addFeed(testFeed({ loader, reading: 'slow' }))
-      await addPost(testPost({ feedId: feed, reading: 'slow' }))
-      let page = openPage({ params: { feed }, route: 'slow' })
-      await setTimeout(10)
-      equal(page.posts.get()!.name, 'feed')
-
-      page.changeReader('list')
-      await setTimeout(10)
-      equal(page.posts.get()!.name, 'list')
-    }
-  })
-
   test('changes reader before the database saves it', async () => {
     let feed = await addFeed(testFeed({ reading: 'slow' }))
     await addPost(testPost({ feedId: feed, reading: 'slow' }))
     let page = openPage({ params: { feed }, route: 'slow' })
     await setTimeout(10)
-    equal(page.posts.get()!.name, 'list')
-
-    let saving = page.changeReader('feed')
     equal(page.posts.get()!.name, 'feed')
-    let reverting = page.changeReader('list')
+
+    let saving = page.changeReader('list')
     equal(page.posts.get()!.name, 'list')
+    let reverting = page.changeReader('feed')
+    equal(page.posts.get()!.name, 'feed')
     await Promise.all([saving, reverting])
-    equal(page.posts.get()!.name, 'list')
-    equal((await loadFeed(feed))?.slowReader, 'list')
+    equal(page.posts.get()!.name, 'feed')
+    equal((await loadFeed(feed))?.slowReader, 'feed')
   })
 
   test('changes reader of general category', async () => {
@@ -658,7 +644,7 @@ describe('feeds page', () => {
     await setTimeout(10)
     equal(page.posts.get()!.name, 'list')
     equal(generalFastReader.get(), 'list')
-    equal(generalSlowReader.get(), 'list')
+    equal(generalSlowReader.get(), 'feed')
 
     page = openPage({
       params: { category: GENERAL_CATEGORY },

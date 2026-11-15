@@ -250,7 +250,7 @@
     trackUsage.set(true)
     fastPostsMaxAge.set(604800)
     generalFastReader.set('feed')
-    generalSlowReader.set('list')
+    generalSlowReader.set('feed')
     nightLock.set({ enabled: false, from: 23, to: 4 })
     cacheMediaReading.set('all')
     autoRefresh.set('never')

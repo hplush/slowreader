@@ -232,7 +232,7 @@ export const fastPostsMaxAge = syncedSetting('fastPostsMaxAge', 604800)
 
 export const generalFastReader = syncedSetting('generalFastReader', 'feed')
 
-export const generalSlowReader = syncedSetting('generalSlowReader', 'list')
+export const generalSlowReader = syncedSetting('generalSlowReader', 'feed')
 
 export const nightLock = syncedSetting('nightLock', {
   enabled: false,
