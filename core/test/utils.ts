@@ -21,6 +21,7 @@ import {
   enableTestTime,
   encryptionKey,
   encryptionKeyLost,
+  type EmptyReader,
   type Environment,
   extensionState,
   fatal,
@@ -426,18 +427,24 @@ export function restartClient(route: TestRoute): void {
   mountPage()
 }
 
+type EnsuredReader<Name extends ReaderName> = Name extends 'feed'
+  ? FeedReader
+  : Name extends 'empty'
+    ? EmptyReader
+    : ListReader
+
 /**
  * Check current reader and return it with right types.
  */
 export function ensureReader<Name extends ReaderName>(
   store: ReadableAtom<BaseReader | undefined>,
   name: Name
-): Name extends 'feed' ? FeedReader : ListReader {
+): EnsuredReader<Name> {
   let reader = store.get()
   if (reader?.name !== name) {
     throw new Error(`Reader is ${reader?.name}, but ${name} was expected`)
   }
-  return reader as Name extends 'feed' ? FeedReader : ListReader
+  return reader as EnsuredReader<Name>
 }
 
 export function nextPagination(

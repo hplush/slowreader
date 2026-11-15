@@ -464,7 +464,25 @@ describe('feeds page', () => {
     })
     await waitLoading(page.loading)
     equal(page.params.feed.get(), undefined)
-    equal(page.posts.get()!.name, 'empty')
+    equal(ensureReader(page.posts, 'empty').allRead.get(), false)
+  })
+
+  test('stops saying all read after refresh adds posts', async () => {
+    busyUntilMenuLoader()
+    await waitLoading(busy)
+    await addFeed(testFeed({ reading: 'fast' }))
+    let feed = await addFeed(testFeed({ reading: 'slow' }))
+    await setTimeout(10)
+
+    let page = openPage({ params: {}, route: 'slow' })
+    await waitLoading(page.loading)
+    let reader = ensureReader(page.posts, 'empty')
+    equal(reader.allRead.get(), true)
+
+    await addPost(testPost({ feedId: feed, reading: 'slow' }))
+    await setTimeout(10)
+    equal(page.posts.get(), reader)
+    equal(reader.allRead.get(), false)
   })
 
   test('shows the welcome only without the exact target in the demo mode', async () => {

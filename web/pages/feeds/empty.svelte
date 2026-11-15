@@ -14,28 +14,31 @@
   import Stack from '../../ui/stack.svelte'
 
   let { reader }: { reader: EmptyReader } = $props()
+  let { allRead } = $derived(reader)
 </script>
 
-{#if reader.reading === 'fast'}
-  <PageIcon path={mdiWhiteBalanceSunny}>
-    <Stack align="center" gap="l">
-      {reader.category ? $t.fastCategoryEmpty : $t.fastEmpty}
-      <Stack align="center" reading="slow">
-        <Button href={getURL('slow')} icon={mdiFire}>{$t.openSlow}</Button>
+{#if $allRead}
+  {#if reader.reading === 'fast'}
+    <PageIcon path={mdiWhiteBalanceSunny}>
+      <Stack align="center" gap="l">
+        {reader.category ? $t.fastCategoryEmpty : $t.fastEmpty}
+        <Stack align="center" reading="slow">
+          <Button href={getURL('slow')} icon={mdiFire}>{$t.openSlow}</Button>
+        </Stack>
       </Stack>
-    </Stack>
-  </PageIcon>
-{:else}
-  <PageIcon path={mdiThumbUp}>
-    <Stack align="center" gap="l">
-      {$t.slowEmpty}
-      <Stack align="center" reading="slow">
-        <Button
-          icon={mdiReload}
-          loader={$isRefreshing ? $refreshProgress || true : undefined}
-          onclick={() => refreshPosts()}>{$t.refresh}</Button
-        >
+    </PageIcon>
+  {:else}
+    <PageIcon path={mdiThumbUp}>
+      <Stack align="center" gap="l">
+        {$t.slowEmpty}
+        <Stack align="center" reading="slow">
+          <Button
+            icon={mdiReload}
+            loader={$isRefreshing ? $refreshProgress || true : undefined}
+            onclick={() => refreshPosts()}>{$t.refresh}</Button
+          >
+        </Stack>
       </Stack>
-    </Stack>
-  </PageIcon>
+    </PageIcon>
+  {/if}
 {/if}
