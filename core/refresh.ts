@@ -43,7 +43,7 @@ import {
   syncMediaCache
 } from './media-cache.ts'
 import { accountsMessages } from './messages/index.ts'
-import { nightLocked } from './night-lock.ts'
+import { clock, nightLocked } from './night-lock.ts'
 import {
   deleteFastPostsBefore,
   getSortedAt,
@@ -65,12 +65,12 @@ import {
 } from './refresh-lock.ts'
 import { getCrdt, getTables, openedDatabase } from './schema.ts'
 import {
-  autoRefresh,
   cacheImages,
   cacheMediaReading,
   cacheVideos,
   fastPostsMaxAge,
   lastRefresh,
+  autoRefresh,
   syncedSettingsLoading
 } from './settings.ts'
 import { linkThreads } from './thread.ts'
@@ -604,7 +604,7 @@ export async function loadRecentPosts(
 }
 
 /**
- * `auto` refresh is for the app start and the return to the app.
+ * `auto` refresh is for the app start and every 15 minutes.
  * It respects user settings and skips if other tab did it recently.
  */
 export async function refreshPosts({ auto = false } = {}): Promise<void> {
@@ -786,7 +786,13 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
 
 onClient(() =>
   effect(openedDatabase, db => {
-    if (db) void refreshPosts({ auto: true })
+    if (!db) return
+    void refreshPosts({ auto: true })
+    return clock.listen(now => {
+      if (now.getTime() - lastRefresh.get() >= 15 * 60_000) {
+        void refreshPosts({ auto: true })
+      }
+    })
   })
 )
 

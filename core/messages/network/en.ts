@@ -2,7 +2,7 @@ import { i18n } from '../../i18n.ts'
 
 export const networkMessages = i18n('network', {
   allowExtension: 'Allow the sites',
-  autoRefresh: 'Refresh feeds on app start',
+  autoRefresh: 'On start and every 15 minutes',
   cacheAlways: 'Always',
   cacheFree: 'Wi-Fi',
   cacheImages: 'Save images for offline',

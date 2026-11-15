@@ -10,6 +10,7 @@ import {
   addFeed,
   addFilter,
   addPost,
+  clock,
   changePost,
   autoRefresh,
   createPostsList,
@@ -62,7 +63,8 @@ import {
   mockRequest,
   setTestNetwork,
   setupNodeDom,
-  throws
+  throws,
+  waitUntil
 } from './utils.ts'
 
 setupNodeDom()
@@ -1537,6 +1539,7 @@ describe('auto refresh', () => {
   afterEach(async () => {
     fastPostsMaxAge.set(604800)
     autoRefresh.set('never')
+    clock.set(new Date())
     saveDataMode.set('auto')
     lastRefresh.set(0)
     nightLock.set({ enabled: false, from: 23, to: 4 })
@@ -1633,5 +1636,39 @@ describe('auto refresh', () => {
     equal(refreshStatus.get(), 'no')
     equal(load.callCount, 0)
     equal(follows.callCount, 0)
+  })
+
+  test('refreshes every 15 minutes by user setting', async () => {
+    await addFeed(testFeed({ loader: 'rss', url: 'https://one.com/' }))
+    let load = spyOn(loaders.rss, 'getPosts', () => {
+      return createPostsList(() => Promise.resolve([[], undefined]))
+    })
+    let now = Date.now()
+    spyOn(Date, 'now', () => now)
+    function passMinutes(minutes: number): void {
+      now += minutes * 60_000
+      clock.set(new Date(now))
+    }
+
+    passMinutes(16)
+    equal(load.callCount, 0)
+
+    autoRefresh.set('always')
+    lastRefresh.set(now)
+    passMinutes(14)
+    equal(isRefreshing.get(), false)
+
+    passMinutes(2)
+    equal(isRefreshing.get(), true)
+    await waitUntil(() => !isRefreshing.get())
+    equal(load.callCount, 1)
+
+    passMinutes(14)
+    equal(isRefreshing.get(), false)
+
+    saveDataMode.set('on')
+    passMinutes(2)
+    equal(isRefreshing.get(), false)
+    equal(load.callCount, 1)
   })
 })
