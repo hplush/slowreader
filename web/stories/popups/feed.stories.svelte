@@ -59,6 +59,14 @@
     contentType: 'application/atom+xml'
   }
 
+  const QUIET_ATOM = {
+    body: ATOM.body.replaceAll(
+      '2021-01-01T00:00:00Z',
+      new Date(Date.now() - 240 * 86400 * 1000).toISOString()
+    ),
+    contentType: 'application/atom+xml'
+  }
+
   const MASTODON_API = 'https://mastodon.social/api/v1/accounts'
 
   const STATUSES = [1, 2, 3].map(id => ({
@@ -72,7 +80,7 @@
     },
     card: null,
     content: `<p>Post number ${id}</p>`,
-    created_at: `2021-01-0${4 - id}T00:00:00.000Z`,
+    created_at: new Date(Date.now() - id * 86400 * 1000).toISOString(),
     edited_at: null,
     id: `${id}`,
     in_reply_to_account_id: null,
@@ -159,7 +167,7 @@
         url: 'https://example.com/news.atom'
       }
     ]}
-    responses={[['https://example.com/news.atom', ATOM]]}
+    responses={[['https://example.com/news.atom', QUIET_ATOM]]}
   >
     <LoadedPopup popup={popups.feed('https://example.com/news.atom')}>
       {#snippet loaded(popup)}

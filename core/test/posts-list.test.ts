@@ -1,17 +1,19 @@
 import { restoreAll, spyOn } from 'nanospy'
-import { equal } from 'node:assert/strict'
+import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
   createPostsList,
+  getPostsActivity,
   getPostsFrequency,
   isTooFrequent,
-  type ParsedPost
+  type ParsedPost,
+  type PostsActivity
 } from '../index.ts'
 
 describe('posts list', () => {
   beforeEach(() => {
-    spyOn(Date, 'now', () => 100 * 86400 * 1000)
+    spyOn(Date, 'now', () => 1000 * 86400 * 1000)
   })
 
   afterEach(() => {
@@ -19,7 +21,7 @@ describe('posts list', () => {
   })
 
   function daysAgo(days: number): number {
-    return (100 - days) * 86400
+    return (1000 - days) * 86400
   }
 
   function frequency(posts: ParsedPost[]): number | undefined {
@@ -64,6 +66,45 @@ describe('posts list', () => {
       ]),
       1
     )
+  })
+
+  test('counts only posts of the last year', () => {
+    let old = Array.from({ length: 100 }, (_, i) => ({
+      originId: `old${i}`,
+      publishedAt: daysAgo(400 + i)
+    }))
+    equal(frequency(old), 0)
+    equal(
+      frequency([{ originId: '1', publishedAt: daysAgo(10) }, ...old]),
+      0.0027
+    )
+  })
+
+  test('shows last post for dead feeds', () => {
+    function activity(days: number): PostsActivity | undefined {
+      return getPostsActivity(
+        createPostsList(() => [
+          [
+            { originId: '1', publishedAt: daysAgo(days) },
+            { originId: '2', publishedAt: daysAgo(days + 9) }
+          ],
+          undefined
+        ])
+      )
+    }
+    equal(getPostsActivity(createPostsList(() => [[], undefined])), undefined)
+    deepEqual(activity(1), { frequency: 0.2, dead: false })
+    deepEqual(activity(180), { frequency: 0.011, dead: false })
+    deepEqual(activity(200), {
+      abandoned: false,
+      lastPostAt: daysAgo(200),
+      dead: true
+    })
+    deepEqual(activity(400), {
+      abandoned: true,
+      lastPostAt: daysAgo(400),
+      dead: true
+    })
   })
 
   test('detects too frequent feeds', () => {

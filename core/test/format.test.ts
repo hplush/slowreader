@@ -1,9 +1,10 @@
 import type { Formatter } from '@nanostores/i18n'
-import { equal, match } from 'node:assert/strict'
+import { deepEqual, equal, match } from 'node:assert/strict'
 import { describe, test } from 'node:test'
 
 import {
   formatDuration,
+  formatActivity,
   formatFrequency,
   formatHour,
   formatPublishedAt,
@@ -159,5 +160,33 @@ describe('format', () => {
     equal(formatFrequency(t, 0.04), '1 post per\u00A0month')
     equal(formatFrequency(t, 0.02), '7 posts per\u00A0year')
     equal(formatFrequency(t, 0.0009), '1 post per\u00A0year')
+  })
+  test('formats posts activity', () => {
+    let t = organizeMessages.get()
+    let format = createMockFormatter()
+    deepEqual(formatActivity(t, format, { frequency: 1, dead: false }), {
+      hint: '1 post per\u00A0day',
+      warning: undefined
+    })
+    deepEqual(formatActivity(t, format, { frequency: 11, dead: false }), {
+      hint: '11 posts per\u00A0day',
+      warning: t.tooFrequent
+    })
+    deepEqual(
+      formatActivity(t, format, {
+        abandoned: false,
+        lastPostAt: Date.now() / 1000 - 200 * 86400,
+        dead: true
+      }),
+      { hint: 'Last post -7 month', warning: undefined }
+    )
+    deepEqual(
+      formatActivity(t, format, {
+        abandoned: true,
+        lastPostAt: Date.now() / 1000 - 400 * 86400,
+        dead: true
+      }),
+      { hint: 'Last post -1 year', warning: t.abandoned }
+    )
   })
 })

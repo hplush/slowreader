@@ -108,19 +108,45 @@ export function createPostsList(
   return $store
 }
 
-/**
- * Posts per day. Thread parts are shown inside the card of the thread’s
- * first post, so they are not counted. Loaders already skip replies to others.
- */
-export function getPostsFrequency(posts: PostsList): number | undefined {
-  let dates = posts.get().list.flatMap(post => {
+function getPostDates(posts: PostsList): number[] {
+  return posts.get().list.flatMap(post => {
     let date = post.sortedAt ?? post.publishedAt
     return !post.selfReplyTo && date ? [date] : []
   })
-  if (dates.length === 0) return undefined
+}
+
+function countPostsPerDay(dates: number[]): number {
+  let now = Date.now() / 1000
+  let recent = dates.filter(date => now - date < 365 * 86400)
   // A single post an hour ago does not mean 24 posts per day
-  let days = Math.max(1, (Date.now() / 1000 - Math.min(...dates)) / 86400)
-  return Number((dates.length / days).toPrecision(2))
+  let days = Math.min(365, Math.max(1, (now - Math.min(...dates)) / 86400))
+  return Number((recent.length / days).toPrecision(2))
+}
+
+/**
+ * Posts per day in the last year. Thread parts are shown inside the card
+ * of the thread’s first post, so they are not counted. Loaders already skip
+ * replies to others.
+ */
+export function getPostsFrequency(posts: PostsList): number | undefined {
+  let dates = getPostDates(posts)
+  if (dates.length === 0) return undefined
+  return countPostsPerDay(dates)
+}
+
+export type PostsActivity =
+  | { abandoned: boolean; lastPostAt: number; dead: true }
+  | { frequency: number; dead: false }
+
+export function getPostsActivity(posts: PostsList): PostsActivity | undefined {
+  let dates = getPostDates(posts)
+  if (dates.length === 0) return undefined
+  let lastPostAt = Math.max(...dates)
+  let silence = Date.now() / 1000 - lastPostAt
+  if (silence > 182 * 86400) {
+    return { abandoned: silence > 365 * 86400, lastPostAt, dead: true }
+  }
+  return { frequency: countPostsPerDay(dates), dead: false }
 }
 
 export function isTooFrequent(perDay: number): boolean {

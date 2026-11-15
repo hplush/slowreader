@@ -13,11 +13,9 @@
     addMessages as add,
     errorToMessage,
     type FeedPopup,
-    formatFrequency,
     getPopupId,
     hasPersonAvatar,
     isAccountService,
-    isTooFrequent,
     organizeMessages as t
   } from '@slowreader/core'
 
@@ -40,12 +38,12 @@
 
   let {
     accountError,
+    activity,
     avatar,
     categories,
     deleting,
     feed,
     followedBy,
-    frequency,
     owner,
     posts,
     previews,
@@ -196,15 +194,7 @@
     {/if}
     <Stack gap="s">
       <Stack gap="xs">
-        <Label
-          hint={$frequency === undefined
-            ? undefined
-            : formatFrequency($t, $frequency)}
-          tag="h2"
-          warning={$frequency !== undefined && isTooFrequent($frequency)
-            ? $t.tooFrequent
-            : undefined}
-        >
+        <Label hint={$activity?.hint} tag="h2" warning={$activity?.warning}>
           {$t.feedPosts}
         </Label>
         {#if $previews.length > 0}

@@ -27,6 +27,7 @@ import {
   loadFeedByUrl,
   updateFeedData
 } from '../feed.ts'
+import { formatActivity, i18nFormat } from '../format.ts'
 import { createDownloadTask, type TextResponse } from '../lib/download.ts'
 import { waitSql } from '../lib/stores.ts'
 import {
@@ -37,11 +38,11 @@ import {
   loaders,
   tryLoadFeedData
 } from '../loader/index.ts'
-import { accountsMessages } from '../messages/index.ts'
+import { accountsMessages, organizeMessages } from '../messages/index.ts'
 import { collapseThreads, toPreviewPost } from '../post.ts'
 import {
   createPostsList,
-  getPostsFrequency,
+  getPostsActivity,
   type PostsList
 } from '../posts-list.ts'
 import { loadRecentPosts } from '../refresh.ts'
@@ -379,8 +380,14 @@ export const feed = definePopup('feed', async url => {
     feed: $feed,
     finalUnfollow: !!loaders[service].isFinalUnfollow?.(feedUrl),
     followedBy: $followedBy,
+    activity: computed(
+      [posts, i18nFormat, organizeMessages],
+      (_, format, t) => {
+        let value = getPostsActivity(posts)
+        return value && formatActivity(t, format, value)
+      }
+    ),
     owner: $owner,
-    frequency: computed(posts, () => getPostsFrequency(posts)),
     loader: service,
     noAnonymous,
     posts,

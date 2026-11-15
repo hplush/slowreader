@@ -1,8 +1,9 @@
-import { count } from '@nanostores/i18n'
+import { count, params } from '@nanostores/i18n'
 
 import { i18n } from '../../i18n.ts'
 
 export const organizeMessages = i18n('organize', {
+  abandoned: 'Feed seems abandoned',
   account: 'Account',
   accountReading: 'Account',
   anonymous: 'Anonymous',
@@ -34,6 +35,7 @@ export const organizeMessages = i18n('organize', {
   feedPosts: 'Recent posts',
   feedsTitle: 'Feeds',
   feedUrl: 'Feed URL',
+  lastPost: params('Last post {time}'),
   follow: 'Follow',
   morePosts: 'More posts',
   openWebsite: 'Open website',

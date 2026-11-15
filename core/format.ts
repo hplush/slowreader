@@ -4,6 +4,7 @@ import type { StoreValue } from 'nanostores'
 import { $locale } from './i18n.ts'
 import { type Loader, type LoaderName, loaders } from './loader/index.ts'
 import type { organizeMessages } from './messages/index.ts'
+import { isTooFrequent, type PostsActivity } from './posts-list.ts'
 
 export const i18nFormat = formatter($locale)
 
@@ -94,6 +95,25 @@ export function formatFrequency(
     return t.perMonth(Math.round(perDay * 30))
   } else {
     return t.perYear(Math.max(1, Math.round(perDay * 365)))
+  }
+}
+
+export function formatActivity(
+  t: StoreValue<typeof organizeMessages>,
+  format: Formatter,
+  activity: PostsActivity
+): { hint: string; warning: string | undefined } {
+  if (activity.dead) {
+    return {
+      hint: t.lastPost({
+        time: formatRelativeTime(format, activity.lastPostAt)
+      }),
+      warning: activity.abandoned ? t.abandoned : undefined
+    }
+  }
+  return {
+    hint: formatFrequency(t, activity.frequency),
+    warning: isTooFrequent(activity.frequency) ? t.tooFrequent : undefined
   }
 }
 
