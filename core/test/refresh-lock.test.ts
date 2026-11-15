@@ -33,6 +33,7 @@ import {
   requestRefreshLock,
   setupEnvironment,
   signUpByPassword,
+  stoppableRefreshing,
   stopRefreshing,
   testFeed
 } from '../index.ts'
@@ -250,10 +251,15 @@ describe('refresh lock', () => {
     await other.process(lockAction({}))
     await waitUntil(() => refreshStatus.get() === 'other')
     deepEqual(refreshTotalProgress.get(), { stage: 'other' })
+    equal(isRefreshing.get(), true)
+    equal(stoppableRefreshing.get(), false)
     await refreshPosts()
     equal(refreshStatus.get(), 'other')
+    stopRefreshing()
+    equal(refreshStatus.get(), 'other')
+    equal(refreshLock.get(), 'other')
     await other.process(refreshUnlock({}))
-    await waitUntil(() => refreshStatus.get() === 'start')
+    await waitUntil(() => refreshStatus.get() === 'no')
   })
 
   test('releases lock after stop during waiting', async t => {

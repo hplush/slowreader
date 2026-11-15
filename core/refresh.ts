@@ -111,24 +111,28 @@ export const refreshErrors = atom<RefreshError[]>([])
 export type refreshStatusValue =
   | 'done'
   | 'error'
+  | 'no'
   | 'other'
   | 'refreshing'
   | 'refreshingError'
-  | 'start'
 
-export const refreshStatus = atom<refreshStatusValue>('start')
+export const refreshStatus = atom<refreshStatusValue>('no')
 
 refreshLock.listen(lock => {
   let status = refreshStatus.get()
   if (lock === 'other' && !status.startsWith('refreshing')) {
     refreshStatus.set('other')
   } else if (lock !== 'other' && status === 'other') {
-    refreshStatus.set('start')
+    refreshStatus.set('no')
   }
 })
 
-export const isRefreshing = computed(refreshStatus, icon => {
-  return icon.startsWith('refreshing')
+export const stoppableRefreshing = computed(refreshStatus, status => {
+  return status.startsWith('refreshing')
+})
+
+export const isRefreshing = computed(refreshStatus, status => {
+  return status.startsWith('refreshing') || status === 'other'
 })
 
 let doneTimeout: NodeJS.Timeout | undefined
@@ -627,7 +631,7 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
   if (run !== currentRun) return
   refreshStatistics.setKey('initializing', 'lock')
   if (!(await requestRefreshLock(stopRefreshing))) {
-    refreshStatus.set(refreshLock.get() === 'other' ? 'other' : 'start')
+    refreshStatus.set(refreshLock.get() === 'other' ? 'other' : 'no')
     return
   }
   if (run !== currentRun) {
@@ -642,7 +646,7 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
   await waitLoading(syncedSettingsLoading)
   if (auto && nightLocked.get()) {
     releaseRefreshLock()
-    refreshStatus.set('start')
+    refreshStatus.set('no')
     return
   }
   let accounts = await loadAccounts()
@@ -661,7 +665,7 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
   let feeds = await loadFeedsForRefresh(owners.map(account => account.id))
   if (auto && feeds.length + accounts.length === 0) {
     releaseRefreshLock()
-    refreshStatus.set('start')
+    refreshStatus.set('no')
     return
   }
   cleanFeedRedirects(feeds)
@@ -775,7 +779,7 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
   } else {
     refreshStatus.set('done')
     doneTimeout = setTimeout(() => {
-      refreshStatus.set('start')
+      refreshStatus.set('no')
     }, 1000)
   }
 }
@@ -787,9 +791,9 @@ onClient(() =>
 )
 
 export function stopRefreshing(): void {
-  if (!isRefreshing.get()) return
+  if (!stoppableRefreshing.get()) return
   currentRun += 1
-  refreshStatus.set('start')
+  refreshStatus.set('no')
   releaseRefreshLock()
   queue.stop()
   stopMediaCache()

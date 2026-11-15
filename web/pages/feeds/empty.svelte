@@ -32,7 +32,7 @@
       <Stack align="center" reading="slow">
         <Button
           icon={mdiReload}
-          loader={$isRefreshing ? $refreshProgress : undefined}
+          loader={$isRefreshing ? $refreshProgress || true : undefined}
           onclick={() => refreshPosts()}>{$t.refresh}</Button
         >
       </Stack>

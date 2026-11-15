@@ -184,7 +184,7 @@
     busy.set(false)
     clock.set(new Date(2026, 0, 1, 12))
     stopRefreshing()
-    refreshStatus.set('start')
+    refreshStatus.set('no')
     refreshErrors.set([])
     syncStatus.set('synchronized')
     refreshStatistics.set(DEFAULT_REFRESH_STATISTICS)

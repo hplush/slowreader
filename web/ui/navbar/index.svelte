@@ -5,7 +5,7 @@
     isRefreshing,
     layoutType,
     menuSlider,
-    refreshRequested,
+    refreshPosts,
     refreshStatus,
     refreshTotalProgress,
     router,
@@ -16,6 +16,7 @@
 
   import { getPopupHash, getURL } from '../../stores/url-router.ts'
   import Announce from '../announce.svelte'
+  import Icon from '../icon.svelte'
   import NavbarBalance from '../navbar/balance.svelte'
   import NavbarButton from '../navbar/button.svelte'
   import NavbarFast from '../navbar/fast.svelte'
@@ -47,37 +48,29 @@
 >
   <div class="navbar_main" aria-orientation="horizontal" role="menu">
     <div class="navbar_refresh">
-      {#if $isRefreshing || $refreshStatus === 'other'}
-        <NavbarButton
-          name={$t.refresh}
-          anchor="refresh"
-          dot={$refreshStatus === 'refreshingError'}
-          href={getPopupHash($router, 'refresh', '1')}
-          size="icon"
-        >
+      <NavbarButton
+        name={$t.refresh}
+        anchor="refresh"
+        dot={$refreshStatus === 'error' || $refreshStatus === 'refreshingError'}
+        href={getPopupHash($router, 'refresh', '1')}
+        onclick={e => {
+          if (!$isRefreshing) {
+            e.preventDefault()
+            void refreshPosts()
+          }
+        }}
+        size="icon"
+      >
+        {#if $isRefreshing}
           <NavbarProgress {...$refreshTotalProgress} />
-        </NavbarButton>
-      {:else if $refreshStatus === 'error'}
-        <NavbarButton
-          name={$t.refresh}
-          anchor="refresh"
-          dot
-          href={getPopupHash($router, 'refresh', '1')}
-          icon={mdiRefresh}
-          size="icon"
-        />
-      {:else}
-        <NavbarButton
-          name={$t.refresh}
-          anchor="refresh"
-          href={getPopupHash($router, 'refresh', '1')}
-          icon={$refreshStatus === 'done' ? mdiCheckCircleOutline : mdiRefresh}
-          onclick={() => {
-            refreshRequested.set(true)
-          }}
-          size="icon"
-        />
-      {/if}
+        {:else}
+          <Icon
+            path={$refreshStatus === 'done'
+              ? mdiCheckCircleOutline
+              : mdiRefresh}
+          />
+        {/if}
+      </NavbarButton>
       {#if $refreshStatus === 'done'}
         <Announce text={$t.refreshingDone} />
       {/if}

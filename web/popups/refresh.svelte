@@ -15,6 +15,7 @@
     refreshStatistics,
     refreshStatus,
     router,
+    stoppableRefreshing,
     stopRefreshing,
     storageMessages,
     refreshMessages as t
@@ -36,7 +37,7 @@
 
 <Popup id="refresh">
   {#snippet header()}
-    {#if $isRefreshing}
+    {#if $stoppableRefreshing}
       <Button
         icon={mdiStop}
         onclick={stopRefreshing}

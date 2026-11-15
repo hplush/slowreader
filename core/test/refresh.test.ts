@@ -143,7 +143,7 @@ describe('refresh', () => {
     changeState('disconnected')
     await finished
     equal(load.callCount, 0)
-    equal(refreshStatus.get(), 'start')
+    equal(refreshStatus.get(), 'no')
   })
 
   test('updates posts', async () => {
@@ -176,7 +176,7 @@ describe('refresh', () => {
     })
 
     deepEqual(refreshErrors.get(), [])
-    equal(refreshStatus.get(), 'start')
+    equal(refreshStatus.get(), 'no')
     equal(isRefreshing.get(), false)
     equal(refreshProgress.get(), 0)
     deepEqual(refreshStatistics.get(), {
@@ -338,7 +338,7 @@ describe('refresh', () => {
     })
 
     await setTimeout(1500)
-    equal(refreshStatus.get(), 'start')
+    equal(refreshStatus.get(), 'no')
 
     refreshPosts()
     equal(refreshStatus.get(), 'refreshing')
@@ -560,7 +560,7 @@ describe('refresh', () => {
     await setTimeout(10)
 
     stopRefreshing()
-    equal(refreshStatus.get(), 'start')
+    equal(refreshStatus.get(), 'no')
     equal(rss.aborted, true)
     deepEqual(refreshStatistics.get(), {
       errorFeeds: 0,
@@ -572,7 +572,7 @@ describe('refresh', () => {
       totalFeeds: 1
     })
     stopRefreshing()
-    equal(refreshStatus.get(), 'start')
+    equal(refreshStatus.get(), 'no')
   })
 
   test('is ready for network errors', async () => {
@@ -635,7 +635,7 @@ describe('refresh', () => {
       processedFeeds: 2,
       totalFeeds: 2
     })
-    deepEqual(icons, ['start', 'refreshing', 'refreshingError', 'error'])
+    deepEqual(icons, ['no', 'refreshing', 'refreshingError', 'error'])
     deepEqual(
       refreshErrors.get().map(i => ['feed' in i && i.feed.id, i.error.name]),
       [[feed2, 'HTTPStatusError']]
@@ -1468,7 +1468,7 @@ describe('refresh of accounts', () => {
     follows.resolve([])
     await refreshing
     equal(timeline.callCount, 0)
-    equal(refreshStatus.get(), 'start')
+    equal(refreshStatus.get(), 'no')
   })
 
   test('does not continue stopped refresh after the next start', async () => {
@@ -1616,7 +1616,7 @@ describe('auto refresh', () => {
   test('does not auto refresh without feeds or at night', async () => {
     autoRefresh.set('always')
     await refreshPosts({ auto: true })
-    equal(refreshStatus.get(), 'start')
+    equal(refreshStatus.get(), 'no')
 
     await addFeed(testFeed({ loader: 'rss', url: 'https://one.com/' }))
     let load = spyOn(loaders.rss, 'getPosts', () => {
@@ -1630,7 +1630,7 @@ describe('auto refresh', () => {
     // The first refresh was a moment ago
     lastRefresh.set(0)
     await refreshPosts({ auto: true })
-    equal(refreshStatus.get(), 'start')
+    equal(refreshStatus.get(), 'no')
     equal(load.callCount, 0)
     equal(follows.callCount, 0)
   })
