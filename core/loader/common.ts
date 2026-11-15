@@ -154,6 +154,14 @@ export type LastRefresh = Partial<
 >
 
 /**
+ * Bytes of the file with the last one included, like in `Range` header.
+ */
+export interface MediaRange {
+  end: number
+  start: number
+}
+
+/**
  * User’s account on the service to read the home timeline and follow authors.
  */
 export interface AccountLoader<Data = unknown> {
@@ -269,9 +277,17 @@ export type Loader = {
    * File of the post’s media, which only the loader can load, like media
    * with `telegram:` URL. `undefined` if it is not such URL.
    *
-   * Page aborts `signal`, when user stops the video loading.
+   * Video player asks only for `range` of the file, which it needs right now,
+   * and gets it as `206` response.
+   *
+   * Page aborts `signal`, when user stops the video loading or the video
+   * left the page.
    */
-  getMedia?(url: string, signal?: AbortSignal): Promise<Response> | undefined
+  getMedia?(
+    url: string,
+    signal?: AbortSignal,
+    range?: MediaRange
+  ): Promise<Response> | undefined
 
   /**
    * New account of the author, who moved to another server.

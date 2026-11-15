@@ -582,21 +582,13 @@ export function waitsClick(
   if (saveData) {
     return media.type.startsWith('image') || media.type.startsWith('video')
   }
-  // Loader gives video with own URL schema only as a whole file,
+  // Some clients get video with loader’s own URL schema only as a whole file,
   // so it is not downloaded before user asks to play it
   return (
     media.type.startsWith('video') &&
     !media.type.endsWith(';mode=gif') &&
     isLoaderMedia(media.url)
   )
-}
-
-/**
- * Loader gives video only as a whole file, which autoplay must not download
- * for a moment on the screen when the file is big.
- */
-export function canAutoloadVideo(media: ReaderMedia): boolean {
-  return (media.size?.bytes ?? 0) <= 20 * 1024 * 1024
 }
 
 /**

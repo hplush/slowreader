@@ -13,7 +13,6 @@ import {
   addFilter,
   addPost,
   cacheImages,
-  canAutoloadVideo,
   changeFeed,
   encryptionKey,
   GENERAL_CATEGORY,
@@ -119,13 +118,6 @@ describe('post', () => {
       equal(isLoaderMedia(url), false)
     }
     equal(waitsClick(audio, true, new Set()), false)
-  })
-
-  test('autoplay downloads only small whole video', () => {
-    let video = { type: 'video', url: 'telegram:5/4' }
-    equal(canAutoloadVideo(video), true)
-    equal(canAutoloadVideo({ ...video, size: { bytes: 5_000_000 } }), true)
-    equal(canAutoloadVideo({ ...video, size: { bytes: 50_000_000 } }), false)
   })
 
   test('finds text media in Save Data mode', () => {

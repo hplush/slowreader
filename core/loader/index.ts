@@ -11,6 +11,7 @@ import type {
   FeedData,
   LastRefresh,
   Loader,
+  MediaRange,
   MovedFeed
 } from './common.ts'
 import { jsonFeed } from './json-feed.ts'
@@ -20,7 +21,14 @@ import { rss1 } from './rss1.ts'
 import { telegram } from './telegram.ts'
 
 export { hasTelegram } from './telegram.ts'
-export type { AccountAuth, DetectedFeed, LastRefresh, Loader, MovedFeed }
+export type {
+  AccountAuth,
+  DetectedFeed,
+  LastRefresh,
+  Loader,
+  MediaRange,
+  MovedFeed
+}
 
 export const loaders = {
   atom,
@@ -50,10 +58,11 @@ export function hasPersonAvatar(loader: string | undefined): boolean {
  */
 export function loadLoaderMedia(
   url: string,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  range?: MediaRange
 ): Promise<Response> | undefined {
   for (let loader of Object.values<Loader>(loaders)) {
-    let media = loader.getMedia?.(url, signal)
+    let media = loader.getMedia?.(url, signal, range)
     if (media) return media
   }
   return undefined

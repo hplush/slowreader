@@ -1,7 +1,6 @@
 <script lang="ts">
   import { mdiClose, mdiEyeOutline } from '@mdi/js'
   import {
-    canAutoloadVideo,
     canAutoplayVideos,
     commonMessages,
     isLoaderMedia,
@@ -17,7 +16,12 @@
   import { SvelteSet } from 'svelte/reactivity'
 
   import { blurredBackground, waitImageDecoded } from '../../lib/image.ts'
-  import { mediaSrc, playIfVisible, watchVideo } from '../../lib/media.ts'
+  import {
+    canStreamMedia,
+    mediaSrc,
+    playIfVisible,
+    watchVideo
+  } from '../../lib/media.ts'
   import BrokenImage from '../broken-image.svelte'
   import Button from '../button.svelte'
   import ClickToLoad from '../click-to-load.svelte'
@@ -101,7 +105,7 @@
         clicked !== item.url &&
         !declined.has(item.url) &&
         !broken.has(item.url) &&
-        (!waitsClick(item, $saveData, downloaded) || canAutoloadVideo(item)),
+        (!waitsClick(item, $saveData, downloaded) || canStreamMedia()),
       leave() {
         if (autoloaded.delete(item.url) && waitsFile(item)) {
           downloaded.delete(item.url)
@@ -218,7 +222,7 @@
   <video
     class="post-media_item"
     {@attach focusClicked(item.url)}
-    {@attach mediaSrc(item.url, { web: false })}
+    {@attach mediaSrc(item.url, { stream: true, web: false })}
     {@attach mediaSrc(shownPoster(item), { attribute: 'poster' })}
     aria-busy={waitsFile(item)}
     aria-label={item.alt}
@@ -230,11 +234,9 @@
     onerror={() => {
       broken.add(item.url)
     }}
-    onloadeddata={event => {
-      playAfterClick(item.url, event.currentTarget)
-    }}
-    onloadstart={() => {
+    onloadstart={event => {
       loaded.add(item.url)
+      playAfterClick(item.url, event.currentTarget)
     }}
     playsinline
     preload="none"

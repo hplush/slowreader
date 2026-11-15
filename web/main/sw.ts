@@ -8,6 +8,23 @@ declare const SW_ROUTES: RegExp
 
 export type ToServiceWorker = 'skipWaiting'
 
+export type StreamPath = `/stream/${string}`
+
+export interface MediaPartRequest {
+  end: number
+  start: number
+  token: string
+}
+
+export type MediaPart =
+  | {
+      body: ArrayBuffer
+      headers: [string, string][]
+      missing: false
+      status: number
+    }
+  | { missing: true }
+
 // Caches of old versions are deleted, but not this one
 const MEDIA_CACHE = 'slowreader-media'
 
@@ -18,6 +35,7 @@ interface ExtendableEvent extends Event {
 }
 
 interface FetchEvent extends Event {
+  clientId: string
   request: Request
   respondWith(response: Promise<Response>): void
 }
@@ -32,7 +50,15 @@ interface ServiceWorkerScope {
     type: 'message',
     listener: (event: MessageEvent<ToServiceWorker>) => void
   ): void
-  clients: { claim(): Promise<void> }
+  clients: {
+    claim(): Promise<void>
+    get(id: string): Promise<
+      | {
+          postMessage(message: MediaPartRequest, transfer: Transferable[]): void
+        }
+      | undefined
+    >
+  }
   skipWaiting(): Promise<void>
 }
 
@@ -118,6 +144,47 @@ async function fromMediaCache(request: Request): Promise<Response> {
   return sliceRange(cached, request.headers.get('Range'))
 }
 
+/**
+ * Video of some loaders has no web URL and only the page can load its file.
+ * Player asks for the whole rest of the file even to show the first frame,
+ * so it gets a small part and asks for the next one, when it needs it.
+ */
+async function fromPage(event: FetchEvent, token: string): Promise<Response> {
+  let range = /^bytes=(\d+)-(\d*)$/.exec(
+    event.request.headers.get('Range') ?? ''
+  )
+  let client = await worker.clients.get(event.clientId)
+  if (!range || !client) return new Response(null, { status: 404 })
+  let start = Number(range[1])
+  let channel = new MessageChannel()
+  let part = await new Promise<MediaPart>(resolve => {
+    channel.port1.addEventListener(
+      'message',
+      (answer: MessageEvent<MediaPart>) => {
+        resolve(answer.data)
+      },
+      { once: true }
+    )
+    channel.port1.start()
+    client.postMessage(
+      {
+        end: Math.min(Number(range[2] || Infinity), start + 512 * 1024 - 1),
+        start,
+        token
+      },
+      [channel.port2]
+    )
+  })
+  if (part.missing) return new Response(null, { status: 404 })
+  return new Response(part.body, {
+    headers: [
+      ...part.headers,
+      ['Content-Length', String(part.body.byteLength)]
+    ],
+    status: part.status
+  })
+}
+
 function isAppRoute(path: string): boolean {
   try {
     // nginx tests decoded path with merged slashes
@@ -168,7 +235,12 @@ worker.addEventListener('fetch', event => {
     return
   }
   let navigate = request.mode === 'navigate'
-  if (navigate && url.pathname === '/') {
+  if (
+    request.destination === 'video' &&
+    url.pathname.startsWith('/stream/' satisfies StreamPath)
+  ) {
+    event.respondWith(fromPage(event, url.pathname.slice(8)))
+  } else if (navigate && url.pathname === '/') {
     // Landing or self-hosted app, which only the server knows
     event.respondWith(fetch(request).catch(() => fromCache('/app.html')))
   } else if (assets[url.pathname]) {

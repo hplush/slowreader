@@ -12,6 +12,7 @@ import {
   addPost,
   cacheImages,
   cacheMediaOnRequest,
+  cacheVideos,
   changeAccount,
   closeLastPopup,
   createDownloadTask,
@@ -59,7 +60,8 @@ import {
   sendTelegramUpdate,
   startClient,
   testTelegram,
-  testTelegramCreator
+  testTelegramCreator,
+  waitUntil
 } from '../utils.ts'
 
 const USER = {
@@ -1764,6 +1766,284 @@ describe('telegram loader', () => {
       name: 'AbortError'
     })
     equal(countRequests('downloadFile'), 2)
+  })
+
+  function mockVideo(): void {
+    deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
+    mockHistory(0, {})
+    testTelegram.answers.getMessage = videoPost
+    testTelegram.answers.downloadFile = ({ file_id: id }) => ({
+      '@type': 'file',
+      id,
+      'size': 5000
+    })
+    testTelegram.answers.cancelDownloadFile = { '@type': 'ok' }
+    testTelegram.answers.deleteFile = { '@type': 'ok' }
+    testTelegram.files = { 22: new Blob(['0123456789'.repeat(500)]) }
+  }
+
+  function getMediaRequests(): TelegramObject[] {
+    return testTelegram.requests.filter(i => i['@type'] !== 'getChat')
+  }
+
+  test('gives only asked parts of the video to its player', async () => {
+    let { getMedia } = loaders.telegram
+    mockVideo()
+    let feed = new AbortController()
+    let popup = new AbortController()
+
+    let start = await getMedia!('telegram:5/3', feed.signal, {
+      end: 9,
+      start: 0
+    })!
+    equal(start.status, 206)
+    equal(start.headers.get('Content-Range'), 'bytes 0-9/5000')
+    equal(start.headers.get('Content-Type'), 'video/mp4')
+    equal(await start.text(), '0123456789')
+
+    let end = await getMedia!('telegram:5/3', popup.signal, {
+      end: 9999,
+      start: 4995
+    })!
+    equal(end.headers.get('Content-Range'), 'bytes 4995-4999/5000')
+    equal(await end.text(), '56789')
+    deepEqual(getMediaRequests(), [
+      {
+        '@type': 'getMessage',
+        'chat_id': -1000000000005,
+        'message_id': 3 * 1048576
+      },
+      {
+        '@type': 'downloadFile',
+        'file_id': 22,
+        'limit': 10,
+        'offset': 0,
+        'priority': 32,
+        'synchronous': true
+      },
+      {
+        '@type': 'downloadFile',
+        'file_id': 22,
+        'limit': 5,
+        'offset': 4995,
+        'priority': 32,
+        'synchronous': true
+      }
+    ])
+
+    let outside = await getMedia!('telegram:5/3', feed.signal, {
+      end: 5010,
+      start: 5000
+    })!
+    equal(outside.status, 416)
+    equal(outside.headers.get('Content-Range'), 'bytes */5000')
+
+    testTelegram.requests = []
+    feed.abort()
+    await setTimeout(10)
+    deepEqual(testTelegram.requests, [])
+
+    popup.abort()
+    await waitUntil(() => testTelegram.requests.length === 2)
+    deepEqual(testTelegram.requests, [
+      {
+        '@type': 'cancelDownloadFile',
+        'file_id': 22,
+        'only_if_pending': false
+      },
+      { '@type': 'deleteFile', 'file_id': 22 }
+    ])
+    await rejects(
+      getMedia!('telegram:5/3', popup.signal, { end: 9, start: 0 })!,
+      { name: 'AbortError' }
+    )
+  })
+
+  test('downloads parts of the video one by one', async () => {
+    let { getMedia } = loaders.telegram
+    mockVideo()
+    let finish: ((answer: TelegramObject) => void)[] = []
+    testTelegram.answers.downloadFile = () => {
+      return new Promise(resolve => {
+        finish.push(resolve)
+      })
+    }
+    let done = { '@type': 'file', 'id': 22, 'size': 5000 }
+    let player = new AbortController()
+
+    let broken = getMedia!('telegram:5/3', player.signal, { end: 9, start: 0 })!
+    let next = getMedia!('telegram:5/3', player.signal, { end: 19, start: 10 })!
+    let unwanted = getMedia!('telegram:5/3', player.signal, {
+      end: 29,
+      start: 20
+    })!
+    await setTimeout(10)
+    equal(finish.length, 1)
+
+    finish[0]!(fail('Flood', 420))
+    await rejects(broken, { name: 'TelegramError' })
+    await waitUntil(() => finish.length === 2)
+
+    player.abort()
+    finish[1]!(done)
+    await Promise.all([
+      next.then(async part => {
+        equal(await part.text(), '0123456789')
+      }),
+      rejects(unwanted, { name: 'AbortError' })
+    ])
+    equal(finish.length, 2)
+  })
+
+  test('looks for the video file again after TDLib restart', async () => {
+    let { getMedia } = loaders.telegram
+    mockVideo()
+    let player = new AbortController()
+    let part = { end: 9, start: 0 }
+    await getMedia!('telegram:5/3', player.signal, part)
+    await getMedia!('telegram:5/3', player.signal, part)
+    equal(getMediaRequests().filter(i => i['@type'] === 'getMessage').length, 1)
+
+    sendTelegramUpdate(state('Closed'), 'name')
+    await getMedia!('telegram:5/3', undefined, part)
+    equal(getMediaRequests().filter(i => i['@type'] === 'getMessage').length, 2)
+
+    // File ID belongs to another file after the restart
+    testTelegram.requests = []
+    player.abort()
+    await setTimeout(10)
+    deepEqual(testTelegram.requests, [])
+  })
+
+  test('keeps in TDLib only the video, which is played now', async () => {
+    let { getMedia } = loaders.telegram
+    mockVideo()
+    let posts: Record<number, TelegramObject> = {
+      3: videoPost,
+      7: message(7, {
+        content: {
+          '@type': 'messageVideo',
+          'video': {
+            '@type': 'video',
+            'mime_type': 'video/mp4',
+            'video': file(72, 5000)
+          }
+        }
+      }),
+      8: message(8, {
+        content: {
+          '@type': 'messageVideo',
+          'video': {
+            '@type': 'video',
+            'mime_type': 'video/mp4',
+            'video': file(82, 5000)
+          }
+        }
+      })
+    }
+    testTelegram.answers.getMessage = ({ message_id: id }) => {
+      return posts[Number(id) / 1048576]!
+    }
+    let finish: (() => void) | undefined
+    testTelegram.answers.downloadFile = ({ file_id: id }) => {
+      let done = { '@type': 'file', id, 'size': 5000 }
+      if (id !== 72) return done
+      return new Promise(resolve => {
+        finish = () => {
+          resolve(done)
+        }
+      })
+    }
+    testTelegram.files = {
+      22: new Blob(['first']),
+      72: new Blob(['second']),
+      82: new Blob(['third'])
+    }
+    function getFreed(): unknown[] {
+      return testTelegram.requests
+        .filter(i => i['@type'] === 'deleteFile')
+        .map(i => i.file_id)
+    }
+    let part = { end: 4, start: 0 }
+    let first = new AbortController()
+
+    await getMedia!('telegram:5/3', first.signal, part)
+    let second = getMedia!('telegram:5/7', undefined, part)!
+    await waitUntil(() => getFreed().length === 1)
+    deepEqual(getFreed(), [22])
+
+    equal(
+      await (await getMedia!('telegram:5/8', undefined, part)!).text(),
+      'third'
+    )
+    await setTimeout(10)
+    deepEqual(getFreed(), [22])
+
+    finish!()
+    equal(await (await second).text(), 'secon')
+    await getMedia!('telegram:5/3', first.signal, part)
+    await waitUntil(() => getFreed().length === 3)
+    deepEqual(getFreed(), [22, 72, 82])
+
+    first.abort()
+    await waitUntil(() => getFreed().length === 4)
+    deepEqual(getFreed(), [22, 72, 82, 22])
+  })
+
+  test('stops media cache download for the video player', async t => {
+    let { getMedia } = loaders.telegram
+    mockVideo()
+    cacheVideos.set('always')
+    t.after(() => {
+      cacheVideos.set('never')
+    })
+    let cancel: (() => void) | undefined
+    testTelegram.answers.downloadFile = ({ file_id: id, limit }) => {
+      if (limit === 0 && !cancel) {
+        return new Promise(resolve => {
+          cancel = () => {
+            resolve(fail('Canceled by another downloadFile request', 200))
+          }
+        })
+      }
+      cancel?.()
+      return { '@type': 'file', id, 'size': 5000 }
+    }
+    await addPost(
+      testPost({
+        media: [{ type: 'video', url: 'telegram:5/3' }],
+        reading: 'slow'
+      })
+    )
+
+    let caching = syncMediaCache()
+    await waitUntil(() => !!cancel)
+    let player = new AbortController()
+    let part = await getMedia!('telegram:5/3', player.signal, {
+      end: 9,
+      start: 0
+    })!
+    equal(await part.text(), '0123456789')
+    await caching
+    deepEqual(mediaErrors.get(), [])
+    equal(await isMediaCached('telegram:5/3'), false)
+    equal(getMediaRequests().filter(i => i['@type'] === 'deleteFile').length, 0)
+
+    testTelegram.requests = []
+    await syncMediaCache()
+    deepEqual(mediaErrors.get(), [])
+    equal(await isMediaCached('telegram:5/3'), false)
+    deepEqual(
+      getMediaRequests().map(i => i['@type']),
+      ['getMessage']
+    )
+
+    player.abort()
+    await waitUntil(() => {
+      return testTelegram.requests.some(i => i['@type'] === 'deleteFile')
+    })
+    await syncMediaCache()
+    equal(await isMediaCached('telegram:5/3'), true)
   })
 
   test('gives media to the cache and to the page', async t => {

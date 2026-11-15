@@ -1,5 +1,12 @@
-import { loadMediaBlob } from '@slowreader/core'
+import {
+  isLoaderMedia,
+  isMediaCached,
+  loadLoaderMedia,
+  loadMediaBlob
+} from '@slowreader/core'
 import type { Attachment } from 'svelte/attachments'
+
+import type { MediaPart, MediaPartRequest, StreamPath } from '../main/sw.ts'
 
 interface VideoSlot {
   auto: boolean
@@ -161,6 +168,55 @@ export function playIfVisible(video: HTMLVideoElement): void {
   }
 }
 
+let streams = new Map<string, { signal: AbortSignal; url: string }>()
+
+async function loadPart(request: MediaPartRequest): Promise<MediaPart> {
+  let stream = streams.get(request.token)
+  let response = await (stream &&
+    loadLoaderMedia(stream.url, stream.signal, request))
+  if (!response) return { missing: true }
+  return {
+    body: await response.arrayBuffer(),
+    headers: [...response.headers],
+    missing: false,
+    status: response.status
+  }
+}
+
+function answerToPlayer(event: MessageEvent<MediaPartRequest>): void {
+  let port = event.ports[0]!
+  loadPart(event.data).then(
+    part => {
+      port.postMessage(part, part.missing ? [] : [part.body])
+    },
+    () => {
+      port.postMessage({ missing: true } satisfies MediaPart)
+    }
+  )
+}
+
+/**
+ * Only service worker can give a file to the video player by parts.
+ * Dev server and the first visit do not have it.
+ */
+export function canStreamMedia(): boolean {
+  return 'serviceWorker' in navigator && !!navigator.serviceWorker.controller
+}
+
+/**
+ * Random URL does not tell the post to our server, if the service worker
+ * will miss the request, and does not work after the video was closed.
+ */
+function openStream(url: string, signal: AbortSignal): StreamPath {
+  navigator.serviceWorker.addEventListener('message', answerToPlayer)
+  let token = crypto.randomUUID()
+  streams.set(token, { signal, url })
+  signal.addEventListener('abort', () => {
+    streams.delete(token)
+  })
+  return `/stream/${token}`
+}
+
 /**
  * Browser can not load media of some our loaders by URL on its own,
  * like `telegram:` URL. We load its file and show it by a local URL.
@@ -169,6 +225,8 @@ export function playIfVisible(video: HTMLVideoElement): void {
  * `keep` saves the file to the cache with any settings, for avatars.
  * `once` forgets the local URL after the image loading, so user can not
  * open the file of a protected post in a new tab.
+ * `stream` loads only the watched parts of the video, if the file
+ * is not in the cache.
  */
 export function mediaSrc(
   url: null | string | undefined,
@@ -176,17 +234,29 @@ export function mediaSrc(
     attribute = 'src',
     keep = false,
     once = false,
+    stream = false,
     web = true
   }: {
     attribute?: 'poster' | 'src'
     keep?: boolean
     once?: boolean
+    stream?: boolean
     web?: boolean
   } = {}
 ): Attachment<HTMLElement> {
   return element => {
     let controller = new AbortController()
-    let loading = url ? loadMediaBlob(url, keep, controller.signal) : undefined
+    let loading: Promise<Blob | StreamPath> | undefined
+    if (url && stream && isLoaderMedia(url) && canStreamMedia()) {
+      loading = isMediaCached(url).then<Blob | StreamPath>(cached => {
+        controller.signal.throwIfAborted()
+        return cached
+          ? loadMediaBlob(url, keep, controller.signal)!
+          : openStream(url, controller.signal)
+      })
+    } else if (url) {
+      loading = loadMediaBlob(url, keep, controller.signal)
+    }
     if (!loading) {
       if (web && url) {
         element.setAttribute(attribute, url)
@@ -198,9 +268,9 @@ export function mediaSrc(
     let local: string | undefined
     let removed = false
     loading.then(
-      blob => {
+      file => {
         if (removed) return
-        local = URL.createObjectURL(blob)
+        local = typeof file === 'string' ? file : URL.createObjectURL(file)
         if (once) {
           element.addEventListener(
             'load',

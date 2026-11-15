@@ -38,6 +38,7 @@ import {
   isObject,
   type LastRefresh,
   type Loader,
+  type MediaRange,
   readLoaderData,
   type SignInStep
 } from './common.ts'
@@ -111,6 +112,11 @@ interface Session {
    * in another Telegram app.
    */
   ending: boolean
+  /**
+   * Files of played videos by media URL to not look for the file on every
+   * part of the video.
+   */
+  files: Map<string, MediaFile>
   idle: ReturnType<typeof setTimeout> | undefined
   /**
    * Sign in form waits for user’s answer longer, than TDLib’s idle time.
@@ -123,6 +129,16 @@ interface Session {
   loadingChats: Promise<void> | undefined
   sponsored: Map<string, TelegramObject>
   state: TelegramObject | undefined
+  /**
+   * Played videos by file ID. TDLib downloads only one part of the file
+   * at a time, so the next part waits for `tail`. TDLib keeps the parts
+   * in memory until all `viewers` closed the video or another video started
+   * while this one has no `loading` parts.
+   */
+  streams: Map<
+    number,
+    { loading: number; tail: Promise<unknown>; viewers: Set<AbortSignal> }
+  >
   waiters: Set<(state: TelegramObject) => void>
   /**
    * Requests, which wait for the end of the active ones.
@@ -188,11 +204,13 @@ function getSession(name: string): Session {
     depth: Infinity,
     downloads: new Map(),
     ending: false,
+    files: new Map(),
     idle: undefined,
     keep: false,
     loadingChats: undefined,
     sponsored: new Map(),
     state: undefined,
+    streams: new Map(),
     waiters: new Set(),
     waiting: []
   }
@@ -210,9 +228,11 @@ function getSession(name: string): Session {
     let state = update.authorization_state
     if (!isObject(state) || typeof state['@type'] !== 'string') return
     created.state = { ...state, '@type': state['@type'] }
-    // TDLib forgets chats on every restart
+    // TDLib forgets chats and files on every restart
     if (state['@type'] !== 'authorizationStateReady') {
       created.channels.clear()
+      created.files.clear()
+      created.streams.clear()
       created.connected = false
       created.depth = Infinity
     }
@@ -1414,14 +1434,23 @@ function toMedia(
 }
 
 async function moveFileFromTdlib(name: string, id: number): Promise<Blob> {
-  let downloaded = await sendToTelegram(name, {
-    '@type': 'downloadFile',
-    'file_id': id,
-    'limit': 0,
-    'offset': 0,
-    'priority': 1,
-    'synchronous': true
-  })
+  let downloaded: TelegramObject
+  try {
+    downloaded = await sendToTelegram(name, {
+      '@type': 'downloadFile',
+      'file_id': id,
+      'limit': 0,
+      'offset': 0,
+      'priority': 1,
+      'synchronous': true
+    })
+  } catch (e) {
+    // TDLib has one download per file and the video player took it
+    if (TelegramError.is(e) && e.code === 200) {
+      throw new DOMException('', 'AbortError')
+    }
+    throw e
+  }
   let session = getSession(name)
   clearTimeout(session.idle)
   try {
@@ -1441,7 +1470,9 @@ async function downloadFile(
   signal: AbortSignal | undefined
 ): Promise<Response> {
   signal?.throwIfAborted()
-  let downloads = getSession(name).downloads
+  let { downloads, streams } = getSession(name)
+  // Media cache takes the video on the next refresh to not stop the player
+  if (streams.has(file.id)) throw new DOMException('', 'AbortError')
   let download = downloads.get(file.id)
   if (!download) {
     let created = { blob: moveFileFromTdlib(name, file.id), readers: 0 }
@@ -1478,30 +1509,137 @@ async function downloadFile(
   return new Response(blob, { headers: { 'Content-Type': file.type } })
 }
 
-function loadMedia(
-  chatId: number,
-  messageId: number,
-  part: string | undefined,
-  richFile: string | undefined,
+function forgetStream(name: string, id: number): void {
+  getSession(name).streams.delete(id)
+  void sendToTelegram(name, {
+    '@type': 'cancelDownloadFile',
+    'file_id': id,
+    'only_if_pending': false
+  })
+    .then(() => sendToTelegram(name, { '@type': 'deleteFile', 'file_id': id }))
+    .catch(() => {})
+}
+
+/**
+ * Video player gets the first frame after the first part of the file
+ * and downloads only what user watched.
+ */
+async function downloadPart(
+  name: string,
+  file: MediaFile,
+  range: MediaRange,
   signal: AbortSignal | undefined
 ): Promise<Response> {
-  return askAnySession(async name => {
-    await loadChat(name, chatId)
-    let message =
-      getSession(name).sponsored.get(`${chatId}/${messageId}`) ??
-      (await sendToTelegram(name, {
-        '@type': 'getMessage',
-        'chat_id': chatId,
-        'message_id': messageId
-      }))
-    let content = message.content
-    if (richFile) {
-      await completeCutText(name, message)
-      content = parseRichMessage(chatId, message)?.files[Number(richFile)]
+  signal?.throwIfAborted()
+  let size = Number(file.size.bytes)
+  if (range.start >= size) {
+    return new Response(null, {
+      headers: { 'Content-Range': `bytes */${size}` },
+      status: 416
+    })
+  }
+  let session = getSession(name)
+  if (!session.streams.has(file.id)) {
+    // Player already has the loaded parts, and every scrolled video
+    // in TDLib’s memory would take hundreds of megabytes
+    for (let [id, other] of session.streams) {
+      if (other.loading === 0) forgetStream(name, id)
     }
-    let file = getMediaFile(content, part)
-    if (!file) throw new Error('Telegram post has no such media')
-    return downloadFile(name, file, signal)
+  }
+  let stream = session.streams.get(file.id) ?? {
+    loading: 0,
+    tail: Promise.resolve(),
+    viewers: new Set()
+  }
+  session.streams.set(file.id, stream)
+  if (signal && !stream.viewers.has(signal)) {
+    stream.viewers.add(signal)
+    signal.addEventListener(
+      'abort',
+      () => {
+        stream.viewers.delete(signal)
+        if (
+          stream.viewers.size === 0 &&
+          session.streams.get(file.id) === stream
+        ) {
+          forgetStream(name, file.id)
+        }
+      },
+      { once: true }
+    )
+  }
+  let end = Math.min(range.end, size - 1)
+  let count = end - range.start + 1
+  stream.loading += 1
+  let part = stream.tail
+    .then(async () => {
+      signal?.throwIfAborted()
+      await sendToTelegram(name, {
+        '@type': 'downloadFile',
+        'file_id': file.id,
+        'limit': count,
+        'offset': range.start,
+        // Watched video goes before files for the media cache
+        'priority': 32,
+        'synchronous': true
+      })
+      clearTimeout(session.idle)
+      try {
+        return await session.client.readFile(file.id, range.start, count)
+      } finally {
+        closeOnIdle(session)
+      }
+    })
+    .finally(() => {
+      stream.loading -= 1
+    })
+  stream.tail = part.catch(() => {})
+  return new Response(await part, {
+    headers: {
+      'Content-Range': `bytes ${range.start}-${end}/${size}`,
+      'Content-Type': file.type
+    },
+    status: 206
+  })
+}
+
+function loadMedia(
+  url: string,
+  signal: AbortSignal | undefined,
+  range: MediaRange | undefined
+): Promise<Response> | undefined {
+  let match =
+    /^telegram:(\d+)\/(sponsored\/)?(\d+)(?:\/(\d+))?(?:\/(poster|preview))?$/.exec(
+      url
+    )
+  if (!match) return undefined
+  let chatId = -1e12 - Number(match[1])
+  // Ads have own IDs outside of post numbers
+  let messageId = Number(match[3]) * (match[2] ? 1 : MESSAGE_ID_STEP)
+  return askAnySession(async name => {
+    let { files, sponsored } = getSession(name)
+    let file = range && files.get(url)
+    if (!file) {
+      await loadChat(name, chatId)
+      let message =
+        sponsored.get(`${chatId}/${messageId}`) ??
+        (await sendToTelegram(name, {
+          '@type': 'getMessage',
+          'chat_id': chatId,
+          'message_id': messageId
+        }))
+      let content = message.content
+      if (match[4]) {
+        await completeCutText(name, message)
+        content = parseRichMessage(chatId, message)?.files[Number(match[4])]
+      }
+      file = getMediaFile(content, match[5])
+      if (!file) throw new Error('Telegram post has no such media')
+      if (range) files.set(url, file)
+    }
+    return range
+      ? downloadPart(name, file, range, signal)
+      : downloadFile(name, file, signal)
   })
 }
 
@@ -1884,23 +2022,10 @@ export const telegram: Loader = {
     return JSON.stringify({ id: String(chat.id) })
   },
 
-  getMedia(url, signal) {
+  getMedia(url, signal, range) {
     let avatar = /^telegram:(user\/)?(\d+)\/avatar\/[\w-]*$/.exec(url)
     if (avatar) return loadAvatar(!!avatar[1], Number(avatar[2]))
-    let match =
-      /^telegram:(\d+)\/(sponsored\/)?(\d+)(?:\/(\d+))?(?:\/(poster|preview))?$/.exec(
-        url
-      )
-    return match
-      ? loadMedia(
-          -1e12 - Number(match[1]),
-          // Ads have own IDs outside of post numbers
-          Number(match[3]) * (match[2] ? 1 : MESSAGE_ID_STEP),
-          match[5],
-          match[4],
-          signal
-        )
-      : undefined
+    return loadMedia(url, signal, range)
   },
 
   getMineLinksFromText() {
