@@ -36,6 +36,7 @@ jobs:
             raw.githubusercontent.com:443
             registry.npmjs.org:443
             storybook.js.org:443
+            tuf-repo-cdn.sigstore.dev:443
       - name: Checkout the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -88,6 +89,7 @@ jobs:
             registry-1.docker.io:443
             registry.npmjs.org:443
             release-assets.githubusercontent.com:443
+            tuf-repo-cdn.sigstore.dev:443
       - name: Checkout the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
