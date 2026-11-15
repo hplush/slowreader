@@ -82,20 +82,18 @@
   {#if todo.demo}
     <li class="welcome-todo_step">
       {@render checkbox(['slow', 'fast'], $t.explore)}
-      {#if !todo.done.has('slow') || !todo.done.has('fast')}
-        <ol class="welcome-todo_substeps">
-          <li class="welcome-todo_substep">
-            {@render checkbox(['slow'], $t.slowFeeds, true)}
-            <Button href={getURL('slow')} icon={mdiFire}>
-              {$t.slowFeeds}
-            </Button>
-          </li>
-          <li class="welcome-todo_substep">
-            {@render checkbox(['fast'], $t.fastFeeds, true)}
-            <Button href={getURL('fast')} icon={mdiFood}>{$t.fastFeeds}</Button>
-          </li>
-        </ol>
-      {/if}
+      <ol class="welcome-todo_substeps">
+        <li class="welcome-todo_substep">
+          {@render checkbox(['slow'], $t.slowFeeds, true)}
+          <Button href={getURL('slow')} icon={mdiFire}>
+            {$t.slowFeeds}
+          </Button>
+        </li>
+        <li class="welcome-todo_substep">
+          {@render checkbox(['fast'], $t.fastFeeds, true)}
+          <Button href={getURL('fast')} icon={mdiFood}>{$t.fastFeeds}</Button>
+        </li>
+      </ol>
     </li>
     <li class="welcome-todo_step">
       {@render checkbox(['clean'], $t.clean)}
@@ -115,36 +113,34 @@
   {/if}
   <li class="welcome-todo_step">
     {@render checkbox(['import'], $t.import)}
-    {#if !todo.done.has('import')}
-      <Stack gap="m" row wrap>
+    <Stack gap="m" row wrap>
+      <Button
+        href={getURL({ params: { service: 'bluesky' }, route: 'accounts' })}
+        icon={brandBluesky}
+      >
+        {$addMessages.blueskyLoader}
+      </Button>
+      {#if telegram}
         <Button
-          href={getURL({ params: { service: 'bluesky' }, route: 'accounts' })}
-          icon={brandBluesky}
+          href={getURL({
+            params: { service: 'telegram' },
+            route: 'accounts'
+          })}
+          icon={mdiSend}
         >
-          {$addMessages.blueskyLoader}
+          {$addMessages.telegramLoader}
         </Button>
-        {#if telegram}
-          <Button
-            href={getURL({
-              params: { service: 'telegram' },
-              route: 'accounts'
-            })}
-            icon={mdiSend}
-          >
-            {$addMessages.telegramLoader}
-          </Button>
-        {/if}
-        <Button
-          href={getURL({ params: { service: 'mastodon' }, route: 'accounts' })}
-          icon={brandMastodon}
-        >
-          {$addMessages.mastodonLoader}
-        </Button>
-        <Button href={getURL('import')} icon={mdiRss}>
-          {$t.openImport}
-        </Button>
-      </Stack>
-    {/if}
+      {/if}
+      <Button
+        href={getURL({ params: { service: 'mastodon' }, route: 'accounts' })}
+        icon={brandMastodon}
+      >
+        {$addMessages.mastodonLoader}
+      </Button>
+      <Button href={getURL('import')} icon={mdiRss}>
+        {$t.openImport}
+      </Button>
+    </Stack>
   </li>
   {#if extension}
     <li class="welcome-todo_step">
