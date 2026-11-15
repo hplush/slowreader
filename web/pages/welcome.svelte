@@ -8,6 +8,8 @@
   import { extensionStore } from '../main/extension.ts'
   import { mobileInstall } from '../stores/install.ts'
   import { tabletMedia } from '../stores/media-queries.ts'
+  import { getURL } from '../stores/url-router.ts'
+  import RichText from '../ui/rich-text.svelte'
   import Stack from '../ui/stack.svelte'
   import ThinPage from '../ui/thin-page.svelte'
   import Title from '../ui/title.svelte'
@@ -26,5 +28,6 @@
       telegram={$telegram}
       todo={$welcomeTodo}
     />
+    <RichText secondary text={$t.reset} url={getURL('storage')} />
   </Stack>
 </ThinPage>

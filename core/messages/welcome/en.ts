@@ -32,6 +32,7 @@ export const welcomeMessages = i18n('welcome', {
   pageTitle: 'Welcome',
   read: 'Start reading',
   refresh: 'Download new posts',
+  reset: 'To start over, delete data in [Storage]',
   slowDesc:
     'Deep, long posts to read slowly and mindfully.\n\n**Knowledge over emotion**, **quality over quantity**: experts’ blogs, newsletters, book summaries, detailed threads.',
   slowEmpty: 'You read all Useful posts',
