@@ -526,6 +526,7 @@
     ]}
     posts={MASTODON}
     route={{ params: { category: GENERAL_CATEGORY }, route: 'fast' }}
+    share={false}
   >
     <FeedsPage page={pages.fast()} />
   </Scene>

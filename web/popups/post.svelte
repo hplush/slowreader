@@ -1,9 +1,5 @@
 <script lang="ts">
-  import {
-    mdiEyeCheckOutline,
-    mdiOpenInNew,
-    mdiShareVariantOutline
-  } from '@mdi/js'
+  import { mdiEyeCheckOutline, mdiOpenInNew } from '@mdi/js'
   import {
     getPopupId,
     hasPersonAvatar,
@@ -13,13 +9,13 @@
   } from '@slowreader/core'
   import { onMount } from 'svelte'
 
-  import { canShare, shareUrl } from '../lib/share.ts'
   import { onNextVisibility } from '../lib/visitibility.ts'
   import { getPopupHash } from '../stores/url-router.ts'
   import Button from '../ui/button.svelte'
   import FeedLink from '../ui/feed-link.svelte'
   import Popup from '../ui/popup.svelte'
   import Post from '../ui/post/index.svelte'
+  import PostShare from '../ui/post/share.svelte'
   import PostThreadPart from '../ui/post/thread-part.svelte'
   import SmallLink from '../ui/small-link.svelte'
   import Stack from '../ui/stack.svelte'
@@ -57,16 +53,8 @@
         store={popup.read}
       />
     {/if}
-    {#if url && canShare()}
-      <Button
-        icon={mdiShareVariantOutline}
-        onclick={() => {
-          shareUrl(url)
-        }}
-        size="icon"
-      >
-        {$t.share}
-      </Button>
+    {#if url}
+      <PostShare {url} />
     {/if}
     {#if url}
       <Button href={url} icon={mdiOpenInNew} size="icon" target="_blank">

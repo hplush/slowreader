@@ -583,6 +583,7 @@
           `the last part and the credits scene ${EMOJI}`
       }
     ]}
+    share={false}
   >
     {#if popup}
       <LoadedPopup {popup}>

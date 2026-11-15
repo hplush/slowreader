@@ -4,6 +4,7 @@ import { i18n } from '../../i18n.ts'
 
 export const postMessages = i18n('post', {
   afterFirst: params('{time} after'),
+  copyUrl: 'Copy post URL',
   downloadImage: 'Download image',
   downloadSensitive: 'Download & show',
   sensitiveMedia: 'Sensitive media',

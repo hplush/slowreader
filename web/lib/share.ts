@@ -1,6 +1,6 @@
-export function canShare(): boolean {
-  return 'share' in navigator
-}
+import { atom } from 'nanostores'
+
+export const canShare = atom('share' in navigator)
 
 export async function shareUrl(url: string): Promise<void> {
   try {

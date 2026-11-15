@@ -70,6 +70,7 @@
   import { testCredentials } from '@slowreader/core/test'
   import { onDestroy, type Snippet } from 'svelte'
 
+  import { canShare } from '../lib/share.ts'
   import { extensionStore, installingExtension } from '../main/extension.ts'
   import { systemReducedMotion } from '../stores/media-queries.ts'
   import {
@@ -92,6 +93,7 @@
     posts,
     responses = [],
     route,
+    share = true,
     user = true
   }: {
     accounts?: Partial<AccountValue>[]
@@ -104,6 +106,7 @@
     posts?: Partial<PostValue>[]
     responses?: [string, PreparedResponse | string][]
     route?: BaseRoute | Omit<BaseRoute, 'hash'> | ParamlessRouteName
+    share?: boolean
     user?: boolean
   } = $props()
 
@@ -168,6 +171,7 @@
   $effect.pre(() => {
     currentPage.get().destroy()
     setPasskeySupport(passkeys)
+    canShare.set(share)
     setNetworkType({ saveData: false, type: network })
     if (user) {
       hasCloud.set(true)

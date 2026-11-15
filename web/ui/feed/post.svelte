@@ -1,10 +1,5 @@
 <script lang="ts">
-  import {
-    mdiChevronRight,
-    mdiOpenInNew,
-    mdiPuzzleOutline,
-    mdiShareVariantOutline
-  } from '@mdi/js'
+  import { mdiChevronRight, mdiOpenInNew, mdiPuzzleOutline } from '@mdi/js'
   import {
     type FeedAuthor,
     formatRelativeTime,
@@ -26,7 +21,6 @@
   import type { Snippet } from 'svelte'
 
   import { pauseVideosWhenScrolledOut } from '../../lib/media.ts'
-  import { canShare, shareUrl } from '../../lib/share.ts'
   import { getPopupHash } from '../../stores/url-router.ts'
   import Button from '../button.svelte'
   import FeedLink from '../feed-link.svelte'
@@ -38,6 +32,7 @@
   import PostPoll from '../post/poll.svelte'
   import PostPreview from '../post/preview.svelte'
   import PostQuote from '../post/quote.svelte'
+  import PostShare from '../post/share.svelte'
   import PostWarning from '../post/warning.svelte'
 
   let {
@@ -199,18 +194,9 @@
           </div>
         {/if}
         <div class="feed-post_fill"></div>
-        {#if url && canShare()}
+        {#if url}
           <div class="feed-post_action">
-            <Button
-              icon={mdiShareVariantOutline}
-              onclick={() => {
-                shareUrl(url)
-              }}
-              size="icon"
-              variant="plain"
-            >
-              {$postMessages.share}
-            </Button>
+            <PostShare {url} variant="plain" />
           </div>
         {/if}
         {#if url}
