@@ -286,7 +286,6 @@ describe('add page', () => {
       }
     ])
     equal(page.noResults.get(), false)
-    equal(page.mixed.get(), false)
   })
 
   test('uses Mastodon profile instead of its RSS', async () => {
@@ -429,7 +428,6 @@ describe('add page', () => {
         url: 'https://bsky.app/profile/jane.example.com'
       }
     ])
-    equal(page.mixed.get(), true)
   })
 
   test('loads remote Mastodon profile from API', async () => {

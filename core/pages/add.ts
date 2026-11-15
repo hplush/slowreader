@@ -149,10 +149,6 @@ export const addPage = createPage('add', () => {
     })
   })
 
-  let $mixed = computed($sortedCandidates, candidates => {
-    return new Set(candidates.map(i => i.name)).size > 1
-  })
-
   let httpsTest = false
   let $searching = computed($links, links => {
     return (
@@ -422,7 +418,6 @@ export const addPage = createPage('add', () => {
     ...openedFeedMixin,
     avatars: $avatars,
     candidates: $sortedCandidates,
-    mixed: $mixed,
     error: $error,
     exit() {
       unbindUrl()

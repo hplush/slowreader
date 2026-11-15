@@ -1143,7 +1143,19 @@ export const mastodon: Loader = {
             isObject(link) &&
             link.rel === 'http://webfinger.net/rel/profile-page'
         )
-        if (isObject(page) && typeof page.href === 'string') return [page.href]
+        if (isObject(page) && typeof page.href === 'string') {
+          let url = URL.parse(page.href)
+          if (url && PROFILE.test(url.pathname)) return [page.href]
+          // WordPress shows author page, but has Mastodon API on alias
+          let alias = Array.isArray(data.aliases)
+            ? data.aliases.find(
+                (i): i is string =>
+                  typeof i === 'string' &&
+                  PROFILE.test(URL.parse(i)?.pathname ?? '')
+              )
+            : undefined
+          return alias ? [page.href, alias] : [page.href]
+        }
       }
     } catch {
       // Not every server has WebFinger, but most of them have this path
@@ -1198,7 +1210,13 @@ export const mastodon: Loader = {
   },
 
   getWorseLinksFromText(text) {
-    return findDocumentLinks(text, 'application/rss+xml')
+    let page = new URL(text.url)
+    let path =
+      page.pathname.match(/^\/@[^/]+/)?.[0] ?? page.pathname.replace(/\/$/, '')
+    return findDocumentLinks(text, 'application/rss+xml').filter(link => {
+      let url = new URL(link)
+      return url.origin === page.origin && url.pathname.startsWith(path)
+    })
   },
 
   async detectFeedInPage(task, text, url) {

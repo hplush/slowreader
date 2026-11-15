@@ -310,6 +310,30 @@ describe('mastodon loader', () => {
     ])
 
     expectRequest(
+      'https://example.com/.well-known/webfinger?resource=acct%3Aevan%40example.com'
+    ).andRespond(
+      200,
+      JSON.stringify({
+        aliases: [
+          'acct:evan@example.com',
+          'https://example.com/author/evan/',
+          'https://example.com/@evan'
+        ],
+        links: [
+          {
+            href: 'https://example.com/author/evan/',
+            rel: 'http://webfinger.net/rel/profile-page'
+          }
+        ]
+      }),
+      'application/jrd+json'
+    )
+    deepEqual(await mastodon.getProfilesByHandle!(task, '@evan@example.com'), [
+      'https://example.com/author/evan/',
+      'https://example.com/@evan'
+    ])
+
+    expectRequest(
       'https://example.com/.well-known/webfinger?resource=acct%3Ajohn%40example.com'
     ).andRespond(404)
     deepEqual(await mastodon.getProfilesByHandle!(task, '@john@example.com'), [
@@ -430,6 +454,27 @@ describe('mastodon loader', () => {
         profile('https://mastodon.social/@jane')
       ),
       ['https://mastodon.social/@jane.rss']
+    )
+    deepEqual(
+      loaders.mastodon.getWorseLinksFromText!(
+        profile('https://mastodon.social/@jane/123')
+      ),
+      ['https://mastodon.social/@jane.rss']
+    )
+    deepEqual(
+      loaders.mastodon.getWorseLinksFromText!(
+        profile(
+          'https://example.com/author/evan/',
+          '<!DOCTYPE html><html><head>' +
+            '<link href="/feed/" rel="alternate" type="application/rss+xml">' +
+            '<link href="/comments/feed/" rel="alternate" ' +
+            'type="application/rss+xml">' +
+            '<link href="/author/evan/feed/" rel="alternate" ' +
+            'type="application/rss+xml">' +
+            '</head></html>'
+        )
+      ),
+      ['https://example.com/author/evan/feed/']
     )
     deepEqual(
       loaders.mastodon.getSuggestedLinksFromText(

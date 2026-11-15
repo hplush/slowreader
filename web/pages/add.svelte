@@ -23,7 +23,6 @@
     avatars,
     candidates,
     error,
-    mixed,
     needAccount,
     noResults,
     opened,
@@ -32,9 +31,7 @@
   let { url } = $derived(page.params)
 
   let hints = $derived(
-    $mixed
-      ? Object.fromEntries($candidates.map(i => [i.url, $t[`${i.name}Loader`]]))
-      : undefined
+    Object.fromEntries($candidates.map(i => [i.url, $t[`${i.name}Loader`]]))
   )
 
   let empty = $derived(!$noResults && !$searching && !$url)
