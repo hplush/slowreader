@@ -309,6 +309,21 @@ describe('feeds page', () => {
     equal(page.menu.get(), true)
   })
 
+  test('says all read while read posts wait for deletion', async () => {
+    setLayoutType('mobile')
+    busyUntilMenuLoader()
+    await waitLoading(busy)
+    let feed = await addFeed(
+      testFeed({ categoryId: await addCategory({ title: 'A' }) })
+    )
+    await addPost(testPost({ feedId: feed, read: true, reading: 'slow' }))
+    await setTimeout(10)
+
+    let page = openPage({ params: {}, route: 'slow' })
+    await waitLoading(page.loading)
+    equal(ensureReader(page.posts, 'empty').allRead.get(), true)
+  })
+
   test('opens slow feeds after the last fast post was read', async () => {
     busyUntilMenuLoader()
     await waitLoading(busy)
@@ -464,7 +479,7 @@ describe('feeds page', () => {
     })
     await waitLoading(page.loading)
     equal(page.params.feed.get(), undefined)
-    equal(ensureReader(page.posts, 'empty').allRead.get(), false)
+    equal(ensureReader(page.posts, 'empty').allRead.get(), true)
   })
 
   test('stops saying all read after refresh adds posts', async () => {

@@ -1,6 +1,6 @@
 import { atom, computed } from 'nanostores'
 
-import { fastPostsCount, slowPostsCount } from '../post.ts'
+import { menuLoading, slowMenu, unreadFastMenu } from '../menu.ts'
 import { createReader } from './common.ts'
 
 export const emptyReader = createReader(
@@ -11,11 +11,11 @@ export const emptyReader = createReader(
         categoryId || feedId
           ? atom(true)
           : computed(
-              reading === 'fast' ? fastPostsCount : slowPostsCount,
-              count => count === 0
+              [menuLoading, reading === 'fast' ? unreadFastMenu : slowMenu],
+              (loading, menu) => !loading && menu.length === 0
             ),
       category:
-        reading === 'fast' && !!categoryId && fastPostsCount.get() !== 0,
+        reading === 'fast' && !!categoryId && unreadFastMenu.get().length > 0,
       exit() {},
       loading: atom(false),
       reading
