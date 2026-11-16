@@ -46,14 +46,14 @@
     "@types/ws": "8.18.2",
     "@typescript/native": "npm:typescript@7.0.2",
     "better-node-test": "1.0.0",
-    "eslint": "10.14.0",
+    "eslint": "10.15.0",
     "eslint-plugin-svelte": "3.24.1",
     "jiti": "2.7.0",
     "multiocular": "0.9.0",
     "nano-staged": "1.0.2",
     "oxfmt": "0.78.0",
     "oxlint": "1.93.0",
-    "oxlint-tsgolint": "7.0.2006",
+    "oxlint-tsgolint": "7.0.2007",
     "postcss-html": "2.0.0",
     "remark-cli": "12.0.1",
     "remark-lint-check-toc": "1.0.1",
@@ -74,5 +74,5 @@
     "svgo": "4.1.0",
     "typescript": "6.0.3"
   },
-  "packageManager": "pnpm@12.20.0"
+  "packageManager": "pnpm@12.21.0"
 }
