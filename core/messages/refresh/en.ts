@@ -13,8 +13,9 @@ export const refreshMessages = i18n('refresh', {
   initializingLock: 'Asking other devices to wait…',
   initializingSync: 'Syncing with other devices…',
   other: 'Another device is checking for new posts',
-  media: params('Saving media for offline: {done}/{all}'),
-  mediaDone: params('Saved media for offline: {done}'),
+  media: params('Saving media: {done}/{all}'),
+  mediaDone: params('Saved media: {done}'),
+  mediaWaiting: 'Media will be saved after posts update',
   postsLoaded: 'New posts found',
   start: 'Check for new posts',
   stop: 'Stop updating'

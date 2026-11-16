@@ -53,6 +53,13 @@ function failMedia(item: MediaError): void {
   increaseKey(mediaStatistics, 'failed')
 }
 
+export const mediaCacheEnabled = computed(
+  [cacheMediaReading, cacheImages, cacheVideos],
+  (reading, images, videos) => {
+    return reading !== 'none' && (images !== 'never' || videos !== 'never')
+  }
+)
+
 export const mediaProgress = computed(mediaStatistics, stats => {
   if (stats.total === 0) return 0
   return Math.floor(((stats.done + stats.failed) / stats.total) * 100) / 100

@@ -6,6 +6,7 @@
     extensionState,
     isRefreshing,
     layoutType,
+    mediaCacheEnabled,
     mediaErrors,
     mediaProgress,
     mediaStatistics,
@@ -98,10 +99,12 @@
         note={$t.postsLoaded}
         slow={$refreshStatistics.foundSlow}
       />
-      {#if $mediaStatistics.total > 0}
+      {#if $mediaCacheEnabled || $mediaStatistics.total > 0}
         <Stack gap="s">
           <Label>
-            {#if $isRefreshing}
+            {#if $isRefreshing && $mediaStatistics.total === 0}
+              {$t.mediaWaiting}
+            {:else if $isRefreshing}
               {$t.media({
                 all: $mediaStatistics.total,
                 done: $mediaStatistics.done + $mediaStatistics.failed
@@ -110,7 +113,13 @@
               {$t.mediaDone({ done: $mediaStatistics.done })}
             {/if}
           </Label>
-          <Loader size="wide" track="refresh-media" value={$mediaProgress} />
+          <Loader
+            size="wide"
+            track="refresh-media"
+            value={!$isRefreshing && $mediaStatistics.total === 0
+              ? 1
+              : $mediaProgress}
+          />
         </Stack>
       {/if}
       {#if $refreshErrors.length > 0 || $mediaErrors.length > 0}

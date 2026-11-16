@@ -39,6 +39,7 @@ import { getOriginKey, loaders } from './loader/index.ts'
 import { isFromLog } from './log.ts'
 import {
   DEFAULT_MEDIA_STATISTICS,
+  mediaCacheEnabled,
   mediaErrors,
   mediaProgress,
   mediaStatistics,
@@ -166,23 +167,13 @@ export const refreshTotalProgress = computed(
     refreshStatistics,
     refreshProgress,
     mediaProgress,
-    cacheMediaReading,
-    cacheImages,
-    cacheVideos
+    mediaCacheEnabled
   ],
-  (
-    status,
-    stats,
-    feeds,
-    media,
-    reading,
-    images,
-    videos
-  ): RefreshTotalProgress => {
+  (status, stats, feeds, media, caching): RefreshTotalProgress => {
     if (status === 'other') return { stage: 'other' }
     if (stats.initializing) return { stage: 'waiting' }
     let checked = stats.totalFeeds === 0 ? 1 : feeds
-    if (reading === 'none' || (images === 'never' && videos === 'never')) {
+    if (!caching) {
       return { stage: 'onlyPosts', value: checked }
     } else if (checked < 1) {
       return { stage: 'posts', value: checked }
