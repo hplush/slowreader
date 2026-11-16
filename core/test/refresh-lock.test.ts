@@ -89,6 +89,34 @@ describe('refresh lock', () => {
     return server!.connect(credentials.userId, { token: session })
   }
 
+  async function disconnect(): Promise<void> {
+    let before = server!.connected.size
+    getClient().node.connection.disconnect()
+    // Late disconnect event of test connection kills the next connection
+    await waitUntil(() => server!.connected.size < before)
+  }
+
+  async function goOffline(): Promise<void> {
+    await disconnect()
+    let adding = spyOn(server!, 'addClient', () => 0)
+    let unbind = getClient().on('state', () => {
+      if (getClient().state === 'connecting') {
+        unbind()
+        getClient().node.connection.disconnect()
+      }
+    })
+    await getClient().node.connection.connect()
+    adding.restore()
+  }
+
+  function loseNextMessage(): () => Promise<void> {
+    let send = spyOn(getClient().node.connection, 'send', () => {})
+    return async () => {
+      await waitUntil(() => send.callCount > 0)
+      send.restore()
+    }
+  }
+
   async function collect(
     device: TestClient,
     cb: () => unknown
@@ -148,8 +176,9 @@ describe('refresh lock', () => {
     equal(refreshLock.get(), 'free')
   })
 
-  test('loses lock with connection', async () => {
-    await signUp()
+  test('keeps refresh on connection loss and asks for lock again', async () => {
+    let credentials = await signUp()
+    let other = await connectOther(credentials)
     let lost = 0
     equal(
       await requestRefreshLock(() => {
@@ -157,34 +186,183 @@ describe('refresh lock', () => {
       }),
       true
     )
-    getClient().node.connection.disconnect()
-    await waitUntil(() => refreshLock.get() === 'free')
-    equal(lost, 1)
+    await disconnect()
+    equal(refreshLock.get(), 'free')
+
+    deepEqual(
+      await collect(other, async () => {
+        void getClient().node.connection.connect()
+        await waitUntil(() => refreshLock.get() === 'mine')
+      }),
+      [refreshLocked({ nodeId: getClient().nodeId })]
+    )
+    equal(lost, 0)
   })
 
-  test('stops waiting on disconnect', async () => {
-    await signUp()
+  test('waits for lock through connection loss', async () => {
+    let credentials = await signUp()
+    let other = await connectOther(credentials)
+    let lost = loseNextMessage()
+    let request = requestRefreshLock(() => {})
+    await lost()
+    await disconnect()
+    equal(refreshLock.get(), 'waiting')
+
+    deepEqual(
+      await collect(other, async () => {
+        void getClient().node.connection.connect()
+        equal(await request, true)
+      }),
+      [refreshLocked({ nodeId: getClient().nodeId })]
+    )
+    equal(refreshLock.get(), 'mine')
+  })
+
+  test('asks for lock after reconnect', async () => {
+    let credentials = await signUp()
+    let other = await connectOther(credentials)
+    await disconnect()
     let request = requestRefreshLock(() => {})
     equal(refreshLock.get(), 'waiting')
-    getClient().node.connection.disconnect()
-    equal(await request, false)
+
+    deepEqual(
+      await collect(other, async () => {
+        void getClient().node.connection.connect()
+        equal(await request, true)
+      }),
+      [refreshLocked({ nodeId: getClient().nodeId })]
+    )
+  })
+
+  test('goes without lock after failed reconnect', async () => {
+    await signUp()
+    let lost = loseNextMessage()
+    let request = requestRefreshLock(() => {})
+    await lost()
+    await goOffline()
+    equal(await request, true)
     equal(refreshLock.get(), 'free')
   })
 
-  test('stops refresh on disconnect during waiting', async t => {
+  test('refreshes after lock request was lost with connection', async () => {
+    let credentials = await signUp()
+    await addFeed(testFeed({ loader: 'rss', url: 'https://one.com/' }))
+    let other = await connectOther(credentials)
+    let load = spyOn(loaders.rss, 'getPosts', () =>
+      createPostsList(() => Promise.resolve([[], undefined]))
+    )
+    let lost = loseNextMessage()
+    let refreshing = refreshPosts()
+    await lost()
+    await disconnect()
+    equal(load.callCount, 0)
+    equal(refreshStatus.get(), 'refreshing')
+
+    deepEqual(
+      await collect(other, async () => {
+        void getClient().node.connection.connect()
+        await refreshing
+      }),
+      [refreshLocked({ nodeId: getClient().nodeId }), refreshUnlocked({})]
+    )
+    equal(load.callCount, 1)
+    equal(refreshStatus.get(), 'done')
+  })
+
+  test('waits for reconnect to refresh after connection loss', async () => {
+    let credentials = await signUp()
+    await addFeed(testFeed({ loader: 'rss', url: 'https://one.com/' }))
+    let other = await connectOther(credentials)
+    let load = spyOn(loaders.rss, 'getPosts', () =>
+      createPostsList(() => Promise.resolve([[], undefined]))
+    )
+    await disconnect()
+
+    let refreshing = refreshPosts()
+    await setTimeout(50)
+    equal(load.callCount, 0)
+    equal(refreshStatistics.get().initializing, 'sync')
+
+    deepEqual(
+      await collect(other, async () => {
+        void getClient().node.connection.connect()
+        await refreshing
+      }),
+      [refreshLocked({ nodeId: getClient().nodeId }), refreshUnlocked({})]
+    )
+    equal(load.callCount, 1)
+  })
+
+  test('does not refresh if another device took lock during reconnect', async () => {
+    let credentials = await signUp()
+    await addFeed(testFeed({ loader: 'rss', url: 'https://one.com/' }))
+    let other = await connectOther(credentials)
+    let load = spyOn(loaders.rss, 'getPosts', () =>
+      createPostsList(() => Promise.resolve([[], undefined]))
+    )
+    await disconnect()
+
+    let refreshing = refreshPosts()
+    await other.process(lockAction({}))
+    void getClient().node.connection.connect()
+    await refreshing
+    equal(load.callCount, 0)
+    equal(refreshStatus.get(), 'other')
+  })
+
+  test('stops refresh if another device took lock during reconnect', async () => {
+    let credentials = await signUp()
+    await addFeed(testFeed({ loader: 'rss', url: 'https://one.com/' }))
+    let other = await connectOther(credentials)
+    let loading = createPromise<PostsListResult>()
+    let load = spyOn(loaders.rss, 'getPosts', () =>
+      createPostsList(() => loading.promise())
+    )
+    let refreshing = refreshPosts()
+    await waitUntil(() => load.callCount === 1)
+    await disconnect()
+    equal(refreshStatus.get(), 'refreshing')
+
+    await other.process(lockAction({}))
+    void getClient().node.connection.connect()
+    await waitUntil(() => refreshStatus.get() === 'other')
+    loading.resolve([[], undefined])
+    await refreshing
+  })
+
+  test('forgets lock of another device on connection loss', async () => {
+    let credentials = await signUp()
+    let other = await connectOther(credentials)
+    await other.process(lockAction({}))
+    await waitUntil(() => refreshLock.get() === 'other')
+
+    await disconnect()
+    equal(refreshLock.get(), 'free')
+    equal(refreshStatus.get(), 'no')
+    void getClient().node.connection.connect()
+    await waitUntil(() => refreshStatus.get() === 'other')
+
+    await disconnect()
+    await other.process(refreshUnlock({}))
+    void getClient().node.connection.connect()
+    await waitUntil(() => getClient().state === 'synchronized')
+    equal(refreshLock.get(), 'free')
+  })
+
+  test('waits for another device asking at the same moment', async t => {
     await signUp()
     t.after(
       refreshLock.listen(lock => {
         if (lock === 'waiting') {
           queueMicrotask(() => {
-            getClient().node.connection.disconnect()
+            void getClient().log.add(refreshLocked({ nodeId: 'other:1:1' }))
           })
         }
       })
     )
     await refreshPosts()
-    equal(refreshStatus.get(), 'no')
-    equal(refreshLock.get(), 'free')
+    equal(refreshStatus.get(), 'other')
+    equal(refreshLock.get(), 'other')
   })
 
   test('loses lock after server unlock', async () => {
@@ -224,10 +402,9 @@ describe('refresh lock', () => {
     exitTestApp()
   })
 
-  test('refreshes without lock in disconnected state', async () => {
+  test('refreshes without lock offline', async () => {
     let credentials = await signUp()
-    getClient().node.connection.disconnect()
-    await waitUntil(() => getClient().state === 'disconnected')
+    await goOffline()
     let lost = 0
     equal(
       await requestRefreshLock(() => {
@@ -236,9 +413,60 @@ describe('refresh lock', () => {
       true
     )
     equal(refreshLock.get(), 'free')
-    await connectOther(credentials)
+
+    let other = await connectOther(credentials)
+    await other.process(lockAction({}))
     void getClient().node.connection.connect()
     await waitUntil(() => lost === 1)
+    equal(refreshLock.get(), 'other')
+  })
+
+  test('asks for lock after reconnect during refresh', async () => {
+    let credentials = await signUp()
+    await addFeed(testFeed({ loader: 'rss', url: 'https://one.com/' }))
+    let other = await connectOther(credentials)
+    let loading = createPromise<PostsListResult>()
+    spyOn(loaders.rss, 'getPosts', () =>
+      createPostsList(() => loading.promise())
+    )
+    await goOffline()
+
+    let refreshing = refreshPosts()
+    deepEqual(
+      await collect(other, async () => {
+        await waitUntil(() => refreshStatistics.get().totalFeeds === 1)
+        void getClient().node.connection.connect()
+        await waitUntil(() => refreshLock.get() === 'mine')
+      }),
+      [refreshLocked({ nodeId: getClient().nodeId })]
+    )
+    equal(refreshStatus.get(), 'refreshing')
+
+    deepEqual(
+      await collect(other, async () => {
+        loading.resolve([[], undefined])
+        await refreshing
+      }),
+      [refreshUnlocked({})]
+    )
+    equal(refreshStatus.get(), 'done')
+  })
+
+  test('unlocks if refresh was finished before the answer', async () => {
+    let credentials = await signUp()
+    let other = await connectOther(credentials)
+    await goOffline()
+    await requestRefreshLock(() => {})
+
+    deepEqual(
+      await collect(other, async () => {
+        void getClient().node.connection.connect()
+        await getClient().waitFor('synchronized')
+        releaseRefreshLock()
+      }),
+      [refreshLocked({ nodeId: getClient().nodeId }), refreshUnlocked({})]
+    )
+    equal(refreshLock.get(), 'free')
   })
 
   test('refreshes posts under lock', async () => {
@@ -302,7 +530,7 @@ describe('refresh lock', () => {
     equal(refreshLock.get(), 'free')
   })
 
-  test('stops refresh on connection loss', async () => {
+  test('continues refresh on connection loss', async () => {
     await signUp()
     await addFeed(testFeed({ loader: 'rss', url: 'https://one.com/' }))
     let loading = createPromise<PostsListResult>()
@@ -312,10 +540,11 @@ describe('refresh lock', () => {
     let refreshing = refreshPosts()
     await waitUntil(() => refreshLock.get() === 'mine')
     getClient().node.connection.disconnect()
-    await waitUntil(() => !isRefreshing.get())
-    equal(refreshLock.get(), 'free')
+    await waitUntil(() => refreshLock.get() === 'free')
+    equal(refreshStatus.get(), 'refreshing')
     loading.resolve([[], undefined])
     await refreshing
+    equal(refreshStatus.get(), 'done')
   })
 
   test('does not resend offline lock request', async () => {

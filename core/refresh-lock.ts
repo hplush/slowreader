@@ -6,7 +6,7 @@ import {
 } from '@slowreader/api'
 import { atom } from 'nanostores'
 
-import { client, onClient } from './client.ts'
+import { client, isOffline, onClient } from './client.ts'
 import { getEnvironment } from './environment.ts'
 import { hasCloud, lastRefresh } from './settings.ts'
 
@@ -36,61 +36,59 @@ function loseRefreshLock(): void {
 }
 
 /**
- * Returns `false` if another tab already loads posts.
- *
- * Without the cloud and without the connection refresh goes without lock,
- * but it stops when the connection comes back. `onLost` is called when
- * the lock or the connection is lost.
+ * Prevents multiple clients to refreshing in the same moment creating
+ * a lot of write conflicts.
  */
 export function requestRefreshLock(onLostLock: () => void): Promise<boolean> {
   let logux = client.get()
   if (!logux || !hasCloud.get()) return Promise.resolve(true)
   stopWatching()
-  onLost = onLostLock
-  if (logux.state === 'disconnected') {
-    unwatch = logux.on('state', () => {
-      if (logux.state !== 'disconnected') loseRefreshLock()
-    })
-    return Promise.resolve(true)
-  }
-  refreshLock.set('waiting')
+  answer = undefined
   return new Promise(resolve => {
     let ask = (): void => {
       void logux.log.add(lockAction({}), { sync: true })
     }
-    let reconnected = false
+    let start = (): void => {
+      onLost = onLostLock
+      resolve(true)
+    }
+    let asked = logux.state === 'synchronized'
     unwatch = logux.on('state', () => {
       if (logux.state === 'disconnected') {
-        if (answer) {
+        if (isOffline()) {
           answer = undefined
-          stopWatching()
-          refreshLock.set('free')
-          resolve(false)
-        } else {
-          loseRefreshLock()
+          start()
         }
+        // Server unlocks on disconnect. Phone drops the connection of the app
+        // in the background, so it must not stop the refresh.
+        if (!answer) refreshLock.set('free')
       } else if (logux.state === 'connecting') {
-        reconnected = true
-      } else if (reconnected && logux.state === 'synchronized') {
-        // Request is not saved to the log, so it is lost if the leader tab
-        // was closed before the answer. New leader connects without
-        // `disconnected` state.
-        reconnected = false
+        asked = false
+      } else if (!asked && logux.state === 'synchronized') {
+        // Request is not saved to the log, so it is lost with the connection
+        // or if the leader tab was closed before the answer. New leader
+        // connects without `disconnected` state.
+        asked = true
         ask()
       }
     })
-    answer = holder => {
-      answer = undefined
-      if (holder === logux.nodeId) {
-        refreshLock.set('mine')
-        resolve(true)
-      } else {
-        stopWatching()
-        refreshLock.set('other')
-        resolve(false)
+    if (isOffline()) {
+      start()
+    } else {
+      refreshLock.set('waiting')
+      answer = holder => {
+        answer = undefined
+        if (holder === logux.nodeId) {
+          refreshLock.set('mine')
+          start()
+        } else {
+          stopWatching()
+          refreshLock.set('other')
+          resolve(false)
+        }
       }
+      if (asked) ask()
     }
-    ask()
   })
 }
 
@@ -114,8 +112,13 @@ onClient(logux => {
     if (answer) {
       answer(action.nodeId)
     } else if (action.nodeId !== logux.nodeId) {
-      if (refreshLock.get() === 'mine') loseRefreshLock()
+      if (onLost) loseRefreshLock()
       refreshLock.set('other')
+    } else if (onLost) {
+      refreshLock.set('mine')
+    } else {
+      // Refresh was finished before the answer to the request after reconnect
+      void logux.log.add(refreshUnlock({}), { sync: true })
     }
   })
   let unbindUnlocked = logux.type(refreshUnlocked, () => {
@@ -127,6 +130,12 @@ onClient(logux => {
       lastRefresh.set(Date.now())
     }
   })
+  // Unlock could be missed offline. Server sends the lock again on reconnect.
+  let unbindState = logux.on('state', () => {
+    if (logux.state === 'disconnected' && refreshLock.get() === 'other') {
+      refreshLock.set('free')
+    }
+  })
   let unbindExit = getEnvironment().onExit(() => {
     if (refreshLock.get() === 'mine') {
       void logux.log.add(refreshUnlock({}), { sync: true })
@@ -136,6 +145,7 @@ onClient(logux => {
     unbindPreadd()
     unbindLocked()
     unbindUnlocked()
+    unbindState()
     unbindExit()
     answer?.('')
     stopWatching()

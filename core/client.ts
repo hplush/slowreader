@@ -93,6 +93,8 @@ function getServer(): ClientOptions['server'] {
 
 export const client = atom<CrossTabClient | undefined>()
 
+let offline = false
+
 /**
  * SQLite database for log and data tables.
  */
@@ -218,6 +220,14 @@ onEnvironment(({ databaseCreator }) => {
       logux.start(connect)
     }
 
+    let previous = logux.state
+    offline = previous === 'disconnected'
+    logux.on('state', () => {
+      if (client.get() !== logux) return
+      offline = logux.state === 'disconnected' && previous === 'connecting'
+      previous = logux.state
+    })
+
     database.set(db)
     client.set(logux)
   })
@@ -243,18 +253,26 @@ export function getClient(): CrossTabClient {
 }
 
 /**
+ * Lost connection is not offline, because the client reconnects in seconds.
+ * Offline is a failed connection attempt or a client without the cloud.
+ */
+export function isOffline(): boolean {
+  return offline && client.get()?.state === 'disconnected'
+}
+
+/**
  * Offline client will never be synchronized, so it waits only
- * for the current connection.
+ * for the result of the current connection attempt.
  */
 export function waitSyncOrOffline(): Promise<void> {
   let logux = client.get()
   if (!logux) return Promise.resolve()
   return new Promise(resolve => {
-    if (logux.state === 'synchronized' || logux.state === 'disconnected') {
+    if (logux.state === 'synchronized' || isOffline()) {
       resolve()
     } else {
       let unbind = logux.on('state', () => {
-        if (logux.state === 'synchronized' || logux.state === 'disconnected') {
+        if (logux.state === 'synchronized' || isOffline()) {
           unbind()
           resolve()
         }

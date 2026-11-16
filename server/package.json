@@ -18,7 +18,7 @@
   "dependencies": {
     "@electric-sql/pglite": "0.5.16",
     "@logux/actions": "0.8.1",
-    "@logux/core": "0.12.1",
+    "@logux/core": "0.12.2",
     "@logux/server": "0.17.1",
     "@simplewebauthn/server": "14.1.0",
     "@slowreader/api": "workspace:*",
