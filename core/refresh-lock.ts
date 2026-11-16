@@ -72,9 +72,9 @@ export function requestRefreshLock(onLostLock: () => void): Promise<boolean> {
       } else if (logux.state === 'connecting') {
         reconnected = true
       } else if (reconnected && logux.state === 'synchronized') {
-        // Request is not saved to the log, so new connection does not send it.
-        // On app start the state is from the closed tab until the first
-        // connection, so the first request can go nowhere.
+        // Request is not saved to the log, so it is lost if the leader tab
+        // was closed before the answer. New leader connects without
+        // `disconnected` state.
         reconnected = false
         ask()
       }

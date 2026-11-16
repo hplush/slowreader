@@ -307,8 +307,8 @@ importers:
         specifier: 0.8.1
         version: 0.8.1(@logux/core@0.12.1)
       '@logux/client':
-        specifier: 0.28.0
-        version: 0.28.0(@nanostores/sql@0.9.0)(nanostores@1.5.5)(react@19.3.1)
+        specifier: 0.28.1
+        version: 0.28.1(@nanostores/sql@0.9.0)(nanostores@1.5.5)(react@19.3.1)
       '@logux/core':
         specifier: 0.12.1
         version: 0.12.1
@@ -471,8 +471,8 @@ importers:
         version: 2.0.10
     devDependencies:
       '@logux/client':
-        specifier: 0.28.0
-        version: 0.28.0(@nanostores/sql@0.9.0)(nanostores@1.5.5)(react@19.3.1)
+        specifier: 0.28.1
+        version: 0.28.1(@nanostores/sql@0.9.0)(nanostores@1.5.5)(react@19.3.1)
       better-node-test:
         specifier: 1.0.0
         version: 1.0.0
@@ -647,8 +647,8 @@ importers:
         specifier: 1.8.70
         version: 1.8.70
       '@logux/client':
-        specifier: 0.28.0
-        version: 0.28.0(@nanostores/sql@0.9.0)(nanostores@1.5.5)(react@19.3.1)
+        specifier: 0.28.1
+        version: 0.28.1(@nanostores/sql@0.9.0)(nanostores@1.5.5)(react@19.3.1)
       '@logux/core':
         specifier: 0.12.1
         version: 0.12.1
@@ -1636,8 +1636,8 @@ packages:
     peerDependencies:
       '@logux/core': ^0.12.0
 
-  '@logux/client@0.28.0':
-    resolution: {integrity: sha512-ZeU4yogzD4Z1NgiZ4qyxVa7hPF0iMHMUW/pe+0S4dn6XB422SBCQ/gbzN1+thYEmvthFti4xAWeRf2qTzdVkOA==}
+  '@logux/client@0.28.1':
+    resolution: {integrity: sha512-8SkfVyp+WcvfRc7U4StsWOgOfzK0MDh1pADU0MQbN7CCNWARSbrTgpGHV663x3wdz2ZbqETRzxzw+xrqfTp3mg==}
     engines: {node: ^22.0.0 || ^24.0.0 || >=26.0.0}
     peerDependencies:
       '@nanostores/preact': '>=0.0.0'
@@ -6405,7 +6405,7 @@ snapshots:
     dependencies:
       '@logux/core': 0.12.1
 
-  '@logux/client@0.28.0(@nanostores/sql@0.9.0)(nanostores@1.5.5)(react@19.3.1)':
+  '@logux/client@0.28.1(@nanostores/sql@0.9.0)(nanostores@1.5.5)(react@19.3.1)':
     dependencies:
       '@logux/actions': 0.8.1(@logux/core@0.12.1)
       '@logux/core': 0.12.1

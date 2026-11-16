@@ -343,11 +343,11 @@ describe('refresh lock', () => {
     )
   })
 
-  test('asks for lock again after first connection of new tab', async t => {
+  test('asks for lock again after leader tab closing', async t => {
     let credentials = await signUp()
     let other = await connectOther(credentials)
 
-    // Browser keeps the state of the closed tab
+    // Another tab is the leader and it is synchronized
     let saved: Record<string, string> = {
       [`slowreader:${credentials.userId}:state`]: '"synchronized"'
     }
@@ -374,8 +374,7 @@ describe('refresh lock', () => {
     userId.set(undefined)
     deepEqual(
       await collect(other, async () => {
-        // Browser gives Web Lock in the next task, when auto refresh
-        // is already started. Node.js gives free lock immediately.
+        // Leader tab is closed before it sent the request to the server
         void navigator.locks.request('logux_leader', () => setTimeout(1))
         userId.set(credentials.userId)
         equal(getClient().state, 'synchronized')
