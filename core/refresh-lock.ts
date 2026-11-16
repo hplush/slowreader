@@ -55,6 +55,10 @@ export function requestRefreshLock(onLostLock: () => void): Promise<boolean> {
   }
   refreshLock.set('waiting')
   return new Promise(resolve => {
+    let ask = (): void => {
+      void logux.log.add(lockAction({}), { sync: true })
+    }
+    let reconnected = false
     unwatch = logux.on('state', () => {
       if (logux.state === 'disconnected') {
         if (answer) {
@@ -65,6 +69,14 @@ export function requestRefreshLock(onLostLock: () => void): Promise<boolean> {
         } else {
           loseRefreshLock()
         }
+      } else if (logux.state === 'connecting') {
+        reconnected = true
+      } else if (reconnected && logux.state === 'synchronized') {
+        // Request is not saved to the log, so new connection does not send it.
+        // On app start the state is from the closed tab until the first
+        // connection, so the first request can go nowhere.
+        reconnected = false
+        ask()
       }
     })
     answer = holder => {
@@ -78,7 +90,7 @@ export function requestRefreshLock(onLostLock: () => void): Promise<boolean> {
         resolve(false)
       }
     }
-    void logux.log.add(lockAction({}), { sync: true })
+    ask()
   })
 }
 

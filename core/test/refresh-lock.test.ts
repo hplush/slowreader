@@ -13,6 +13,7 @@ import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import {
+  autoRefresh,
   type Credentials,
   enableTestTime,
   generateCredentials,
@@ -35,7 +36,8 @@ import {
   signUpByPassword,
   stoppableRefreshing,
   stopRefreshing,
-  testFeed
+  testFeed,
+  userId
 } from '../index.ts'
 import { splitPassword } from '../lib/keys.ts'
 import { exitTestApp, getTestEnvironment, openRoute } from '../test.ts'
@@ -339,6 +341,49 @@ describe('refresh lock', () => {
       }),
       []
     )
+  })
+
+  test('asks for lock again after first connection of new tab', async t => {
+    let credentials = await signUp()
+    let other = await connectOther(credentials)
+
+    // Browser keeps the state of the closed tab
+    let saved: Record<string, string> = {
+      [`slowreader:${credentials.userId}:state`]: '"synchronized"'
+    }
+    let origin = Object.getOwnPropertyDescriptor(globalThis, 'localStorage')!
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      value: {
+        getItem: (key: string) => saved[key] ?? null,
+        removeItem(key: string) {
+          delete saved[key]
+        },
+        setItem(key: string, value: string) {
+          saved[key] = value
+        }
+      }
+    })
+    autoRefresh.set('always')
+    t.after(() => {
+      Object.defineProperty(globalThis, 'localStorage', origin)
+      autoRefresh.set('never')
+    })
+
+    lastRefresh.set(0)
+    userId.set(undefined)
+    deepEqual(
+      await collect(other, async () => {
+        // Browser gives Web Lock in the next task, when auto refresh
+        // is already started. Node.js gives free lock immediately.
+        void navigator.locks.request('logux_leader', () => setTimeout(1))
+        userId.set(credentials.userId)
+        equal(getClient().state, 'synchronized')
+        await waitUntil(() => refreshStatus.get() === 'no')
+      }),
+      [refreshLocked({ nodeId: getClient().nodeId }), refreshUnlocked({})]
+    )
+    equal(refreshLock.get(), 'free')
   })
 
   test('refreshes without lock without cloud', async () => {
