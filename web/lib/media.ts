@@ -20,6 +20,7 @@ let dismissed = new WeakSet<Element>()
 let started = new WeakSet<HTMLVideoElement>()
 let silenced = new WeakSet<HTMLVideoElement>()
 let starting: ReturnType<typeof setTimeout> | undefined
+let autoloading: Element | undefined
 let scope: Element | undefined
 let watcher: IntersectionObserver | undefined
 
@@ -58,19 +59,26 @@ function pauseUnpicked(): Element | undefined {
   return picked
 }
 
+function startMuted(node: Element, video: HTMLVideoElement): void {
+  video.muted = true
+  started.add(video)
+  video.play().catch(() => {
+    if (started.delete(video)) dismissed.add(node)
+  })
+}
+
 function autoplay(): void {
   let node = pauseUnpicked()
   if (!node) return
   let video = findVideo(node)
   if (!video) {
     // Loading replaces the button and would lose the keyboard focus
-    if (!node.contains(document.activeElement)) slots.get(node)!.load?.()
+    if (!node.contains(document.activeElement)) {
+      autoloading = node
+      slots.get(node)!.load?.()
+    }
   } else if (video.paused && video.networkState !== video.NETWORK_EMPTY) {
-    video.muted = true
-    started.add(video)
-    video.play().catch(() => {
-      if (started.delete(video)) dismissed.add(node)
-    })
+    startMuted(node, video)
   }
 }
 
@@ -80,6 +88,21 @@ function reviseVideos(): void {
   // Fast scroll must not start every video on the way
   clearTimeout(starting)
   starting = setTimeout(autoplay, 300)
+}
+
+/**
+ * Paused video with controls shows the browser’s play button
+ * until the next autoplay check.
+ */
+function startAutoloaded(event: Event): void {
+  let node = event.currentTarget as Element
+  let video = event.target as HTMLVideoElement
+  if (node !== autoloading) {
+    reviseVideos()
+  } else {
+    autoloading = undefined
+    if (video.paused) startMuted(node, video)
+  }
 }
 
 function pauseOthers(event: Event): void {
@@ -134,7 +157,7 @@ export function watchVideo(slot: VideoSlot): Attachment<HTMLElement> {
     node.addEventListener('play', pauseOthers, options)
     node.addEventListener('pause', dismissPaused, options)
     node.addEventListener('volumechange', keepUnmuted, options)
-    node.addEventListener('loadstart', reviseVideos, options)
+    node.addEventListener('loadstart', startAutoloaded, options)
     slots.set(node, slot)
     watcher.observe(node)
     return () => {
