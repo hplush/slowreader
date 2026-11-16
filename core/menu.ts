@@ -9,12 +9,17 @@ import { atom, computed, effect, keepMount } from 'nanostores'
 
 import { busyDuring } from './busy.ts'
 import { client, onClient } from './client.ts'
-import { getEnvironment } from './environment.ts'
+import { getEnvironment, layoutType } from './environment.ts'
 import type { FilterValue } from './filter.ts'
 import { waitLoading } from './lib/stores.ts'
 import { hasPersonAvatar } from './loader/index.ts'
 import { commonMessages } from './messages/index.ts'
-import { type Route, type RouteName, router } from './router.ts'
+import {
+  type ParamlessRouteName,
+  type Route,
+  type RouteName,
+  router
+} from './router.ts'
 import {
   accountsTable,
   categoriesTable,
@@ -588,6 +593,21 @@ export const openableMenu = computed([fastMenu, slowMenu], (fast, slow) => ({
   fast: fast.length > 1,
   slow: slow.length > 0
 }))
+
+export const backRoute = computed(
+  [layoutType, router, openableMenu],
+  (layout, route, openable): ParamlessRouteName | undefined => {
+    if (layout === 'desktop') return undefined
+    if (SETTINGS.has(route.route) || FEEDS.has(route.route)) return 'menu'
+    if (route.route === 'slow' && route.params.feed && openable.slow) {
+      return 'slow'
+    }
+    if (route.route === 'fast' && route.params.category && openable.fast) {
+      return 'fast'
+    }
+    return undefined
+  }
+)
 
 export const menuLoading = computed([$reduced, $unread], (reduced, unread) => {
   return !reduced || !unread

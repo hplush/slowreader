@@ -1,6 +1,13 @@
 <script lang="ts">
-  import { mdiCheckCircleOutline, mdiFood, mdiMenu, mdiRefresh } from '@mdi/js'
   import {
+    mdiCheckCircleOutline,
+    mdiChevronLeft,
+    mdiFood,
+    mdiMenu,
+    mdiRefresh
+  } from '@mdi/js'
+  import {
+    backRoute,
     isOtherRoute,
     isRefreshing,
     layoutType,
@@ -49,29 +56,39 @@
 >
   <div class="navbar_main" aria-orientation="horizontal" role="menu">
     <div class="navbar_refresh">
-      <NavbarButton
-        name={$t.refresh}
-        anchor="refresh"
-        dot={$refreshStatus === 'error' || $refreshStatus === 'refreshingError'}
-        href={getPopupHash($router, 'refresh', '1')}
-        onclick={e => {
-          if (!$openRefresh) {
-            e.preventDefault()
-            void refreshPosts()
-          }
-        }}
-        size="icon"
-      >
-        {#if $isRefreshing}
-          <NavbarProgress {...$refreshTotalProgress} />
-        {:else}
-          <Icon
-            path={$refreshStatus === 'done'
-              ? mdiCheckCircleOutline
-              : mdiRefresh}
-          />
-        {/if}
-      </NavbarButton>
+      {#if $backRoute}
+        <NavbarButton
+          name={$t.back}
+          href={getURL($backRoute)}
+          icon={mdiChevronLeft}
+          size="icon"
+        />
+      {:else}
+        <NavbarButton
+          name={$t.refresh}
+          anchor="refresh"
+          dot={$refreshStatus === 'error' ||
+            $refreshStatus === 'refreshingError'}
+          href={getPopupHash($router, 'refresh', '1')}
+          onclick={e => {
+            if (!$openRefresh) {
+              e.preventDefault()
+              void refreshPosts()
+            }
+          }}
+          size="icon"
+        >
+          {#if $isRefreshing}
+            <NavbarProgress {...$refreshTotalProgress} />
+          {:else}
+            <Icon
+              path={$refreshStatus === 'done'
+                ? mdiCheckCircleOutline
+                : mdiRefresh}
+            />
+          {/if}
+        </NavbarButton>
+      {/if}
       {#if $refreshStatus === 'done'}
         <Announce text={$t.refreshingDone} />
       {/if}

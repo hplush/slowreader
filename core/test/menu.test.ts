@@ -15,6 +15,7 @@ import {
   addFeed,
   addFilter,
   addPost,
+  backRoute,
   busy,
   busyUntilMenuLoader,
   changeAccount,
@@ -38,6 +39,7 @@ import {
   menuSlider,
   openableMenu,
   openCategory,
+  setLayoutType,
   setupEnvironment,
   slowMenu,
   syncError,
@@ -107,6 +109,42 @@ describe('menu', () => {
     await addFeed(testFeed({ categoryId: await addCategory({ title: '2' }) }))
     await setTimeout(10)
     deepEqual(openableMenu.get(), { fast: true, slow: true })
+  })
+
+  test('returns to the parent page on mobile', async () => {
+    keepMount(backRoute)
+    let category = await addCategory({ title: '1' })
+    let slow = await addFeed(
+      testFeed({ categoryId: category, reading: 'slow' })
+    )
+    await addPost(testPost({ feedId: slow, reading: 'slow' }))
+    await setTimeout(10)
+
+    openRoute({ params: {}, route: 'interface' })
+    equal(backRoute.get(), undefined)
+
+    setLayoutType('mobile')
+    equal(backRoute.get(), 'menu')
+
+    openRoute({ params: {}, route: 'add' })
+    equal(backRoute.get(), 'menu')
+
+    openRoute({ params: {}, route: 'menu' })
+    equal(backRoute.get(), undefined)
+
+    openRoute({ params: { feed: slow }, route: 'slow' })
+    equal(backRoute.get(), 'slow')
+
+    openRoute({ params: {}, route: 'slow' })
+    equal(backRoute.get(), undefined)
+
+    openRoute({ params: { category }, route: 'fast' })
+    equal(backRoute.get(), undefined)
+
+    await addFeed(testFeed({ categoryId: category }))
+    await addFeed(testFeed({ categoryId: await addCategory({ title: '2' }) }))
+    await setTimeout(10)
+    equal(backRoute.get(), 'fast')
   })
 
   test('renders feeds menu', async () => {

@@ -285,6 +285,7 @@
     oninit={() => {
       showUsageBalance.set(false)
     }}
+    route="add"
   >
     <Navbar />
   </Scene>

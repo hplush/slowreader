@@ -4,6 +4,7 @@ export const navbarMessages = i18n('navbar', {
   about: 'About the app',
   accounts: 'Accounts',
   add: 'Add feed',
+  back: 'Back',
   balanceBad: 'Too much Fun',
   balanceGood: 'Good balance of Useful and Fun',
   balanceNeutral: 'More Fun than Useful',
