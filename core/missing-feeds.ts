@@ -3,6 +3,8 @@ import { changeFeed, type FeedValue } from './feed.ts'
 import { isObject } from './loader/common.ts'
 import { isWebFeed } from './loader/index.ts'
 
+const MISSING_AFTER = 3 * 24 * 60 * 60
+
 type TrackedFeed = Pick<FeedValue, 'id' | 'loader' | 'loaderData'>
 
 interface FeedErrors {
@@ -47,12 +49,17 @@ export async function trackFeedError(
   let now = Math.round(Date.now() / 1000)
   if (!errors) {
     errors = { failedSince: now, missing: false }
-  } else if (!errors.missing && now - errors.failedSince > 3 * 24 * 60 * 60) {
+  } else if (!errors.missing && now - errors.failedSince > MISSING_AFTER) {
     errors = { ...errors, missing: true }
   } else {
     return
   }
   await changeFeed(feed.id, { loaderData: JSON.stringify(errors) })
+}
+
+export function getMissingSince(feed: TrackedFeed): number | undefined {
+  let errors = getErrors(feed)
+  return errors?.missing ? errors.failedSince + MISSING_AFTER : undefined
 }
 
 export async function forgetFeedError(feed: TrackedFeed): Promise<void> {

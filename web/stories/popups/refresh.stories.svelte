@@ -2,6 +2,7 @@
   import {
     accountsMessages,
     HTTPStatusError,
+    manyDeadFeeds,
     mediaErrors,
     mediaStatistics,
     NetworkError,
@@ -120,6 +121,7 @@
   <Scene
     oninit={() => {
       refreshStatus.set('refreshing')
+      manyDeadFeeds.set(true)
       refreshStatistics.set({
         errorFeeds: 2,
         errorRequests: 2,

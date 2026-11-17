@@ -216,6 +216,12 @@ export const devtoolDisabledLoaderMethods = syncedSetting(
   []
 )
 
+/**
+ * To not show dead feeds warning in refresh if user saw it
+ * for the same feeds already
+ */
+export const deadFeedsSeenAt = syncedSetting('deadFeedsSeenAt', 0)
+
 export const showSensitiveMedia = syncedSetting('showSensitiveMedia', false)
 
 export const openWarnings = syncedSetting('openWarnings', false)
@@ -251,6 +257,7 @@ onClient(() =>
       getTables().settings,
       'user',
       [
+        deadFeedsSeenAt,
         devtoolDisabledLoaderMethods,
         fastPostsMaxAge,
         generalFastReader,

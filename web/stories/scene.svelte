@@ -31,6 +31,7 @@
     hasTelegram,
     isDemo,
     lastUsage,
+    manyDeadFeeds,
     mediaErrors,
     mediaStatistics,
     type NetworkType,
@@ -191,6 +192,7 @@
     stopRefreshing()
     refreshStatus.set('no')
     refreshErrors.set([])
+    manyDeadFeeds.set(false)
     syncStatus.set('synchronized')
     refreshStatistics.set(DEFAULT_REFRESH_STATISTICS)
     mediaStatistics.set(DEFAULT_MEDIA_STATISTICS)

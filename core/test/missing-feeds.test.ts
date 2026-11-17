@@ -8,6 +8,7 @@ import {
   createPostsList,
   type FeedValue,
   forgetFeedError,
+  getMissingSince,
   HTTPStatusError,
   loaders,
   loadFeed,
@@ -70,9 +71,14 @@ describe('missing feeds', () => {
     let old = failedDaysAgo(4)
     await changeFeed(feed.id, { loaderData: old })
     feed = await reload(feed)
+    equal(getMissingSince(feed), undefined)
     await trackFeedError(feed, status(404))
     feed = await reload(feed)
     equal(feed.loaderData, old.replace('false', 'true'))
+    equal(
+      getMissingSince(feed),
+      (JSON.parse(old) as { failedSince: number }).failedSince + 3 * 86400
+    )
 
     await trackFeedError(feed, status(404))
     equal((await reload(feed)).loaderData, feed.loaderData)

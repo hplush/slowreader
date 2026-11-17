@@ -1,26 +1,13 @@
 import { atom, effect } from 'nanostores'
 
+import { type DeadFeed, getDeadFeed, markDeadFeedsSeen } from '../dead-feeds.ts'
 import { type FeedValue, getFeeds } from '../feed.ts'
 import { formatTimeShort, i18nFormat } from '../format.ts'
-import { isObject } from '../loader/common.ts'
-import { isWebFeed } from '../loader/index.ts'
 import { clock } from '../night-lock.ts'
 import { createPage } from './common.ts'
 import { injectOpenedFeed } from './mixins/opened-feed.ts'
 
-const YEAR = 365 * 86400
-
-export type DeadFeeds = ['missing' | 'twoYears' | 'year', FeedValue[]][]
-
-function isMissing(feed: FeedValue): boolean {
-  if (!isWebFeed(feed.loader) || !feed.loaderData) return false
-  try {
-    let data: unknown = JSON.parse(feed.loaderData)
-    return isObject(data) && data.missing === true
-  } catch {
-    return false
-  }
-}
+export type DeadFeeds = [DeadFeed['type'], FeedValue[]][]
 
 function byLastPost(a: FeedValue, b: FeedValue): number {
   return (a.lastPublishedAt ?? 0) - (b.lastPublishedAt ?? 0)
@@ -28,6 +15,7 @@ function byLastPost(a: FeedValue, b: FeedValue): number {
 
 export const deadFeedsPage = createPage('deadFeeds', () => {
   let openedFeedMixin = injectOpenedFeed()
+  void markDeadFeedsSeen()
 
   let $feeds = getFeeds()
   let $groups = atom<DeadFeeds>([])
@@ -39,30 +27,28 @@ export const deadFeedsPage = createPage('deadFeeds', () => {
       $loading.set(true)
       return
     }
-    let missing: FeedValue[] = []
-    let twoYears: FeedValue[] = []
-    let year: FeedValue[] = []
+    let lists: Record<DeadFeed['type'], FeedValue[]> = {
+      missing: [],
+      twoYears: [],
+      year: []
+    }
     let hints: Record<string, string> = {}
     let now = clock.get().getTime() / 1000
     for (let feed of feeds.value) {
-      if (isMissing(feed)) {
-        missing.push(feed)
-      } else if (feed.lastPublishedAt && now - feed.lastPublishedAt > YEAR) {
+      let dead = getDeadFeed(feed, now)
+      if (!dead) continue
+      lists[dead.type].push(feed)
+      if (dead.type !== 'missing') {
         hints[feed.url] = formatTimeShort(
           format,
-          new Date(feed.lastPublishedAt * 1000)
+          new Date(dead.lastPost * 1000)
         )
-        if (now - feed.lastPublishedAt > 2 * YEAR) {
-          twoYears.push(feed)
-        } else {
-          year.push(feed)
-        }
       }
     }
     let groups: DeadFeeds = [
-      ['missing', missing],
-      ['twoYears', twoYears.toSorted(byLastPost)],
-      ['year', year.toSorted(byLastPost)]
+      ['missing', lists.missing],
+      ['twoYears', lists.twoYears.toSorted(byLastPost)],
+      ['year', lists.year.toSorted(byLastPost)]
     ]
     $groups.set(groups.filter(([, list]) => list.length > 0))
     $hints.set(hints)

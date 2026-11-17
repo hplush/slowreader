@@ -1,11 +1,13 @@
 <script lang="ts">
-  import { mdiRefresh, mdiStop } from '@mdi/js'
+  import { mdiRefresh, mdiRssOff, mdiStop } from '@mdi/js'
   import {
     addMessages,
+    deadFeedsMessages,
     errorToMessage,
     extensionState,
     isRefreshing,
     layoutType,
+    manyDeadFeeds,
     mediaCacheEnabled,
     mediaErrors,
     mediaProgress,
@@ -29,6 +31,7 @@
   import InstallExtension from '../ui/install-extension.svelte'
   import Label from '../ui/label.svelte'
   import Loader from '../ui/loader.svelte'
+  import Note from '../ui/note.svelte'
   import PageIcon from '../ui/page-icon.svelte'
   import Popup from '../ui/popup.svelte'
   import ReadingNumbers from '../ui/reading-numbers.svelte'
@@ -121,6 +124,14 @@
               : $mediaProgress}
           />
         </Stack>
+      {/if}
+      {#if $manyDeadFeeds}
+        <Note icon={mdiRssOff} variant="neutral">
+          {$t.deadFeeds}
+          <Button href={getURL('deadFeeds')} size="wide">
+            {$deadFeedsMessages.title}
+          </Button>
+        </Note>
       {/if}
       {#if $refreshErrors.length > 0 || $mediaErrors.length > 0}
         <Stack>

@@ -14,6 +14,7 @@ import {
   toVirtualFeed
 } from './account.ts'
 import { onClient, waitSyncOrOffline } from './client.ts'
+import { checkDeadFeeds } from './dead-feeds.ts'
 import { deviceSessions } from './device-sessions.ts'
 import { getEnvironment } from './environment.ts'
 import { UserFacingError } from './errors.ts'
@@ -668,6 +669,7 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
     return
   }
   cleanFeedRedirects(feeds)
+  checkDeadFeeds(feeds)
   let maxAge = fastPostsMaxAge.get()
   if (maxAge > 0) await deleteFastPostsBefore(refreshedAt - maxAge)
   if (run !== currentRun) return

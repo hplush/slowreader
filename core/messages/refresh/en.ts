@@ -5,6 +5,8 @@ import { i18n } from '../../i18n.ts'
 export const refreshMessages = i18n('refresh', {
   checked: params('Checked for new posts: {all}'),
   count: params('Checking for new posts: {done}/{all}'),
+  deadFeeds:
+    'Many feeds are deleted or abandoned. Unfollow them for faster feeds update.',
   errors: 'Errors',
   extension:
     'The extension may fix it by loading feeds privately from your browser.',

@@ -300,6 +300,7 @@ export const postsTable = defineCrdtTable(
 export const settingsTable = defineCrdtTable('settings', {
   // Creation sets only it, since other devices could create the row too
   createdAt: optional(bigint()),
+  deadFeedsSeenAt: optional(bigint()),
   devtoolDisabledLoaderMethods: optional(json([string()])),
   fastPostsMaxAge: optional(number()),
   generalFastReader: optional(oneOf(READERS)),

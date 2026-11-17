@@ -4,10 +4,12 @@ import { afterEach, beforeEach, describe, test } from 'node:test'
 import {
   addFeed,
   changeFeed,
+  deadFeedsSeenAt,
   type FeedValue,
   formatTimeShort,
   i18nFormat,
   loadFeed,
+  syncedSettingsLoading,
   testFeed,
   waitLoading
 } from '../../index.ts'
@@ -40,6 +42,8 @@ describe('dead feeds page', () => {
     equal(page.loading.get(), true)
     await waitLoading(page.loading)
     deepEqual(page.groups.get(), [])
+    await waitLoading(syncedSettingsLoading)
+    equal(deadFeedsSeenAt.get() > yearsAgo(0) - 60, true)
 
     await addFeed(testFeed({ lastPublishedAt: yearsAgo(0.9) }))
     await addFeed(testFeed({ lastPublishedAt: null }))
