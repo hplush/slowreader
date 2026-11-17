@@ -45,12 +45,17 @@ export const loaders = {
 export type LoaderName = keyof typeof loaders
 
 /**
- * Feeds with profile URLs belong to people from social networks,
- * which show avatars as circles.
+ * Feed is a file on a site, not a profile in a social network.
  */
-export function hasPersonAvatar(loader: string | undefined): boolean {
-  let found: Loader | undefined = loaders[loader as LoaderName]
-  return !!found?.isProfileUrl
+export function isWebFeed(loader: LoaderName): boolean {
+  return ['atom', 'jsonFeed', 'rss', 'rss1'].includes(loader)
+}
+
+/**
+ * Feeds of social networks belong to people, which show avatars as circles.
+ */
+export function hasPersonAvatar(loader: LoaderName | undefined): boolean {
+  return !!loader && !isWebFeed(loader)
 }
 
 /**

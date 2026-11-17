@@ -52,6 +52,42 @@ function wasPermanent(from: string, to: string): boolean {
   return false
 }
 
+/** `fetch()` hides why the request failed, but the app has to know that
+ * the feed’s domain does not exist anymore. The event with the reason can
+ * come after `fetch()` was rejected. */
+let failures = new Map<string, string>()
+let failureWaiters = new Map<string, (failure: string | undefined) => void>()
+
+chrome.webRequest.onErrorOccurred.addListener(
+  details => {
+    let url = redirects.get(details.requestId)?.from ?? details.url
+    let waiter = failureWaiters.get(url)
+    if (waiter) {
+      waiter(details.error)
+    } else {
+      failures.set(url, details.error)
+    }
+  },
+  { tabId: -1, urls: ['*://*/*'] }
+)
+
+function takeFailure(url: string): Promise<string | undefined> {
+  let known = failures.get(url)
+  failures.delete(url)
+  if (known) return Promise.resolve(known)
+  return new Promise(resolve => {
+    let timeout = setTimeout(() => {
+      failureWaiters.delete(url)
+      resolve(undefined)
+    }, 500)
+    failureWaiters.set(url, failure => {
+      clearTimeout(timeout)
+      failureWaiters.delete(url)
+      resolve(failure)
+    })
+  })
+}
+
 /** Firefox and Safari grant no host access on the install, and without it
  * the extension is invisible for the app. */
 chrome.runtime.onInstalled.addListener(() => {
@@ -82,6 +118,7 @@ chrome.runtime.onConnect.addListener(port => {
       void chrome.runtime.openOptionsPage()
       port.disconnect()
     } else {
+      let requested: string | undefined
       try {
         let url = new URL(message.url)
         if (url.protocol !== 'http:' && url.protocol !== 'https:') {
@@ -90,6 +127,7 @@ chrome.runtime.onConnect.addListener(port => {
         if (message.method !== 'GET' && message.method !== 'HEAD') {
           throw new Error(`Unsupported method ${message.method}`)
         }
+        requested = url.href
         let response = await fetch(url, {
           cache: 'no-cache',
           credentials: 'omit',
@@ -122,9 +160,20 @@ chrome.runtime.onConnect.addListener(port => {
          * request is the only place where the extension can notice it.
          */
         let text = error instanceof Error ? error.toString() : String(error)
+        let failure = requested ? await takeFailure(requested) : undefined
         chrome.permissions.contains({ origins: ['*://*/*'] }, granted => {
           send(
-            granted ? { error: text, type: 'error' } : { type: 'restricted' }
+            granted
+              ? {
+                  error:
+                    // Chrome’s and Firefox’s codes
+                    failure === 'net::ERR_NAME_NOT_RESOLVED' ||
+                    failure === 'NS_ERROR_UNKNOWN_HOST'
+                      ? 'ENOTFOUND'
+                      : text,
+                  type: 'error'
+                }
+              : { type: 'restricted' }
           )
         })
       }

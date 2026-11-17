@@ -52,6 +52,7 @@ describe('feed redirects', () => {
       testFeed({
         categoryId: 'blogs',
         loader: 'rss',
+        loaderData: '{"failedSince":1,"missing":false}',
         originTitle: 'Blog',
         title: 'My Blog',
         url: 'http://a.com/rss'
@@ -75,8 +76,14 @@ describe('feed redirects', () => {
     deepEqual(feedRedirects.get(), {})
     let moved = (await loadFeed(feedId))!
     deepEqual(
-      [moved.url, moved.title, moved.originTitle, moved.categoryId],
-      ['https://b.com/feed', 'My Blog', 'Blog', 'blogs']
+      [
+        moved.url,
+        moved.title,
+        moved.originTitle,
+        moved.categoryId,
+        moved.loaderData
+      ],
+      ['https://b.com/feed', 'My Blog', 'Blog', 'blogs', null]
     )
     deepEqual(
       (await loadPosts()).map(i => i.feedId),

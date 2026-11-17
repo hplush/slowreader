@@ -10,6 +10,7 @@ export const commonMessages = i18n('common', {
   copied: 'Copied',
   copyToClipboard: 'Copy to clipboard',
   creatingDatabase: 'Creating local database',
+  domainError: 'The domain of this site does not exist anymore',
   dontClose: 'Do not close the app until it is finished',
   downloadingData: 'Downloading your data from the cloud',
   empty: 'The value is required',

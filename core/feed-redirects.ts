@@ -2,6 +2,7 @@ import { persistentAtom } from '@nanostores/persistent'
 
 import { type FeedValue, moveFeed } from './feed.ts'
 import type { DownloadTask } from './lib/download.ts'
+import { isWebFeed } from './loader/index.ts'
 
 type FeedRedirect = [url: string, since: number]
 
@@ -33,7 +34,7 @@ export async function trackFeedRedirect(
   feed: FeedValue,
   task: DownloadTask
 ): Promise<void> {
-  if (!['atom', 'jsonFeed', 'rss', 'rss1'].includes(feed.loader)) return
+  if (!isWebFeed(feed.loader)) return
   let redirect = task.redirects.get(feed.url)
   let record = feedRedirects.get()[feed.id]
   if (!redirect?.permanent) {
@@ -44,7 +45,6 @@ export async function trackFeedRedirect(
     setRecord(feed.id, undefined)
     await moveFeed(feed, {
       avatar: feed.avatar ?? undefined,
-      loaderData: feed.loaderData ?? undefined,
       title: feed.originTitle ?? feed.title,
       url: redirect.url
     })

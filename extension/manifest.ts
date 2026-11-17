@@ -79,7 +79,8 @@ export function manifest(local: boolean, target: Target): unknown {
       open_in_tab: true,
       page: 'options.html'
     },
-    /** Only to see statuses of own redirects, `fetch()` hides them. */
+    /** Only to see redirect statuses and network errors of own requests,
+     * since `fetch()` hides them. */
     permissions: ['webRequest'],
     version: '0.0.1'
   }

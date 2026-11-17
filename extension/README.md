@@ -91,7 +91,7 @@ Then in Xcode run the generated app and enable the extension in `Safari` → `Se
 ## Permissions
 
 - `*://*/*` access to all sites: up make network requests and download feed updates. By default the browser lets a web app read only own website.
-- `webRequest` to detect permanent redirects on making `fetch()` (by default browsers follows redirects, but hides their statuses).
+- `webRequest` to detect permanent redirects and missing domains on making `fetch()` (by default browsers follows redirects, but hides their statuses, and hides the reason of a network error).
 
 ### Host Access
 
@@ -131,6 +131,8 @@ window.addEventListener('message', event => {
 Every request takes an ID to match the answer, and the app can abort it by the same ID.
 
 The `fetched` answer has `url` after redirects and `redirected` flag. If every redirect was 301 or 308, `headers` has `X-Slowreader-Permanent: 1`.
+
+The `error` answer has `ENOTFOUND` text, like the proxy’s answer, if DNS has no domain of the URL.
 
 See possible messages in [types API](./api.ts) and the client’s side in [`web/main/extension.ts`](../web/main/extension.ts).
 

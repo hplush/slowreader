@@ -47,6 +47,7 @@ import {
   syncMediaCache
 } from './media-cache.ts'
 import { accountsMessages } from './messages/index.ts'
+import { forgetFeedError, trackFeedError } from './missing-feeds.ts'
 import { clock, nightLocked } from './night-lock.ts'
 import {
   deleteFastPostsBefore,
@@ -703,6 +704,8 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
     refreshStatus.set('refreshingError')
   }
 
+  let failed: [FeedValue, Error][] = []
+  let answered = false
   queue = createQueue(targets)
   await queue.start(
     6,
@@ -712,7 +715,11 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
         if (pages.get().isLoading) await pages.loading
         let error = pages.get().error
         if (error) throw error
-        if ('feed' in target) await trackFeedRedirect(target.feed, task)
+        answered = true
+        if ('feed' in target) {
+          await forgetFeedError(target.feed)
+          await trackFeedRedirect(target.feed, task)
+        }
         return processPage(createState(target, pages, task), run)
       }
     },
@@ -722,6 +729,7 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
       },
       onTaskFail(target, error) {
         getEnvironment().warn(error)
+        if ('feed' in target) failed.push([target.feed, error])
         refreshErrors.set([
           ...refreshErrors.get(),
           'feed' in target
@@ -742,6 +750,11 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
     }
   )
   if (run !== currentRun) return
+
+  // If nobody answered, the network, DNS, or proxy is broken, not the feeds
+  if (answered) {
+    for (let [feed, error] of failed) await trackFeedError(feed, error)
+  }
 
   // Read position to and from services, like Telegram
   try {

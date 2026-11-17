@@ -33,7 +33,7 @@ import { waitSql } from '../lib/stores.ts'
 import {
   type FeedLoader,
   findFeed,
-  hasPersonAvatar,
+  isWebFeed,
   type LoaderName,
   loaders,
   tryLoadFeedData
@@ -201,9 +201,8 @@ export const feed = definePopup('feed', async url => {
     if (link) $site.set(link)
   }
 
-  let profile = hasPersonAvatar(service)
-  let $site = atom(profile ? feedUrl : URL.parse(feedUrl)?.origin)
-  if (!profile) void parsing.then(replaceSiteByFeedLink, () => {})
+  let $site = atom(isWebFeed(service) ? URL.parse(feedUrl)?.origin : feedUrl)
+  if (isWebFeed(service)) void parsing.then(replaceSiteByFeedLink, () => {})
 
   let $avatar = atom<string | undefined>()
   // Lazy to not download icons for popups without UI

@@ -206,11 +206,19 @@ export class NotFoundError extends Error {
   }
 }
 
+export function isNoDomainError(error: unknown): boolean {
+  return HTTPStatusError.is(error)
+    ? error.status === 400 && error.response.includes('ENOTFOUND')
+    : error instanceof Error && error.message.includes('ENOTFOUND')
+}
+
 type PopularErrors = 400 | 401 | 403 | 404 | 451
 
 export function errorToMessage(error: unknown): string {
   if (!(error instanceof Error)) {
     return String(error)
+  } else if (isNoDomainError(error)) {
+    return commonMessages.get().domainError
   } else if (HTTPStatusError.is(error)) {
     if (
       error.response.length > 2 &&

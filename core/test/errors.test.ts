@@ -84,6 +84,20 @@ describe('errors', () => {
     equal(message(400, 'bad feed id'), 'Bad feed id')
     equal(message(400, '<html>'), commonMessages.get().error400)
     equal(
+      message(400, 'getaddrinfo ENOTFOUND a.com\n'),
+      commonMessages.get().domainError
+    )
+    equal(
+      errorToMessage(new Error('ENOTFOUND')),
+      commonMessages.get().domainError
+    )
+    equal(
+      errorToMessage(
+        new HTTPStatusError(404, 'https://a.com/ENOTFOUND', '', new Headers())
+      ),
+      commonMessages.get().error404
+    )
+    equal(
       message(401, '{"error":"Unauthorized: token not supplied"}'),
       commonMessages.get().error401
     )
