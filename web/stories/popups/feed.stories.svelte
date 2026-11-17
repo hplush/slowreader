@@ -67,6 +67,14 @@
     contentType: 'application/atom+xml'
   }
 
+  const ABANDONED_ATOM = {
+    body: ATOM.body.replaceAll(
+      '2021-01-01T00:00:00Z',
+      new Date(Date.now() - 400 * 86400 * 1000).toISOString()
+    ),
+    contentType: 'application/atom+xml'
+  }
+
   const MASTODON_API = 'https://mastodon.social/api/v1/accounts'
 
   const STATUSES = [1, 2, 3].map(id => ({
@@ -233,7 +241,7 @@
   globals={{ viewport: { value: 'mobile2' } }}
   parameters={{ layout: 'fullscreen' }}
 >
-  <Scene responses={[['https://example.com/news.atom', ATOM]]}>
+  <Scene responses={[['https://example.com/news.atom', ABANDONED_ATOM]]}>
     <LoadedPopup popup={popups.feed('https://example.com/news.atom')}>
       {#snippet loaded(popup)}
         <FeedPopupComponent {popup} />

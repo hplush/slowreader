@@ -96,14 +96,19 @@ describe('posts list', () => {
     deepEqual(activity(1), { frequency: 0.2, dead: false })
     deepEqual(activity(180), { frequency: 0.011, dead: false })
     deepEqual(activity(200), {
-      abandoned: false,
       lastPostAt: daysAgo(200),
-      dead: true
+      dead: true,
+      silence: 'halfYear'
     })
     deepEqual(activity(400), {
-      abandoned: true,
       lastPostAt: daysAgo(400),
-      dead: true
+      dead: true,
+      silence: 'year'
+    })
+    deepEqual(activity(800), {
+      lastPostAt: daysAgo(800),
+      dead: true,
+      silence: 'twoYears'
     })
   })
 

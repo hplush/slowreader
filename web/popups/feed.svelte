@@ -7,6 +7,7 @@
     mdiFood,
     mdiOpenInNew,
     mdiPlusCircleOutline,
+    mdiSleep,
     mdiTrashCanOutline
   } from '@mdi/js'
   import {
@@ -196,7 +197,13 @@
     {/if}
     <Stack gap="s">
       <Stack gap="xs">
-        <Label hint={$activity?.hint} tag="h2" warning={$activity?.warning}>
+        <Label
+          dangerous={$activity?.silence === 'twoYears'}
+          hint={$activity?.hint}
+          icon={$activity?.silence ? mdiSleep : undefined}
+          tag="h2"
+          warning={$activity?.warning}
+        >
           {$t.feedPosts}
         </Label>
         {#if $previews.length > 0}

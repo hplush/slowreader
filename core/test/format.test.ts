@@ -166,27 +166,37 @@ describe('format', () => {
     let format = createMockFormatter()
     deepEqual(formatActivity(t, format, { frequency: 1, dead: false }), {
       hint: '1 post per\u00A0day',
+      silence: undefined,
       warning: undefined
     })
     deepEqual(formatActivity(t, format, { frequency: 11, dead: false }), {
       hint: '11 posts per\u00A0day',
+      silence: undefined,
       warning: t.tooFrequent
     })
     deepEqual(
       formatActivity(t, format, {
-        abandoned: false,
         lastPostAt: Date.now() / 1000 - 200 * 86400,
-        dead: true
+        dead: true,
+        silence: 'halfYear'
       }),
-      { hint: 'Last post -7 month', warning: undefined }
+      { hint: 'Last post -7 month', silence: 'halfYear', warning: undefined }
     )
     deepEqual(
       formatActivity(t, format, {
-        abandoned: true,
         lastPostAt: Date.now() / 1000 - 400 * 86400,
-        dead: true
+        dead: true,
+        silence: 'year'
       }),
-      { hint: 'Last post -1 year', warning: t.abandoned }
+      { hint: 'Last post -1 year', silence: 'year', warning: t.abandoned }
+    )
+    deepEqual(
+      formatActivity(t, format, {
+        lastPostAt: Date.now() / 1000 - 800 * 86400,
+        dead: true,
+        silence: 'twoYears'
+      }),
+      { hint: 'Last post -2 year', silence: 'twoYears', warning: t.abandoned }
     )
   })
 })

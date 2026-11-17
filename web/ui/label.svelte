@@ -6,13 +6,17 @@
 
   let {
     children,
+    dangerous = false,
     hint,
+    icon = mdiAlertOutline,
     id = null,
     tag = 'label',
     warning
   }: {
     children: Snippet
+    dangerous?: boolean
     hint?: string
+    icon?: string
     id?: null | string
     tag?: 'div' | 'h2' | 'label' | 'legend'
     warning?: string
@@ -22,10 +26,15 @@
 <svelte:element this={tag} class="label" class:is-hinted={!!hint} for={id}>
   {@render children()}
   {#if hint}
-    <span class="label_hint" class:is-warning={!!warning} title={warning}>
+    <span
+      class="label_hint"
+      class:is-dangerous={dangerous}
+      class:is-warning={!!warning}
+      title={warning}
+    >
       {#if warning}
         <span class="label_warning">
-          <Icon path={mdiAlertOutline} />
+          <Icon path={icon} />
           <span class="sr-only">{warning}</span>
         </span>
       {/if}
@@ -61,6 +70,10 @@
 
       &.is-warning {
         color: var(--warning-text-color);
+      }
+
+      &.is-dangerous {
+        color: var(--dangerous-text-color);
       }
     }
 

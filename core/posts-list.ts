@@ -135,17 +135,21 @@ export function getPostsFrequency(posts: PostsList): number | undefined {
 }
 
 export type PostsActivity =
-  | { abandoned: boolean; lastPostAt: number; dead: true }
+  | {
+      lastPostAt: number
+      dead: true
+      silence: 'halfYear' | 'twoYears' | 'year'
+    }
   | { frequency: number; dead: false }
 
 export function getPostsActivity(posts: PostsList): PostsActivity | undefined {
   let dates = getPostDates(posts)
   if (dates.length === 0) return undefined
   let lastPostAt = Math.max(...dates)
-  let silence = Date.now() / 1000 - lastPostAt
-  if (silence > 182 * 86400) {
-    return { abandoned: silence > 365 * 86400, lastPostAt, dead: true }
-  }
+  let days = (Date.now() / 1000 - lastPostAt) / 86400
+  if (days > 730) return { lastPostAt, dead: true, silence: 'twoYears' }
+  if (days > 365) return { lastPostAt, dead: true, silence: 'year' }
+  if (days > 182) return { lastPostAt, dead: true, silence: 'halfYear' }
   return { frequency: countPostsPerDay(dates), dead: false }
 }
 

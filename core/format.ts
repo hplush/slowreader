@@ -102,17 +102,23 @@ export function formatActivity(
   t: StoreValue<typeof organizeMessages>,
   format: Formatter,
   activity: PostsActivity
-): { hint: string; warning: string | undefined } {
+): {
+  hint: string
+  silence: 'halfYear' | 'twoYears' | 'year' | undefined
+  warning: string | undefined
+} {
   if (activity.dead) {
     return {
       hint: t.lastPost({
         time: formatRelativeTime(format, activity.lastPostAt)
       }),
-      warning: activity.abandoned ? t.abandoned : undefined
+      silence: activity.silence,
+      warning: activity.silence === 'halfYear' ? undefined : t.abandoned
     }
   }
   return {
     hint: formatFrequency(t, activity.frequency),
+    silence: undefined,
     warning: isTooFrequent(activity.frequency) ? t.tooFrequent : undefined
   }
 }
