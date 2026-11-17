@@ -21,6 +21,7 @@ export const pathRouter = createRouter({
   add: '/feeds/add/:url?',
   cloud: '/settings/cloud',
   coach: '/settings/coach',
+  deadFeeds: '/feeds/dead',
   network: '/settings/network',
   export: '/feeds/export',
   fast: '/fast/:category?',

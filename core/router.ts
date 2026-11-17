@@ -11,6 +11,7 @@ export interface Routes {
   add: { url?: string }
   cloud: {}
   coach: {}
+  deadFeeds: {}
   network: {}
   export: {}
   fast: {

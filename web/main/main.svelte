@@ -19,6 +19,7 @@
   import BusyPage from '../pages/busy.svelte'
   import CloudPage from '../pages/cloud.svelte'
   import CoachPage from '../pages/coach.svelte'
+  import DeadFeedsPage from '../pages/dead-feeds.svelte'
   import ExportPage from '../pages/export.svelte'
   import FatalPage from '../pages/fatal.svelte'
   import FeedByCategoriesPage from '../pages/feeds-by-categories.svelte'
@@ -88,6 +89,8 @@
     <AddPage page={$currentPage} />
   {:else if $currentPage.route === 'feedsByCategories'}
     <FeedByCategoriesPage page={$currentPage} />
+  {:else if $currentPage.route === 'deadFeeds'}
+    <DeadFeedsPage page={$currentPage} />
   {:else if $currentPage.route === 'about'}
     <AboutPage page={$currentPage} />
   {:else if $currentPage.route === 'accounts'}

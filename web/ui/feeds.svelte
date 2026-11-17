@@ -19,13 +19,15 @@
     current,
     hints,
     id,
-    list
+    list,
+    variant
   }: {
     avatars?: Record<string, string>
     current: string | undefined
     hints?: Record<string, string>
     id?: string
     list: readonly FeedLike[]
+    variant?: 'dangerous'
   } = $props()
 
   let links = $derived(
@@ -35,7 +37,8 @@
       href: getPopupHash($router, 'feed', feed.url),
       id: feed.url,
       item: feed,
-      mark: mdiChevronRight
+      mark: mdiChevronRight,
+      variant
     }))
   )
 </script>

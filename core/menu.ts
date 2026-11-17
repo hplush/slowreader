@@ -34,6 +34,7 @@ import {
 export const FEED_ROUTES = [
   'add',
   'feedsByCategories',
+  'deadFeeds',
   'import',
   'export'
 ] as const satisfies RouteName[]

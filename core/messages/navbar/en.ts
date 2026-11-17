@@ -11,6 +11,7 @@ export const navbarMessages = i18n('navbar', {
   cloud: 'Cloud',
   coach: 'Coach',
   connectingStatus: 'Connecting…',
+  deadFeeds: 'Dead feeds',
   network: 'Network',
   error: 'Error',
   errorStatus: 'Sync error',

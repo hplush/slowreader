@@ -11,6 +11,7 @@
     mdiInformationOutline,
     mdiPalette,
     mdiPlusCircleOutline,
+    mdiRssOff,
     mdiWifi
   } from '@mdi/js'
   import {
@@ -32,6 +33,7 @@
     add: mdiPlusCircleOutline,
     cloud: mdiCloudSync,
     coach: mdiHeadHeartOutline,
+    deadFeeds: mdiRssOff,
     export: mdiExport,
     feedsByCategories: mdiFileTree,
     import: mdiImport,

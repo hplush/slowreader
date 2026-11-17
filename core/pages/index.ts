@@ -9,6 +9,7 @@ import {
   createSimplePage,
   type PageCreator
 } from './common.ts'
+import { deadFeedsPage } from './dead-feeds.ts'
 import { exportPage } from './export.ts'
 import { fatalPage } from './fatal.ts'
 import { feedsByCategoriesPage } from './feeds-by-categories.ts'
@@ -28,6 +29,7 @@ export type { AddPage } from './add.ts'
 export type { CloudPage } from './cloud.ts'
 export type { CoachPage } from './coach.ts'
 export * from './common.ts'
+export type { DeadFeeds, DeadFeedsPage } from './dead-feeds.ts'
 export type { ExportPage } from './export.ts'
 export type { FatalPage } from './fatal.ts'
 export type { FeedsByCategoriesPage } from './feeds-by-categories.ts'
@@ -47,6 +49,7 @@ export const pages = {
   add: addPage,
   cloud: cloudPage,
   coach: coachPage,
+  deadFeeds: deadFeedsPage,
   network: createSimplePage('network'),
   export: exportPage,
   fast: fastPage,
