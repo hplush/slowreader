@@ -40,13 +40,13 @@
 </script>
 
 {#if $syncStatus !== 'synchronized' && $syncStatus !== 'local'}
-  <div class="navbar-sync">
+  {@const iconOnly =
+    $syncStatus === 'sending' || $syncStatus === 'sendingAfterWait'}
+  <div class="navbar-sync" class:is-icon-only={iconOnly}>
     <Button
       href={getURL({ params: {}, route: 'cloud' })}
       icon={ICONS[$syncStatus]}
-      size={$syncStatus === 'sending' || $syncStatus === 'sendingAfterWait'
-        ? 'icon-pill'
-        : 'pill'}
+      size={iconOnly ? 'icon-pill' : 'pill'}
       variant={STYLES[$syncStatusType]}
     >
       {#if $syncStatus === 'wait' || $syncStatus === 'disconnected'}
@@ -66,6 +66,12 @@
   :global {
     .navbar-sync {
       padding: 0 0.375rem;
+
+      &.is-icon-only {
+        position: absolute;
+        bottom: 0;
+        inset-inline-start: 0;
+      }
 
       @media (--no-desktop) {
         display: none;

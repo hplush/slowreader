@@ -297,8 +297,7 @@
       }
 
       .button.is-icon-pill && {
-        width: 1.562rem;
-        padding: 0;
+        padding-inline-end: 0.375rem;
       }
 
       .button.is-loader & {

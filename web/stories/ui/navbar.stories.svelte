@@ -115,16 +115,6 @@
   </Scene>
 </Story>
 
-<Story name="Sending" asChild>
-  <Scene
-    oninit={() => {
-      syncStatus.set('sending')
-    }}
-  >
-    <Navbar />
-  </Scene>
-</Story>
-
 <Story name="Sync Error" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     categories={CATEGORIES}
@@ -143,6 +133,7 @@
   <Scene
     oninit={() => {
       refreshStatus.set('done')
+      syncStatus.set('disconnected')
     }}
     route="add"
   >
@@ -153,6 +144,7 @@
 <Story name="Refreshing" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {
+      syncStatus.set('sending')
       refreshStatus.set('refreshing')
       refreshStatistics.set({
         ...DEFAULT_REFRESH_STATISTICS,
@@ -249,10 +241,26 @@
 
 <Story name="Scroll" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
+    categories={CATEGORIES}
+    feeds={[
+      ...FEEDS,
+      ...Array.from({ length: 10 }, (_, i) => ({
+        categoryId: 'socials',
+        id: `blog${i}`,
+        title: `Blog ${i + 1}`
+      }))
+    ]}
     oninit={() => {
-      syncStatus.set('disconnected')
+      syncStatus.set('sending')
     }}
-    route="add"
+    posts={[
+      ...POSTS,
+      ...Array.from({ length: 10 }, (_, i) => ({
+        feedId: `blog${i}`,
+        reading: 'slow' as const,
+        title: `Post ${i + 1}`
+      }))
+    ]}
   >
     <Section height={300}>
       <Navbar />
