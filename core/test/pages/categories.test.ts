@@ -29,7 +29,7 @@ import {
   openPage
 } from '../utils.ts'
 
-describe('feeds by categories page', () => {
+describe('categories page', () => {
   beforeEach(() => {
     startClient()
   })
@@ -43,16 +43,29 @@ describe('feeds by categories page', () => {
     startUserBeforeKey()
     let page = openPage({
       params: {},
-      route: 'feedsByCategories'
+      route: 'categories'
     })
     await waitLoading(page.loading)
     deepEqual(page.groups.get(), [])
   })
 
+  test('keeps categories closed by default', () => {
+    let page = openPage({ params: {}, route: 'categories' })
+    deepEqual([...page.expanded.get()], [])
+
+    page.toggle('a')
+    page.expand('b')
+    page.expand('b')
+    deepEqual([...page.expanded.get()], ['a', 'b'])
+
+    page.toggle('a')
+    deepEqual([...page.expanded.get()], ['b'])
+  })
+
   test('groups feeds by categories', async () => {
     let page = openPage({
       params: {},
-      route: 'feedsByCategories'
+      route: 'categories'
     })
 
     equal(page.loading.get(), true)
@@ -65,6 +78,10 @@ describe('feeds by categories page', () => {
     deepEqual(page.groups.get(), [
       [await loadCategory(idA), [await loadFeed(feed1), await loadFeed(feed2)]]
     ])
+    deepEqual(page.readings.get(), {
+      [(await loadFeed(feed1))!.url]: 'fast',
+      [(await loadFeed(feed2))!.url]: 'fast'
+    })
 
     let idC = await addCategory({ title: 'C' })
     let idB = await addCategory({ title: 'B' })
@@ -95,7 +112,7 @@ describe('feeds by categories page', () => {
 
     let page = openPage({
       params: {},
-      route: 'feedsByCategories'
+      route: 'categories'
     })
     await waitLoading(page.loading)
     deepEqual(page.groups.get(), [
@@ -126,7 +143,7 @@ describe('feeds by categories page', () => {
       Promise.withResolvers<{ title: string; url: string }[]>()
     let follows = spyOn(loaders.mastodon.account!, 'getFollows', () => promise)
 
-    let page = openPage({ params: {}, route: 'feedsByCategories' })
+    let page = openPage({ params: {}, route: 'categories' })
     equal(page.sync.get(), 'checking')
     await waitLoading(page.loading)
     equal(page.sync.get(), 'syncing')
@@ -142,7 +159,7 @@ describe('feeds by categories page', () => {
     deepEqual(await loadPosts(), [])
 
     openPage({ params: {}, route: 'welcome' })
-    page = openPage({ params: {}, route: 'feedsByCategories' })
+    page = openPage({ params: {}, route: 'categories' })
     await waitLoading(page.loading)
     equal(page.sync.get(), 'none')
     equal(follows.callCount, 1)
@@ -150,7 +167,7 @@ describe('feeds by categories page', () => {
     let syncedAt = (await loadAccount(accountId))!.followsSyncedAt!
     await changeAccount(accountId, { followsSyncedAt: syncedAt - 86400 })
     openPage({ params: {}, route: 'welcome' })
-    page = openPage({ params: {}, route: 'feedsByCategories' })
+    page = openPage({ params: {}, route: 'categories' })
     await waitLoading(page.loading)
     equal(page.sync.get(), 'syncing')
     await setTimeout(10)

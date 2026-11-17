@@ -20,6 +20,7 @@
     hints,
     id,
     list,
+    readings,
     variant
   }: {
     avatars?: Record<string, string>
@@ -27,6 +28,7 @@
     hints?: Record<string, string>
     id?: string
     list: readonly FeedLike[]
+    readings?: Record<string, 'fast' | 'slow'>
     variant?: 'dangerous'
   } = $props()
 
@@ -38,6 +40,7 @@
       id: feed.url,
       item: feed,
       mark: mdiChevronRight,
+      reading: readings?.[feed.url],
       variant
     }))
   )

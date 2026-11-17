@@ -117,6 +117,29 @@
           id: 'Hint',
           item: { title: 'Same ID' },
           mark: mdiChevronRight
+        },
+        {
+          href: '#',
+          id: 'Slow',
+          item: { title: 'Slow reading' },
+          mark: mdiChevronRight,
+          reading: 'slow'
+        },
+        {
+          href: '#',
+          id: 'Fast',
+          item: { title: 'Fast reading' },
+          mark: mdiChevronRight,
+          reading: 'fast'
+        },
+        {
+          hint: 'Sign in expired',
+          href: '#',
+          id: 'Fast dangerous',
+          item: { title: 'Fast dangerous' },
+          mark: mdiChevronRight,
+          reading: 'fast',
+          variant: 'dangerous'
         }
       ]}
     />

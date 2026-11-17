@@ -38,7 +38,7 @@
           <Title center>
             {$t.feedsAdded($done)}
           </Title>
-          <Button href={getURL('feedsByCategories')} size="wide">
+          <Button href={getURL('categories')} size="wide">
             {$t.goToFeeds}
           </Button>
         </Stack>

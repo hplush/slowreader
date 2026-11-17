@@ -32,9 +32,10 @@
       },
       {
         loaderData: '{"failedSince":1,"missing":true}',
+        reading: 'slow',
         title: 'Travel notes'
       },
-      { lastPublishedAt: date(2019, 3), title: 'Local-first' },
+      { lastPublishedAt: date(2019, 3), reading: 'slow', title: 'Local-first' },
       {
         lastPublishedAt: date(2023, 6),
         title:
@@ -42,7 +43,7 @@
           'Pneumonoultramicroscopicsilicovolcanoconiosis'
       },
       { lastPublishedAt: date(2024, 2), title: 'My friend' },
-      { lastPublishedAt: date(2024, 10), title: 'Old blog' }
+      { lastPublishedAt: date(2024, 10), reading: 'slow', title: 'Old blog' }
     ]}
     route="deadFeeds"
   >

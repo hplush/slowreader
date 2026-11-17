@@ -2,12 +2,12 @@
   import { type FeedValue, pages } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
-  import FeedsByCategoriesPage from '../../pages/feeds-by-categories.svelte'
+  import CategoriesPage from '../../pages/categories.svelte'
   import Scene from '../scene.svelte'
 
   let { Story } = defineMeta({
-    component: FeedsByCategoriesPage,
-    title: 'Pages/FeedsByCategories'
+    component: CategoriesPage,
+    title: 'Pages/Categories'
   })
 
   const FEEDS: Partial<FeedValue>[] = [
@@ -21,6 +21,7 @@
       categoryId: 'code',
       id: 'a',
       loader: 'atom',
+      reading: 'slow',
       title: 'Local-first',
       url: 'https://example.com/news.atom'
     },
@@ -32,13 +33,13 @@
     },
     { categoryId: 'long', title: 'Long category' },
     { categoryId: 'unknown', title: 'Broken category' },
-    { title: 'My friend' }
+    { reading: 'slow', title: 'My friend' }
   ]
 </script>
 
 <Story name="Empty" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene feeds={[]}>
-    <FeedsByCategoriesPage page={pages.feedsByCategories()} />
+    <CategoriesPage page={pages.categories()} />
   </Scene>
 </Story>
 
@@ -46,6 +47,7 @@
   <Scene
     categories={[
       { id: 'code', title: 'Code' },
+      { id: 'empty', title: 'Empty' },
       {
         id: 'long',
         title:
@@ -54,8 +56,11 @@
       }
     ]}
     feeds={FEEDS}
+    oninit={() => {
+      pages.categories().toggle('code')
+    }}
   >
-    <FeedsByCategoriesPage page={pages.feedsByCategories()} />
+    <CategoriesPage page={pages.categories()} />
   </Scene>
 </Story>
 
@@ -64,9 +69,9 @@
     categories={[{ id: 'code', title: 'Code' }]}
     feeds={FEEDS}
     oninit={() => {
-      pages.feedsByCategories().sync.set('syncing')
+      pages.categories().sync.set('syncing')
     }}
   >
-    <FeedsByCategoriesPage page={pages.feedsByCategories()} />
+    <CategoriesPage page={pages.categories()} />
   </Scene>
 </Story>

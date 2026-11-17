@@ -33,7 +33,7 @@ import {
 
 export const FEED_ROUTES = [
   'add',
-  'feedsByCategories',
+  'categories',
   'deadFeeds',
   'import',
   'export'

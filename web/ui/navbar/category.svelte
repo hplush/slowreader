@@ -38,12 +38,14 @@
     aria-haspopup="menu"
     onclick={closable
       ? ((e => {
+          // Keyboard click has zero detail and is handled in onkeydown
           if (e.detail) toggleCategory(id)
         }) as MouseEventHandler<HTMLAnchorElement | HTMLButtonElement>)
       : undefined}
     onkeydown={closable
       ? ((e => {
           if (e.key === 'Enter') {
+            // KeyUX moves focus into the submenu on Enter, so it only opens
             openCategory(id)
           } else if (e.key === ' ') {
             toggleCategory(id)

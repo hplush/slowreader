@@ -1,0 +1,154 @@
+<script lang="ts">
+  import { mdiChevronDown } from '@mdi/js'
+  import type { Snippet } from 'svelte'
+
+  import Clickable from './clickable.svelte'
+  import Icon from './icon.svelte'
+
+  let {
+    actions,
+    children,
+    disabled = false,
+    hint,
+    id,
+    onexpand,
+    ontoggle,
+    open,
+    title
+  }: {
+    actions?: Snippet<[string]>
+    children: Snippet
+    disabled?: boolean
+    hint: string
+    id: string
+    onexpand: () => void
+    ontoggle: () => void
+    open: boolean
+    title: string
+  } = $props()
+</script>
+
+<div class="foldable" class:is-open={open}>
+  <div class="foldable_header">
+    <Clickable
+      class="foldable_button"
+      aria-controls={id}
+      aria-expanded={open}
+      {disabled}
+      onclick={(e: MouseEvent) => {
+        // Only for mouse click, space/Enter we will handle below
+        if (e.detail) ontoggle()
+      }}
+      onkeydown={(e: KeyboardEvent) => {
+        if (disabled) return
+        if (e.key === 'Enter') {
+          // KeyUX moves focus into the list on Enter, so it only opens
+          onexpand()
+        } else if (e.key === ' ') {
+          ontoggle()
+        }
+      }}
+      role="menuitem"
+    >
+      <span class="foldable_icon">
+        <Icon path={mdiChevronDown} />
+      </span>
+      <span id={`${id}-title`} class="foldable_title">{title}</span>
+      <span class="foldable_hint">{hint}</span>
+    </Clickable>
+    {@render actions?.(`${id}-title`)}
+  </div>
+  {#if open}
+    <div {id} class="foldable_content">
+      {@render children()}
+    </div>
+  {/if}
+</div>
+
+<style lang="postcss">
+  :global {
+    .foldable {
+      width: stretch;
+
+      &.is-open {
+        padding-bottom: 1rem;
+      }
+    }
+
+    .foldable_header {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .foldable_button {
+      @mixin clickable;
+
+      display: flex;
+      flex: 1 1 0;
+      gap: 0.5rem;
+      align-items: baseline;
+      min-width: 0;
+      padding: 0.25rem 0.5rem 0.25rem 0.25rem;
+      margin-inline-start: -0.25rem;
+      text-align: start;
+      border-radius: var(--base-radius);
+
+      &:hover,
+      &:focus-visible,
+      &:active {
+        background: --tune-background(--flat-button);
+      }
+
+      &:active {
+        box-shadow: var(--pressed-shadow);
+      }
+    }
+
+    .foldable_icon {
+      align-self: center;
+      width: var(--icon-size);
+      height: var(--icon-size);
+      rotate: -90deg;
+      transition: rotate var(--simple-time);
+
+      .foldable.is-open & {
+        rotate: none;
+      }
+
+      .foldable_button:active & {
+        translate: 0 1px;
+      }
+
+      .foldable_button[aria-disabled='true'] & {
+        visibility: hidden;
+      }
+    }
+
+    .foldable_title {
+      flex-shrink: 1;
+      min-width: 0;
+      font: var(--app-title-font);
+      overflow-wrap: anywhere;
+
+      .foldable_button:active & {
+        translate: 0 1px;
+      }
+    }
+
+    .foldable_hint {
+      flex-shrink: 0;
+      font: var(--secondary-font);
+      color: var(--secondary-text-color);
+      white-space: nowrap;
+
+      .foldable_button:active & {
+        translate: 0 1px;
+      }
+    }
+
+    .foldable_content {
+      margin-top: 0.5rem;
+    }
+  }
+</style>

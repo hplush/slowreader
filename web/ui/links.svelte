@@ -8,6 +8,7 @@
     item: ItemValue
     mark?: string
     markTitle?: string
+    reading?: 'fast' | 'slow'
     variant?: 'dangerous' | 'normal' | 'read'
   }
 </script>
@@ -50,7 +51,9 @@
     <li>
       <Clickable
         class={{
+          'is-comfort-mode': i.reading === 'slow',
           'is-dangerous': i.variant === 'dangerous',
+          'is-non-comfort-mode': i.reading === 'fast',
           'is-read': i.variant === 'read',
           'links_item': true
         }}
@@ -141,6 +144,11 @@
       &:active,
       &:focus-visible {
         background: --tune-background(--flat-button --flat-button-hover);
+      }
+
+      &.is-comfort-mode,
+      &.is-non-comfort-mode {
+        --current-background: var(--land-color);
       }
 
       &.is-read {

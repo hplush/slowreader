@@ -100,7 +100,7 @@ describe('router', () => {
     openRoute({ params: {}, route: 'cloud' })
     equal(isOtherRoute(router.get()), true)
 
-    openRoute({ params: {}, route: 'feedsByCategories' })
+    openRoute({ params: {}, route: 'categories' })
     equal(isOtherRoute(router.get()), true)
   })
 

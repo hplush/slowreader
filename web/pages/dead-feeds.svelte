@@ -14,7 +14,7 @@
 
   let { page }: { page: DeadFeedsPage } = $props()
 
-  let { groups, hints, opened } = $derived(page)
+  let { groups, hints, opened, readings } = $derived(page)
 </script>
 
 <PopupablePage padding title={[$t.title, $organizeMessages.feedsTitle]}>
@@ -34,6 +34,7 @@
             current={$opened}
             hints={$hints}
             list={feeds}
+            readings={$readings}
             variant={name === 'missing' ? 'dangerous' : undefined}
           />
         </Stack>

@@ -9,6 +9,7 @@ export interface Routes {
   about: {}
   accounts: { service?: AccountService }
   add: { url?: string }
+  categories: {}
   cloud: {}
   coach: {}
   deadFeeds: {}
@@ -20,7 +21,6 @@ export interface Routes {
   }
   feeds: {}
   fatal: { reason?: Fatal['type'] }
-  feedsByCategories: {}
   home: {}
   import: {}
   interface: {}

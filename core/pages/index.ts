@@ -2,6 +2,7 @@ import type { RouteName } from '../router.ts'
 import { aboutPage } from './about.ts'
 import { accountsPage } from './accounts.ts'
 import { addPage } from './add.ts'
+import { categoriesPage } from './categories.ts'
 import { cloudPage } from './cloud.ts'
 import { coachPage } from './coach.ts'
 import {
@@ -12,7 +13,6 @@ import {
 import { deadFeedsPage } from './dead-feeds.ts'
 import { exportPage } from './export.ts'
 import { fatalPage } from './fatal.ts'
-import { feedsByCategoriesPage } from './feeds-by-categories.ts'
 import { fastPage, slowPage } from './feeds.ts'
 import { homePage } from './home.ts'
 import { importPage } from './import.ts'
@@ -26,13 +26,13 @@ import { welcomePage } from './welcome.ts'
 export type { AboutPage } from './about.ts'
 export type { AccountsPage, AccountsStep } from './accounts.ts'
 export type { AddPage } from './add.ts'
+export type { CategoriesPage } from './categories.ts'
 export type { CloudPage } from './cloud.ts'
 export type { CoachPage } from './coach.ts'
 export * from './common.ts'
 export type { DeadFeeds, DeadFeedsPage } from './dead-feeds.ts'
 export type { ExportPage } from './export.ts'
 export type { FatalPage } from './fatal.ts'
-export type { FeedsByCategoriesPage } from './feeds-by-categories.ts'
 export type { FeedsPage } from './feeds.ts'
 export type { HomePage } from './home.ts'
 export type { ImportPage } from './import.ts'
@@ -47,6 +47,7 @@ export const pages = {
   about: aboutPage,
   accounts: accountsPage,
   add: addPage,
+  categories: categoriesPage,
   cloud: cloudPage,
   coach: coachPage,
   deadFeeds: deadFeedsPage,
@@ -55,7 +56,6 @@ export const pages = {
   fast: fastPage,
   fatal: fatalPage,
   feeds: createRedirectPage('feeds', 'add'),
-  feedsByCategories: feedsByCategoriesPage,
   home: homePage,
   import: importPage,
   interface: createSimplePage('interface'),

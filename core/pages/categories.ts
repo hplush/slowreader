@@ -6,12 +6,13 @@ import {
   type FeedsByCategory,
   getCategories
 } from '../category.ts'
-import { getFeeds } from '../feed.ts'
+import { getFeedReadings, getFeeds } from '../feed.ts'
+import type { PostValue } from '../schema.ts'
 import { createPage } from './common.ts'
 import { injectFollowsSync } from './mixins/follows-sync.ts'
 import { injectOpenedFeed } from './mixins/opened-feed.ts'
 
-export const feedsByCategoriesPage = createPage('feedsByCategories', () => {
+export const categoriesPage = createPage('categories', () => {
   let openedFeedMixin = injectOpenedFeed()
 
   let $accounts = getAccounts()
@@ -19,7 +20,9 @@ export const feedsByCategoriesPage = createPage('feedsByCategories', () => {
   let $feeds = getFeeds()
   let followsSyncMixin = injectFollowsSync()
 
+  let $expanded = atom(new Set<string>())
   let $groups = atom<FeedsByCategory>([])
+  let $readings = atom<Record<string, PostValue['reading']>>({})
   let $loading = atom(true)
 
   let unbind = effect(
@@ -34,6 +37,7 @@ export const feedsByCategoriesPage = createPage('feedsByCategories', () => {
         $groups.set(
           feedsByCategory(categories.value, feeds.value, accounts.value)
         )
+        $readings.set(getFeedReadings(feeds.value, accounts.value))
         $loading.set(false)
       } else {
         $loading.set(true)
@@ -46,11 +50,21 @@ export const feedsByCategoriesPage = createPage('feedsByCategories', () => {
     exit() {
       unbind()
     },
+    expand(categoryId: string) {
+      $expanded.set(new Set($expanded.get()).add(categoryId))
+    },
+    expanded: $expanded,
     groups: $groups,
     loading: $loading,
     params: {},
-    sync: followsSyncMixin.sync
+    readings: $readings,
+    sync: followsSyncMixin.sync,
+    toggle(categoryId: string) {
+      let expanded = new Set($expanded.get())
+      if (!expanded.delete(categoryId)) expanded.add(categoryId)
+      $expanded.set(expanded)
+    }
   }
 })
 
-export type FeedsByCategoriesPage = ReturnType<typeof feedsByCategoriesPage>
+export type CategoriesPage = ReturnType<typeof categoriesPage>

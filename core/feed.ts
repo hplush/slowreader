@@ -45,6 +45,21 @@ export function getFeedReading(
   return feed.reading ?? account?.reading ?? 'fast'
 }
 
+export function getFeedReadings(
+  feeds: FeedValue[],
+  accounts: AccountValue[]
+): Record<string, PostValue['reading']> {
+  return Object.fromEntries(
+    feeds.map(feed => [
+      feed.url,
+      getFeedReading(
+        feed,
+        accounts.find(account => account.id === feed.accountId)
+      )
+    ])
+  )
+}
+
 export function getFeedCategory(
   feed: Pick<FeedValue, 'categoryId'>,
   account: Pick<AccountValue, 'categoryId'> | undefined

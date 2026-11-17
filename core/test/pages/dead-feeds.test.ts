@@ -2,6 +2,7 @@ import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
+  addAccount,
   addFeed,
   changeFeed,
   deadFeedsSeenAt,
@@ -10,6 +11,7 @@ import {
   i18nFormat,
   loadFeed,
   syncedSettingsLoading,
+  testAccount,
   testFeed,
   waitLoading
 } from '../../index.ts'
@@ -68,9 +70,11 @@ describe('dead feeds page', () => {
     )
     let social = await addFeed(
       testFeed({
+        accountId: await addAccount(testAccount({ reading: 'slow' })),
         lastPublishedAt: yearsAgo(1.1),
         loader: 'mastodon',
         loaderData: '{"missing":true}',
+        reading: null,
         title: 'A'
       })
     )
@@ -101,6 +105,8 @@ describe('dead feeds page', () => {
         await loadFeed(social)
       ])
     )
+    equal(page.readings.get()[(await loadFeed(social))!.url], 'slow')
+    equal(page.readings.get()[(await loadFeed(old))!.url], 'fast')
 
     await changeFeed(missing1, { loaderData: null })
     await changeFeed(missing2, { loaderData: null })

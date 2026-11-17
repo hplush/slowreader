@@ -38,7 +38,7 @@ describe('errors', () => {
 
     openRoute({
       params: { feed: 'unknown' },
-      route: 'feedsByCategories'
+      route: 'categories'
     })
     equal(fatal.get(), undefined)
 
@@ -54,7 +54,7 @@ describe('errors', () => {
 
     openRoute({
       params: { feed: 'another' },
-      route: 'feedsByCategories'
+      route: 'categories'
     })
     equal(fatal.get(), undefined)
 

@@ -153,16 +153,16 @@ export function createScenarios(
           await open(slowPage(id))
         }
         await open(fastPage(category))
-        await open(getURL('feedsByCategories'))
+        await open(getURL('categories'))
       }
     },
     {
-      name: 'feeds-by-categories',
+      name: 'categories',
       async prepare() {
         await open(getURL('about'))
       },
       async run() {
-        await open(getURL('feedsByCategories'))
+        await open(getURL('categories'))
       }
     },
     {

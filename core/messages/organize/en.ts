@@ -7,7 +7,7 @@ export const organizeMessages = i18n('organize', {
   account: 'Account',
   accountReading: 'Account',
   anonymous: 'Anonymous',
-  byCategoryTitle: 'By category',
+  categoriesTitle: 'Categories',
   deleteCategory: 'Delete category',
   deleteCategoryConform:
     'All feeds in this category will be moved to General. Are you sure you want to continue?',
@@ -33,6 +33,10 @@ export const organizeMessages = i18n('organize', {
     one: '{count} post per year'
   }),
   feedPosts: 'Recent posts',
+  feedsCount: count({
+    many: '{count} feeds',
+    one: '{count} feed'
+  }),
   feedsTitle: 'Feeds',
   feedUrl: 'Feed URL',
   lastPost: params('Last post {time}'),
