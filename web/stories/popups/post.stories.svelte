@@ -383,7 +383,8 @@
           'The second image is broken. The third one is still loading ' +
           'and shows the loader over a blurred preview. The video is a ' +
           'whole file, so it waits for the click. The second video was ' +
-          'clicked and shows the loader until the file is ready.</p>' +
+          'clicked and shows the loader until the file is ready. ' +
+          'Round video from Telegram stays round before the click.</p>' +
           '<p>Images inside the text are loaded the same way: ' +
           'normal, still loading, and broken.</p>' +
           '<img src="telegram:5/6" alt="" width="700" height="441">' +
@@ -404,6 +405,12 @@
             poster: 'telegram:5/3/poster',
             type: 'video',
             url: 'telegram:5/3/loading'
+          },
+          {
+            placeholder: TINY,
+            poster: 'telegram:5/3/poster',
+            type: 'video;mode=round',
+            url: 'telegram:5/3'
           }
         ],
         mediaSizes: [
@@ -411,7 +418,8 @@
           { height: 1080, width: 1920 },
           { height: 441, width: 700 },
           { bytes: 28089, height: 1080, width: 1920 },
-          { bytes: 28089, height: 1080, width: 1920 }
+          { bytes: 28089, height: 1080, width: 1920 },
+          { bytes: 28089, height: 384, width: 384 }
         ],
         preview: {
           image: 'telegram:5/5/preview',
@@ -450,8 +458,9 @@
         full:
           '<p>Video starts by itself without sound. Telegram’s video ' +
           'downloads the file first and shows the loader without the click. ' +
-          'Only the upper of two videos on the screen plays, so the next ' +
-          'video waits for its turn.</p>',
+          'Only the upper of videos on the screen plays, so the next ' +
+          'videos wait for their turn. Round video has no controls: ' +
+          'click plays it with sound, the next click pauses it.</p>',
         media: [
           {
             placeholder: TINY,
@@ -464,11 +473,17 @@
             poster: imgExample,
             type: 'video',
             url: videoExample
+          },
+          {
+            poster: imgExample,
+            type: 'video;mode=round',
+            url: `${videoExample}#round`
           }
         ],
         mediaSizes: [
           { bytes: 28089, height: 180, width: 320 },
-          { height: 180, width: 320 }
+          { height: 180, width: 320 },
+          { height: 240, width: 240 }
         ],
         title: null,
         url: 'https://t.me/news/4'
@@ -576,6 +591,12 @@
             poster: imgExample,
             type: 'video;mode=gif',
             url: 'https://example.com/gif.mp4'
+          },
+          {
+            alt: 'Round video',
+            poster: imgExample,
+            type: 'video;mode=round',
+            url: `${videoExample}#round`
           }
         ],
         mediaSizes: [
@@ -583,7 +604,8 @@
           { height: 564, width: 400 },
           { height: 441, width: 700 },
           { height: 180, width: 320 },
-          { height: 441, width: 700 }
+          { height: 441, width: 700 },
+          { height: 240, width: 240 }
         ],
         preview: {
           image: imgExample,

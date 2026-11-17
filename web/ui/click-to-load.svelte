@@ -21,6 +21,7 @@
     placeholder,
     play = false,
     poster,
+    round = false,
     sensitive = false,
     url,
     video = false,
@@ -34,6 +35,7 @@
     placeholder?: null | string
     play?: boolean
     poster?: null | string
+    round?: boolean
     sensitive?: boolean
     url: string
     video?: boolean
@@ -64,7 +66,11 @@
   }
 </script>
 
-<span class="click-to-load" class:is-pictured={placeholder || poster}>
+<span
+  class="click-to-load"
+  class:is-pictured={placeholder || poster}
+  class:is-round={round}
+>
   <svg
     class="click-to-load_ratio"
     aria-hidden="true"
@@ -142,6 +148,11 @@
         position: relative;
         overflow: hidden;
       }
+
+      &.is-round {
+        overflow: hidden;
+        border-radius: 50%;
+      }
     }
 
     .click-to-load_blur,
@@ -180,6 +191,10 @@
 
       .click-to-load.is-pictured & {
         position: relative;
+      }
+
+      .click-to-load.is-round & {
+        padding: 15%;
       }
     }
 

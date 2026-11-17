@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mdiClose, mdiEyeOutline } from '@mdi/js'
+  import { mdiClose, mdiEyeOutline, mdiPlay, mdiVolumeOff } from '@mdi/js'
   import {
     canAutoplayVideos,
     commonMessages,
@@ -13,7 +13,7 @@
     waitsClick
   } from '@slowreader/core'
   import type { Attachment } from 'svelte/attachments'
-  import { SvelteSet } from 'svelte/reactivity'
+  import { SvelteMap, SvelteSet } from 'svelte/reactivity'
 
   import { blurredBackground, waitImageDecoded } from '../../lib/image.ts'
   import {
@@ -46,6 +46,28 @@
     if (clicked === url && video.paused) playIfVisible(video)
   }
 
+  function isRound(item: ReaderMedia): boolean {
+    return item.type.endsWith(';mode=round')
+  }
+
+  function trackPlayback(url: string, video: HTMLVideoElement): void {
+    if (video.paused) playback.set(url, 'paused')
+    else playback.set(url, video.muted ? 'muted' : 'voiced')
+  }
+
+  function toggleRound(button: HTMLElement): void {
+    let video = button.parentElement!.querySelector('video')!
+    if (!video.paused && !video.muted) {
+      video.pause()
+      return
+    }
+    if (video.muted) {
+      video.muted = false
+      video.currentTime = 0
+    }
+    video.play().catch(() => {})
+  }
+
   function stopLoading(url: string): void {
     clicked = undefined
     stopped = url
@@ -58,6 +80,7 @@
   let downloaded = new SvelteSet<string>()
   let declined = new SvelteSet<string>()
   let autoloaded = new Set<string>()
+  let playback = new SvelteMap<string, 'muted' | 'paused' | 'voiced'>()
   let revealed = $state(false)
   let clicked = $state<string>()
   let stopped = $state<string>()
@@ -217,17 +240,44 @@
   </Clickable>
 {/snippet}
 
+{#snippet toggle(item: ReaderMedia)}
+  {@const state = playback.get(item.url) ?? 'paused'}
+  {@const label = {
+    muted: $t.playWithSound,
+    paused: $t.playVideo,
+    voiced: $t.pauseVideo
+  }[state]}
+  <Clickable
+    class="post-media_toggle"
+    {@attach (button: HTMLElement) => {
+      if (clicked === item.url) button.focus({ preventScroll: true })
+    }}
+    aria-label={label}
+    onclick={(event: { currentTarget: HTMLElement }) => {
+      toggleRound(event.currentTarget)
+    }}
+    title={label}
+  >
+    {#if state !== 'voiced'}
+      <span class="post-media_play">
+        <Icon path={state === 'muted' ? mdiVolumeOff : mdiPlay} />
+      </span>
+    {/if}
+  </Clickable>
+{/snippet}
+
 {#snippet video(item: ReaderMedia)}
   <!-- svelte-ignore a11y_media_has_caption: feeds have no captions -->
   <video
     class="post-media_item"
+    class:is-round={isRound(item)}
     {@attach focusClicked(item.url)}
     {@attach mediaSrc(item.url, { stream: true, web: false })}
     {@attach mediaSrc(shownPoster(item), { attribute: 'poster' })}
     aria-busy={waitsFile(item)}
     aria-label={item.alt}
     autoplay={clicked === item.url && !isLoaderMedia(item.url)}
-    controls={!waitsFile(item)}
+    controls={!isRound(item) && !waitsFile(item)}
     controlslist={protect ? 'nodownload noremoteplayback' : undefined}
     disablepictureinpicture={!!protect}
     height={item.size?.height}
@@ -237,6 +287,15 @@
     onloadstart={event => {
       loaded.add(item.url)
       playAfterClick(item.url, event.currentTarget)
+    }}
+    onpause={event => {
+      trackPlayback(item.url, event.currentTarget)
+    }}
+    onplay={event => {
+      trackPlayback(item.url, event.currentTarget)
+    }}
+    onvolumechange={event => {
+      trackPlayback(item.url, event.currentTarget)
     }}
     playsinline
     preload="none"
@@ -264,6 +323,7 @@
       : item.placeholder}
     play={item.type.startsWith('video') && !item.type.endsWith(';mode=gif')}
     poster={item.sensitive && !sensitiveShown ? undefined : shownPoster(item)}
+    round={isRound(item)}
     sensitive={!!item.sensitive && !sensitiveShown}
     url={item.url}
     video={!item.type.startsWith('image')}
@@ -290,6 +350,8 @@
               {@render video(item)}
               {#if waitsFile(item)}
                 {@render stop(item.url)}
+              {:else if isRound(item)}
+                {@render toggle(item)}
               {/if}
             {/if}
           </span>
@@ -422,6 +484,51 @@
 
     .post-media_frame .post-media_item {
       grid-area: 1 / 1;
+    }
+
+    .post-media_item.is-round {
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    .post-media_toggle {
+      @mixin clickable;
+
+      position: relative;
+      z-index: 2;
+      display: flex;
+      grid-area: 1 / 1;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      border-radius: 50%;
+
+      &:focus-visible {
+        outline-offset: -5px;
+      }
+
+      html:not(.is-quiet-cursor) & {
+        cursor: pointer;
+      }
+    }
+
+    .post-media_play {
+      --icon-size: 1.75rem;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 3.5rem;
+      height: 3.5rem;
+      color: var(--media-loader-color);
+      background: var(--media-loader-background);
+      border-radius: 50%;
+
+      .post-media_toggle:hover &,
+      .post-media_toggle:focus-visible & {
+        background: var(--media-loader-hover-background);
+      }
     }
 
     /* Own colors to be visible on white and black images in any theme */

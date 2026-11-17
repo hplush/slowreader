@@ -1417,10 +1417,9 @@ function toMedia(
 ): [PostMedia, MediaSize] | undefined {
   let file = getMediaFile(content)
   if (!file || !isObject(content)) return undefined
-  let media: PostMedia = {
-    type: content.animation ? 'video;mode=gif' : file.type.split('/')[0]!,
-    url
-  }
+  let media: PostMedia = { type: file.type.split('/')[0]!, url }
+  if (content.animation) media.type = 'video;mode=gif'
+  if (content.video_note) media.type = 'video;mode=round'
   if (getMediaFile(content, 'poster')) media.poster = `${url}/poster`
   if (content.has_spoiler) media.sensitive = true
   // Telegram puts a tiny blurred copy of the image into the post itself

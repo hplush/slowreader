@@ -1173,7 +1173,7 @@ describe('telegram loader', () => {
       })),
       [
         {
-          media: [{ type: 'video', url: 'telegram:5/7' }],
+          media: [{ type: 'video;mode=round', url: 'telegram:5/7' }],
           preview: undefined,
           sizes: [{ bytes: 700, height: 384, width: 384 }],
           text: undefined,
