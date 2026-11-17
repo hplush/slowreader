@@ -99,7 +99,7 @@
         <PostQuote full linked {loader} quoted={post.quoted} {userPostUrl} />
       {/if}
       {#if post.preview}
-        <PostPreview preview={post.preview} {protect} />
+        <PostPreview {loader} preview={post.preview} {protect} />
       {/if}
     {/snippet}
   </PostWarning>

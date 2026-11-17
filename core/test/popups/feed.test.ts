@@ -73,6 +73,11 @@ describe('feed popup', () => {
     equal(getLinkPopup('@jane', `${mastodon}/1`, 'bluesky'), undefined)
     equal(getLinkPopup('@jane', `${mastodon}/1`, undefined), undefined)
 
+    // Link preview has no text
+    equal(getLinkPopup('', `${profile}/post/1`, 'rss'), 'post')
+    equal(getLinkPopup('', `${mastodon}/1`, 'mastodon'), 'post')
+    equal(getLinkPopup('', mastodon, 'mastodon'), undefined)
+
     equal(getLinkPopup('@jane', 'https://example.com/jane', 'rss'), undefined)
     equal(getLinkPopup('@jane', 'http://other.social/@jane', 'rss'), undefined)
     equal(getLinkPopup('@jane', 'https:', 'mastodon'), undefined)

@@ -51,8 +51,8 @@ import { addThreadStarts } from '../thread.ts'
 import { type CreatedLoadedPopup, definePopup } from './common.ts'
 
 /**
- * Which popup opens a link from post’s text instead of a new tab.
- * `postLoader` is the loader of this post.
+ * Which popup opens a link from post’s text or link preview instead
+ * of a new tab. `postLoader` is the loader of this post.
  */
 export function getLinkPopup(
   text: string,

@@ -109,7 +109,7 @@
             {warningClicked}
           />
           {#if quoted.preview}
-            <PostPreview preview={quoted.preview} />
+            <PostPreview {loader} preview={quoted.preview} />
           {/if}
           {#if quoted.quotedUrl}
             {@render nested(quoted.quotedUrl)}

@@ -1,26 +1,45 @@
 <script lang="ts">
-  import { type PostPreview, saveData } from '@slowreader/core'
+  import {
+    getLinkPopup,
+    type LoaderName,
+    openPopup,
+    type PostPreview,
+    router,
+    saveData
+  } from '@slowreader/core'
 
   import { waitImageDecoded } from '../../lib/image.ts'
   import { mediaSrc } from '../../lib/media.ts'
+  import { getPopupHash } from '../../stores/url-router.ts'
   import BrokenImage from '../broken-image.svelte'
 
   let {
+    loader,
     preview,
     protect = false
-  }: { preview: PostPreview; protect?: boolean | null } = $props()
+  }: {
+    loader: LoaderName | null | undefined
+    preview: PostPreview
+    protect?: boolean | null
+  } = $props()
 
   let broken = $state<null | string>()
   let loaded = $state<null | string>()
   let image = $derived($saveData ? undefined : preview.image)
+  let popup = $derived(getLinkPopup('', preview.url, loader))
 </script>
 
 <a
   class="post-preview"
   class:is-protected={protect}
-  href={preview.url}
-  rel="noopener"
-  target="_blank"
+  href={popup ? getPopupHash($router, popup, preview.url) : preview.url}
+  onclick={event => {
+    if (!popup || event.ctrlKey || event.metaKey || event.shiftKey) return
+    event.preventDefault()
+    openPopup(popup, preview.url)
+  }}
+  rel={popup ? undefined : 'noopener'}
+  target={popup ? undefined : '_blank'}
 >
   {#if image && broken === image}
     <span class="post-preview_image is-broken">

@@ -181,7 +181,11 @@
         <PostQuote loader={post.loader} quoted={post.quoted} {userPostUrl} />
       {/if}
       {#if post.preview}
-        <PostPreview preview={post.preview} protect={post.protected} />
+        <PostPreview
+          loader={post.loader}
+          preview={post.preview}
+          protect={post.protected}
+        />
       {/if}
     </PostWarning>
     {#if post.paid}

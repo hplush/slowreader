@@ -108,14 +108,17 @@ export type SignInAnswer =
  * after the token refresh.
  */
 /**
- * Link from post’s text. Loader, which is not sure by URL alone,
- * can check where the link is from.
+ * Link from post’s text or link preview. Loader, which is not sure
+ * by URL alone, can check where the link is from.
  */
 export interface TextLink {
   /**
    * Loader of the post with this link.
    */
   postLoader: LoaderName | undefined
+  /**
+   * Empty for link preview: its title is not a handle from a mention.
+   */
   text: string
 }
 
@@ -434,13 +437,13 @@ export type Loader = {
 
   /**
    * Can `getPostByUrl()` load this URL. `link` is passed, when the URL
-   * is a link from post’s text, to decide to open it in the app.
+   * is a link from the post, to decide to open it in the app.
    */
   isPostUrl?(url: URL, link?: TextLink): boolean
 
   /**
    * Can feed popup open this URL as author’s profile. `link` is passed,
-   * when the URL is a link from post’s text, to decide to open it in the app.
+   * when the URL is a link from the post, to decide to open it in the app.
    */
   isProfileUrl?(url: URL, link?: TextLink): boolean
 }
