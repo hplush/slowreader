@@ -66,6 +66,7 @@ describe('feed', () => {
     expectRequest(statuses).andRespond(200, '[]', 'application/json')
     let feed = await loadFeed(await addCandidate(candidate))
     equal(feed!.loaderData, '{"id":"1"}')
+    equal(feed!.lastPublishedAt, null)
 
     expectRequest(statuses).andRespond(200, '[]', 'application/json')
     await getFeedLatestPosts(feed!).loading

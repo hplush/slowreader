@@ -1640,7 +1640,7 @@ describe('mastodon account', () => {
     let own = respond(`${API}/accounts/verify_credentials`, { id: 'me' })
     expectRequest(`${API}/accounts/me/following?limit=80`).andRespond(
       200,
-      JSON.stringify([account('bob')]),
+      JSON.stringify([account('bob', { last_status_at: '2026-11-17' })]),
       'application/json',
       {
         Link:
@@ -1649,7 +1649,7 @@ describe('mastodon account', () => {
       }
     )
     respond(`${API}/accounts/me/following?limit=80&max_id=2`, [
-      account('alice', { avatar: '', display_name: '' })
+      account('alice', { avatar: '', display_name: '', last_status_at: null })
     ])
     expectRequest(`${API}/followed_tags?limit=200`).andRespond(
       200,
@@ -1661,6 +1661,7 @@ describe('mastodon account', () => {
     deepEqual(await signedIn.getFollows(auth), [
       {
         avatar: 'https://mastodon.social/bob.png',
+        lastPublishedAt: Date.UTC(2026, 10, 17) / 1000,
         title: 'BOB',
         url: 'https://mastodon.social/@bob'
       },

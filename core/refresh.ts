@@ -48,7 +48,11 @@ import {
   syncMediaCache
 } from './media-cache.ts'
 import { accountsMessages } from './messages/index.ts'
-import { forgetFeedError, trackFeedError } from './missing-feeds.ts'
+import {
+  forgetFeedError,
+  trackFeedError,
+  trackMissingFeed
+} from './missing-feeds.ts'
 import { clock, nightLocked } from './night-lock.ts'
 import {
   deleteFastPostsBefore,
@@ -719,7 +723,11 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
         if (error) throw error
         answered = true
         if ('feed' in target) {
-          await forgetFeedError(target.feed)
+          if (pages.get().list.length === 0) {
+            await trackMissingFeed(target.feed)
+          } else {
+            await forgetFeedError(target.feed)
+          }
           await trackFeedRedirect(target.feed, task)
         }
         return processPage(createState(target, pages, task), run)

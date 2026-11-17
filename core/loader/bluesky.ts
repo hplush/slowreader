@@ -648,6 +648,10 @@ async function loadThread(
   )
 }
 
+function getItemTime(item: BlueskyFeedItem): number | undefined {
+  return toTime(item.reason?.indexedAt ?? item.post.record.createdAt)
+}
+
 /**
  * Earlier refresh already loaded them
  */
@@ -655,7 +659,7 @@ function isOlderThanRefresh(
   item: BlueskyFeedItem,
   refreshedAt: number | undefined
 ): boolean {
-  let date = toTime(item.reason?.indexedAt ?? item.post.record.createdAt)
+  let date = getItemTime(item)
   return !!refreshedAt && !!date && date < refreshedAt
 }
 
@@ -880,7 +884,12 @@ function toCredentials(
   }
 }
 
-async function refreshTokens(auth: AccountAuth): Promise<void> {
+async function exchangeRefreshToken(auth: AccountAuth): Promise<void> {
+  let newer = await auth.reload()
+  if (newer) {
+    auth.account = { ...auth.account, credentials: newer }
+    return
+  }
   let credentials = getCredentials(auth.account)
   let token: Record<string, unknown>
   try {
@@ -895,17 +904,27 @@ async function refreshTokens(auth: AccountAuth): Promise<void> {
     )
   } catch (e) {
     if (!HTTPStatusError.is(e, [400, 401])) throw e
-    let fromOtherDevice = await auth.reload()
-    if (!fromOtherDevice) {
-      await auth.expire()
-      throw new UserFacingError(t.get().signInExpired)
-    }
-    auth.account = { ...auth.account, credentials: fromOtherDevice }
-    return
+    await auth.expire()
+    throw new UserFacingError(t.get().signInExpired)
   }
   let refreshed = toCredentials(token, credentials)
   auth.account = { ...auth.account, credentials: refreshed }
   await auth.save(refreshed)
+}
+
+let exchanges = new Map<string, Promise<void>>()
+
+/**
+ * Bluesky signs out the account on the second use of a refresh token,
+ * so requests with the same old tokens exchange it one by one, and the next
+ * one takes the tokens saved by the previous one.
+ */
+function refreshTokens(auth: AccountAuth): Promise<void> {
+  let exchange = (exchanges.get(auth.account.id) ?? Promise.resolve())
+    .catch(() => {})
+    .then(() => exchangeRefreshToken(auth))
+  exchanges.set(auth.account.id, exchange)
+  return exchange
 }
 
 /**
@@ -1176,6 +1195,17 @@ let blueskyAccount: AccountLoader<BlueskySignIn> = {
           : undefined
     } while (cursor)
     return authors
+  },
+
+  async getLastPublishedAt(task, feed) {
+    let actor = readLoaderData(feed.loaderData, 'did') ?? getActor(feed.url)
+    let page = parseFeed(
+      await task.text(
+        `${API}/app.bsky.feed.getAuthorFeed?actor=${encodeURIComponent(actor)}` +
+          '&filter=posts_no_replies&limit=1'
+      )
+    )
+    return page.feed[0] && getItemTime(page.feed[0])
   },
 
   getTimeline(task, auth, last) {

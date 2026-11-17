@@ -26,11 +26,17 @@ import {
   type NewFeed
 } from './feed.ts'
 import type { DownloadTask } from './lib/download.ts'
+import { createQueue } from './lib/queue.ts'
 import { getStableId } from './lib/stable-id.ts'
-import type { AccountAuth, SignInAnswer, SignInStep } from './loader/common.ts'
+import type {
+  AccountAuth,
+  FollowedAuthor,
+  SignInAnswer,
+  SignInStep
+} from './loader/common.ts'
 import { getOriginKey, loaders, tryLoadFeedData } from './loader/index.ts'
 import { accountsMessages } from './messages/index.ts'
-import { deletePost, type LoadedAuthor, recalcPostsReading } from './post.ts'
+import { deletePost, recalcPostsReading } from './post.ts'
 import {
   ACCOUNT_SERVICES,
   type AccountChanges,
@@ -342,12 +348,13 @@ export async function deleteAccountPostsBy(
  */
 export function toVirtualFeed(
   account: AccountValue,
-  author: { url: string } & LoadedAuthor
+  author: { url: string } & FollowedAuthor
 ): { id: string } & NewFeed {
   return {
     accountId: account.id,
     avatar: author.avatar,
     id: getStableId(`feed ${author.url}`),
+    lastPublishedAt: author.lastPublishedAt,
     loader: account.service,
     loaderData: author.loaderData,
     originTitle: author.title,
@@ -414,7 +421,7 @@ async function loadFollows(service: AccountService): Promise<void> {
   ])
   let owners = new Set(feeds.map(feed => feed.accountId))
   let followers = new Map<string, AccountValue[]>()
-  let authors = new Map<string, { url: string } & LoadedAuthor>()
+  let authors = new Map<string, { url: string } & FollowedAuthor>()
   let synced = new Set<string>()
   let complete = true
   for (let account of accounts) {
@@ -422,7 +429,7 @@ async function loadFollows(service: AccountService): Promise<void> {
       complete = false
       continue
     }
-    let follows: LoadedAuthor[]
+    let follows: FollowedAuthor[]
     try {
       follows = await loaders[service].account!.getFollows(
         getAccountAuth(account)
@@ -465,6 +472,9 @@ async function loadFollows(service: AccountService): Promise<void> {
     }
     if (!feed.loaderData && author.loaderData) {
       changes.loaderData = author.loaderData
+    }
+    if ((author.lastPublishedAt ?? 0) > (feed.lastPublishedAt ?? 0)) {
+      changes.lastPublishedAt = author.lastPublishedAt
     }
     if (Object.keys(changes).length > 0) {
       await tables.feeds.update(feed.id, changes)
@@ -512,9 +522,42 @@ async function loadFollows(service: AccountService): Promise<void> {
       await deleteFeed(feed.id)
     }
   }
+  await loadLastPublished(service, [...synced])
   await tables.accounts.update([...synced], {
     followsSyncedAt: Math.round(Date.now() / 1000)
   })
+}
+
+/**
+ * Home timeline could have no author’s posts since the follow, so dead feeds
+ * page needs the service to tell the newest post.
+ */
+async function loadLastPublished(
+  service: AccountService,
+  accountIds: string[]
+): Promise<void> {
+  let load = loaders[service].account!.getLastPublishedAt
+  if (!load) return
+  let feeds = await getTables().feeds.load`
+    WHERE "lastPublishedAt" IS NULL AND "accountId" IN (
+      SELECT "value" FROM json_each(${JSON.stringify(accountIds)})
+    )
+  `
+  await createQueue(feeds).start(
+    6,
+    feed => async task => {
+      let lastPublishedAt = await load(task, feed)
+      if (lastPublishedAt) {
+        await getTables().feeds.update(feed.id, { lastPublishedAt })
+      }
+    },
+    {
+      onRequestError() {},
+      onTaskFail(feed, error) {
+        if (!isRemoteError(error)) getEnvironment().warn(error)
+      }
+    }
+  )
 }
 
 /**

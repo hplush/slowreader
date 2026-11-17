@@ -31,14 +31,13 @@ import {
   needFollowsSync,
   needsDeviceSignIn,
   openedDatabase,
-  type PostAuthor,
   setDeviceSession,
   syncFollows,
   testAccount,
   testFeed,
   testPost
 } from '../index.ts'
-import type { AccountLoader } from '../loader/common.ts'
+import type { AccountLoader, FollowedAuthor } from '../loader/common.ts'
 import {
   cleanClient,
   expectWarning,
@@ -49,15 +48,29 @@ import {
 
 describe('account', () => {
   let moves: Record<string, Error | MovedFeed> = {}
+  let lastPosts: Record<string, Error | number> = {}
+  let lastPostRequests: string[] = []
 
   beforeEach(() => {
     startClient()
     moves = {}
+    lastPosts = {}
+    lastPostRequests = []
     spyOn(loaders.mastodon as Required<Loader>, 'getMovedTo', url => {
       let moved = moves[url]
       if (moved instanceof Error) return Promise.reject(moved)
       return Promise.resolve(moved)
     })
+    spyOn(
+      loaders.bluesky.account as Required<AccountLoader>,
+      'getLastPublishedAt',
+      (task, feed) => {
+        lastPostRequests.push(feed.url)
+        let last = lastPosts[feed.url]
+        if (last instanceof Error) return Promise.reject(last)
+        return Promise.resolve(last)
+      }
+    )
   })
 
   afterEach(async () => {
@@ -97,7 +110,7 @@ describe('account', () => {
   }
 
   function spyFollows(
-    follows: Record<string, PostAuthor[] | Promise<PostAuthor[]>>
+    follows: Record<string, FollowedAuthor[] | Promise<FollowedAuthor[]>>
   ): Spy<NonNullable<typeof loaders.mastodon.account>['getFollows']> {
     return spyOn(loaders.mastodon.account!, 'getFollows', auth => {
       return Promise.resolve(follows[auth.account.id] ?? [])
@@ -316,6 +329,79 @@ describe('account', () => {
       (await loadFilters()).map(i => i.feedId),
       [alice]
     )
+  })
+
+  test('saves time of the last post of followed authors', async () => {
+    let mastodon = await addAccount(testAccount())
+    let bluesky = await addAccount(
+      testAccount({ service: 'bluesky', url: 'https://bsky.app/profile/me' })
+    )
+    await addFeed([
+      testFeed({
+        accountId: mastodon,
+        lastPublishedAt: 200,
+        loader: 'mastodon',
+        url: profile('old')
+      }),
+      testFeed({
+        accountId: mastodon,
+        lastPublishedAt: 50,
+        loader: 'mastodon',
+        url: profile('fresh')
+      }),
+      testFeed({
+        accountId: bluesky,
+        lastPublishedAt: 50,
+        loader: 'bluesky',
+        url: 'https://bsky.app/profile/dave'
+      })
+    ])
+    spyFollows({
+      [mastodon]: [
+        { ...author('old'), lastPublishedAt: 100 },
+        { ...author('fresh'), lastPublishedAt: 100 },
+        { ...author('new'), lastPublishedAt: 100 },
+        author('silent')
+      ]
+    })
+    let blueskyAuthors = ['alice', 'bob', 'carol', 'dave'].map(name => ({
+      title: name,
+      url: `https://bsky.app/profile/${name}`
+    }))
+    spyOn(loaders.bluesky.account!, 'getFollows', () => {
+      return Promise.resolve(blueskyAuthors)
+    })
+    lastPosts = {
+      'https://bsky.app/profile/alice': 300,
+      'https://bsky.app/profile/carol': new NetworkError(
+        new TypeError('Failed to fetch')
+      )
+    }
+
+    await syncFollows('mastodon')
+    await syncFollows('bluesky')
+    deepEqual(
+      (await loadFeeds())
+        .map(i => [i.url, i.lastPublishedAt])
+        .toSorted((a, b) => String(a[0]).localeCompare(String(b[0]))),
+      [
+        ['https://bsky.app/profile/alice', 300],
+        ['https://bsky.app/profile/bob', null],
+        ['https://bsky.app/profile/carol', null],
+        ['https://bsky.app/profile/dave', 50],
+        [profile('fresh'), 100],
+        [profile('new'), 100],
+        [profile('old'), 200],
+        [profile('silent'), null]
+      ]
+    )
+    deepEqual(lastPostRequests.toSorted(), [
+      'https://bsky.app/profile/alice',
+      'https://bsky.app/profile/bob',
+      'https://bsky.app/profile/carol',
+      'https://bsky.app/profile/carol',
+      'https://bsky.app/profile/carol'
+    ])
   })
 
   test('keeps feed of moved author', async () => {

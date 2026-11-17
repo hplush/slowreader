@@ -1518,6 +1518,46 @@ describe('bluesky account', () => {
     equal(error.name, 'ParseError')
   })
 
+  test('loads time of the last post', async () => {
+    let last =
+      `${API}/app.bsky.feed.getAuthorFeed?actor=` +
+      `${encodeURIComponent('did:plc:jane')}&filter=posts_no_replies&limit=1`
+    expectRequest(last).andRespond(
+      200,
+      JSON.stringify({ feed: [{ post: post('1') }] }),
+      'application/json'
+    )
+    equal(
+      await signedIn.getLastPublishedAt!(createDownloadTask(), {
+        loaderData: '{"did":"did:plc:jane"}',
+        url: 'https://bsky.app/profile/jane.bsky.social'
+      }),
+      Date.UTC(2026, 0, 1) / 1000
+    )
+
+    expectRequest(last).andRespond(
+      200,
+      JSON.stringify({ feed: [repost(bobPost('2'))] }),
+      'application/json'
+    )
+    equal(
+      await signedIn.getLastPublishedAt!(createDownloadTask(), {
+        loaderData: null,
+        url: 'https://bsky.app/profile/did:plc:jane'
+      }),
+      Date.UTC(2026, 1, 1) / 1000
+    )
+
+    expectRequest(last).andRespond(200, '{"feed":[]}', 'application/json')
+    equal(
+      await signedIn.getLastPublishedAt!(createDownloadTask(), {
+        loaderData: null,
+        url: 'https://bsky.app/profile/did:plc:jane'
+      }),
+      undefined
+    )
+  })
+
   test('loads home timeline', async () => {
     let { auth } = createAuth()
     let first = respond(timeline(auth), {
@@ -1668,7 +1708,7 @@ describe('bluesky account', () => {
     equal(auth.account.credentials!.expiresAt, undefined)
   })
 
-  test('takes token from another device', async () => {
+  test('takes saved tokens instead of using refresh token twice', async () => {
     let { auth, saved } = createAuth(
       { expiresAt: 1 },
       {
@@ -1679,12 +1719,27 @@ describe('bluesky account', () => {
         tokenUrl: TOKEN
       }
     )
-    respond(TOKEN, { error: 'invalid_grant' }, 400)
     let request = respond(timeline(auth), { feed: [] })
     let posts = signedIn.getTimeline!(createDownloadTask(), auth)
     await posts.loading
     equal(getProof(request).authorization, 'DPoP other')
     equal(saved.length, 0)
+  })
+
+  test('refreshes token once for parallel requests', async () => {
+    let { auth, saved } = createAuth({ expiresAt: 1 })
+    auth.reload = () => Promise.resolve(saved[0])
+    let copy = { ...auth }
+    respond(TOKEN, { access_token: 'access2', refresh_token: 'refresh2' })
+    let first = respond(timeline(auth), { feed: [] })
+    let second = respond(timeline(auth), { feed: [] })
+    await Promise.all([
+      signedIn.getTimeline!(createDownloadTask(), auth).loading,
+      signedIn.getTimeline!(createDownloadTask(), copy).loading
+    ])
+    equal(getProof(first).authorization, 'DPoP access2')
+    equal(getProof(second).authorization, 'DPoP access2')
+    equal(saved.length, 1)
   })
 
   test('asks to sign in again', async () => {

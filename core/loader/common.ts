@@ -11,6 +11,8 @@ import type { PostsList, PostsListResult } from '../posts-list.ts'
 import type { AccountCredentials, AccountValue, NewAccount } from '../schema.ts'
 import type { LoaderName } from './index.ts'
 
+export type FollowedAuthor = { lastPublishedAt?: number } & LoadedAuthor
+
 export interface DetectedFeed {
   title: string
   url?: string
@@ -137,9 +139,8 @@ export interface AccountAuth {
   expire(): Promise<void>
 
   /**
-   * Refresh token is single-use, so the failed refresh could mean that
-   * another device already used it. Returns tokens from that device after
-   * the sync, if they are new.
+   * Refresh token is single-use. Returns tokens, which another request
+   * or device saved after this account was loaded.
    */
   reload(): Promise<AccountCredentials | undefined>
 
@@ -192,7 +193,17 @@ export interface AccountLoader<Data = unknown> {
 
   follow(auth: AccountAuth, url: string): Promise<void>
 
-  getFollows(auth: AccountAuth): Promise<LoadedAuthor[]>
+  getFollows(auth: AccountAuth): Promise<FollowedAuthor[]>
+
+  /**
+   * Time of the newest post of the followed author, when `getFollows()`
+   * does not have it. Dead feeds page needs it, because the home timeline
+   * could have no author’s posts since the follow.
+   */
+  getLastPublishedAt?(
+    task: DownloadTask,
+    feed: Pick<FeedValue, 'loaderData' | 'url'>
+  ): Promise<number | undefined>
 
   /**
    * Home timeline from the newest post. Every post has `author`.

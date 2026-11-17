@@ -32,19 +32,11 @@ function getErrors(feed: TrackedFeed): FeedErrors | undefined {
 }
 
 /**
- * Site can lose the feed or the domain for a short time, so the feed is missing
- * only if the site still has no feed 3 days after the first such error.
+ * Site can lose the feed, the domain, or the posts for a short time, so
+ * the feed is missing only if it is still lost 3 days after the first check.
  */
-export async function trackFeedError(
-  feed: TrackedFeed,
-  error: Error
-): Promise<void> {
-  if (
-    !isWebFeed(feed.loader) ||
-    (!HTTPStatusError.is(error, [404, 410]) && !isNoDomainError(error))
-  ) {
-    return
-  }
+export async function trackMissingFeed(feed: TrackedFeed): Promise<void> {
+  if (!isWebFeed(feed.loader)) return
   let errors = getErrors(feed)
   let now = Math.round(Date.now() / 1000)
   if (!errors) {
@@ -55,6 +47,15 @@ export async function trackFeedError(
     return
   }
   await changeFeed(feed.id, { loaderData: JSON.stringify(errors) })
+}
+
+export async function trackFeedError(
+  feed: TrackedFeed,
+  error: Error
+): Promise<void> {
+  if (HTTPStatusError.is(error, [404, 410]) || isNoDomainError(error)) {
+    await trackMissingFeed(feed)
+  }
 }
 
 export function getMissingSince(feed: TrackedFeed): number | undefined {

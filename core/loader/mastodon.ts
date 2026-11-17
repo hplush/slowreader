@@ -32,6 +32,7 @@ import {
   type FeedData,
   findDocumentLinks,
   findMetaProperty,
+  type FollowedAuthor,
   getCredentials,
   getUpdatedAt,
   isObject,
@@ -54,6 +55,7 @@ interface MastodonAccount {
   display_name: string
   emojis?: MastodonEmoji[]
   id: string
+  last_status_at?: null | string
   moved?: MastodonAccount | null
   url: string
   username: string
@@ -222,6 +224,13 @@ function toAuthor(account: MastodonAccount): PostAuthor {
     url: account.url
   }
   if (account.avatar) author.avatar = account.avatar
+  return author
+}
+
+function toFollowedAuthor(account: MastodonAccount): FollowedAuthor {
+  let author: FollowedAuthor = toAuthor(account)
+  let last = toTime(account.last_status_at)
+  if (last) author.lastPublishedAt = last
   return author
 }
 
@@ -971,12 +980,12 @@ let mastodonAccount: AccountLoader<MastodonSignIn> = {
     if (!isObject(json)) {
       throw new ParseError('Mastodon account is wrong', own.text)
     }
-    let authors: PostAuthor[] = []
+    let authors: FollowedAuthor[] = []
     let path: string | undefined =
       `/api/v1/accounts/${readString(json, 'id')}/following?limit=80`
     while (path) {
       let response = await requestByAccount(task, auth, path)
-      authors.push(...parseAccountList(response).map(toAuthor))
+      authors.push(...parseAccountList(response).map(toFollowedAuthor))
       path = getNextPath(response)
     }
     return [...authors, ...(await loadFollowedTags(task, auth))]

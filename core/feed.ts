@@ -243,8 +243,7 @@ export async function addCandidate(
   let feed = {
     categoryId: fields.accountId ? null : GENERAL_CATEGORY,
     lastOriginId: lastPost?.originId,
-    lastPublishedAt:
-      (lastPost && getSortedAt(lastPost)) ?? Math.round(Date.now() / 1000),
+    lastPublishedAt: lastPost && getSortedAt(lastPost),
     loader: candidate.name,
     loaderData,
     originTitle: candidate.title,

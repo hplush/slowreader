@@ -14,6 +14,7 @@ import {
   loadFeed,
   NetworkError,
   ParseError,
+  type PostsList,
   refreshPosts,
   syncedSettingsLoading,
   testFeed,
@@ -31,6 +32,14 @@ function failedDaysAgo(days: number, missing = false): string {
     failedSince: Math.round(Date.now() / 1000) - days * 24 * 60 * 60,
     missing
   })
+}
+
+function withPost(): PostsList {
+  return createPostsList(() => [[{ originId: '1', title: '1' }], undefined])
+}
+
+function empty(): PostsList {
+  return createPostsList(() => [[], undefined])
 }
 
 async function reload(feed: FeedValue): Promise<FeedValue> {
@@ -159,9 +168,7 @@ describe('missing feeds in refresh', () => {
   test('tracks missing feed until it works again', async () => {
     let feed = await create({ loader: 'rss' })
     let alive = await create({ loader: 'atom' })
-    spyOn(loaders.atom, 'getPosts', () => {
-      return createPostsList(() => [[], undefined])
-    })
+    spyOn(loaders.atom, 'getPosts', withPost)
 
     let error = status(404)
     let requests = 0
@@ -185,9 +192,31 @@ describe('missing feeds in refresh', () => {
     equal((await reload(feed)).loaderData, old.replace('false', 'true'))
     equal((await reload(alive)).loaderData, null)
 
-    posts.nextResult(createPostsList(() => [[], undefined]))
+    posts.nextResult(empty())
+    await refreshPosts()
+    equal((await reload(feed)).loaderData, old.replace('false', 'true'))
+
+    posts.nextResult(withPost())
     await refreshPosts()
     equal((await reload(feed)).loaderData, null)
+  })
+
+  test('tracks feed without posts', async () => {
+    let feed = await create({ loader: 'rss' })
+    let social = await create({ loader: 'mastodon' })
+    spyOn(loaders.rss, 'getPosts', empty)
+    spyOn(loaders.mastodon, 'getPosts', empty)
+    await refreshPosts()
+    match(
+      (await reload(feed)).loaderData!,
+      /^\{"failedSince":\d+,"missing":false\}$/
+    )
+    equal((await reload(social)).loaderData, null)
+
+    let old = failedDaysAgo(4)
+    await changeFeed(feed.id, { loaderData: old })
+    await refreshPosts()
+    equal((await reload(feed)).loaderData, old.replace('false', 'true'))
   })
 
   test('does not blame feeds when nobody answers', async () => {
