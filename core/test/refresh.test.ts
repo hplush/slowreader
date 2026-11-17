@@ -1457,6 +1457,50 @@ describe('refresh of accounts', () => {
     equal(follows.callCount, 1)
   })
 
+  test('uses refresh token once for follows sync and timeline', async () => {
+    let pair = await crypto.subtle.generateKey(
+      { name: 'ECDSA', namedCurve: 'P-256' },
+      true,
+      ['sign', 'verify']
+    )
+    let jwk = await crypto.subtle.exportKey('jwk', pair.privateKey)
+    let used: (null | string)[] = []
+    setRequestMethod((url, opts) => {
+      let body: object = { feed: [], follows: [] }
+      if (url === 'https://bsky.example.com/token') {
+        used.push((opts!.body as URLSearchParams).get('refresh_token'))
+        body = { access_token: 'new', expires_in: 3600, refresh_token: 'new' }
+      }
+      return Promise.resolve(Response.json(body))
+    })
+    await addAccount(
+      testAccount({
+        credentials: {
+          accessToken: 'old',
+          clientId: 'client',
+          clientSecret: null,
+          dpopKey: {
+            crv: jwk.crv!,
+            d: jwk.d!,
+            kty: jwk.kty!,
+            x: jwk.x!,
+            y: jwk.y!
+          },
+          expiresAt: 1,
+          refreshToken: 'old',
+          tokenUrl: 'https://bsky.example.com/token'
+        },
+        server: 'https://bsky.example.com',
+        service: 'bluesky',
+        url: 'https://bsky.app/profile/did:plc:me'
+      })
+    )
+
+    await refreshPosts()
+    deepEqual(used, ['old'])
+    deepEqual(refreshErrors.get(), [])
+  })
+
   test('is ready to be stopped during the sync of follows', async () => {
     await addAccount(testAccount())
     let timeline = spyTimeline([])
