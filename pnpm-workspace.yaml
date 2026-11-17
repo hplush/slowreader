@@ -46,8 +46,8 @@ trustPolicyIgnoreAfter: 10080
 
 auditConfig:
   ignoreGhsas:
-    # deepmerge has no fix, vite-plugin-svelte merges only our own config
-    - GHSA-gcqx-w48m-w2h4
+    # Is coming from Vite which we do not run on the server with user data
+    - GHSA-fc5q-39xc-vjpf
 
 permissions:
   drizzle-kit:
