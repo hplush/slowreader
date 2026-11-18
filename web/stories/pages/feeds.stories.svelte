@@ -164,12 +164,33 @@
     {
       feedId: 'mastodon',
       full:
-        '<p>The first post of the thread is long to be cut in the card.</p>' +
+        '<p>The post is long to be cut between paragraphs.</p>' +
         '<p>' +
         'Its second paragraph does not fit into the card of the feed reader, '.repeat(
           10
         ) +
         '</p>',
+      intro: null,
+      originId: 'long',
+      publishedAt: 6,
+      reading: 'fast'
+    },
+    {
+      feedId: 'mastodon',
+      full:
+        '<p>The post with one long paragraph is cut inside it. ' +
+        'Its sentences do not fit into the card of the feed reader. '.repeat(
+          10
+        ) +
+        '</p>',
+      intro: null,
+      originId: 'long-paragraph',
+      publishedAt: 6,
+      reading: 'fast'
+    },
+    {
+      feedId: 'mastodon',
+      full: '<p>The first post of the thread</p>',
       intro: null,
       originId: 'thread',
       publishedAt: 7,

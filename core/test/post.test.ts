@@ -18,11 +18,10 @@ import {
   GENERAL_CATEGORY,
   getMediaOutsideText,
   getPost,
-  getPostBadges,
   getPostId,
   getPostIntro,
   getPostTitle,
-  getQuotedIntro,
+  getQuotedText,
   isLoaderMedia,
   loadPost,
   loadPostsForExport,
@@ -49,8 +48,8 @@ setupNodeDom()
 
 function postIntro(
   post: PostCardText,
-  threadSize = 1,
-  threadPosition = 1
+  threadPosition = 1,
+  threadSize = 1
 ): [string, boolean] {
   let [node, more] = getPostIntro({ ...post, threadPosition, threadSize })
   return [node.innerHTML, more]
@@ -68,13 +67,13 @@ describe('post', () => {
   function truncateBetweenParagraphs(text: string): void {
     let result = postIntro({ full: text, intro: null, more: 0, url: null })
     equal(result[1], true)
-    match(result[0], /<p>…<\/p>$/)
+    match(result[0], /<p><post-marker>…<\/post-marker><\/p>$/)
   }
 
   function truncateBetweenSentences(text: string): void {
     let result = postIntro({ full: text, intro: null, more: 0, url: null })
     equal(result[1], true)
-    match(result[0], /[.?] …<\/p>/)
+    match(result[0], /[.?] <post-marker>…<\/post-marker><\/p>/)
   }
 
   test('shows media outside of text', () => {
@@ -422,63 +421,84 @@ describe('post', () => {
         more: 0,
         url: null
       }),
-      ['a'.repeat(500) + '…', true]
+      ['a'.repeat(500) + '<post-marker>…</post-marker>', true]
     )
   })
 
-  test('loads quoted post intro', () => {
-    equal(getQuotedIntro({ missing: false }).innerHTML, '')
+  test('loads quoted post text', () => {
+    let long = 'a'.repeat(600)
+    equal(getQuotedText({ missing: false }, true).innerHTML, '')
     equal(
-      getQuotedIntro({ full: 'a'.repeat(600), missing: false }).innerHTML,
-      'a'.repeat(500) + '…'
+      getQuotedText({ full: long, missing: false }, true).innerHTML,
+      'a'.repeat(500) + '<post-marker>…</post-marker>'
+    )
+    equal(getQuotedText({ full: long, missing: false }, false).innerHTML, long)
+    equal(
+      getQuotedText(
+        {
+          full: '<p>A</p>',
+          missing: false,
+          signals: { threadPosition: 5, threadSize: 30 }
+        },
+        false
+      ).innerHTML,
+      '<p>A <post-marker>5/30</post-marker></p>'
+    )
+    equal(
+      getQuotedText({ full: 'A', missing: false, signals: {} }, true).innerHTML,
+      'A'
     )
   })
 
-  test('makes badges from thread size and signals', () => {
-    deepEqual(getPostBadges({ threadPosition: 1, threadSize: 1 }), [])
-    deepEqual(getPostBadges({ threadPosition: 2, threadSize: 3 }), [
-      { position: 2, size: 3, type: 'thread' }
-    ])
-    deepEqual(getPostBadges({ missing: false }), [])
-    deepEqual(getPostBadges({ missing: false, signals: {} }), [])
-    deepEqual(
-      getPostBadges({
-        missing: false,
-        signals: { threadPosition: 5, threadSize: 30 }
-      }),
-      [{ position: 5, size: 30, type: 'thread' }]
-    )
-  })
-
-  test('adds single ellipsis to the thread intro', () => {
+  test('adds thread marker to the intro', () => {
     let short = {
       full: '<p>Short</p>',
       intro: null,
       more: 0,
       url: null
     } as const
-    equal(postIntro(short, 2)[0], '<p>Short</p><p>…</p>')
     equal(postIntro(short)[0], '<p>Short</p>')
-    equal(postIntro(short, 2, 2)[0], '<p>Short</p>')
-
-    let [cut, more] = postIntro(
-      {
-        full: `<p>${'Long text of the thread start '.repeat(30)}</p>`,
-        intro: null,
-        more: 0,
-        url: null
-      },
-      2
+    equal(
+      postIntro(short, 1, 3)[0],
+      '<p>Short <post-marker>1/3</post-marker></p>'
     )
-    equal(more, true)
-    equal(cut.match(/…/g)!.length, 1)
-
+    equal(
+      postIntro(short, 3, 3)[0],
+      '<p>Short <post-marker>3/3</post-marker></p>'
+    )
     equal(
       postIntro(
-        { full: null, intro: '<p>Intro …</p>', more: 1, url: null },
-        3
+        {
+          full: '<p>A</p><ul><li>B</li></ul>\n',
+          intro: null,
+          more: 0,
+          url: null
+        },
+        1,
+        2
       )[0],
-      '<p>Intro …</p>'
+      '<p>A</p><ul><li>B <post-marker>1/2</post-marker></li></ul>\n'
+    )
+    equal(
+      postIntro(
+        { full: '<p>A</p><pre>B</pre>', intro: null, more: 0, url: null },
+        1,
+        2
+      )[0],
+      '<p>A</p><pre>B</pre> <post-marker>1/2</post-marker>'
+    )
+    match(
+      postIntro(
+        {
+          full: `<p>${'Long text of the thread start. '.repeat(10)}</p><p>${'Next. '.repeat(100)}</p>`,
+          intro: null,
+          more: 0,
+          url: null
+        },
+        1,
+        2
+      )[0],
+      /<\/p><p><post-marker>…<\/post-marker> <post-marker>1\/2<\/post-marker><\/p>$/
     )
   })
 

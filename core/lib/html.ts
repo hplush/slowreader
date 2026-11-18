@@ -430,6 +430,39 @@ export function stripHTML(html: string): string {
   return (root.textContent || '').trim()
 }
 
+function createMarker(document: Document, text: string): Element {
+  let marker = document.createElement('post-marker')
+  marker.append(text)
+  return marker
+}
+
+function findTextEnd(root: Element): Element {
+  let end = root
+  while (
+    end.lastElementChild &&
+    /^(p|div|blockquote|ul|ol|li|h[1-6])$/.test(
+      end.lastElementChild.localName
+    ) &&
+    !end.lastElementChild.nextSibling?.textContent?.trim()
+  ) {
+    end = end.lastElementChild
+  }
+  return end
+}
+
+/**
+ * Puts the marker after the `…` of the cut or in the end of the last text.
+ */
+export function addMarker(root: Element, text: string): void {
+  let marker = createMarker(root.ownerDocument, text)
+  let cut = root.querySelector('post-marker')
+  if (cut) {
+    cut.after(' ', marker)
+  } else {
+    findTextEnd(root).append(' ', marker)
+  }
+}
+
 function isTag(node: Node | null | undefined, name: string): boolean {
   return node?.nodeType === ELEMENT_NODE && (node as Element).localName === name
 }
@@ -449,6 +482,9 @@ function skipSpaces(node: Node | null): Node | null {
  * the last double `<br>` and the last finished sentence are remembered
  * as a checkpoint. If the limit is reached inside a block which started
  * after the checkpoint, everything after it is replaced by `…`.
+ *
+ * `…` is wrapped into `<post-marker>`, so `addMarker()` can find the cut.
+ * Sanitizer removes this tag, so the article can’t fake it.
  *
  * The DOM is cut in place, since it goes to the card as is: counting
  * the chars of the HTML string instead would cut an article with heavy
@@ -483,14 +519,13 @@ export function truncateDOM(root: Element, min: number, max: number): boolean {
 
   function cutToCheckpoint(block: boolean): void {
     removeAfter(checkpoint!)
-    let ellipsis: Node
     if (block) {
-      ellipsis = document.createElement('p')
-      ellipsis.appendChild(document.createTextNode('…'))
+      let paragraph = document.createElement('p')
+      paragraph.append(createMarker(document, '…'))
+      checkpoint!.parentNode!.append(paragraph)
     } else {
-      ellipsis = document.createTextNode(' …')
+      checkpoint!.parentNode!.append(' ', createMarker(document, '…'))
     }
-    checkpoint!.parentNode!.appendChild(ellipsis)
   }
 
   function cutText(text: Text): void {
@@ -507,8 +542,9 @@ export function truncateDOM(root: Element, min: number, max: number): boolean {
         text.nodeValue!,
         Math.max(0, min - chars),
         remaining
-      )
+      ).replace(/…$/, '')
       removeAfter(text)
+      text.after(createMarker(document, '…'))
     }
   }
 
@@ -548,19 +584,15 @@ export function truncateDOM(root: Element, min: number, max: number): boolean {
   return cut
 }
 
-export function endsWithEllipsis(root: Element): boolean {
-  return root.textContent.trimEnd().endsWith('…')
-}
-
 /**
  * `<br><br>…` in the end is a paragraph break, and a tag which separated
  * something from the cut part has nothing to separate anymore.
  */
 function cleanTail(root: Element, document: Document): void {
   let last = root.lastChild
-  if (last?.nodeType === TEXT_NODE && last.nodeValue!.trim() === '…') {
+  if (isTag(last, 'post-marker')) {
     let breaks = 0
-    let previous = skipSpaces(last.previousSibling)
+    let previous = skipSpaces(last!.previousSibling)
     while (isTag(previous, 'br')) {
       breaks += 1
       previous = skipSpaces(previous!.previousSibling)
@@ -570,8 +602,8 @@ function cleanTail(root: Element, document: Document): void {
         root.lastChild.remove()
       }
       let paragraph = document.createElement('p')
-      paragraph.appendChild(document.createTextNode('…'))
-      root.appendChild(paragraph)
+      paragraph.append(createMarker(document, '…'))
+      root.append(paragraph)
     }
   }
   while (isTag(root.lastChild, 'br') || isTag(root.lastChild, 'hr')) {

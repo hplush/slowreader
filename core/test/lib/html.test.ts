@@ -41,6 +41,7 @@ describe('html', () => {
       ),
       '<b>Safe</b>'
     )
+    equal(sanitize('A <post-marker>…</post-marker>'), 'A …')
   })
 
   test('keeps only attributes of the content', () => {
@@ -292,7 +293,7 @@ describe('html', () => {
         10,
         25
       ),
-      '<p>This is a very long …</p>'
+      '<p>This is a very long <post-marker>…</post-marker></p>'
     )
   })
 
@@ -303,7 +304,7 @@ describe('html', () => {
         40,
         80
       ),
-      '<p>First paragraph with enough text to be over min.</p><p>…</p>'
+      '<p>First paragraph with enough text to be over min.</p><p><post-marker>…</post-marker></p>'
     )
   })
 
@@ -314,7 +315,7 @@ describe('html', () => {
         10,
         30
       ),
-      'Sentence one here.<p>…</p>'
+      'Sentence one here.<p><post-marker>…</post-marker></p>'
     )
   })
 
@@ -326,14 +327,14 @@ describe('html', () => {
         10,
         30
       ),
-      '<p>First sentence here.</p><p>…</p>'
+      '<p>First sentence here.</p><p><post-marker>…</post-marker></p>'
     )
   })
 
   test('does not truncate HTML at dot inside domain', () => {
     equal(
       truncate('<p>Visit lamardecitas.net for more information</p>', 10, 25),
-      '<p>Visit lamardecitas.net …</p>'
+      '<p>Visit lamardecitas.net <post-marker>…</post-marker></p>'
     )
   })
 
@@ -348,7 +349,7 @@ describe('html', () => {
         20,
         30
       ),
-      '<div><p>First paragraph text here.</p><p>…</p></div>'
+      '<div><p>First paragraph text here.</p><p><post-marker>…</post-marker></p></div>'
     )
   })
 })

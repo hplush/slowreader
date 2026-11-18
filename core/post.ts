@@ -9,7 +9,7 @@ import { loadFilterChecker } from './filter.ts'
 import { humanizeUrl } from './format.ts'
 import { $locale } from './i18n.ts'
 import {
-  endsWithEllipsis,
+  addMarker,
   isLoaderMedia,
   sanitizeDOM,
   stripHTML,
@@ -544,7 +544,6 @@ export function processOriginPost(
 
 /**
  * The intro’s DOM and `true` when the article has more text than the intro.
- * The intro of the thread ends with `…` to show its next posts.
  *
  * The card gets a sanitized node and not a string: the text is sanitized
  * once here, instead of being serialized back and parsed and sanitized
@@ -565,11 +564,7 @@ export function getPostIntro(
     intro = sanitizeDOM('')
     more = false
   }
-  if (post.threadPosition < post.threadSize && !endsWithEllipsis(intro)) {
-    let ellipsis = intro.ownerDocument.createElement('p')
-    ellipsis.append('…')
-    intro.append(ellipsis)
-  }
+  addThreadMarker(intro, post)
   return [intro, more]
 }
 
@@ -729,23 +724,21 @@ export function addMediaSizes(
   })
 }
 
-export type PostBadge = { position: number; size: number; type: 'thread' }
-
 /**
  * Saved threads are counted by SQL, quoted posts have signals from loaders.
  */
-export function getPostBadges(
-  post: Pick<ReaderPost, 'threadPosition' | 'threadSize'> | QuotedPost
-): PostBadge[] {
-  let signals = 'missing' in post ? post.signals : post
-  let position = signals?.threadPosition
-  let size = signals?.threadSize
-  if (!position || !size || size < 2) return []
-  return [{ position, size, type: 'thread' }]
+function addThreadMarker(
+  text: Element,
+  thread: null | PostSignals | undefined
+): void {
+  let position = thread?.threadPosition
+  let size = thread?.threadSize
+  if (position && size && size > 1) addMarker(text, `${position}/${size}`)
 }
 
-export function getQuotedIntro(quoted: QuotedPost): Element {
+export function getQuotedText(quoted: QuotedPost, cut: boolean): Element {
   let text = sanitizeDOM(quoted.full ?? '')
-  truncateDOM(text, INTRO_MIN, INTRO_MAX)
+  if (cut) truncateDOM(text, INTRO_MIN, INTRO_MAX)
+  addThreadMarker(text, quoted.signals)
   return text
 }

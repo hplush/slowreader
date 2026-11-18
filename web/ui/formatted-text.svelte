@@ -309,6 +309,16 @@
       }
     }
 
+    .formatted-text post-marker {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      font: var(--badge-font);
+      color: var(--secondary-text-color);
+      white-space: nowrap;
+      background: --tune-background(--gutter);
+      border-radius: 1rem;
+    }
+
     .formatted-text_click-to-load {
       display: flex;
       justify-content: center;

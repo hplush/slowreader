@@ -209,7 +209,7 @@ let previewShape = {
 
 /**
  * Facts for the post rendering, which need the network or are too expensive
- * to calculate on every render. `getPostBadges()` turns them into badges.
+ * to calculate on every render.
  */
 let signalsShape = {
   threadPosition: optional(number()),

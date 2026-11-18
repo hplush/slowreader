@@ -10,7 +10,6 @@
     formatRelativeTime,
     getMediaOutsideText,
     getPopupId,
-    getPostBadges,
     getPostIntro,
     getPostPopupParam,
     i18nFormat,
@@ -29,7 +28,6 @@
   import Button from '../button.svelte'
   import FeedLink from '../feed-link.svelte'
   import FormattedText from '../formatted-text.svelte'
-  import PostBadges from '../post/badges.svelte'
   import PostByline from '../post/byline.svelte'
   import PostMedia from '../post/media.svelte'
   import PostOpenNote from '../post/open-note.svelte'
@@ -60,7 +58,6 @@
   let current = $derived(highlight && isOpenedPost($openedPost, post))
 
   let url = $derived(userPostUrl(post))
-  let badges = $derived(getPostBadges(post))
   let hasByline = $derived(!!(author || post.author || post.repostedBy))
   let feedInHeader = $derived(!!author && !post.repostedBy)
   let dynamic = $derived('dynamic' in post ? post.dynamic : undefined)
@@ -206,11 +203,6 @@
     {/if}
     {#if !dynamic}
       <footer class="feed-post_actions">
-        {#if badges.length > 0}
-          <div class="feed-post_badges">
-            <PostBadges {badges} />
-          </div>
-        {/if}
         <div class="feed-post_fill"></div>
         {#if url}
           <div class="feed-post_action">
@@ -410,11 +402,6 @@
       /* Actions are aligned by own padding, not by the content gap */
       margin-top: -0.625rem;
       margin-inline: calc(-1 * var(--control-padding));
-    }
-
-    .feed-post_badges {
-      align-self: center;
-      margin-inline-start: 0.5rem;
     }
 
     .feed-post_date {
