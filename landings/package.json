@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@fontsource-variable/catamaran": "5.3.0",
-    "marked": "18.2.0",
+    "marked": "18.2.1",
     "playwright": "1.65.1",
     "postcss": "8.5.33",
     "postcss-smooth-corners": "0.2.0",

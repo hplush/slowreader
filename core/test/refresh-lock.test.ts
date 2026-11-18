@@ -180,13 +180,18 @@ describe('refresh lock', () => {
     let credentials = await signUp()
     let other = await connectOther(credentials)
     let lost = 0
-    equal(
-      await requestRefreshLock(() => {
-        lost += 1
+    deepEqual(
+      await collect(other, async () => {
+        equal(
+          await requestRefreshLock(() => {
+            lost += 1
+          }),
+          true
+        )
+        await disconnect()
       }),
-      true
+      [refreshLocked({ nodeId: getClient().nodeId }), refreshUnlocked({})]
     )
-    await disconnect()
     equal(refreshLock.get(), 'free')
 
     deepEqual(
