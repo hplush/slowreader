@@ -85,6 +85,7 @@ export const urlRouter = computed(pathRouter, path => {
     return {
       hash: path.hash,
       params: moveFromSearch<Routes['slow']>(path.params, path.search, {
+        category: true,
         feed: true,
         from: true
       }),
@@ -159,7 +160,7 @@ export function getURL(
 
   let url
   if (page.route === 'slow') {
-    url = moveToSearch(page, { from: true })
+    url = moveToSearch(page, { category: true, from: true })
   } else if (page.route === 'fast') {
     url = moveToSearch(page, { from: true })
   } else {
@@ -167,6 +168,16 @@ export function getURL(
   }
 
   return url + hash
+}
+
+/**
+ * Another page of posts of the same feed or category.
+ */
+export function getPaginationURL(currentRoute: Route, from: string): string {
+  return getURL({
+    params: { ...currentRoute.params, from },
+    route: currentRoute.route
+  })
 }
 
 export function openRoute(route: Route, replace: boolean): void {

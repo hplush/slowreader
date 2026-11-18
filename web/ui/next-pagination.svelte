@@ -5,9 +5,9 @@
     mdiCheckboxMultipleMarkedOutline,
     mdiFire
   } from '@mdi/js'
-  import { feedsMessages as t } from '@slowreader/core'
+  import { router, feedsMessages as t } from '@slowreader/core'
 
-  import { getURL } from '../stores/url-router.ts'
+  import { getPaginationURL, getURL } from '../stores/url-router.ts'
   import Button from './button.svelte'
   import Stack from './stack.svelte'
 
@@ -38,7 +38,11 @@
 
 <Stack gap="s" row>
   {#if prev}
-    <Button href={`?from=${prev}`} icon={mdiArrowLeft} size="icon">
+    <Button
+      href={getPaginationURL($router, prev)}
+      icon={mdiArrowLeft}
+      size="icon"
+    >
       {$t.prevPage}
     </Button>
   {/if}
@@ -59,7 +63,7 @@
   {#if next}
     <Button
       anchor="next-page"
-      href={`?from=${next}`}
+      href={getPaginationURL($router, next)}
       icon={mdiArrowRight}
       size="icon"
     >

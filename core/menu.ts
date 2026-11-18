@@ -600,7 +600,11 @@ export const backRoute = computed(
   (layout, route, openable): ParamlessRouteName | undefined => {
     if (layout === 'desktop') return undefined
     if (SETTINGS.has(route.route) || FEEDS.has(route.route)) return 'menu'
-    if (route.route === 'slow' && route.params.feed && openable.slow) {
+    if (
+      route.route === 'slow' &&
+      (route.params.feed || route.params.category) &&
+      openable.slow
+    ) {
       return 'slow'
     }
     if (route.route === 'fast' && route.params.category && openable.fast) {

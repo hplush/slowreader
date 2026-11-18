@@ -95,6 +95,7 @@
       syncStatus.set('connectingAfterWait')
     }}
     posts={POSTS}
+    route={{ params: { category: 'browsers' }, route: 'slow' }}
   >
     <Navbar />
   </Scene>

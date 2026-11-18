@@ -740,6 +740,49 @@
   </Scene>
 </Story>
 
+<Story name="Slow Category" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    categories={[{ id: 'browsers', title: 'Browsers' }]}
+    feeds={[
+      { categoryId: 'browsers', id: 'feed', title: 'The Mozilla Blog' },
+      { categoryId: 'browsers', id: 'chrome', title: 'Chrome Releases' }
+    ]}
+    posts={[
+      ...POSTS,
+      { feedId: 'chrome', reading: 'slow', title: 'Stable Channel Update' }
+    ]}
+    route={{ params: { category: 'browsers' }, route: 'slow' }}
+  >
+    <FeedsPage page={pages.slow()} />
+  </Scene>
+</Story>
+
+<Story
+  name="Mobile Slow Menu"
+  asChild
+  globals={{ viewport: { value: 'mobile2' } }}
+  parameters={{ layout: 'fullscreen' }}
+>
+  <Scene
+    categories={[
+      { id: 'browsers', title: 'Browsers' },
+      { id: 'socials', title: 'Social Medias' }
+    ]}
+    feeds={[
+      { categoryId: 'browsers', id: 'mozilla', title: 'The Mozilla Blog' },
+      { categoryId: 'socials', id: 'mastadon', title: 'Mastodon Blog' }
+    ]}
+    posts={[
+      { feedId: 'mozilla', reading: 'slow' },
+      { feedId: 'mastadon', reading: 'slow' }
+    ]}
+    route="slow"
+  >
+    <FeedsPage page={pages.slow()} />
+    <Navbar />
+  </Scene>
+</Story>
+
 <Story
   name="Mobile Menu"
   asChild

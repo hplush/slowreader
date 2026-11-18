@@ -41,10 +41,7 @@ const READERS: { [Name in ReaderName]: ReaderCreator } = {
 
 let pages = (['slow', 'fast'] as const).map(reading => {
   return createPage(reading, () => {
-    let $categoryId =
-      reading === 'fast'
-        ? routeParam('fast', 'category')
-        : atom<string | undefined>()
+    let $categoryId = routeParam(reading, 'category')
     let $feedId =
       reading === 'slow'
         ? routeParam('slow', 'feed')

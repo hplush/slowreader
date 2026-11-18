@@ -1,4 +1,4 @@
-import { equal } from 'node:assert/strict'
+import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -244,6 +244,41 @@ describe('feeds page', () => {
 
     equal(page.params.feed.get(), feed2)
     equal(page.posts.get()!.name, 'list')
+  })
+
+  test('opens all posts of the slow category', async () => {
+    busyUntilMenuLoader()
+    await waitLoading(busy)
+    let category = await addCategory({ slowReader: 'list', title: 'A' })
+    let feed1 = await addFeed(testFeed({ categoryId: category, title: 'F1' }))
+    let feed2 = await addFeed(testFeed({ categoryId: category, title: 'F2' }))
+    let other = await addFeed(
+      testFeed({
+        categoryId: await addCategory({ title: 'B' }),
+        slowReader: 'list'
+      })
+    )
+    await addPost(testPost({ feedId: feed1, reading: 'slow' }))
+    await addPost(testPost({ feedId: feed2, reading: 'slow' }))
+    await addPost(testPost({ feedId: feed2, reading: 'fast' }))
+    await addPost(testPost({ feedId: other, reading: 'slow' }))
+    await setTimeout(10)
+
+    let page = openPage({ params: { category }, route: 'slow' })
+    await waitLoading(page.loading)
+    equal(page.feed.get(), undefined)
+    equal(page.category.get()?.title, 'A')
+    let reader = ensureReader(page.posts, 'list')
+    equal(reader.list.get().length, 2)
+    deepEqual(
+      new Set(reader.list.get().map(post => post.feedId)),
+      new Set([feed1, feed2])
+    )
+
+    await reader.readPage()
+    await setTimeout(10)
+    equal(page.params.category.get(), undefined)
+    equal(page.params.feed.get(), other)
   })
 
   test('waits for the menu before opening the next feed', async () => {

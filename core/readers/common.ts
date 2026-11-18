@@ -103,9 +103,12 @@ function menuHasUnread(filter: PostFilter): boolean {
   if (filter.reading === 'fast') {
     return unreadFastMenu.get().some(i => i.id === filter.categoryId)
   } else {
-    return slowMenu
-      .get()
-      .some(([, feeds]) => feeds.some(([feed]) => feed.id === filter.feedId))
+    return slowMenu.get().some(([category, feeds]) => {
+      return (
+        category.id === filter.categoryId ||
+        feeds.some(([feed]) => feed.id === filter.feedId)
+      )
+    })
   }
 }
 

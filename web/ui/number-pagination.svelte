@@ -1,7 +1,12 @@
 <script lang="ts">
   import { mdiArrowRight } from '@mdi/js'
-  import { type PaginationValue, feedsMessages as t } from '@slowreader/core'
+  import {
+    type PaginationValue,
+    router,
+    feedsMessages as t
+  } from '@slowreader/core'
 
+  import { getPaginationURL } from '../stores/url-router.ts'
   import Button from './button.svelte'
   import Clickable from './clickable.svelte'
 
@@ -23,7 +28,7 @@
         <Clickable
           class="number-pagination_page"
           disabled={page === pages.page}
-          href={`?from=${page}`}
+          href={getPaginationURL($router, `${page}`)}
           title={`${page + 1}`}
         >
           {#if pages.titles}
@@ -36,7 +41,7 @@
       <Button
         anchor="next-page"
         disabled={!pages.hasNext}
-        href={`?from=${pages.page + 1}`}
+        href={getPaginationURL($router, `${pages.page + 1}`)}
         icon={mdiArrowRight}
         variant="attention"
       >

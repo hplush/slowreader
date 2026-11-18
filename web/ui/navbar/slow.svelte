@@ -18,6 +18,9 @@
     name={category.id === GENERAL_CATEGORY
       ? $t.generalCategory
       : category.title}
+    current={$router.route === 'slow' &&
+      $router.params.category === category.id}
+    href={getURL({ params: { category: category.id }, route: 'slow' })}
   >
     {#each feeds as [feed, unread] (feed.id)}
       <NavbarItem

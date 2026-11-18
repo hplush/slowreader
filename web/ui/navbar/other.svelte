@@ -44,7 +44,7 @@
   } satisfies Record<OtherName, string>
 </script>
 
-<NavbarCategory id="other-feeds" name={$t.feeds} closable={false}>
+<NavbarCategory id="other-feeds" name={$t.feeds}>
   {#each FEED_ROUTES as route (route)}
     <NavbarItem
       name={$t[route]}
@@ -55,7 +55,7 @@
   {/each}
 </NavbarCategory>
 
-<NavbarCategory id="other-settings" name={$t.settings} closable={false}>
+<NavbarCategory id="other-settings" name={$t.settings}>
   {#each SETTINGS_ROUTES as route (route)}
     <NavbarItem
       name={$t[route]}

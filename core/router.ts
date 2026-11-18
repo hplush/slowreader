@@ -31,6 +31,7 @@ export interface Routes {
   settings: {}
   signUp: {}
   slow: {
+    category?: string
     feed?: string
     from?: string
   }

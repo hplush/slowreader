@@ -135,6 +135,9 @@ describe('menu', () => {
     openRoute({ params: { feed: slow }, route: 'slow' })
     equal(backRoute.get(), 'slow')
 
+    openRoute({ params: { category }, route: 'slow' })
+    equal(backRoute.get(), 'slow')
+
     openRoute({ params: {}, route: 'slow' })
     equal(backRoute.get(), undefined)
 

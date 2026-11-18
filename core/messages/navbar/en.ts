@@ -1,3 +1,5 @@
+import { params } from '@nanostores/i18n'
+
 import { i18n } from '../../i18n.ts'
 
 export const navbarMessages = i18n('navbar', {
@@ -9,6 +11,7 @@ export const navbarMessages = i18n('navbar', {
   balanceGood: 'Good balance of Useful and Fun',
   balanceNeutral: 'More Fun than Useful',
   categories: 'Categories',
+  categoryFeeds: params('Feeds of {name}'),
   cloud: 'Cloud',
   coach: 'Coach',
   connectingStatus: 'Connecting…',
