@@ -80,6 +80,7 @@
   let downloaded = new SvelteSet<string>()
   let declined = new SvelteSet<string>()
   let autoloaded = new Set<string>()
+  let autoplayed = new SvelteSet<string>()
   let playback = new SvelteMap<string, 'muted' | 'paused' | 'voiced'>()
   let revealed = $state(false)
   let clicked = $state<string>()
@@ -129,6 +130,10 @@
         !declined.has(item.url) &&
         !broken.has(item.url) &&
         (!waitsClick(item, $saveData, downloaded) || canStreamMedia()),
+      controls(shown) {
+        if (shown) autoplayed.delete(item.url)
+        else autoplayed.add(item.url)
+      },
       leave() {
         if (autoloaded.delete(item.url) && waitsFile(item)) {
           downloaded.delete(item.url)
@@ -274,10 +279,13 @@
     {@attach focusClicked(item.url)}
     {@attach mediaSrc(item.url, { stream: true, web: false })}
     {@attach mediaSrc(shownPoster(item), { attribute: 'poster' })}
+    {@attach () => () => {
+      autoplayed.delete(item.url)
+    }}
     aria-busy={waitsFile(item)}
     aria-label={item.alt}
     autoplay={clicked === item.url && !isLoaderMedia(item.url)}
-    controls={!isRound(item) && !waitsFile(item)}
+    controls={!isRound(item) && !waitsFile(item) && !autoplayed.has(item.url)}
     controlslist={protect ? 'nodownload noremoteplayback' : undefined}
     disablepictureinpicture={!!protect}
     height={item.size?.height}

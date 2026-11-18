@@ -456,11 +456,12 @@
       {
         feedId: 'feed',
         full:
-          '<p>Video starts by itself without sound. Telegram’s video ' +
-          'downloads the file first and shows the loader without the click. ' +
-          'Only the upper of videos on the screen plays, so the next ' +
-          'videos wait for their turn. Round video has no controls: ' +
-          'click plays it with sound, the next click pauses it.</p>',
+          '<p>Video starts by itself without sound and without controls: ' +
+          'mouse over the video returns them, click pauses it. Telegram’s ' +
+          'video downloads the file first and shows the loader without ' +
+          'the click. Only the upper of videos on the screen plays, so the ' +
+          'next videos wait for their turn. Round video never has ' +
+          'controls: click plays it with sound, the next click pauses it.</p>',
         media: [
           {
             placeholder: TINY,

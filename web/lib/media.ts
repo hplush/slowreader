@@ -11,6 +11,7 @@ import type { MediaPart, MediaPartRequest, StreamPath } from '../main/sw.ts'
 
 interface VideoSlot {
   auto: boolean
+  controls?(shown: boolean): void
   leave?(): void
   load?(): void
 }
@@ -63,8 +64,15 @@ function pauseUnpicked(): Element | undefined {
 function startMuted(node: Element, video: HTMLVideoElement): void {
   video.muted = true
   started.add(video)
+  // Video without controls would lose the keyboard focus
+  if (!node.contains(document.activeElement)) {
+    slots.get(node)!.controls?.(false)
+  }
   video.play().catch(() => {
-    if (started.delete(video)) dismissed.add(node)
+    if (started.delete(video)) {
+      dismissed.add(node)
+      slots.get(node)?.controls?.(true)
+    }
   })
 }
 
@@ -118,6 +126,30 @@ function dismissPaused(event: Event): void {
   let node = event.currentTarget as Element
   started.delete(video)
   if (!silenced.delete(video)) dismissed.add(node)
+  slots.get(node)!.controls?.(true)
+}
+
+function findBare(event: Event): HTMLVideoElement | undefined {
+  let video = event.target
+  return video instanceof HTMLVideoElement &&
+    !video.controls &&
+    started.has(video)
+    ? video
+    : undefined
+}
+
+/**
+ * Browser does not always show the controls, which were returned
+ * to a playing video, but always shows them on a paused one.
+ */
+function pauseBare(event: Event): void {
+  findBare(event)?.pause()
+}
+
+function returnControlsToMouse(event: PointerEvent): void {
+  if (event.pointerType === 'mouse' && findBare(event)) {
+    slots.get(event.currentTarget as Element)!.controls?.(true)
+  }
 }
 
 function keepUnmuted(event: Event): void {
@@ -128,6 +160,9 @@ function keepUnmuted(event: Event): void {
 /**
  * Only one video plays at the same time and only on the screen.
  * With `auto` the upper of videos on the screen is started without sound.
+ *
+ * Browser keeps its controls over a just started video for seconds,
+ * so `controls` hides them until the pause or the mouse over the video.
  */
 export function watchVideo(slot: VideoSlot): Attachment<HTMLElement> {
   return node => {
@@ -159,6 +194,8 @@ export function watchVideo(slot: VideoSlot): Attachment<HTMLElement> {
     node.addEventListener('pause', dismissPaused, options)
     node.addEventListener('volumechange', keepUnmuted, options)
     node.addEventListener('loadstart', startAutoloaded, options)
+    node.addEventListener('click', pauseBare, options)
+    node.addEventListener('pointermove', returnControlsToMouse, options)
     slots.set(node, slot)
     watcher.observe(node)
     return () => {
