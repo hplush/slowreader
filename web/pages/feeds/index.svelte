@@ -152,7 +152,7 @@
           useful={$openableMenu.slow && $needUsefulReminder}
         />
       {:else if reader && $pages}
-        {#if $list?.some(post => !post.read)}
+        {#if $readingPage || $list?.some(post => !post.read)}
           <Stack align="center">
             <Button
               anchor="read-page"
