@@ -166,6 +166,13 @@ export interface MediaRange {
 }
 
 /**
+ * When the answer is needed: `now` for what user waits for on the screen,
+ * `soon` for what user will likely ask next, like the rest of the opened
+ * page, `later` for work without a waiting user, like refresh.
+ */
+export type Urgency = 'later' | 'soon' | 'now'
+
+/**
  * User’s account on the service to read the home timeline and follow authors.
  */
 export interface AccountLoader<Data = unknown> {
@@ -301,7 +308,7 @@ export type Loader = {
     url: string,
     signal?: AbortSignal,
     range?: MediaRange,
-    background?: boolean
+    urgency?: Urgency
   ): Promise<Response> | undefined
 
   /**

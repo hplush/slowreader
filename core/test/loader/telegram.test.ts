@@ -25,6 +25,7 @@ import {
   loadFeed,
   loadFeeds,
   loadMediaBlob,
+  loadPageMedia,
   loadPosts,
   mediaErrors,
   type OriginPost,
@@ -2575,7 +2576,7 @@ describe('telegram loader', () => {
     deepEqual(getRequestTypes(), ['getMe'])
   })
 
-  test('sends requests of the page before background ones', async () => {
+  test('sends requests by their urgency', async () => {
     let answers: Record<string, () => void> = {}
     testTelegram.answers.getUser = ({ user_id: id }) => {
       return new Promise(resolve => {
@@ -2584,11 +2585,14 @@ describe('telegram loader', () => {
         }
       })
     }
-    function send(id: string, background = false): Promise<TelegramObject> {
+    function send(
+      id: string,
+      urgency?: 'later' | 'soon'
+    ): Promise<TelegramObject> {
       return sendToTelegram(
         'name',
         { '@type': 'getUser', 'user_id': id },
-        background
+        urgency
       )
     }
     function getSent(): unknown[] {
@@ -2602,32 +2606,35 @@ describe('telegram loader', () => {
     }
 
     let sending = [
-      send('refresh1', true),
-      send('refresh2', true),
-      send('refresh3', true),
-      send('refresh4', true),
-      send('page1'),
-      send('page2')
+      send('refresh1', 'later'),
+      send('refresh2', 'later'),
+      send('refresh3', 'later'),
+      send('rest1', 'soon'),
+      send('rest2', 'soon'),
+      send('screen1'),
+      send('screen2')
     ]
-    // Background requests never take the last place
-    deepEqual(getSent(), ['refresh1', 'refresh2', 'page1'])
+    // Only `now` requests take the last place
+    deepEqual(getSent(), ['refresh1', 'refresh2', 'screen1'])
 
     await answer('refresh1')
-    deepEqual(getSent(), ['refresh1', 'refresh2', 'page1', 'page2'])
-    await answer('page1')
-    deepEqual(getSent().slice(4), ['refresh3'])
-    await answer('page2')
-    deepEqual(getSent().slice(4), ['refresh3'])
+    deepEqual(getSent(), ['refresh1', 'refresh2', 'screen1', 'screen2'])
+    await answer('screen1')
+    deepEqual(getSent().slice(4), ['rest1'])
+    await answer('screen2')
+    deepEqual(getSent().slice(4), ['rest1'])
     await answer('refresh2')
-    deepEqual(getSent().slice(4), ['refresh3', 'refresh4'])
+    deepEqual(getSent().slice(4), ['rest1', 'rest2'])
+    await answer('rest1')
+    deepEqual(getSent().slice(4), ['rest1', 'rest2', 'refresh3'])
 
+    await answer('rest2')
     await answer('refresh3')
-    await answer('refresh4')
     await Promise.all(sending)
   })
 
   /**
-   * Takes both places of background requests. Every `step()` lets go only
+   * Takes both places of `later` requests. Every `step()` lets go only
    * the requests, which already wait for a place, and returns them.
    */
   function holdBackground(): { free(): void; step(): Promise<string[]> } {
@@ -2640,7 +2647,7 @@ describe('telegram loader', () => {
       })
     }
     function hold(): void {
-      void sendToTelegram('name', { '@type': 'getMe' }, true)
+      void sendToTelegram('name', { '@type': 'getMe' }, 'later')
     }
     hold()
     hold()
@@ -2744,7 +2751,7 @@ describe('telegram loader', () => {
     equal(posts.get().list.length, 4)
 
     testTelegram.answers.getMessage = rich(2, [paragraph(plain('Cut'))], false)
-    let picture = getMedia!('telegram:5/2/0', undefined, undefined, true)!
+    let picture = getMedia!('telegram:5/2/0', undefined, undefined, 'later')!
     deepEqual(await step(), ['getChat'])
     deepEqual(await step(), ['getMessage'])
     deepEqual(await step(), [
@@ -2758,7 +2765,7 @@ describe('telegram loader', () => {
       'telegram:user/5/avatar/a1',
       undefined,
       undefined,
-      true
+      'later'
     )!
     deepEqual(await step(), ['getUser', 'downloadFile', 'deleteFile'])
     equal(await (await avatar).text(), 'avatar')
@@ -2847,6 +2854,12 @@ describe('telegram loader', () => {
     equal((await loadPosts()).length, 2)
   })
 
+  function getDownloads(): unknown[] {
+    return testTelegram.requests
+      .filter(i => i['@type'] === 'downloadFile')
+      .map(i => [i.priority, i.synchronous])
+  }
+
   test('downloads the file of the page before files for the cache', async () => {
     let { getMedia } = loaders.telegram
     deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
@@ -2871,33 +2884,37 @@ describe('telegram loader', () => {
       })
     }
     testTelegram.files = { 12: new Blob(['photo']) }
-    function getDownloads(): unknown[] {
-      return testTelegram.requests
-        .filter(i => i['@type'] === 'downloadFile')
-        .map(i => [i.priority, i.synchronous])
-    }
 
-    let cache = getMedia!('telegram:5/4', undefined, undefined, true)!
+    let cache = getMedia!('telegram:5/4', undefined, undefined, 'later')!
     await setTimeout(10)
     deepEqual(getDownloads(), [[1, true]])
 
-    let feed = getMedia!('telegram:5/4')!
-    let popup = getMedia!('telegram:5/4')!
+    let below = getMedia!('telegram:5/4', undefined, undefined, 'soon')!
     await setTimeout(10)
     deepEqual(getDownloads(), [
       [1, true],
+      [8, false]
+    ])
+
+    let feed = getMedia!('telegram:5/4')!
+    let popup = getMedia!('telegram:5/4')!
+    let other = getMedia!('telegram:5/4', undefined, undefined, 'soon')!
+    await setTimeout(10)
+    deepEqual(getDownloads(), [
+      [1, true],
+      [8, false],
       [16, false]
     ])
     finish!()
     await setTimeout(10)
     clean!()
-    for (let reader of [cache, feed, popup]) {
+    for (let reader of [cache, below, feed, popup, other]) {
       equal(await (await reader).text(), 'photo')
     }
 
     // TDLib would start a new download of the file, which it already has
     testTelegram.requests = []
-    let saved = getMedia!('telegram:5/4', undefined, undefined, true)!
+    let saved = getMedia!('telegram:5/4', undefined, undefined, 'later')!
     await setTimeout(10)
     finish!()
     await setTimeout(10)
@@ -2910,7 +2927,7 @@ describe('telegram loader', () => {
 
     testTelegram.requests = []
     let first = getMedia!('telegram:5/4')!
-    let second = getMedia!('telegram:5/4', undefined, undefined, true)!
+    let second = getMedia!('telegram:5/4', undefined, undefined, 'later')!
     await setTimeout(10)
     deepEqual(getDownloads(), [[16, true]])
     finish!()
@@ -2918,6 +2935,103 @@ describe('telegram loader', () => {
     clean!()
     equal(await (await first).text(), 'photo')
     equal(await (await second).text(), 'photo')
+  })
+
+  test('loads media on the screen before the rest of the page', async () => {
+    deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
+    mockHistory(0, {})
+    let posts: (() => void)[] = []
+    testTelegram.answers.getMessage = photoPost
+    let finish: (() => void) | undefined
+    testTelegram.answers.downloadFile = ({ file_id: id, synchronous }) => {
+      let downloaded = { '@type': 'file', id, 'size': 5 }
+      if (!synchronous) return downloaded
+      return new Promise(resolve => {
+        finish = () => {
+          resolve(downloaded)
+        }
+      })
+    }
+    testTelegram.answers.deleteFile = { '@type': 'ok' }
+    testTelegram.answers.cancelDownloadFile = { '@type': 'ok' }
+    testTelegram.files = { 12: new Blob(['photo']) }
+    let page = new AbortController()
+
+    equal(
+      loadPageMedia('https://example.com/a.jpg', false, page.signal),
+      undefined
+    )
+
+    let shown = loadPageMedia('telegram:5/4', false, page.signal)!
+    await setTimeout(10)
+    deepEqual(testTelegram.requests, [])
+    shown.setVisible(true)
+    shown.setVisible(false)
+    shown.setVisible(true)
+    await setTimeout(10)
+    deepEqual(getDownloads(), [[16, true]])
+    finish!()
+    equal(await (await shown.blob).text(), 'photo')
+
+    testTelegram.requests = []
+    let below = loadPageMedia('telegram:5/4', false, page.signal)!
+    below.setVisible(false)
+    below.setVisible(false)
+    await setTimeout(10)
+    deepEqual(getDownloads(), [[8, true]])
+    below.setVisible(true)
+    await setTimeout(10)
+    deepEqual(getDownloads(), [
+      [8, true],
+      [16, false]
+    ])
+    finish!()
+    equal(await (await below.blob).text(), 'photo')
+    await setTimeout(10)
+    testTelegram.requests = []
+    below.setVisible(true)
+    await setTimeout(10)
+    deepEqual(testTelegram.requests, [])
+
+    // Error of the slow loading does not hide the file of the fast one
+    testTelegram.answers.getMessage = () => {
+      return new Promise(resolve => {
+        posts.push(() => {
+          resolve(posts.length === 2 ? fail('Not found', 404) : photoPost)
+        })
+      })
+    }
+    let retried = loadPageMedia('telegram:5/4', false, page.signal)!
+    retried.setVisible(false)
+    await setTimeout(10)
+    retried.setVisible(true)
+    await setTimeout(10)
+    posts[0]!()
+    await setTimeout(10)
+    posts.pop()!()
+    await setTimeout(10)
+    finish!()
+    equal(await (await retried.blob).text(), 'photo')
+
+    testTelegram.answers.getMessage = fail('Not found', 404)
+    let broken = loadPageMedia('telegram:5/4', false, page.signal)!
+    broken.setVisible(false)
+    await rejects(broken.blob, { name: 'TelegramError' })
+    testTelegram.requests = []
+    broken.setVisible(true)
+    await setTimeout(10)
+    deepEqual(testTelegram.requests, [])
+
+    testTelegram.answers.getMessage = photoPost
+    let left = loadPageMedia('telegram:5/4', false, page.signal)!
+    left.setVisible(true)
+    await setTimeout(10)
+    page.abort()
+    await rejects(left.blob, { name: 'AbortError' })
+    testTelegram.requests = []
+    left.setVisible(true)
+    await setTimeout(10)
+    deepEqual(testTelegram.requests, [])
   })
 
   test('finds channel by URL and follows it', async () => {

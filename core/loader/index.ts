@@ -12,7 +12,8 @@ import type {
   LastRefresh,
   Loader,
   MediaRange,
-  MovedFeed
+  MovedFeed,
+  Urgency
 } from './common.ts'
 import { jsonFeed } from './json-feed.ts'
 import { mastodon } from './mastodon.ts'
@@ -27,7 +28,8 @@ export type {
   LastRefresh,
   Loader,
   MediaRange,
-  MovedFeed
+  MovedFeed,
+  Urgency
 }
 
 export const loaders = {
@@ -65,10 +67,10 @@ export function loadLoaderMedia(
   url: string,
   signal?: AbortSignal,
   range?: MediaRange,
-  background?: boolean
+  urgency?: Urgency
 ): Promise<Response> | undefined {
   for (let loader of Object.values<Loader>(loaders)) {
-    let media = loader.getMedia?.(url, signal, range, background)
+    let media = loader.getMedia?.(url, signal, range, urgency)
     if (media) return media
   }
   return undefined

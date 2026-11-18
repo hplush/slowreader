@@ -40,7 +40,8 @@ import {
   type Loader,
   type MediaRange,
   readLoaderData,
-  type SignInStep
+  type SignInStep,
+  type Urgency
 } from './common.ts'
 
 /**
@@ -86,16 +87,6 @@ interface Session {
    */
   active: number
   /**
-   * Active requests of refresh and media cache. They never take the last
-   * free place, so a request of the page does not wait for a slow one.
-   */
-  background: number
-  /**
-   * Files, which TDLib downloads only for the media cache. The page moves
-   * the file before them, when it asks for the same one.
-   */
-  caching: Set<number>
-  /**
    * Channels, which TDLib loaded after its start, with the last post and
    * the read position from its updates.
    */
@@ -134,10 +125,15 @@ interface Session {
   keep: boolean
   /**
    * Parallel refreshes of channels share one loading of the next part
-   * of the chat list. The page can wait for it too, so it is never sent
-   * as a background request.
+   * of the chat list. The page can wait for it too, so it is always sent
+   * as a `now` request.
    */
   loadingChats: Promise<void> | undefined
+  /**
+   * Active `soon` and `later` requests. They never take the last free place,
+   * so a `now` request does not wait for a slow one.
+   */
+  patient: number
   sponsored: Map<string, TelegramObject>
   state: TelegramObject | undefined
   /**
@@ -150,12 +146,16 @@ interface Session {
     number,
     { loading: number; tail: Promise<unknown>; viewers: Set<AbortSignal> }
   >
+  /**
+   * Urgency of files, which TDLib downloads right now. Somebody with higher
+   * urgency moves the file up, when asks for the same one.
+   */
+  urgencies: Map<number, Urgency>
   waiters: Set<(state: TelegramObject) => void>
   /**
-   * Requests, which wait for the end of the active ones. Requests of the page
-   * go before all `background` ones.
+   * Requests, which wait for the end of the active ones.
    */
-  waiting: { background: (() => void)[]; urgent: (() => void)[] }
+  waiting: Record<Urgency, (() => void)[]>
 }
 
 let sessions = new Map<string, Session>()
@@ -210,8 +210,6 @@ function getSession(name: string): Session {
   if (!app || !creator) throw new Error('No Telegram on this client')
   let created: Session = {
     active: 0,
-    background: 0,
-    caching: new Set(),
     channels: new Map(),
     client: creator({ ...app, name }),
     connected: false,
@@ -222,11 +220,13 @@ function getSession(name: string): Session {
     idle: undefined,
     keep: false,
     loadingChats: undefined,
+    patient: 0,
     sponsored: new Map(),
     state: undefined,
     streams: new Map(),
+    urgencies: new Map(),
     waiters: new Set(),
-    waiting: { background: [], urgent: [] }
+    waiting: { later: [], now: [], soon: [] }
   }
   created.client.onUpdate(update => {
     if (update['@type'] === 'updateConnectionState') {
@@ -276,25 +276,25 @@ function closeOnIdle(session: Session): void {
  * Telegram blocks the account for minutes after too many requests at once,
  * so only 3 requests are sent at the same time.
  *
- * `background` request of refresh or media cache waits for all requests,
- * which user waits for on the screen.
+ * Request waits for all requests with higher `urgency`.
  */
 export async function sendToTelegram(
   name: string,
   body: TelegramRequest,
-  background = false
+  urgency: Urgency = 'now'
 ): Promise<TelegramObject> {
   let session = getSession(name)
   // Long download of a video must not hold posts loading
   let limited = body['@type'] !== 'downloadFile'
+  let patient = urgency !== 'now'
   if (limited) {
-    if (session.active >= 3 || (background && session.background >= 2)) {
+    if (session.active >= 3 || (patient && session.patient >= 2)) {
       await new Promise<void>(resolve => {
-        session.waiting[background ? 'background' : 'urgent'].push(resolve)
+        session.waiting[urgency].push(resolve)
       })
     } else {
       session.active += 1
-      if (background) session.background += 1
+      if (patient) session.patient += 1
     }
   }
   clearTimeout(session.idle)
@@ -312,11 +312,11 @@ export async function sendToTelegram(
   } finally {
     if (limited) {
       session.active -= 1
-      if (background) session.background -= 1
-      let next = session.waiting.urgent.shift()
-      if (!next && session.background < 2) {
-        next = session.waiting.background.shift()
-        if (next) session.background += 1
+      if (patient) session.patient -= 1
+      let next = session.waiting.now.shift()
+      if (!next && session.patient < 2) {
+        next = session.waiting.soon.shift() ?? session.waiting.later.shift()
+        if (next) session.patient += 1
       }
       if (next) {
         session.active += 1
@@ -599,13 +599,13 @@ async function loadChatsSince(name: string, date: number): Promise<void> {
 async function loadChannelUrl(
   name: string,
   supergroupId: unknown,
-  background = false
+  urgency: Urgency = 'now'
 ): Promise<string> {
   let username = getUsername(
     await sendToTelegram(
       name,
       { '@type': 'getSupergroup', 'supergroup_id': supergroupId },
-      background
+      urgency
     )
   )
   return username
@@ -652,14 +652,14 @@ async function loadChannels(name: string): Promise<LoadedAuthor[]> {
 async function loadChat(
   name: string,
   chatId: number,
-  background = false
+  urgency: Urgency = 'now'
 ): Promise<TelegramObject> {
   for (;;) {
     try {
       return await sendToTelegram(
         name,
         { '@type': 'getChat', 'chat_id': chatId },
-        background
+        urgency
       )
     } catch (e) {
       if (!TelegramError.is(e) || getSession(name).depth === 0) throw e
@@ -717,32 +717,32 @@ function parseLink(
 function checkInvite(
   name: string,
   code: string,
-  background = false
+  urgency: Urgency = 'now'
 ): Promise<TelegramObject> {
   return sendToTelegram(
     name,
     { '@type': 'checkChatInviteLink', 'invite_link': `https://t.me/${code}` },
-    background
+    urgency
   )
 }
 
 async function loadChatByKey(
   name: string,
   key: number | string,
-  background = false
+  urgency: Urgency = 'now'
 ): Promise<TelegramObject> {
-  if (typeof key === 'number') return loadChat(name, key, background)
+  if (typeof key === 'number') return loadChat(name, key, urgency)
   if (!key.startsWith('+')) {
     return sendToTelegram(
       name,
       { '@type': 'searchPublicChat', 'username': key },
-      background
+      urgency
     )
   }
-  let invite = await checkInvite(name, key, background)
+  let invite = await checkInvite(name, key, urgency)
   // Telegram shows only the title of a private channel before joining it
   if (!invite.chat_id) throw new TelegramError(403, 'Join the channel first')
-  return loadChat(name, Number(invite.chat_id), background)
+  return loadChat(name, Number(invite.chat_id), urgency)
 }
 
 function getChannelKey(
@@ -765,14 +765,14 @@ async function findChat(
   auth: AccountAuth | undefined,
   url: string,
   loaderData?: null | string,
-  background = false
+  urgency: Urgency = 'now'
 ): Promise<{ chat: TelegramObject; name: string }> {
   let key = getChannelKey(url, loaderData)
   async function ask(
     name: string
   ): Promise<{ chat: TelegramObject; name: string }> {
     if (key === undefined) throw new TelegramError(404, 'Not a channel URL')
-    return { chat: await loadChatByKey(name, key, background), name }
+    return { chat: await loadChatByKey(name, key, urgency), name }
   }
   return auth ? ask(getDevice(auth)) : askAnySession(ask)
 }
@@ -1216,7 +1216,7 @@ function parseRichMessage(
 async function completeCutText(
   name: string,
   message: TelegramObject,
-  background = false
+  urgency: Urgency = 'now'
 ): Promise<boolean> {
   let content = message.content
   if (
@@ -1233,7 +1233,7 @@ async function completeCutText(
       'chat_id': message.chat_id,
       'message_id': message.id
     },
-    background
+    urgency
   )
   return true
 }
@@ -1282,7 +1282,7 @@ function getPreview(content: Record<string, unknown>): PostPreview | undefined {
 async function loadForwardAuthor(
   name: string,
   origin: unknown,
-  background: boolean
+  urgency: Urgency
 ): Promise<PostAuthor | undefined> {
   if (!isObject(origin)) return undefined
   if (typeof origin.sender_name === 'string') {
@@ -1293,7 +1293,7 @@ async function loadForwardAuthor(
       let user = await sendToTelegram(
         name,
         { '@type': 'getUser', 'user_id': origin.sender_user_id },
-        background
+        urgency
       )
       let username = getUsername(user)
       return {
@@ -1308,13 +1308,13 @@ async function loadForwardAuthor(
         '@type': 'getChat',
         'chat_id': origin.chat_id ?? origin.sender_chat_id
       },
-      background
+      urgency
     )
     let id = isObject(chat.type) ? chat.type.supergroup_id : undefined
     return {
       ...(id ? getAvatar('channel', id, chat.photo) : undefined),
       title: String(chat.title),
-      url: id ? await loadChannelUrl(name, id, background) : undefined
+      url: id ? await loadChannelUrl(name, id, urgency) : undefined
     }
   } catch (e) {
     if (!TelegramError.is(e)) throw e
@@ -1334,7 +1334,7 @@ async function loadSources(
   chatId: number,
   posts: Map<ParsedPost, TelegramObject>,
   page: TelegramObject[],
-  background = false
+  urgency: Urgency = 'now'
 ): Promise<void> {
   let replies = new Map<ParsedPost, number>()
   await Promise.all(
@@ -1350,7 +1350,7 @@ async function loadSources(
         let author = await loadForwardAuthor(
           name,
           message.forward_info.origin,
-          background
+          urgency
         )
         if (author) {
           post.author = author
@@ -1370,7 +1370,7 @@ async function loadSources(
       let answer = await sendToTelegram(
         name,
         { '@type': 'getMessages', 'chat_id': chatId, 'message_ids': unknown },
-        background
+        urgency
       )
       for (let message of Array.isArray(answer.messages)
         ? answer.messages
@@ -1489,17 +1489,21 @@ function toMedia(
   return [media, file.size]
 }
 
-// TDLib downloads files with higher priority first: the watched video,
-// then files of the page, then files for the media cache
-const PAGE_PRIORITY = 16
+// TDLib downloads files with higher priority first. Only the watched video
+// is above `now`.
+const DOWNLOAD_PRIORITY: Record<Urgency, number> = {
+  later: 1,
+  now: 16,
+  soon: 8
+}
 
 async function moveFileFromTdlib(
   name: string,
   id: number,
-  background: boolean
+  urgency: Urgency
 ): Promise<Blob> {
   let session = getSession(name)
-  if (background) session.caching.add(id)
+  session.urgencies.set(id, urgency)
   let downloaded: TelegramObject
   try {
     downloaded = await sendToTelegram(name, {
@@ -1507,7 +1511,7 @@ async function moveFileFromTdlib(
       'file_id': id,
       'limit': 0,
       'offset': 0,
-      'priority': background ? 1 : PAGE_PRIORITY,
+      'priority': DOWNLOAD_PRIORITY[urgency],
       'synchronous': true
     })
   } catch (e) {
@@ -1517,7 +1521,7 @@ async function moveFileFromTdlib(
     }
     throw e
   } finally {
-    session.caching.delete(id)
+    session.urgencies.delete(id)
   }
   clearTimeout(session.idle)
   try {
@@ -1535,16 +1539,16 @@ async function downloadFile(
   name: string,
   file: MediaFile,
   signal: AbortSignal | undefined,
-  background: boolean
+  urgency: Urgency
 ): Promise<Response> {
   signal?.throwIfAborted()
-  let { caching, downloads, streams } = getSession(name)
+  let { downloads, streams, urgencies } = getSession(name)
   // Media cache takes the video on the next refresh to not stop the player
   if (streams.has(file.id)) throw new DOMException('', 'AbortError')
   let download = downloads.get(file.id)
   if (!download) {
     let created = {
-      blob: moveFileFromTdlib(name, file.id, background),
+      blob: moveFileFromTdlib(name, file.id, urgency),
       readers: 0
     }
     created.blob
@@ -1554,14 +1558,18 @@ async function downloadFile(
       .catch(() => {})
     downloads.set(file.id, created)
     download = created
-  } else if (!background && caching.delete(file.id)) {
+  } else if (
+    DOWNLOAD_PRIORITY[urgency] >
+    DOWNLOAD_PRIORITY[urgencies.get(file.id) ?? 'now']
+  ) {
+    urgencies.set(file.id, urgency)
     // The same request with another priority only moves the running download
     sendToTelegram(name, {
       '@type': 'downloadFile',
       'file_id': file.id,
       'limit': 0,
       'offset': 0,
-      'priority': PAGE_PRIORITY,
+      'priority': DOWNLOAD_PRIORITY[urgency],
       'synchronous': false
     }).catch(() => {})
   }
@@ -1687,7 +1695,7 @@ function loadMedia(
   url: string,
   signal: AbortSignal | undefined,
   range: MediaRange | undefined,
-  background: boolean
+  urgency: Urgency
 ): Promise<Response> | undefined {
   let match =
     /^telegram:(\d+)\/(sponsored\/)?(\d+)(?:\/(\d+))?(?:\/(poster|preview))?$/.exec(
@@ -1701,17 +1709,17 @@ function loadMedia(
     let { files, sponsored } = getSession(name)
     let file = range && files.get(url)
     if (!file) {
-      await loadChat(name, chatId, background)
+      await loadChat(name, chatId, urgency)
       let message =
         sponsored.get(`${chatId}/${messageId}`) ??
         (await sendToTelegram(
           name,
           { '@type': 'getMessage', 'chat_id': chatId, 'message_id': messageId },
-          background
+          urgency
         ))
       let content = message.content
       if (match[4]) {
-        await completeCutText(name, message, background)
+        await completeCutText(name, message, urgency)
         content = parseRichMessage(chatId, message)?.files[Number(match[4])]
       }
       file = getMediaFile(content, match[5])
@@ -1720,23 +1728,23 @@ function loadMedia(
     }
     return range
       ? downloadPart(name, file, range, signal)
-      : downloadFile(name, file, signal, background)
+      : downloadFile(name, file, signal, urgency)
   })
 }
 
 function loadAvatar(
   user: boolean,
   id: number,
-  background: boolean
+  urgency: Urgency
 ): Promise<Response> {
   return askAnySession(async name => {
     let owner = user
       ? await sendToTelegram(
           name,
           { '@type': 'getUser', 'user_id': id },
-          background
+          urgency
         )
-      : await loadChat(name, -1e12 - id, background)
+      : await loadChat(name, -1e12 - id, urgency)
     let photo = owner.profile_photo ?? owner.photo
     let file = toMediaFile(
       isObject(photo) ? photo.small : undefined,
@@ -1744,7 +1752,7 @@ function loadAvatar(
       { height: 160, width: 160 }
     )
     if (!file) throw new Error('No Telegram avatar')
-    return downloadFile(name, file, undefined, background)
+    return downloadFile(name, file, undefined, urgency)
   })
 }
 
@@ -1818,7 +1826,7 @@ function loadChannelPosts(
   url: string,
   loaderData: null | string | undefined,
   last: LastRefresh | undefined,
-  background: boolean
+  urgency: Urgency
 ): PostsList {
   let name = ''
   let chatId = 0
@@ -1849,7 +1857,7 @@ function loadChannelPosts(
         'offset': 0,
         'only_local': false
       },
-      background
+      urgency
     )
     return (Array.isArray(history.messages) ? history.messages : []).filter(
       isObject
@@ -1877,7 +1885,7 @@ function loadChannelPosts(
     } else {
       let found: Awaited<ReturnType<typeof findChat>>
       try {
-        found = await findChat(auth, url, loaderData, background)
+        found = await findChat(auth, url, loaderData, urgency)
       } catch (e) {
         if (!TelegramError.is(e)) throw e
         // Preview of a private channel by its invite link
@@ -1923,12 +1931,12 @@ function loadChannelPosts(
     }
     await Promise.all(
       [...news].map(async ([post, message]) => {
-        if (await completeCutText(name, message, background)) {
+        if (await completeCutText(name, message, urgency)) {
           Object.assign(post, toPost(channel, chatId, [message]))
         }
       })
     )
-    await loadSources(name, channel, chatId, news, page, background)
+    await loadSources(name, channel, chatId, news, page, urgency)
     return [
       posts,
       ended ? undefined : () => loadPage(Number(messages.at(-1)!.id))
@@ -2116,10 +2124,10 @@ export const telegram: Loader = {
     return JSON.stringify({ id: String(chat.id) })
   },
 
-  getMedia(url, signal, range, background = false) {
+  getMedia(url, signal, range, urgency = 'now') {
     let avatar = /^telegram:(user\/)?(\d+)\/avatar\/[\w-]*$/.exec(url)
-    if (avatar) return loadAvatar(!!avatar[1], Number(avatar[2]), background)
-    return loadMedia(url, signal, range, background)
+    if (avatar) return loadAvatar(!!avatar[1], Number(avatar[2]), urgency)
+    return loadMedia(url, signal, range, urgency)
   },
 
   getMineLinksFromText() {
@@ -2155,7 +2163,13 @@ export const telegram: Loader = {
   },
 
   getPosts(task, url, text, last, loaderData, auth) {
-    return loadChannelPosts(auth, url, loaderData, last, task.background)
+    return loadChannelPosts(
+      auth,
+      url,
+      loaderData,
+      last,
+      task.background ? 'later' : 'now'
+    )
   },
 
   getProfilesByHandle(task, handle) {

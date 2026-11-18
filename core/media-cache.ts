@@ -9,7 +9,7 @@ import { isLoaderMedia } from './lib/html.ts'
 import { canUseNetwork } from './lib/network.ts'
 import { createQueue } from './lib/queue.ts'
 import { increaseKey } from './lib/stores.ts'
-import { loadLoaderMedia } from './loader/index.ts'
+import { loadLoaderMedia, type Urgency } from './loader/index.ts'
 import { changePost, loadPost } from './post.ts'
 import {
   getCrdt,
@@ -438,7 +438,12 @@ export async function syncMediaCache(): Promise<void> {
         let response: Response
         try {
           // Proxy loads media without the per-host delay by this header
-          response = await (loadLoaderMedia(url, undefined, undefined, true) ??
+          response = await (loadLoaderMedia(
+            url,
+            undefined,
+            undefined,
+            'later'
+          ) ??
             task.request(url, {
               headers: {
                 Accept: wanted.get(url)!.video ? 'video/*' : 'image/*'
@@ -505,22 +510,73 @@ export async function cacheMediaOnRequest(
  *
  * `keep` saves the loaded file to the cache with any settings. It is for
  * avatars of feeds and accounts, which are on the screen all the time.
+ *
+ * Without `urgency` user waits for the file on the screen.
  */
 export function loadMediaBlob(
   url: string,
   keep = false,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  urgency?: Urgency
 ): Promise<Blob> | undefined {
   if (!isLoaderMedia(url)) return undefined
   let cache = getEnvironment().mediaCache
   return cache.get(url).then(async cached => {
     if (cached) return cached
-    let loading = loadLoaderMedia(url, signal)
+    let loading = loadLoaderMedia(url, signal, undefined, urgency)
     if (!loading) throw new Error(`No loader for ${url}`)
     if (!keep) return (await loading).blob()
     await cache.put(url, await loading)
     return (await cache.get(url))!
   })
+}
+
+export interface PageMedia {
+  blob: Promise<Blob>
+  /**
+   * Page calls it, when media gets on the screen or leaves it.
+   * The first call starts the loading.
+   */
+  setVisible(visible: boolean): void
+}
+
+/**
+ * File for media of the page, like `loadMediaBlob()`. Media on the screen
+ * is loaded first, then the rest of the page, and only then files, which
+ * nobody opened, like files for offline.
+ */
+export function loadPageMedia(
+  url: string,
+  keep: boolean,
+  signal: AbortSignal
+): PageMedia | undefined {
+  if (!isLoaderMedia(url)) return undefined
+  let { promise, reject, resolve } = Promise.withResolvers<Blob>()
+  let done = new AbortController()
+  let stop = AbortSignal.any([signal, done.signal])
+  let loading = 0
+  let urgent: boolean | undefined
+  return {
+    blob: promise,
+    setVisible(visible) {
+      if (stop.aborted || urgent || (urgent === false && !visible)) return
+      urgent = visible
+      loading += 1
+      loadMediaBlob(url, keep, stop, visible ? 'now' : 'soon')!.then(
+        file => {
+          resolve(file)
+          done.abort()
+        },
+        (e: unknown) => {
+          loading -= 1
+          if (loading === 0) {
+            reject(e)
+            done.abort()
+          }
+        }
+      )
+    }
+  }
 }
 
 export function stopMediaCache(): void {

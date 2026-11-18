@@ -2,7 +2,8 @@ import {
   isLoaderMedia,
   isMediaCached,
   loadLoaderMedia,
-  loadMediaBlob
+  loadMediaBlob,
+  loadPageMedia
 } from '@slowreader/core'
 import type { Attachment } from 'svelte/attachments'
 
@@ -240,9 +241,48 @@ function openStream(url: string, signal: AbortSignal): StreamPath {
   return `/stream/${token}`
 }
 
+let viewer: IntersectionObserver | undefined
+let views = new WeakMap<
+  Element,
+  { listeners: Set<(visible: boolean) => void>; visible: boolean | undefined }
+>()
+
+/**
+ * `<video>` has own listeners for the file and for the poster, and the browser
+ * tells the current state only to the first of them.
+ */
+function watchVisibility(
+  element: Element,
+  listener: (visible: boolean) => void
+): () => void {
+  viewer ??= new IntersectionObserver(entries => {
+    for (let entry of entries) {
+      let changed = views.get(entry.target)
+      if (!changed) continue
+      changed.visible = entry.isIntersecting
+      for (let i of changed.listeners) i(changed.visible)
+    }
+  })
+  let view = views.get(element) ?? { listeners: new Set(), visible: undefined }
+  views.set(element, view)
+  view.listeners.add(listener)
+  if (view.visible === undefined) {
+    viewer.observe(element)
+  } else {
+    listener(view.visible)
+  }
+  return () => {
+    if (view.listeners.delete(listener) && view.listeners.size === 0) {
+      views.delete(element)
+      viewer!.unobserve(element)
+    }
+  }
+}
+
 /**
  * Browser can not load media of some our loaders by URL on its own,
  * like `telegram:` URL. We load its file and show it by a local URL.
+ * Media on the screen is loaded before the rest of the page.
  *
  * `web` is `false`, when `<source>` tags already have the web URL.
  * `keep` saves the file to the cache with any settings, for avatars.
@@ -278,7 +318,13 @@ export function mediaSrc(
           : openStream(url, controller.signal)
       })
     } else if (url) {
-      loading = loadMediaBlob(url, keep, controller.signal)
+      let media = loadPageMedia(url, keep, controller.signal)
+      if (media) {
+        loading = media.blob
+        let unwatch = watchVisibility(element, media.setVisible)
+        controller.signal.addEventListener('abort', unwatch)
+        loading.then(unwatch, unwatch)
+      }
     }
     if (!loading) {
       if (web && url) {
