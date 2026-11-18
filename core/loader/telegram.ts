@@ -281,16 +281,28 @@ function closeOnIdle(session: Session): void {
 export async function sendToTelegram(
   name: string,
   body: TelegramRequest,
-  urgency: Urgency = 'now'
+  urgency: Urgency = 'now',
+  signal?: AbortSignal
 ): Promise<TelegramObject> {
+  signal?.throwIfAborted()
   let session = getSession(name)
   // Long download of a video must not hold posts loading
   let limited = body['@type'] !== 'downloadFile'
   let patient = urgency !== 'now'
   if (limited) {
     if (session.active >= 3 || (patient && session.patient >= 2)) {
-      await new Promise<void>(resolve => {
-        session.waiting[urgency].push(resolve)
+      await new Promise<void>((resolve, reject) => {
+        let queue = session.waiting[urgency]
+        function leave(): void {
+          queue.splice(queue.indexOf(start), 1)
+          reject(signal!.reason as Error)
+        }
+        function start(): void {
+          signal?.removeEventListener('abort', leave)
+          resolve()
+        }
+        queue.push(start)
+        signal?.addEventListener('abort', leave, { once: true })
       })
     } else {
       session.active += 1
@@ -652,14 +664,16 @@ async function loadChannels(name: string): Promise<LoadedAuthor[]> {
 async function loadChat(
   name: string,
   chatId: number,
-  urgency: Urgency = 'now'
+  urgency: Urgency = 'now',
+  signal?: AbortSignal
 ): Promise<TelegramObject> {
   for (;;) {
     try {
       return await sendToTelegram(
         name,
         { '@type': 'getChat', 'chat_id': chatId },
-        urgency
+        urgency,
+        signal
       )
     } catch (e) {
       if (!TelegramError.is(e) || getSession(name).depth === 0) throw e
@@ -1216,7 +1230,8 @@ function parseRichMessage(
 async function completeCutText(
   name: string,
   message: TelegramObject,
-  urgency: Urgency = 'now'
+  urgency: Urgency = 'now',
+  signal?: AbortSignal
 ): Promise<boolean> {
   let content = message.content
   if (
@@ -1233,7 +1248,8 @@ async function completeCutText(
       'chat_id': message.chat_id,
       'message_id': message.id
     },
-    urgency
+    urgency,
+    signal
   )
   return true
 }
@@ -1709,17 +1725,18 @@ function loadMedia(
     let { files, sponsored } = getSession(name)
     let file = range && files.get(url)
     if (!file) {
-      await loadChat(name, chatId, urgency)
+      await loadChat(name, chatId, urgency, signal)
       let message =
         sponsored.get(`${chatId}/${messageId}`) ??
         (await sendToTelegram(
           name,
           { '@type': 'getMessage', 'chat_id': chatId, 'message_id': messageId },
-          urgency
+          urgency,
+          signal
         ))
       let content = message.content
       if (match[4]) {
-        await completeCutText(name, message, urgency)
+        await completeCutText(name, message, urgency, signal)
         content = parseRichMessage(chatId, message)?.files[Number(match[4])]
       }
       file = getMediaFile(content, match[5])

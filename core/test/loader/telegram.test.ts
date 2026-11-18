@@ -1767,6 +1767,45 @@ describe('telegram loader', () => {
       name: 'AbortError'
     })
     equal(countRequests('downloadFile'), 2)
+    equal(countRequests('getMessage'), 3)
+  })
+
+  test('does not send waiting requests of the closed page', async () => {
+    let { getMedia } = loaders.telegram
+    deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
+    mockHistory(0, {})
+    testTelegram.answers.getMessage = photoPost
+    testTelegram.answers.downloadFile = { '@type': 'file', 'id': 12, 'size': 5 }
+    testTelegram.answers.deleteFile = { '@type': 'ok' }
+    testTelegram.files = { 12: new Blob(['photo']) }
+    let free: (() => void)[] = []
+    testTelegram.answers.getMe = () => {
+      return new Promise(resolve => {
+        free.push(() => {
+          resolve(USER)
+        })
+      })
+    }
+    let busy = [1, 2, 3].map(() => sendToTelegram('name', { '@type': 'getMe' }))
+
+    let page = new AbortController()
+    let closed = getMedia!('telegram:5/4', page.signal)!
+    let opened = getMedia!('telegram:5/4')!
+    await setTimeout(10)
+    page.abort()
+    for (let answer of free) answer()
+    await rejects(closed, { name: 'AbortError' })
+    await Promise.all(busy)
+    equal(await (await opened).text(), 'photo')
+    deepEqual(getRequestTypes(), [
+      'getMe',
+      'getMe',
+      'getMe',
+      'getChat',
+      'getMessage',
+      'downloadFile',
+      'deleteFile'
+    ])
   })
 
   function mockVideo(): void {
