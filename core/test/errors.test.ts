@@ -8,10 +8,11 @@ import {
   getIssueURL,
   getUnhandledErrors,
   HTTPStatusError,
-  NotFoundError
+  NotFoundError,
+  showCrash
 } from '../errors.ts'
 import { commonMessages } from '../messages/index.ts'
-import { cleanClient, startClient, openRoute } from './utils.ts'
+import { cleanClient, expectWarning, openRoute, startClient } from './utils.ts'
 
 describe('errors', () => {
   afterEach(async () => {
@@ -137,6 +138,19 @@ describe('errors', () => {
 
     listenErrors()
     equal(getUnhandledErrors(), undefined)
+  })
+
+  test('adds unhandled errors to the crash, which they could cause', () => {
+    listenErrors().error({ message: 'Uncaught Error: No vfs argument' })
+    expectWarning(() => {
+      showCrash('OpfsDb is not a constructor')
+    }, ['OpfsDb is not a constructor'])
+    deepEqual(fatal.get(), {
+      error:
+        'OpfsDb is not a constructor\n\n' +
+        'Uncaught before:\nUncaught Error: No vfs argument',
+      type: 'crash'
+    })
   })
 })
 

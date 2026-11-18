@@ -38,7 +38,14 @@ let unhandled: string[] = []
  */
 export function showCrash(error: unknown): void {
   getEnvironment().warn(error)
-  if (!fatal.get()) fatal.set({ error: withStack(error), type: 'crash' })
+  if (!fatal.get()) {
+    let before = getUnhandledErrors()
+    fatal.set({
+      error:
+        withStack(error) + (before ? `\n\nUncaught before:\n${before}` : ''),
+      type: 'crash'
+    })
+  }
 }
 
 function withStack(error: unknown): string {
@@ -50,7 +57,7 @@ function withStack(error: unknown): string {
 
 /**
  * Last errors, which nobody caught, to explain the fatal error
- * with no reason of its own.
+ * with no reason of its own or with a reason, which is only their result.
  */
 export function getUnhandledErrors(): string | undefined {
   return unhandled.length > 0 ? unhandled.join('\n') : undefined
