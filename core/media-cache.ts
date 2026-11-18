@@ -438,7 +438,7 @@ export async function syncMediaCache(): Promise<void> {
         let response: Response
         try {
           // Proxy loads media without the per-host delay by this header
-          response = await (loadLoaderMedia(url) ??
+          response = await (loadLoaderMedia(url, undefined, undefined, true) ??
             task.request(url, {
               headers: {
                 Accept: wanted.get(url)!.video ? 'video/*' : 'image/*'

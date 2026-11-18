@@ -91,7 +91,7 @@ function findNext<Data>(
  */
 export function createQueue<Data>(initial: Data[]): Queue<Data> {
   // The queue repeats failed tasks by itself, no need in repeating requests
-  let download = createDownloadTask({ tries: 1 })
+  let download = createDownloadTask({ background: true, tries: 1 })
   let tasks: QueueTask<Data>[] = initial.map(data => {
     return { after: undefined, data, fails: 0 }
   })

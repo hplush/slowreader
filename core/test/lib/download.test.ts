@@ -35,6 +35,8 @@ describe('download', () => {
 
   test('makes requests', async () => {
     let task = createDownloadTask()
+    equal(task.background, false)
+    equal(createDownloadTask({ background: true }).background, true)
 
     expectRequest('https://example.com').andRespond(200, 'Hi')
     let response = await task.request('https://example.com')

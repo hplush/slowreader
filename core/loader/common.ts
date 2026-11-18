@@ -300,7 +300,8 @@ export type Loader = {
   getMedia?(
     url: string,
     signal?: AbortSignal,
-    range?: MediaRange
+    range?: MediaRange,
+    background?: boolean
   ): Promise<Response> | undefined
 
   /**

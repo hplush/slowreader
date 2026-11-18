@@ -56,6 +56,7 @@ export interface TextResponse {
  * its requests. Other methods create own task.
  */
 export interface DownloadTask {
+  background: boolean
   destroy(): void
   redirects: Map<string, { permanent: boolean; url: string }>
   request: typeof request
@@ -228,11 +229,16 @@ async function retryTemporaryError<Result>(
 }
 
 export function createDownloadTask(
-  taskOpts: { cache?: 'read' | 'write' | false; tries?: number } = {}
+  taskOpts: {
+    background?: boolean
+    cache?: 'read' | 'write' | false
+    tries?: number
+  } = {}
 ): DownloadTask {
   let controller = new AbortController()
   let cached: string[] = []
   return {
+    background: taskOpts.background ?? false,
     redirects: new Map(),
     destroy() {
       for (let url of cached) cache.delete(url)

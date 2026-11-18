@@ -64,10 +64,11 @@ export function hasPersonAvatar(loader: LoaderName | undefined): boolean {
 export function loadLoaderMedia(
   url: string,
   signal?: AbortSignal,
-  range?: MediaRange
+  range?: MediaRange,
+  background?: boolean
 ): Promise<Response> | undefined {
   for (let loader of Object.values<Loader>(loaders)) {
-    let media = loader.getMedia?.(url, signal, range)
+    let media = loader.getMedia?.(url, signal, range, background)
     if (media) return media
   }
   return undefined
