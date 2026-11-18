@@ -9,6 +9,7 @@ slowreader.app CAA 0 iodef "mailto:andrey@sitnik.es"
 slowreader.app CAA 0 issue "letsencrypt.org"
 slowreader.app CAA 0 issuewild ";"
 slowreader.app HTTPS 1 . alpn="h3,h2"
+slowreader.app TXT "google-site-verification=wl8TUc1mkcZ-6JYDDFiDP0qwI1I4u_iPQwVpaVzEufA"
 slowreader.app TXT "v=spf1 -all"
 _dmarc.slowreader.app TXT "v=DMARC1; p=reject; adkim=s; aspf=s"
 proxy.slowreader.app A 178.105.15.149
