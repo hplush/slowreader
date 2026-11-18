@@ -8,6 +8,7 @@
     isMediaCached,
     type LoaderName,
     openPopup,
+    openWarnings,
     router,
     sanitizeDOM,
     postMessages as t
@@ -199,23 +200,38 @@
       cover.className = 'formatted-text_spoiler'
       cover.setAttribute('role', 'button')
       cover.tabIndex = 0
-      // Reading the translation outside would render the whole text again
-      $effect(() => {
-        cover.setAttribute('aria-label', $t.showSpoiler)
-      })
       spoiler.replaceWith(cover)
       cover.append(spoiler)
-      function show(event: Event): void {
+      let open = $state(openWarnings.get())
+      // Reading the translation outside would render the whole text again
+      $effect(() => {
+        cover.classList.toggle('is-open', open)
+        if (open) {
+          cover.removeAttribute('aria-label')
+          cover.setAttribute('aria-description', $t.hideSpoiler)
+        } else {
+          cover.removeAttribute('aria-description')
+          cover.setAttribute('aria-label', $t.showSpoiler)
+        }
+      })
+      function toggle(event: Event): void {
         // Link or post’s card around the spoiler reacts to the click too
         event.preventDefault()
         event.stopPropagation()
-        cover.replaceWith(spoiler)
-        spoiler.tabIndex = -1
-        spoiler.focus({ preventScroll: true })
+        open = !open
       }
-      on(cover, 'click', show)
+      on(cover, 'click', event => {
+        if (open) {
+          if (event.target instanceof Element && event.target.closest('a')) {
+            return
+          }
+          if (getSelection()?.isCollapsed === false) return
+        }
+        toggle(event)
+      })
       on(cover, 'keydown', event => {
-        if (event.key === 'Enter' || event.key === ' ') show(event)
+        if (event.target !== cover) return
+        if (event.key === 'Enter' || event.key === ' ') toggle(event)
       })
     })
     return () => {
@@ -327,9 +343,14 @@
       &:active {
         top: var(--min-size);
       }
+
+      /* Firefox selects the whole hidden text on click */
+      &:not(.is-open) {
+        user-select: none;
+      }
     }
 
-    .formatted-text_spoiler > * {
+    .formatted-text_spoiler:not(.is-open) > * {
       visibility: hidden;
     }
 

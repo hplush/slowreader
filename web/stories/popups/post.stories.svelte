@@ -686,7 +686,7 @@
     posts={[
       {
         feedId: 'mastodon',
-        full: '<p>Hidden text</p>',
+        full: '<p>Hidden text with <span class="spoiler">open spoiler</span></p>',
         media: [
           {
             alt: 'Sensitive image',

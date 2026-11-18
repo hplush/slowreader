@@ -8,6 +8,7 @@ export const postMessages = i18n('post', {
   downloadImage: 'Download image',
   downloadSensitive: 'Download & show',
   sensitiveMedia: 'Sensitive media',
+  hideSpoiler: 'Hide text',
   hideWarning: 'Hide',
   playVideo: 'Play video',
   playWithSound: 'Play with sound',
