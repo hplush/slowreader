@@ -328,6 +328,24 @@ describe('telegram loader', () => {
     t.mock.timers.tick(1000)
     equal(testTelegram.running.has(name), false)
 
+    let answer: (() => void) | undefined
+    testTelegram.answers.getUser = () => {
+      return new Promise(resolve => {
+        answer = () => {
+          resolve(USER)
+        }
+      })
+    }
+    let slow = sendToTelegram(name, { '@type': 'getUser' })
+    await sendToTelegram(name, { '@type': 'getMe' })
+    t.mock.timers.tick(60_000)
+    let keptForSlow = testTelegram.running.has(name)
+    answer!()
+    await slow
+    equal(keptForSlow, true)
+    t.mock.timers.tick(60_000)
+    equal(testTelegram.running.has(name), false)
+
     await sendToTelegram(name, { '@type': 'getMe' })
     equal(testTelegram.running.has(name), true)
     t.mock.timers.reset()

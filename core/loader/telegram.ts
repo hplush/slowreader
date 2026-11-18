@@ -134,6 +134,7 @@ interface Session {
    * so a `now` request does not wait for a slow one.
    */
   patient: number
+  sent: number
   sponsored: Map<string, TelegramObject>
   state: TelegramObject | undefined
   /**
@@ -221,6 +222,7 @@ function getSession(name: string): Session {
     keep: false,
     loadingChats: undefined,
     patient: 0,
+    sent: 0,
     sponsored: new Map(),
     state: undefined,
     streams: new Map(),
@@ -266,7 +268,7 @@ function getSession(name: string): Session {
  */
 function closeOnIdle(session: Session): void {
   clearTimeout(session.idle)
-  if (session.keep) return
+  if (session.keep || session.sent > 0) return
   session.idle = setTimeout(() => {
     void session.client.close()
   }, 60_000)
@@ -310,6 +312,7 @@ export async function sendToTelegram(
     }
   }
   clearTimeout(session.idle)
+  session.sent += 1
   try {
     return await session.client.send(body).catch(async (e: unknown) => {
       let wait =
@@ -322,6 +325,7 @@ export async function sendToTelegram(
       return session.client.send(body)
     })
   } finally {
+    session.sent -= 1
     if (limited) {
       session.active -= 1
       if (patient) session.patient -= 1
