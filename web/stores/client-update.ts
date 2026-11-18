@@ -1,7 +1,7 @@
-import { saveData } from '@slowreader/core'
+import { forgetLocalData, saveData } from '@slowreader/core'
 import { atom } from 'nanostores'
 
-import type { ToServiceWorker } from '../main/sw.ts'
+import type { MediaCacheName, ToServiceWorker } from '../main/sw.ts'
 
 // `undefined` when no service worker controls the page
 export const clientUpdate = atom<
@@ -73,6 +73,23 @@ export async function unregisterServiceWorkers(): Promise<void> {
     let registrations = await navigator.serviceWorker.getRegistrations()
     await Promise.all(registrations.map(i => i.unregister()))
   } catch {}
+}
+
+/**
+ * The last resort on the fatal page: the next start takes every app file
+ * from the server, whatever was wrong with the service worker or its cache.
+ */
+export async function forgetLocalDataAndAppFiles(): Promise<void> {
+  await unregisterServiceWorkers()
+  try {
+    let names = await caches.keys()
+    await Promise.all(
+      names
+        .filter(i => i !== ('slowreader-media' satisfies MediaCacheName))
+        .map(i => caches.delete(i))
+    )
+  } catch {}
+  forgetLocalData()
 }
 
 export async function updateClient(): Promise<void> {

@@ -15,7 +15,6 @@
   } from '@mdi/js'
   import {
     type FatalPage,
-    forgetLocalData,
     getEnvironment,
     getIssueURL,
     hasCloud,
@@ -23,7 +22,11 @@
   } from '@slowreader/core'
 
   import { addDebugInfo } from '../lib/debug.ts'
-  import { checkClientUpdate, clientUpdate } from '../stores/client-update.ts'
+  import {
+    checkClientUpdate,
+    clientUpdate,
+    forgetLocalDataAndAppFiles
+  } from '../stores/client-update.ts'
   import { getURL } from '../stores/url-router.ts'
   import Button from '../ui/button.svelte'
   import DebugInfo from '../ui/debug-info.svelte'
@@ -108,7 +111,7 @@
         {/if}
         <Button
           icon={mdiDeleteAlert}
-          onclick={forgetLocalData}
+          onclick={forgetLocalDataAndAppFiles}
           size="big"
           variant={hasUpdate ? 'secondary-dangerous' : 'main'}
         >
@@ -144,7 +147,7 @@
             {#if $hasCloud}
               <Button
                 icon={mdiDeleteAlert}
-                onclick={forgetLocalData}
+                onclick={forgetLocalDataAndAppFiles}
                 size="pill"
                 variant="secondary-dangerous"
               >
