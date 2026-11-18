@@ -199,6 +199,7 @@
       width: stretch;
       padding: 0.3125rem 0 0.125rem 2.125rem;
       color: var(--secondary-text-color);
+      text-align: start;
       border-radius: var(--base-radius);
 
       /* Global cursor of buttons has a bigger specificity */
