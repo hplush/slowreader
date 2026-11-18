@@ -6,6 +6,7 @@ import sharp from 'sharp'
 import {
   defineConfig,
   loadEnv,
+  minify,
   type PreviewServer,
   type ViteDevServer
 } from 'vite'
@@ -158,6 +159,7 @@ export default defineConfig(() => ({
           )
             ? 'assets/world/[name]-[hash][extname]'
             : 'assets/[name]-[hash][extname]',
+        comments: false,
         // Service worker must have the same URL in every version
         entryFileNames: chunk =>
           chunk.name === 'sw' ? 'sw.js' : 'assets/[name]-[hash].js'
@@ -301,7 +303,31 @@ export default defineConfig(() => ({
     sbom('.well-known/sbom', workerPackages)
   ],
   worker: {
-    plugins: () => [collectPackages(workerPackages)],
-    format: 'es'
+    plugins: () => [
+      collectPackages(workerPackages),
+      {
+        // SQLite starts this worker by a URL from a variable,
+        // so Vite copies it as a static file without minification
+        async generateBundle(options, bundle) {
+          for (let file of Object.values(bundle)) {
+            if (
+              file.type === 'asset' &&
+              file.originalFileNames.some(i =>
+                i.endsWith('/sqlite3-opfs-async-proxy.js')
+              )
+            ) {
+              let result = await minify(file.fileName, String(file.source))
+              if (result.errors[0]) throw new Error(result.errors[0].message)
+              file.source = result.code
+            }
+          }
+        },
+        name: 'minify-sqlite-proxy'
+      }
+    ],
+    format: 'es',
+    rolldownOptions: {
+      output: { comments: false }
+    }
   }
 }))
