@@ -59,6 +59,7 @@ interface ServiceWorkerScope {
       | undefined
     >
   }
+  registration: { installing: unknown; waiting: unknown }
   skipWaiting(): Promise<void>
 }
 
@@ -68,13 +69,20 @@ let commit = SW_COMMIT
 // Big files only for part of users, like Telegram’s library
 let lazyAssets = SW_LAZY_ASSETS
 
-async function fromCache(url: string): Promise<Response> {
+async function fromCache(url: string, search = ''): Promise<Response> {
   let cache = await caches.open(commit)
   let cached = await cache.match(url)
-  if (!cached) return fetch(url)
   // Worker takes its location from the response URL, and SQLite’s OPFS
   // worker needs the query of the request there
-  return new Response(cached.body, cached)
+  if (cached) return new Response(cached.body, cached)
+  try {
+    let response = await fetch(url + search, { integrity: assets[url] })
+    if (response.ok) await cache.put(url, response.clone())
+    return response
+  } catch {
+    // Server can already have the next version of a file without hash in name
+    return fetch(url + search)
+  }
 }
 
 async function fromCacheOrSave(url: string): Promise<Response> {
@@ -218,7 +226,11 @@ worker.addEventListener('activate', event => {
     caches.keys().then(async names => {
       let old = names.filter(i => i !== commit && i !== MEDIA_CACHE)
       await keepLazyAssets(old)
-      await Promise.all(old.map(i => caches.delete(i)))
+      // Deleted cache still takes files without an error, so the version,
+      // which is installing now, would start with an empty cache
+      if (!worker.registration.installing && !worker.registration.waiting) {
+        await Promise.all(old.map(i => caches.delete(i)))
+      }
       await worker.clients.claim()
     })
   )
@@ -244,7 +256,7 @@ worker.addEventListener('fetch', event => {
     // Landing or self-hosted app, which only the server knows
     event.respondWith(fetch(request).catch(() => fromCache('/app.html')))
   } else if (assets[url.pathname]) {
-    event.respondWith(fromCache(url.pathname))
+    event.respondWith(fromCache(url.pathname, url.search))
   } else if (lazyAssets[url.pathname]) {
     event.respondWith(fromCacheOrSave(url.pathname))
   } else if (navigate && isAppRoute(url.pathname)) {
