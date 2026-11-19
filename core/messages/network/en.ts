@@ -17,6 +17,8 @@ export const networkMessages = i18n('network', {
     'The browser makes the requests itself. It is the fastest way, ' +
     'and nobody in the middle knows what you read.',
   method: 'Network requests',
+  mobileProxy:
+    'Mobile apps can’t use browser extensions, so the proxy is the only option.',
   offline: 'App works without network',
   offlineGroup: 'Offline',
   noExtension:

@@ -118,9 +118,12 @@
             {$t.allowExtension}
           </Button>
         </Note>
-        <!-- Mobile browsers can not install the extension -->
-      {:else if $extensionState === 'missing' && $layoutType !== 'mobile'}
-        {#if $extensionStore}
+      {:else if $extensionState === 'missing'}
+        {#if $layoutType === 'mobile'}
+          <Note icon={mdiPuzzle} variant="warning">
+            {$t.mobileProxy}
+          </Note>
+        {:else if $extensionStore}
           <InstallExtension text={$t.noExtension} />
         {:else}
           <Note icon={mdiPuzzle} variant="neutral">
