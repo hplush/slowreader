@@ -105,6 +105,7 @@
       aria-controls={current ? getPopupId('post', param) : null}
       aria-current={current ? 'page' : null}
       aria-labelledby={`feed-content-${post.id}`}
+      data-anchor="post"
       href={getPopupHash(highlight ? undefined : $router, 'post', param)}
     ></a>
   {/if}
