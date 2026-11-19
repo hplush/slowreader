@@ -16,7 +16,7 @@ A supply chain attack is malicious code, which comes to the project not from our
 ## Updating Dependencies
 
 1. **Dependency diff review.** We review the real code changes of updated dependencies, not only the changelog, because malicious code is never mentioned in the changelog (`pnpm update-review` with [Multiocular](https://github.com/ai/multiocular)).
-2. **`pnpm audit`.** Every day CI checks our production dependencies and Node.js for known vulnerabilities (the [Vulnerability Audit](../../.github/workflows/audit.yml) workflow).
+2. **`pnpm audit`.** Every day CI checks our production dependencies, Node.js, nginx, and system libraries of the image for known vulnerabilities (the [Vulnerability Audit](../../.github/workflows/audit.yml) workflow).
 3. **[Socket](https://github.com/SocketDev/socket-python-cli)** checks every dependency change for suspicious packages: new install scripts, network access, or obfuscated code.
 
 ## Development Environment

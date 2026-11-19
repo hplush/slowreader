@@ -7,6 +7,7 @@ on:
       - '.github/workflows/audit.yml'
       - '.node-version'
       - 'scripts/check-node.ts'
+      - 'scripts/check-image.ts'
       - '.github/actions/init-node/action.yml'
       - pnpm-lock.yaml
   pull_request:
@@ -14,6 +15,7 @@ on:
       - '.github/workflows/audit.yml'
       - '.node-version'
       - 'scripts/check-node.ts'
+      - 'scripts/check-image.ts'
       - '.github/actions/init-node/action.yml'
       - pnpm-lock.yaml
   schedule:
@@ -31,7 +33,10 @@ jobs:
           egress-policy: block
           allowed-endpoints: >
             api.github.com:443
+            api.osv.dev:443
+            dev.slowreader.app:443
             github.com:443
+            nginx.org:443
             nodejs.org:443
             release-assets.githubusercontent.com:443
             objects.githubusercontent.com:443
@@ -47,6 +52,8 @@ jobs:
           install: false
       - name: Check Node.js version for vulnerabilities
         run: node ./scripts/check-node.ts
+      - name: Check staging image for vulnerabilities
+        run: node ./scripts/check-image.ts
       - name: Check dependencies for vulnerabilities
         run: node --run test:online:audit
   socket:

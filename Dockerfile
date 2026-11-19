@@ -132,12 +132,18 @@ COPY api/ api/
 COPY proxy/ proxy/
 COPY server/ server/
 
+# cgr.dev/chainguard/nginx:latest
+FROM cgr.dev/chainguard/nginx@sha256:d660885b01f715c21d4bcece4457bef7440cbc8d349b8d5931900cb08b935bdc AS base
+
 FROM client AS sbom
 COPY --from=server /server.cdx.json /server.cdx.json
-RUN --network=none node web/scripts/merge-sbom.ts /server.cdx.json
+COPY --from=base /usr/lib/apk/db/installed /base-packages
+COPY --from=target /usr/lib/apk/db/installed /target-packages
+# Only these packages of target get into the final image
+RUN --network=none node web/scripts/merge-sbom.ts /server.cdx.json \
+  /base-packages /target-packages libatomic libstdc++
 
-# cgr.dev/chainguard/nginx:latest
-FROM cgr.dev/chainguard/nginx@sha256:d660885b01f715c21d4bcece4457bef7440cbc8d349b8d5931900cb08b935bdc AS production
+FROM base AS production
 
 LABEL org.opencontainers.image.source=https://github.com/hplush/slowreader
 LABEL org.opencontainers.image.description="Slow Reader"

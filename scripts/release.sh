@@ -139,22 +139,24 @@ osv_cves() {
   for version in $2; do
     curl -fsS https://api.osv.dev/v1/query \
       -d "$(jq -n --arg purl "$1@$version" '{package: {purl: $purl}}')" \
-      | jq -r '.vulns[]? | ((.aliases // []) | map(select(startswith("CVE-"))) | .[0]) // .id'
+      | jq -r '.vulns[]? | ((.aliases // []) + (.upstream // []) | map(select(startswith("CVE-"))) | .[0]) // .id'
   done | sort -u
 }
 
-# Node.js has no CVE database with versions, but its changelog marks
-# security fixes by CVE in every version
-node_cves() {
-  curl -fsS "https://raw.githubusercontent.com/nodejs/node/main/doc/changelogs/CHANGELOG_V${2%%.*}.md" \
-    | awk -v old="$1" -v new="$2" '
+# Node.js has no CVE database with versions, and OSV gets nginx CVEs too late
+# for a weekly release, but their changelogs mark security fixes by CVE
+# in every version
+changelog_cves() {
+  curl -fsS "$1" \
+    | awk -v header="$2" -v old="$3" -v new="$4" '
       function number(version, parts) {
         split(version, parts, ".")
         return parts[1] * 1000000 + parts[2] * 1000 + parts[3]
       }
-      /^<a id="[0-9.]+"><\/a>$/ {
-        gsub(/[^0-9.]/, "")
-        inside = number($0) > number(old) && number($0) <= number(new)
+      $0 ~ header {
+        match($0, /[0-9]+\.[0-9]+\.[0-9]+/)
+        version = substr($0, RSTART, RLENGTH)
+        inside = number(version) > number(old) && number(version) <= number(new)
       }
       inside' \
     | { grep -oE 'CVE-[0-9]{4}-[0-9]+' || true; } | sort -u
@@ -162,7 +164,7 @@ node_cves() {
 
 # Staging runs main, so the new SBOM is there. Release runs outside
 # Dev Container, so it must not build the SBOM by running dependencies.
-touch "$WORK/deps.md"
+touch "$WORK/deps.md" "$WORK/deps.tsv"
 PREVIOUS=$(git -C "$ROOT" describe --tags --abbrev=0)
 # Generated files would hide the size of real changes
 DIFF=$(git -C "$ROOT" diff --numstat "$PREVIOUS" HEAD -- . ':!pnpm-lock.yaml' \
@@ -195,17 +197,30 @@ else
         # Older major versions get the same fixes in their own changelog
         [ "${OLD%%.*}" = "${NEW%%.*}" ] || continue
         NAME="Node.js"
-        node_cves "$OLD" "$NEW" > "$WORK/fixed.txt"
+        changelog_cves "https://raw.githubusercontent.com/nodejs/node/main/doc/changelogs/CHANGELOG_V${NEW%%.*}.md" \
+          '^<a id="[0-9.]+"></a>$' "$OLD" "$NEW" > "$WORK/fixed.txt"
       else
-        NAME="\`$(sed 's|^pkg:npm/||; s|%40|@|' <<< "$PACKAGE")\`"
-        comm -23 <(osv_cves "$PACKAGE" "$OLD") <(osv_cves "$PACKAGE" "$NEW") \
-          > "$WORK/fixed.txt"
+        NAME="\`$(sed 's|^pkg:npm/||; s|^pkg:apk/wolfi/||; s|%40|@|; s|%2B|+|g' <<< "$PACKAGE")\`"
+        {
+          comm -23 <(osv_cves "$PACKAGE" "$OLD") <(osv_cves "$PACKAGE" "$NEW")
+          if [ "$PACKAGE" = "pkg:apk/wolfi/nginx-mainline" ]; then
+            changelog_cves https://nginx.org/en/CHANGES '^Changes with nginx ' \
+              "${OLD%-r*}" "${NEW%-r*}"
+          fi
+        } | sort -u > "$WORK/fixed.txt"
       fi
       if [ -s "$WORK/fixed.txt" ]; then
-        echo "Updated $NAME to ${ADDED:-$NEW} to fix $(paste -sd, - < "$WORK/fixed.txt" | sed 's/,/, /g')." \
-          >> "$WORK/deps.md"
+        printf '%s\tto %s to fix %s.\n' "$NAME" "${ADDED:-$NEW}" \
+          "$(paste -sd, - < "$WORK/fixed.txt" | sed 's/,/, /g')" >> "$WORK/deps.tsv"
       fi
     done
+  # System library is split to a few packages with the same CVEs
+  awk -F '\t' '
+    !($2 in names) { fixes[++count] = $2 }
+    { names[$2] = ($2 in names ? names[$2] ", " : "") $1 }
+    END {
+      for (i = 1; i <= count; i++) print "Updated " names[fixes[i]] " " fixes[i]
+    }' "$WORK/deps.tsv" > "$WORK/deps.md"
   success "Found $(wc -l < "$WORK/deps.md" | tr -d ' ') dependencies with fixed CVEs"
 fi
 
