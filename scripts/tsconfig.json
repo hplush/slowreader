@@ -3,6 +3,6 @@
   "compilerOptions": {
     "composite": true
   },
-  "include": ["*.ts", "../*.ts", "../api/*.ts"],
+  "include": ["*.ts", "../*.ts", "../api/events.ts"],
   "references": []
 }
