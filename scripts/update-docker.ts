@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 // Update images in FROM and COPY --from= inside Dockerfile and images with tag
-// and hash in GitHub workflows to a specific hash for security and having
-// the same environment everywhere.
+// and hash in GitHub workflows to a specific hash, and Wolfi packages
+// in apk add to the latest version for security and having the same
+// environment everywhere.
 
+import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { globSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -20,6 +22,7 @@ const ACCEPT = [
 const FROM = /^\s*FROM\s+(?:--platform=\S+\s+)?(\S+)/i
 const COPY = /^\s*COPY\s+--from=(\S+)/i
 const PINNED = /([\w.-]+(?:\/[\w.-]+)+:[\w.-]+@sha256:[\da-f]{64})/
+const PACKAGE = /(?<=apk add.*\s)([^-\s][^\s=]*)=(\S+)/g
 
 function print(message: string): void {
   process.stdout.write(message + '\n')
@@ -133,6 +136,57 @@ async function updateReference(
   return updated
 }
 
+let wolfi: Map<string, string> | undefined
+
+// Wolfi has no API for a single package, only the index of all versions
+async function loadWolfi(): Promise<Map<string, string>> {
+  if (!wolfi) {
+    wolfi = new Map()
+    let response = await fetch(
+      'https://packages.wolfi.dev/os/x86_64/APKINDEX.tar.gz'
+    )
+    let index = execFileSync('tar', ['-xzO', 'APKINDEX'], {
+      input: Buffer.from(await response.arrayBuffer()),
+      maxBuffer: Infinity
+    }).toString()
+    for (let [, name, version] of index.matchAll(/^P:(.+)\nV:(.+)$/gm)) {
+      let latest = wolfi.get(name!)
+      if (
+        !latest ||
+        version!.localeCompare(latest, 'en', { numeric: true }) > 0
+      ) {
+        wolfi.set(name!, version!)
+      }
+    }
+  }
+  return wolfi
+}
+
+function updatePackages(
+  file: string,
+  line: number,
+  text: string,
+  latest: Map<string, string>
+): string {
+  print(`${file}:${line + 1}`)
+  return text.replace(PACKAGE, (pinned, name: string) => {
+    let updated = `${name}=${latest.get(name)}`
+    if (!latest.has(name)) {
+      print(styleText(['red', 'bold'], `  Could not find ${name} in Wolfi`))
+      return pinned
+    } else if (updated === pinned) {
+      print(styleText('gray', `  ${pinned} is already the latest version`))
+      return pinned
+    } else {
+      print(
+        `  ${styleText(['red', 'bold'], pinned)} → ` +
+          styleText(['green', 'bold'], updated)
+      )
+      return updated
+    }
+  })
+}
+
 let files = globSync(
   ['**/Dockerfile', '.devcontainer/Dockerfile', '.github/workflows/*.yml'],
   {
@@ -146,6 +200,13 @@ for (let file of files) {
   let lines = readFileSync(path, 'utf-8').split('\n')
   let changed = false
   for (let i = 0; i < lines.length; i++) {
+    if (lines[i]!.includes('apk add')) {
+      let packages = updatePackages(file, i, lines[i]!, await loadWolfi())
+      if (packages !== lines[i]) {
+        lines[i] = packages
+        changed = true
+      }
+    }
     let reference =
       lines[i]!.match(FROM)?.[1] ??
       lines[i]!.match(COPY)?.[1] ??

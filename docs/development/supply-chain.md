@@ -39,7 +39,7 @@ A supply chain attack is malicious code, which comes to the project not from our
 ## Docker Image
 
 1. **Distroless image.** The final image is distroless: only nginx, Node.js, our code, and their libraries from [Chainguard](https://www.chainguard.dev/) without Linux distribution around them. There is no shell, package manager, or `curl`, so attackers who run code in our server can’t run commands or download their tools.
-2. **Pinned images and packages.** Base images, system packages, Node.js, and pnpm are fixed by hash or exact version. A new version can’t get into the image without our review (`pnpm update-docker` updates hashes).
+2. **Pinned images and packages.** Base images, system packages, Node.js, and pnpm are fixed by hash or exact version. A new version can’t get into the image without our review (`pnpm update-docker` updates hashes and versions of system packages).
 3. **`.dockerignore` allow-list.** The image gets only the files from the allow-list, so secrets like `.env` from developer’s machine can’t get into the image by mistake ([`.dockerignore`](../../.dockerignore)).
 4. **Multi-stage build.** Web client and server are built separately with only their own dependencies. A malicious web client dependency can’t change the server code, which has access to the database.
 5. **No network in build.** Dependencies’ code never runs with internet access during the image build. Server has no build step, and web client is built without network. A malicious build tool can’t download the rest of the attack or send anything away.
