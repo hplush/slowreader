@@ -166,10 +166,15 @@
     .foldable_actions {
       display: flex;
       gap: 0.375rem;
+      margin-top: 0.125rem;
     }
 
     .foldable_content {
       margin-top: 0.5rem;
+
+      .foldable_actions + & {
+        margin-top: 0.375rem;
+      }
     }
   }
 </style>
