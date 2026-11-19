@@ -124,9 +124,9 @@ function pauseOthers(event: Event): void {
 function dismissPaused(event: Event): void {
   let video = event.target as HTMLVideoElement
   let node = event.currentTarget as Element
-  started.delete(video)
   if (!silenced.delete(video)) dismissed.add(node)
   slots.get(node)!.controls?.(true)
+  if (started.delete(video) && video.ended) reviseVideos()
 }
 
 function findBare(event: Event): HTMLVideoElement | undefined {
@@ -159,7 +159,8 @@ function keepUnmuted(event: Event): void {
 
 /**
  * Only one video plays at the same time and only on the screen.
- * With `auto` the upper of videos on the screen is started without sound.
+ * With `auto` the upper of videos on the screen is started without sound,
+ * and the next one after its end.
  *
  * Browser keeps its controls over a just started video for seconds,
  * so `controls` hides them until the pause or the mouse over the video.

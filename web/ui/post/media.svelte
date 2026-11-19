@@ -263,9 +263,13 @@
     }}
     title={label}
   >
-    {#if state !== 'voiced'}
+    {#if state === 'paused'}
       <span class="post-media_play">
-        <Icon path={state === 'muted' ? mdiVolumeOff : mdiPlay} />
+        <Icon path={mdiPlay} />
+      </span>
+    {:else if state === 'muted'}
+      <span class="post-media_muted">
+        <Icon path={mdiVolumeOff} />
       </span>
     {/if}
   </Clickable>
@@ -529,6 +533,26 @@
       justify-content: center;
       width: 3.5rem;
       height: 3.5rem;
+      color: var(--media-loader-color);
+      background: var(--media-loader-background);
+      border-radius: 50%;
+
+      .post-media_toggle:hover &,
+      .post-media_toggle:focus-visible & {
+        background: var(--media-loader-hover-background);
+      }
+    }
+
+    .post-media_muted {
+      --icon-size: 1rem;
+
+      display: flex;
+      align-items: center;
+      align-self: flex-end;
+      justify-content: center;
+      width: 1.5rem;
+      height: 1.5rem;
+      margin-bottom: 0.5rem;
       color: var(--media-loader-color);
       background: var(--media-loader-background);
       border-radius: 50%;

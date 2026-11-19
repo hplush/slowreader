@@ -43,6 +43,11 @@
     'Wicu5DS7GgdQjIUHewGcg4xinvfQMnG05HIbI5/AfT/APXWVRU8iK5mWryaK6ffjY2OW5JPYD8' +
     'qikjt0ztneT6R4H6moaKpIVxW2fwbvxoptFMR/9k='
 
+  const LONG_TEXT =
+    `<p>${'Long text moves the next video to the next screen. '.repeat(12)}</p>`.repeat(
+      6
+    )
+
   const FEED = {
     id: 'feed',
     reading: 'slow',
@@ -457,18 +462,10 @@
         feedId: 'feed',
         full:
           '<p>Video starts by itself without sound and without controls: ' +
-          'mouse over the video returns them, click pauses it. Telegram’s ' +
-          'video downloads the file first and shows the loader without ' +
-          'the click. Only the upper of videos on the screen plays, so the ' +
-          'next videos wait for their turn. Round video never has ' +
-          'controls: click plays it with sound, the next click pauses it.</p>',
+          'mouse over the video returns them, click pauses it. Only ' +
+          'the upper of videos on the screen plays: the second video ' +
+          'waits for its turn and starts when the first one ends.</p>',
         media: [
-          {
-            placeholder: TINY,
-            poster: 'telegram:5/3/poster',
-            type: 'video',
-            url: 'telegram:5/3/loading'
-          },
           {
             alt: 'Video',
             poster: imgExample,
@@ -476,18 +473,77 @@
             url: videoExample
           },
           {
+            alt: 'Video',
+            poster: imgExample,
+            type: 'video',
+            url: `${videoExample}#second`
+          }
+        ],
+        mediaSizes: [
+          { height: 180, width: 320 },
+          { height: 180, width: 320 }
+        ],
+        originId: 'autoplay-1',
+        publishedAt: 1600000000,
+        threadId: 'autoplay-1',
+        title: null,
+        url: 'https://t.me/news/4'
+      },
+      {
+        feedId: 'feed',
+        full:
+          LONG_TEXT +
+          '<p>The next video starts only after the scroll, when it is ' +
+          'the upper video on the screen. Telegram’s video under it never ' +
+          'starts by itself: it waits for the click, because Storybook ' +
+          'has no service worker to stream it.</p>',
+        media: [
+          {
+            alt: 'Video',
+            poster: imgExample,
+            type: 'video',
+            url: `${videoExample}#third`
+          },
+          {
+            placeholder: TINY,
+            poster: 'telegram:5/3/poster',
+            type: 'video',
+            url: 'telegram:5/3/loading'
+          }
+        ],
+        mediaSizes: [
+          { height: 180, width: 320 },
+          { bytes: 28089, height: 180, width: 320 }
+        ],
+        merged: true,
+        originId: 'autoplay-2',
+        publishedAt: 1600000060,
+        threadId: 'autoplay-1',
+        title: null,
+        url: 'https://t.me/news/5'
+      },
+      {
+        feedId: 'feed',
+        full:
+          LONG_TEXT +
+          '<p>Round video never has controls. It starts after the scroll ' +
+          'without sound and shows the small muted icon at the bottom. ' +
+          'Click plays it from the start with sound, the next click ' +
+          'pauses it and shows the play icon in the center.</p>',
+        media: [
+          {
             poster: imgExample,
             type: 'video;mode=round',
             url: `${videoExample}#round`
           }
         ],
-        mediaSizes: [
-          { bytes: 28089, height: 180, width: 320 },
-          { height: 180, width: 320 },
-          { height: 240, width: 240 }
-        ],
+        mediaSizes: [{ height: 240, width: 240 }],
+        merged: true,
+        originId: 'autoplay-3',
+        publishedAt: 1600000120,
+        threadId: 'autoplay-1',
         title: null,
-        url: 'https://t.me/news/4'
+        url: 'https://t.me/news/6'
       }
     ]}
   >
