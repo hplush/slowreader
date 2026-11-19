@@ -14,7 +14,7 @@ import {
   unfollowByAccount
 } from '../account.ts'
 import { getCategories, getCategoryOptions } from '../category.ts'
-import { errorToMessage, NotFoundError } from '../errors.ts'
+import { errorToMessage, NotFoundError, ParseError } from '../errors.ts'
 import {
   addCandidate,
   changeFeed,
@@ -116,16 +116,39 @@ export const feed = definePopup('feed', async url => {
   let categoriesStore = getCategories()
   let response: TextResponse | undefined
   let candidate: false | FeedLoader | undefined
-  let parsing = findFeed(task, url).then(found => {
-    response = found.response
-    candidate = found.feed
-  })
   let [$feeds] = await Promise.all([
     waitSql(feedsStore),
     waitSql(categoriesStore)
   ])
 
   let existing = $feeds.get().value[0]
+
+  let parsing: Promise<void>
+  if (existing && !isWebFeed(existing.loader)) {
+    // `findFeed()` would lose a saved feed, which the service forgot by this
+    // URL, like a Telegram channel after the username change
+    candidate = {
+      loader: loaders[existing.loader],
+      name: existing.loader,
+      title: existing.originTitle || existing.title,
+      url: existing.url
+    }
+    parsing = Promise.resolve()
+  } else {
+    parsing = findFeed(
+      task,
+      url,
+      // Site could change the feed format, so only the document of a saved
+      // web feed chooses between its loaders
+      existing && {
+        names: (Object.keys(loaders) as LoaderName[]).filter(isWebFeed),
+        sure: false
+      }
+    ).then(found => {
+      response = found.response
+      candidate = found.feed
+    })
+  }
 
   if (!existing) {
     await parsing
@@ -138,14 +161,15 @@ export const feed = definePopup('feed', async url => {
 
   let posts: PostsList
   if (existing) {
+    let loaderData = existing.loaderData
     posts = createPostsList(async () => {
       await parsing
-      if (!candidate) return [[], undefined]
+      if (!candidate) throw new ParseError(`No feed at ${url}`)
       return addThreadStarts(
         task,
         candidate.loader,
         url,
-        candidate.loader.getPosts(task, url, response)
+        candidate.loader.getPosts(task, url, response, undefined, loaderData)
       )()
     })
   } else {

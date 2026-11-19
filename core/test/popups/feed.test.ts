@@ -141,6 +141,24 @@ describe('feed popup', () => {
     }, [])
   })
 
+  test('shows error if saved feed is not a feed anymore', async () => {
+    await addFeed(testFeed({ url: 'https://a.com/feed' }))
+    expectRequest('https://a.com/feed').andRespond(
+      200,
+      '<html><body>Blog was closed</body></html>',
+      'text/html'
+    )
+    let popup = openTestPopup('feed', 'https://a.com/feed')
+    await waitLoading(popup.loading)
+    equal(popup.notFound, false)
+    await checkLoadedPopup(popup).posts.loading
+    deepEqual(checkLoadedPopup(popup).posts.get().list, [])
+    equal(
+      String(checkLoadedPopup(popup).posts.get().error),
+      'ParseError: No feed at https://a.com/feed'
+    )
+  })
+
   test('shows existing feed before posts are loaded', async () => {
     let feedId = await addFeed(
       testFeed({
@@ -519,7 +537,13 @@ describe('feed popup with accounts', () => {
     })
   }
 
-  async function openAuthor(): Promise<FeedPopup> {
+  async function openSavedAuthor(): Promise<FeedPopup> {
+    let popup = openTestPopup('feed', AUTHOR)
+    await waitLoading(popup.loading)
+    return checkLoadedPopup(popup)
+  }
+
+  function openAuthor(): Promise<FeedPopup> {
     expectRequest(
       'https://mastodon.social/api/v1/accounts/lookup?acct=jane'
     ).andRespond(
@@ -527,9 +551,7 @@ describe('feed popup with accounts', () => {
       JSON.stringify({ acct: 'jane', display_name: 'Jane', id: '1' }),
       'application/json'
     )
-    let popup = openTestPopup('feed', AUTHOR)
-    await waitLoading(popup.loading)
-    return checkLoadedPopup(popup)
+    return openSavedAuthor()
   }
 
   function authorPost(
@@ -749,7 +771,7 @@ describe('feed popup with accounts', () => {
       calls.push(`unfollow ${auth.account.id}`)
       return Promise.resolve()
     })
-    let popup = await openAuthor()
+    let popup = await openSavedAuthor()
     await popup.change({ reading: 'slow' })
     equal((await loadFeed(feedId))!.reading, 'slow')
 
@@ -790,7 +812,7 @@ describe('feed popup with accounts', () => {
     spyOn(account, 'unfollow', () => {
       return Promise.reject(new HTTPStatusError(500, AUTHOR, '', new Headers()))
     })
-    let popup = await openAuthor()
+    let popup = await openSavedAuthor()
 
     await popup.changeAccount(b)
     equal((await loadFeed(feedId))!.accountId, a)
@@ -833,7 +855,7 @@ describe('feed popup with accounts', () => {
       return Promise.resolve(auth.account.id === other)
     })
     let unfollows = spyOn(account, 'unfollow', () => Promise.resolve())
-    let popup = await openAuthor()
+    let popup = await openSavedAuthor()
 
     let removing = popup.remove()
     equal(popup.deleting.get(), true)

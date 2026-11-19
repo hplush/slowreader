@@ -3267,6 +3267,48 @@ describe('telegram loader', () => {
     equal(missing.notFound, true)
   })
 
+  test('shows posts of saved channel after its username change', async () => {
+    let accountId = await addAccount(
+      testAccount({ credentials: null, service: 'telegram' })
+    )
+    deviceSessions.set({ [accountId]: { device: 'name', service: 'telegram' } })
+    await addFeed(
+      testFeed({
+        accountId,
+        loader: 'telegram',
+        loaderData: '{"id":"-1000000000007"}',
+        url: 'https://t.me/oldname'
+      })
+    )
+    mockHistory(0, { 0: [message(3)], 3: [message(2)] })
+    testTelegram.answers.searchPublicChat = fail('USERNAME_NOT_OCCUPIED')
+
+    let opened = openTestPopup('feed', 'https://t.me/oldname')
+    await waitLoading(opened.loading)
+    let popup = checkLoadedPopup(opened)
+    await popup.posts.loading
+    equal(popup.posts.get().error, undefined)
+    deepEqual(
+      popup.posts.get().list.map(post => post.url),
+      ['https://t.me/oldname/3', 'https://t.me/oldname/2']
+    )
+    equal(
+      testTelegram.requests.some(i => i['@type'] === 'searchPublicChat'),
+      false
+    )
+
+    await addFeed(
+      testFeed({ accountId, loader: 'telegram', url: 'https://t.me/noidname' })
+    )
+    let withoutId = openTestPopup('feed', 'https://t.me/noidname')
+    await waitLoading(withoutId.loading)
+    await checkLoadedPopup(withoutId).posts.loading
+    equal(
+      String(checkLoadedPopup(withoutId).posts.get().error),
+      'TelegramError: USERNAME_NOT_OCCUPIED'
+    )
+  })
+
   test('loads avatars of account, channels, and forward sources', async () => {
     function avatarOf(fileId: number, unique: string): object {
       return {
