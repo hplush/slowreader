@@ -63,7 +63,15 @@ site:
   # No Docker, since only releases job rebuilds images
   image: alpine:3.24.2@sha256:294b683cb724975bec92580e1e685676bd4b50bda910ddb8c51d4cabeaec77e6
   before_script:
-    - apk add --no-cache bash cosign curl git jq openssh-client openssl
+    - apk add --no-cache bash curl git jq openssh-client openssl
+    # cosign is 3/4 of all packages, but only the first check of a day signs
+    # the previous day, so it is installed on the first call
+    - |
+      cat > /usr/local/bin/cosign << 'EOF'
+      #!/bin/sh
+      apk add --no-cache cosign > /dev/null && exec /usr/bin/cosign "$@"
+      EOF
+    - chmod +x /usr/local/bin/cosign
     - !reference [.push, script]
   script:
     # Take results, which releases job just committed
@@ -72,14 +80,21 @@ site:
     - STATUS=0
     - ./check-site.sh || STATUS=1
     - !reference [.commit, script]
-    - exit $STATUS
+    # GitLab publishes the page only from a successful job
+    - "[ $STATUS = 0 ]"
+    # Second job for the page would double compute minutes of every check
+    - ./build-index.sh
+  pages: true
+  artifacts:
+    paths:
+      - public
 
 pages:
-  # Publish status page even after failed check, to show the failure
+  # Publish status page after failed check too, to show the failure
   needs: [site]
   rules:
     - if: $CI_PIPELINE_SOURCE =~ /^(schedule|push|trigger|web)$/
-      when: always
+      when: on_failure
   image: alpine:3.24.2@sha256:294b683cb724975bec92580e1e685676bd4b50bda910ddb8c51d4cabeaec77e6
   before_script:
     - apk add --no-cache bash git jq
