@@ -1,5 +1,95 @@
 # Change Log
 
+## 0.20261119.0
+
+_2026-11-19 · +7181 −1346_
+
+### Categories page
+
+_By category_ page is now _Categories_. It shows only the list of categories with the number of feeds in each, and a click on a category opens its feeds.
+
+### Copy post URL
+
+Browsers without the share menu show a button to copy the post’s URL instead of the Share button.
+
+### Dead feeds
+
+New _Dead feeds_ page in the feeds menu lists feeds, which were deleted from their sites, and feeds without posts for 1 or 2 years, so you can clean up your subscriptions. The refresh popup suggests opening it when many feeds became dead since your last visit.
+
+### Reading colors in feed lists
+
+Feeds in _Categories_ and _Dead feeds_ lists show their reading by color: Useful feeds are yellow, Fun feeds are neutral.
+
+### Back button on mobile
+
+On phones and tablets, the navbar shows the Back button instead of Refresh in feed’s posts and on settings pages.
+
+### Refresh every 15 minutes
+
+Auto-refresh now checks feeds for new posts every 15 minutes while the app is open, even in the background, so you will see new posts when you come back. It follows the same Network setting as auto-refresh on start and is skipped in Save Data mode.
+
+### Stop video loading
+
+Telegram video shows a stop button while it is loading. Video, which was loaded after scrolling, does not play out of the screen.
+
+### Category feed in Useful
+
+Click on a category in the Useful menu opens all its posts as one feed. The arrow near the category name hides and shows its feeds.
+
+### Video autoplay
+
+Video starts without sound when you scroll to it. Nothing covers it: buttons appear when you move the mouse over the video, and a tap pauses it. If a few videos are on the screen, only the upper one plays, and the next one starts when it ends. Any video, started by you too, stops when you scroll it away or start another one. In Posts settings you can allow it only on Wi-Fi or turn it off. Save Data mode turns it off too.
+
+### Telegram video streaming
+
+Telegram video starts right after the click instead of waiting for the whole file, and only the watched part is downloaded. Autoplay works for big videos too.
+
+### Security & Privacy
+
+- CI checks nginx and system libraries of the image for vulnerabilities every day, and SBOM lists them and the health check tool.
+- Updated nginx to 1.31.9 to fix CVE-2026-113425, CVE-2026-118899, CVE-2026-120967, CVE-2026-120993, CVE-2026-121810, CVE-2026-123007, CVE-2026-123633, CVE-2026-123634, CVE-2026-123640, CVE-2026-125283.
+- System libraries for Node.js in the image are updated together with base images.
+
+### Fixes
+
+- Feed preview shows last post date instead of posts frequency for feeds without posts for 6 months, warns about feeds without posts for a year, and marks it red after 2 years.
+- Showed feed type for every result in Add feed.
+- Bluesky account no longer asks to sign in again after the daily check of your follows.
+- Fixed “Delete local data” on the error page: it now also downloads the app files again, in case they were the reason of the error.
+- Fixed “Download new posts” button not reacting to the click for a few seconds.
+- Renamed feed popup buttons to “Follow” and “Unfollow”.
+- Thread marker like `1/3` is shown right after the post text, and `…` of the cut post looks the same as the marker.
+- Fixed the app crash on every start after the app was closed during an update.
+- Fixed error text in refresh for feeds, whose domain does not exist anymore.
+- Explained on Network settings why mobile app uses only proxy.
+- Fixed empty error for Telegram channels in refresh after the app release: now it asks to update the app.
+- Link preview card of a Telegram, Bluesky, or Mastodon post now opens it in the app, like a link from the text.
+- Fixed broken feed type field on narrow screens with bigger font.
+- Fixed “You read all” message staying after refresh downloaded new posts.
+- Fixed loader disappearing before the feed is closed after “Mark as read”.
+- Fixed refresh stopping without new posts, freezing, or showing another device’s refresh forever after the connection to the cloud was lost, like on return to the app on a phone.
+- Fixed auto-refresh on app start being skipped or freezing at “Asking other devices to wait…”.
+- Fixed media saving progress appearing in the refresh popup only after the posts check.
+- Fixed “Check for new posts” button opening a popup instead of just checking for new posts.
+- Refresh popup shows what the app is waiting for before checking feeds instead of 0/0.
+- Reposts show the original author’s avatar instead of the reposter’s one and do not repeat the reposter’s name.
+- Fixed empty posts list in the popup of a saved feed: Telegram channel is found after its username change, and a broken feed shows the error.
+- Opened spoiler keeps its background, hides again by click, and is opened from the start with “Open content warnings” setting.
+- Fixed sync status hiding the last feed in a long menu.
+- Media of posts, refreshed on another device, is now saved for offline too.
+- Fixed loading order of Telegram images: images on the screen are loaded first, and images of a closed page do not delay the next one.
+- Fixed `Chat not found` error on refresh after leaving Telegram channel in Telegram app.
+- Fixed paid Telegram posts shown as unsupported: now they have a link to open them in the app.
+- Fixed slow Telegram feed popup and images during the refresh.
+- Fixed “Request aborted” errors in refresh, when Telegram answers longer than a minute.
+- Telegram round videos are shown as circles, like in Telegram.
+- Text size setting maximum is now 150% on desktop too.
+- Render Useful feeds as feed of posts instead of list of title since list can confuse new user
+- Fixed blurred preview under the play button of Telegram video.
+- Fixed missing buttons to add feeds on the welcome page after removing the demo.
+- Fixed missing hint on how to reset the app on the welcome page.
+- Fixed adding WordPress authors by fediverse handle as Mastodon feed.
+
 ## 0.20261114.0
 
 _2026-11-14 · +21186 −3235_
