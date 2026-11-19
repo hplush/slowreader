@@ -254,7 +254,7 @@ export function errorToMessage(error: unknown): string {
   } else if (error.name === 'QuotaExceededError') {
     return commonMessages.get().quotaError
   } else {
-    return error.message
+    return error.message || commonMessages.get().unknownError
   }
 }
 

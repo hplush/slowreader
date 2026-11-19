@@ -8,6 +8,7 @@ export const organizeMessages = i18n('organize', {
   accountReading: 'Account',
   anonymous: 'Anonymous',
   categoriesTitle: 'Categories',
+  delete: 'Delete',
   deleteCategory: 'Delete category',
   deleteCategoryConform:
     'All feeds in this category will be moved to General. Are you sure you want to continue?',
@@ -43,6 +44,7 @@ export const organizeMessages = i18n('organize', {
   follow: 'Follow',
   morePosts: 'More posts',
   openWebsite: 'Open website',
+  rename: 'Rename',
   renameCategory: 'Rename category',
   sameAsAccount: 'Same as account',
   slow: 'Useful',

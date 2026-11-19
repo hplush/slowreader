@@ -7,7 +7,6 @@ import {
   changeFeed,
   deadFeedsSeenAt,
   type FeedValue,
-  formatTimeShort,
   i18nFormat,
   loadFeed,
   syncedSettingsLoading,
@@ -25,7 +24,10 @@ function hints(feeds: (FeedValue | undefined)[]): Record<string, string> {
   return Object.fromEntries(
     feeds.map(feed => [
       feed!.url,
-      formatTimeShort(i18nFormat.get(), new Date(feed!.lastPublishedAt! * 1000))
+      i18nFormat.get().time(new Date(feed!.lastPublishedAt! * 1000), {
+        month: 'short',
+        year: 'numeric'
+      })
     ])
   )
 }

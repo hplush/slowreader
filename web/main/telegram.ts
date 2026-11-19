@@ -3,6 +3,8 @@
 // a Web Lock while TDLib is running and stops it when another tab waits.
 
 import {
+  detectNetworkError,
+  fatal,
   type TelegramClient,
   TelegramError,
   type TelegramObject,
@@ -87,10 +89,21 @@ function runTdlib(
   }
 
   return new Promise((resolve, reject) => {
-    worker.addEventListener('error', event => {
-      let error = new Error(event.message)
+    function fail(error: Error): void {
       reject(error)
       finish(error)
+    }
+    worker.addEventListener('error', event => {
+      if (event.message) {
+        fail(new Error(`Telegram worker failed: ${event.message}`))
+      } else {
+        detectNetworkError(() => {
+          return fetch(import.meta.url, { method: 'HEAD' })
+        }).then(response => {
+          if (response.status === 404) fatal.set({ type: 'outdated' })
+          fail(new Error('Telegram worker was not loaded'))
+        }, fail)
+      }
     })
     worker.addEventListener(
       'message',
@@ -121,14 +134,14 @@ function runTdlib(
           files.get(data.id)?.resolve(data.data)
           files.delete(data.id)
         } else if (data.type === 'fileError') {
-          files.get(data.id)?.reject(new Error(data.error))
+          files
+            .get(data.id)
+            ?.reject(new Error(`Telegram file was not read: ${data.error}`))
           files.delete(data.id)
         } else if (data.type === 'closed') {
           finish(new TelegramError(500, 'Request aborted'))
         } else {
-          let error = new Error(data.error)
-          reject(error)
-          finish(error)
+          fail(new Error(`Telegram worker crashed: ${data.error}`))
         }
       }
     )

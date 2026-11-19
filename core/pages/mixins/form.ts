@@ -2,7 +2,7 @@ import { COMMON_ERRORS } from '@slowreader/api'
 import type { ReadableAtom, WritableAtom } from 'nanostores'
 
 import { getEnvironment } from '../../environment.ts'
-import { NetworkError, UserFacingError } from '../../errors.ts'
+import { errorToMessage, NetworkError, UserFacingError } from '../../errors.ts'
 import { commonMessages as t } from '../../messages/index.ts'
 
 export function createFormSubmit<
@@ -29,7 +29,7 @@ export function createFormSubmit<
         let error =
           e.message === COMMON_ERRORS.TOO_MANY_REQUESTS
             ? t.get().tooManyRequests
-            : e.message
+            : errorToMessage(e)
         for (let code in errors) {
           if (errors[code] === e.message) {
             error = messages.get()[code]

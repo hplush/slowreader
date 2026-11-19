@@ -9,7 +9,9 @@ import {
   getUnhandledErrors,
   HTTPStatusError,
   NotFoundError,
-  showCrash
+  showCrash,
+  TelegramError,
+  UserFacingError
 } from '../errors.ts'
 import { commonMessages } from '../messages/index.ts'
 import { cleanClient, expectWarning, openRoute, startClient } from './utils.ts'
@@ -105,6 +107,18 @@ describe('errors', () => {
     equal(message(404, ''), commonMessages.get().error404)
     equal(message(503, 'x'), commonMessages.get().error5xx)
     equal(message(418, 'x'), 'Feed server error: 418')
+  })
+
+  test('never shows empty error', () => {
+    startClient()
+    for (let error of [
+      new Error(),
+      new UserFacingError(''),
+      new TelegramError(500, '')
+    ]) {
+      equal(errorToMessage(error), commonMessages.get().unknownError)
+    }
+    equal(errorToMessage(new Error('Custom')), 'Custom')
   })
 
   test('converts full disk error to message', () => {

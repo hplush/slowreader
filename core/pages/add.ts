@@ -3,7 +3,7 @@ import { atom, computed, map, onMount } from 'nanostores'
 
 import { canUseAccount, isAccountService, loadAccounts } from '../account.ts'
 import { getEnvironment, layoutType } from '../environment.ts'
-import { UserFacingError } from '../errors.ts'
+import { errorToMessage, UserFacingError } from '../errors.ts'
 import {
   createDownloadTask,
   type DownloadTask,
@@ -337,7 +337,7 @@ export const addPage = createPage('add', () => {
         if (!(e instanceof UserFacingError)) {
           unloadable(e)
         } else if (task === prevTask) {
-          $links.setKey(url, { error: e.message, state: 'invalid' })
+          $links.setKey(url, { error: errorToMessage(e), state: 'invalid' })
         }
         return
       }

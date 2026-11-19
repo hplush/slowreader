@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
   client,
+  commonMessages,
   enableTestTime,
   generateCredentials,
   hasCloud,
@@ -125,6 +126,31 @@ describe('start page', () => {
 
     await page.signInByPassword()
     match(page.signError.get()!, /try\sagain\slater/)
+  })
+
+  test('reports about error without text', async () => {
+    // @ts-expect-error Hacky mocking for tests
+    server.fetch = () => {
+      return Promise.resolve({
+        headers: new Headers(),
+        ok: false,
+        status: 429,
+        text: () => Promise.resolve(''),
+        url: 'example.com'
+      })
+    }
+
+    let credentials = generateCredentials()
+    let page = openPage({
+      params: {},
+      route: 'start'
+    })
+
+    page.userId.set(credentials.userId)
+    page.password.set(credentials.password)
+
+    await page.signInByPassword()
+    equal(page.signError.get(), commonMessages.get().unknownError)
   })
 
   test('reports about server errors', async () => {

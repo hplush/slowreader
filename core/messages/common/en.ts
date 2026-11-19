@@ -44,6 +44,7 @@ export const commonMessages = i18n('common', {
   slow: 'Useful',
   signingOut: 'Signing out',
   tooManyRequests: 'Too many attempts. Please try again later.',
+  unknownError: 'Unknown error',
   unknownPasskey:
     'This passkey was deleted from your account. Sign in with password.',
   uploadingData: 'Uploading your data to the cloud',
