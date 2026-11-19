@@ -6,7 +6,7 @@ import {
   signIn
 } from '@slowreader/api'
 import { equal, ok } from 'node:assert/strict'
-import { afterEach, describe, test } from 'node:test'
+import { after, afterEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import { redactLogger } from '../lib/redact.ts'
@@ -14,6 +14,7 @@ import {
   authKey,
   buildTestServer,
   cleanAllTables,
+  closeDb,
   FakeAuthenticator,
   getChallenge,
   LOCKED_KEY,
@@ -21,6 +22,8 @@ import {
   signUpUser,
   testRequest
 } from './utils.ts'
+
+after(closeDb)
 
 describe('server logs', () => {
   afterEach(async () => {

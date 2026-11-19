@@ -37,6 +37,7 @@ minimumReleaseAgeExclude:
   - keyux
   - esbuild
   - nanoid
+  - better-node-test
 
 verifyDepsBeforeRun: false
 

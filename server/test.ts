@@ -19,6 +19,10 @@ import usersModule from './modules/users.ts'
 
 export { FakeAuthenticator } from './test/authenticator.ts'
 
+// Test file must call it in `after()`: opened database keeps the process
+// alive for 10 seconds after the last test
+export { closeDb } from './db/index.ts'
+
 // Cleaning would wipe the development database
 if (config.env !== 'test') {
   throw new Error('Run tests with NODE_ENV=test, for instance, by pnpm bnt')

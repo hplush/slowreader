@@ -1,6 +1,6 @@
 import { eq, sql } from 'drizzle-orm'
 import { equal } from 'node:assert/strict'
-import { afterEach, describe, test } from 'node:test'
+import { after, afterEach, describe, test } from 'node:test'
 
 import { db, sessions } from '../db/index.ts'
 import { eventCounts } from '../lib/metrics.ts'
@@ -8,6 +8,7 @@ import metricsModule from '../modules/metrics.ts'
 import {
   buildTestServer,
   cleanAllTables,
+  closeDb,
   FakeAuthenticator,
   signUpUser
 } from './utils.ts'
@@ -48,6 +49,8 @@ async function addSession(
     userId
   })
 }
+
+after(closeDb)
 
 describe('server metrics', () => {
   afterEach(async () => {

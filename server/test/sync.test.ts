@@ -5,7 +5,7 @@ import { TestClient, type TestServer } from '@logux/server'
 import { dbReset, RETENTION, signIn, signUp } from '@slowreader/api'
 import { eq } from 'drizzle-orm'
 import { deepEqual, equal, notEqual } from 'node:assert/strict'
-import { afterEach, describe, test } from 'node:test'
+import { after, afterEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import { db, sessions, users } from '../db/index.ts'
@@ -13,11 +13,14 @@ import {
   authKey,
   buildTestServer,
   cleanAllTables,
+  closeDb,
   getServerLogIds,
   LOCKED_KEY,
   testRequest,
   waitForActions
 } from './utils.ts'
+
+after(closeDb)
 
 describe('server sync', () => {
   afterEach(async () => {

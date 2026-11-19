@@ -13,7 +13,7 @@
     "migration": "drizzle-kit generate && oxfmt ./db/**/*.json",
     "database": "drizzle-kit studio --host 0.0.0.0 --port 2557",
     "aaguids": "rm -f aaguids/names.json && node aaguids/download.ts",
-    "test:offline:coverage": "bnt --coverage 100 --coverage-exclude '{db/index.ts,aaguids/utils.ts,../api/**,../proxy/**,test.ts,test/**}'"
+    "test:offline:coverage": "bnt --test-force-exit --coverage 100 --coverage-exclude '{db/index.ts,aaguids/utils.ts,../api/**,../proxy/**,test.ts,test/**}'"
   },
   "dependencies": {
     "@electric-sql/pglite": "0.5.16",
@@ -30,8 +30,8 @@
     "ua-parser-js": "2.0.10"
   },
   "devDependencies": {
-    "@logux/client": "0.28.1",
-    "better-node-test": "1.0.0",
+    "@logux/client": "0.28.3",
+    "better-node-test": "2.0.0",
     "drizzle-kit": "1.0.0-rc.4"
   }
 }

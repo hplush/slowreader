@@ -6,10 +6,14 @@ import {
   refreshUnlocked,
   signIn
 } from '@slowreader/api'
-import { buildTestServer, cleanAllTables } from '@slowreader/server/test'
+import {
+  buildTestServer,
+  cleanAllTables,
+  closeDb
+} from '@slowreader/server/test'
 import { restoreAll, spyOn } from 'nanospy'
 import { deepEqual, equal, ok } from 'node:assert/strict'
-import { afterEach, beforeEach, describe, test } from 'node:test'
+import { after, afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import {
@@ -48,6 +52,8 @@ import {
   startClient,
   waitUntil
 } from './utils.ts'
+
+after(closeDb)
 
 describe('refresh lock', () => {
   let server: TestServer | undefined

@@ -4,7 +4,7 @@ import type { AddressInfo } from 'node:net'
 import { after, afterEach, describe, test } from 'node:test'
 
 import proxyModule from '../modules/proxy.ts'
-import { emptyTestServer } from './utils.ts'
+import { closeDb, emptyTestServer } from './utils.ts'
 
 let target = createServer((req, res) => {
   let parsedUrl = new URL(req.url!, `http://${req.headers.host}`)
@@ -29,6 +29,8 @@ function getURL(server: Server): string {
   let port = (server.address() as AddressInfo).port
   return `http://localhost:${port}`
 }
+
+after(closeDb)
 
 describe('server proxy', () => {
   let originEnv = { ...process.env }

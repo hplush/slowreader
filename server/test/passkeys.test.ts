@@ -14,13 +14,14 @@ import {
   signUp
 } from '@slowreader/api'
 import { deepEqual, equal, ok } from 'node:assert/strict'
-import { afterEach, describe, test } from 'node:test'
+import { after, afterEach, describe, test } from 'node:test'
 
 import { db } from '../db/index.ts'
 import {
   authKey,
   buildTestServer,
   cleanAllTables,
+  closeDb,
   FakeAuthenticator,
   getChallenge,
   PASSKEY_LOCKED_KEY,
@@ -53,6 +54,8 @@ async function names(): Promise<string[]> {
   let rows = await db.query.passkeys.findMany({ orderBy: { createdAt: 'asc' } })
   return rows.map(i => i.name)
 }
+
+after(closeDb)
 
 describe('server passkeys', () => {
   afterEach(async () => {

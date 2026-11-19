@@ -3,11 +3,12 @@ import type { TestServer } from '@logux/server'
 import {
   buildTestServer,
   cleanAllTables,
-  cleanSessions
+  cleanSessions,
+  closeDb
 } from '@slowreader/server/test'
 import { keepMount } from 'nanostores'
 import { equal, ok } from 'node:assert/strict'
-import { afterEach, beforeEach, describe, test } from 'node:test'
+import { after, afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
   client,
@@ -54,6 +55,8 @@ async function triggerRelogin(): Promise<{
   equal(currentPage.get().route, 'relogin')
   return { credentials, page: currentPage.get() as ReloginPage }
 }
+
+after(closeDb)
 
 describe('relogin page', () => {
   let server: TestServer

@@ -1,8 +1,10 @@
 import { equal } from 'node:assert/strict'
-import { describe, test } from 'node:test'
+import { after, describe, test } from 'node:test'
 
 import healthModule from '../modules/health.ts'
-import { emptyTestServer } from './utils.ts'
+import { closeDb, emptyTestServer } from './utils.ts'
+
+after(closeDb)
 
 describe('server health', () => {
   test('returns ok when db is healthy', async () => {

@@ -207,8 +207,8 @@ importers:
         specifier: npm:typescript@7.0.2
         version: typescript@7.0.2
       better-node-test:
-        specifier: 1.0.0
-        version: 1.0.0
+        specifier: 2.0.0
+        version: 2.0.0
       eslint:
         specifier: 10.15.0
         version: 10.15.0(jiti@2.7.0)(supports-color@9.4.0)
@@ -307,8 +307,8 @@ importers:
         specifier: 0.8.1
         version: 0.8.1(@logux/core@0.12.2)
       '@logux/client':
-        specifier: 0.28.1
-        version: 0.28.1(@nanostores/sql@0.9.0)(nanostores@1.5.5)(react@19.3.1)
+        specifier: 0.28.3
+        version: 0.28.3(@nanostores/sql@0.9.0)(nanostores@1.5.5)(react@19.3.1)
       '@logux/core':
         specifier: 0.12.2
         version: 0.12.2
@@ -362,8 +362,8 @@ importers:
         specifier: 2.0.7
         version: 2.0.7
       better-node-test:
-        specifier: 1.0.0
-        version: 1.0.0
+        specifier: 2.0.0
+        version: 2.0.0
       nanospy:
         specifier: 2.0.2
         version: 2.0.2
@@ -428,8 +428,8 @@ importers:
   proxy:
     devDependencies:
       better-node-test:
-        specifier: 1.0.0
-        version: 1.0.0
+        specifier: 2.0.0
+        version: 2.0.0
 
   server:
     dependencies:
@@ -471,11 +471,11 @@ importers:
         version: 2.0.10
     devDependencies:
       '@logux/client':
-        specifier: 0.28.1
-        version: 0.28.1(@nanostores/sql@0.9.0)(nanostores@1.5.5)(react@19.3.1)
+        specifier: 0.28.3
+        version: 0.28.3(@nanostores/sql@0.9.0)(nanostores@1.5.5)(react@19.3.1)
       better-node-test:
-        specifier: 1.0.0
-        version: 1.0.0
+        specifier: 2.0.0
+        version: 2.0.0
       drizzle-kit:
         specifier: 1.0.0-rc.4
         version: 1.0.0-rc.4
@@ -647,8 +647,8 @@ importers:
         specifier: 1.8.70
         version: 1.8.70
       '@logux/client':
-        specifier: 0.28.1
-        version: 0.28.1(@nanostores/sql@0.9.0)(nanostores@1.5.5)(react@19.3.1)
+        specifier: 0.28.3
+        version: 0.28.3(@nanostores/sql@0.9.0)(nanostores@1.5.5)(react@19.3.1)
       '@logux/core':
         specifier: 0.12.2
         version: 0.12.2
@@ -1633,8 +1633,8 @@ packages:
     peerDependencies:
       '@logux/core': ^0.12.0
 
-  '@logux/client@0.28.1':
-    resolution: {integrity: sha512-8SkfVyp+WcvfRc7U4StsWOgOfzK0MDh1pADU0MQbN7CCNWARSbrTgpGHV663x3wdz2ZbqETRzxzw+xrqfTp3mg==}
+  '@logux/client@0.28.3':
+    resolution: {integrity: sha512-4k/yA72bvj9C2hYnTWhKH80cmOM9EgYxfRZFawQoknnnNGQTGrLuJijxcWN4cVGGFWwYP7LvOGHHmJUoLdLc0w==}
     engines: {node: ^22.0.0 || ^24.0.0 || >=26.0.0}
     peerDependencies:
       '@nanostores/preact': '>=0.0.0'
@@ -3245,8 +3245,8 @@ packages:
   bcp-47@2.1.2:
     resolution: {integrity: sha512-wsv86UuNFuPnVieKLyECTT+CP1WSAHeoIg5P3xu2kA9Z+7fVPoKt7dxzSeEhtJel0AI+NW3fIW3KtTKQKUCngg==}
 
-  better-node-test@1.0.0:
-    resolution: {integrity: sha512-15Dz6VMm0sH5zwxKmOxEwrrOttcQ/z2bhAAAQOujScYxQqO3rlU3rtE1/Vfkcu7rpwaqZ0iqmrwE26G4hwDlVg==}
+  better-node-test@2.0.0:
+    resolution: {integrity: sha512-UxHG5+cOkaGV4gvhgPw0Nm3GY3drfRoyuio17X6vM5hDrTERCRCJsNoxIH81DR0RUA27NPyZYj7XI9jK+UqHxA==}
     engines: {node: ^22.0.0 || ^24.0.0 || >=26.0.0}
     hasBin: true
 
@@ -6372,7 +6372,7 @@ snapshots:
     dependencies:
       '@logux/core': 0.12.2
 
-  '@logux/client@0.28.1(@nanostores/sql@0.9.0)(nanostores@1.5.5)(react@19.3.1)':
+  '@logux/client@0.28.3(@nanostores/sql@0.9.0)(nanostores@1.5.5)(react@19.3.1)':
     dependencies:
       '@logux/actions': 0.8.1(@logux/core@0.12.2)
       '@logux/core': 0.12.2
@@ -7626,7 +7626,7 @@ snapshots:
       is-alphanumerical: 2.0.1
       is-decimal: 2.0.1
 
-  better-node-test@1.0.0: {}
+  better-node-test@2.0.0: {}
 
   binary-extensions@2.3.0: {}
 

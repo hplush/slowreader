@@ -1,9 +1,13 @@
 import type { TestServer } from '@logux/server'
 import { signUp as signUpApi } from '@slowreader/api'
-import { buildTestServer, cleanAllTables } from '@slowreader/server/test'
+import {
+  buildTestServer,
+  cleanAllTables,
+  closeDb
+} from '@slowreader/server/test'
 import { keepMount } from 'nanostores'
 import { deepEqual, equal, match, notEqual } from 'node:assert/strict'
-import { afterEach, beforeEach, describe, test } from 'node:test'
+import { after, afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
   addFeed,
@@ -34,6 +38,8 @@ import {
   setTestUser,
   waitFor
 } from '../utils.ts'
+
+after(closeDb)
 
 describe('signup page', () => {
   let server: TestServer

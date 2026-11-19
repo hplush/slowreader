@@ -7,10 +7,17 @@ import {
   refreshUnlocked
 } from '@slowreader/api'
 import { deepEqual, equal, ok } from 'node:assert/strict'
-import { afterEach, describe, test } from 'node:test'
+import { after, afterEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
-import { buildTestServer, cleanAllTables, signUpUser } from './utils.ts'
+import {
+  buildTestServer,
+  cleanAllTables,
+  closeDb,
+  signUpUser
+} from './utils.ts'
+
+after(closeDb)
 
 describe('server refresh lock', () => {
   afterEach(async () => {

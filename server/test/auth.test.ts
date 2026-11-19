@@ -8,7 +8,7 @@ import {
 } from '@slowreader/api'
 import { sql } from 'drizzle-orm'
 import { deepEqual, equal, notEqual, ok } from 'node:assert/strict'
-import { afterEach, describe, test } from 'node:test'
+import { after, afterEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import { challenges, db } from '../db/index.ts'
@@ -19,6 +19,7 @@ import {
   authKey,
   buildTestServer,
   cleanAllTables,
+  closeDb,
   FakeAuthenticator,
   getChallenge,
   LOCKED_KEY,
@@ -38,6 +39,8 @@ function post(
     method: 'POST'
   }
 }
+
+after(closeDb)
 
 describe('server auth', () => {
   afterEach(async () => {

@@ -2,10 +2,11 @@ import type { TestServer } from '@logux/server'
 import {
   buildTestServer,
   cleanAllTables,
+  closeDb,
   FakeAuthenticator
 } from '@slowreader/server/test'
 import { deepEqual, equal, notEqual, ok } from 'node:assert/strict'
-import { afterEach, beforeEach, describe, test } from 'node:test'
+import { after, afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
   client,
@@ -64,6 +65,8 @@ function setSavePassword(list: string[]): void {
   savedPasswords = list
 }
 
+after(closeDb)
+
 describe('cloud page', () => {
   let server: TestServer
   let authenticator: FakeAuthenticator
@@ -84,6 +87,7 @@ describe('cloud page', () => {
 
   afterEach(async () => {
     await cleanClient()
+    await server.destroy()
     await cleanAllTables()
   })
 

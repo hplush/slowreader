@@ -2,10 +2,14 @@ import { loguxUndo, zeroClean } from '@logux/actions'
 import { type Action, LoguxError } from '@logux/core'
 import type { TestServer } from '@logux/server'
 import { COMMON_ERRORS } from '@slowreader/api'
-import { buildTestServer, cleanAllTables } from '@slowreader/server/test'
+import {
+  buildTestServer,
+  cleanAllTables,
+  closeDb
+} from '@slowreader/server/test'
 import { cleanStores, keepMount } from 'nanostores'
 import { deepEqual, equal, match, notEqual } from 'node:assert/strict'
-import { afterEach, beforeEach, describe, test } from 'node:test'
+import { after, afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import {
@@ -39,6 +43,8 @@ import {
 function emit(obj: any, event: string, ...args: any[]): void {
   obj.emitter.emit(event, ...args)
 }
+
+after(closeDb)
 
 describe('fatal page', () => {
   describe('reason', () => {

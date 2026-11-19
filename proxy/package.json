@@ -13,6 +13,6 @@
     "test:offline:coverage": "bnt --coverage 100"
   },
   "devDependencies": {
-    "better-node-test": "1.0.0"
+    "better-node-test": "2.0.0"
   }
 }

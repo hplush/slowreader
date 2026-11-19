@@ -14,6 +14,7 @@ import type { FakeAuthenticator } from './authenticator.ts'
 export {
   buildTestServer,
   cleanAllTables,
+  closeDb,
   emptyTestServer,
   FakeAuthenticator,
   getServerLogIds

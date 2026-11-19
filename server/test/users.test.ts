@@ -2,19 +2,22 @@ import { zero } from '@logux/actions'
 import { parseId } from '@logux/core'
 import { deleteUser, signIn } from '@slowreader/api'
 import { equal } from 'node:assert/strict'
-import { afterEach, describe, test } from 'node:test'
+import { after, afterEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import { challenges, db } from '../db/index.ts'
 import {
   buildTestServer,
   cleanAllTables,
+  closeDb,
   getChallenge,
   getServerLogIds,
   signUpUser,
   testRequest,
   throws
 } from './utils.ts'
+
+after(closeDb)
 
 describe('server users', () => {
   afterEach(async () => {

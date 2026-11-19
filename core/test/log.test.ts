@@ -8,13 +8,14 @@ import { dbReset, RETENTION, signIn } from '@slowreader/api'
 import {
   buildTestServer,
   cleanAllTables,
+  closeDb,
   getServerLogIds
 } from '@slowreader/server/test'
 import { deepEqual, equal, notEqual, ok } from 'node:assert/strict'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { afterEach, beforeEach, describe, test } from 'node:test'
+import { after, afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import {
@@ -89,6 +90,8 @@ async function waitSync(): Promise<void> {
     return entries.every(entry => entry[0].type === 'shadow')
   })
 }
+
+after(closeDb)
 
 describe('log', () => {
   let server: TestServer | undefined

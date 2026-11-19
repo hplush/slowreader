@@ -1,8 +1,12 @@
 import type { TestServer } from '@logux/server'
 import { COMMON_ERRORS } from '@slowreader/api'
-import { buildTestServer, cleanAllTables } from '@slowreader/server/test'
+import {
+  buildTestServer,
+  cleanAllTables,
+  closeDb
+} from '@slowreader/server/test'
 import { equal, match, notEqual, ok } from 'node:assert/strict'
-import { afterEach, beforeEach, describe, test } from 'node:test'
+import { after, afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
   client,
@@ -26,6 +30,8 @@ import {
   setTestUser,
   waitFor
 } from '../utils.ts'
+
+after(closeDb)
 
 describe('start page', () => {
   let server: TestServer

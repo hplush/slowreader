@@ -3,11 +3,12 @@ import { IS_PASSWORD } from '@slowreader/api'
 import {
   buildTestServer,
   cleanAllTables,
+  closeDb,
   FakeAuthenticator
 } from '@slowreader/server/test'
 import { restoreAll, spyOn } from 'nanospy'
 import { deepEqual, equal, notEqual, ok } from 'node:assert/strict'
-import { afterEach, beforeEach, describe, test } from 'node:test'
+import { after, afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
   authMessages,
@@ -52,6 +53,8 @@ import {
   waitFor,
   waitUntil
 } from './utils.ts'
+
+after(closeDb)
 
 describe('auth', () => {
   let server: TestServer

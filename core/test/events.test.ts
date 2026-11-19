@@ -1,7 +1,11 @@
 import type { TestServer } from '@logux/server'
-import { buildTestServer, cleanAllTables } from '@slowreader/server/test'
+import {
+  buildTestServer,
+  cleanAllTables,
+  closeDb
+} from '@slowreader/server/test'
 import { deepEqual } from 'node:assert/strict'
-import { afterEach, beforeEach, describe, test } from 'node:test'
+import { after, afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
   fatal,
@@ -11,6 +15,8 @@ import {
   track
 } from '../index.ts'
 import { cleanClient, getTestEnvironment, waitUntil } from './utils.ts'
+
+after(closeDb)
 
 describe('events', () => {
   let server: TestServer

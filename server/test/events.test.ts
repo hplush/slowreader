@@ -1,10 +1,15 @@
 import { sendEvents } from '@slowreader/api'
 import { deepEqual, equal } from 'node:assert/strict'
-import { afterEach, describe, test } from 'node:test'
+import { after, afterEach, describe, test } from 'node:test'
 
 import { eventCounts } from '../lib/metrics.ts'
 import eventsModule from '../modules/events.ts'
-import { buildTestServer, cleanAllTables, emptyTestServer } from './utils.ts'
+import {
+  buildTestServer,
+  cleanAllTables,
+  closeDb,
+  emptyTestServer
+} from './utils.ts'
 
 function counts(): Record<string, number> {
   return Object.fromEntries(eventCounts)
@@ -20,6 +25,8 @@ function post(
     method: 'POST'
   })
 }
+
+after(closeDb)
 
 describe('server events', () => {
   afterEach(async () => {
