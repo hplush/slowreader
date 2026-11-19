@@ -5,7 +5,7 @@
 # dependencies, so a malicious web dependency can’t change the server code.
 
 # cgr.dev/chainguard/wolfi-base:latest
-FROM --platform=$BUILDPLATFORM cgr.dev/chainguard/wolfi-base@sha256:7135c6a5e9f29b2542aaefee63d474973312bfdea95555963aef0e648210e4d2 AS tools
+FROM --platform=$BUILDPLATFORM cgr.dev/chainguard/wolfi-base@sha256:be019c1c74fe69204a42c4e10bc4d886a49bf5403ffa74374ef7baa408fc9a26 AS tools
 
 ENV NODE_VERSION=26.13.1 \
   NODE_CHECKSUM_X64=5c063e46bab0fbc1c17cc445d7ff129cbdcd0471be6ed83b6ab864f8143bc864 \
@@ -64,19 +64,19 @@ COPY web/tsconfig.json web/
 
 # Node.js for the image’s platform, for the server and the final image
 # cgr.dev/chainguard/wolfi-base:latest
-FROM cgr.dev/chainguard/wolfi-base@sha256:7135c6a5e9f29b2542aaefee63d474973312bfdea95555963aef0e648210e4d2 AS target
+FROM cgr.dev/chainguard/wolfi-base@sha256:be019c1c74fe69204a42c4e10bc4d886a49bf5403ffa74374ef7baa408fc9a26 AS target
 ARG TARGETARCH
 # Exact versions to get the same libraries in every build
-RUN apk add --no-cache libatomic=16.2.0-r1 libstdc++=16.2.0-r1
+RUN apk add --no-cache libatomic=16.2.0-r5 libstdc++=16.2.0-r5
 COPY --from=tools /tools/${TARGETARCH}/ /usr/local/
 COPY --from=tools /app/ /app/
 WORKDIR /app
 
 # Web assets are the same on ARM, and Node.js crashes in ARM emulation
 # cgr.dev/chainguard/wolfi-base:latest
-FROM --platform=$BUILDPLATFORM cgr.dev/chainguard/wolfi-base@sha256:7135c6a5e9f29b2542aaefee63d474973312bfdea95555963aef0e648210e4d2 AS native
+FROM --platform=$BUILDPLATFORM cgr.dev/chainguard/wolfi-base@sha256:be019c1c74fe69204a42c4e10bc4d886a49bf5403ffa74374ef7baa408fc9a26 AS native
 ARG BUILDARCH
-RUN apk add --no-cache libatomic=16.2.0-r1 libstdc++=16.2.0-r1
+RUN apk add --no-cache libatomic=16.2.0-r5 libstdc++=16.2.0-r5
 COPY --from=tools /tools/${BUILDARCH}/ /usr/local/
 COPY --from=tools /app/ /app/
 WORKDIR /app
@@ -133,7 +133,7 @@ COPY proxy/ proxy/
 COPY server/ server/
 
 # cgr.dev/chainguard/nginx:latest
-FROM cgr.dev/chainguard/nginx@sha256:d660885b01f715c21d4bcece4457bef7440cbc8d349b8d5931900cb08b935bdc AS base
+FROM cgr.dev/chainguard/nginx@sha256:c1642395cc75f39c931d66d939f7e78cbdf671d6cfd821616632b0639c3c6d63 AS base
 
 FROM client AS sbom
 COPY --from=server /server.cdx.json /server.cdx.json
