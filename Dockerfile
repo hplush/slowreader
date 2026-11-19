@@ -4,6 +4,9 @@
 # Every part is installed and built in its own stage with only its own
 # dependencies, so a malicious web dependency can’t change the server code.
 
+# Global to give the same image to SBOM
+ARG HEALTHCHECK=ghcr.io/tarampampam/microcheck:1.4.0@sha256:c9f79cd408626de7c10f2d487d67339f49adf0ba61dde96ede65343269db1f85
+
 # cgr.dev/chainguard/wolfi-base:latest
 FROM --platform=$BUILDPLATFORM cgr.dev/chainguard/wolfi-base@sha256:be019c1c74fe69204a42c4e10bc4d886a49bf5403ffa74374ef7baa408fc9a26 AS tools
 
@@ -135,13 +138,16 @@ COPY server/ server/
 # cgr.dev/chainguard/nginx:latest
 FROM cgr.dev/chainguard/nginx@sha256:c1642395cc75f39c931d66d939f7e78cbdf671d6cfd821616632b0639c3c6d63 AS base
 
+FROM ${HEALTHCHECK} AS healthcheck
+
 FROM client AS sbom
+ARG HEALTHCHECK
 COPY --from=server /server.cdx.json /server.cdx.json
 COPY --from=base /usr/lib/apk/db/installed /base-packages
 COPY --from=target /usr/lib/apk/db/installed /target-packages
 # Only these packages of target get into the final image
 RUN --network=none node web/scripts/merge-sbom.ts /server.cdx.json \
-  /base-packages /target-packages libatomic libstdc++
+  "$HEALTHCHECK" /base-packages /target-packages libatomic libstdc++
 
 FROM base AS production
 
@@ -157,7 +163,7 @@ ENV NODE_ENV=production \
 
 COPY --from=target /usr/local/bin/node /usr/local/bin/node
 COPY --from=target /usr/lib/libatomic.so.1 /usr/lib/libstdc++.so.6 /usr/lib/
-COPY --from=ghcr.io/tarampampam/microcheck@sha256:c9f79cd408626de7c10f2d487d67339f49adf0ba61dde96ede65343269db1f85 /bin/httpcheck /usr/bin/httpcheck
+COPY --from=healthcheck /bin/httpcheck /usr/bin/httpcheck
 
 COPY --from=client /app/web/nginx.conf /app/web/routes.regexp /etc/nginx/
 COPY --from=sbom /app/web/dist/ /var/www/

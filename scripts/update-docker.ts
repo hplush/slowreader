@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // Update images in FROM and COPY --from= inside Dockerfile and images with tag
-// and hash in GitHub workflows to a specific hash, and Wolfi packages
-// in apk add to the latest version for security and having the same
-// environment everywhere.
+// and hash in Dockerfile and GitHub workflows to a specific hash (and 1.2.3 tag
+// to the latest version), and Wolfi packages in apk add to the latest version
+// for security and having the same environment everywhere.
 
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
@@ -23,6 +23,7 @@ const FROM = /^\s*FROM\s+(?:--platform=\S+\s+)?(\S+)/i
 const COPY = /^\s*COPY\s+--from=(\S+)/i
 const PINNED = /([\w.-]+(?:\/[\w.-]+)+:[\w.-]+@sha256:[\da-f]{64})/
 const PACKAGE = /(?<=apk add.*\s)([^-\s][^\s=]*)=(\S+)/g
+const VERSION = /^\d+\.\d+\.\d+$/
 
 function print(message: string): void {
   process.stdout.write(message + '\n')
@@ -68,12 +69,9 @@ async function getToken(
   return data.token ?? data.access_token
 }
 
-async function getDigest(
-  name: string,
-  tag: string
-): Promise<string | undefined> {
+async function loadFromRegistry(name: string, path: string): Promise<Response> {
   let [registry, repository] = splitName(name)
-  let url = `https://${registry}/v2/${repository}/manifests/${tag}`
+  let url = `https://${registry}/v2/${repository}/${path}`
   let headers: Record<string, string> = { accept: ACCEPT }
   let response = await fetch(url, { headers })
   if (response.status === 401) {
@@ -86,10 +84,27 @@ async function getDigest(
       response = await fetch(url, { headers })
     }
   }
+  return response
+}
+
+async function getDigest(
+  name: string,
+  tag: string
+): Promise<string | undefined> {
+  let response = await loadFromRegistry(name, `manifests/${tag}`)
   let type = response.headers.get('content-type')?.split(';')[0]
   if (!response.ok || !type || !ACCEPT.includes(type)) return undefined
   let manifest = Buffer.from(await response.arrayBuffer())
   return 'sha256:' + createHash('sha256').update(manifest).digest('hex')
+}
+
+async function getLatestVersion(name: string): Promise<string | undefined> {
+  let response = await loadFromRegistry(name, 'tags/list?n=1000')
+  if (!response.ok) return undefined
+  return ((await response.json()) as { tags: string[] }).tags
+    .filter(i => VERSION.test(i))
+    .toSorted((a, b) => a.localeCompare(b, 'en', { numeric: true }))
+    .at(-1)
 }
 
 // Read tag from comment on previous line if image has no tag
@@ -112,13 +127,17 @@ async function updateReference(
 
   printPosition(file, line)
 
-  let [origin, pinned] = reference.split('@') as [string, string | undefined]
+  let origin = reference.split('@')[0]!
   let colon = origin.lastIndexOf(':')
   let name = origin
   let tag: string
   if (colon > origin.lastIndexOf('/')) {
     name = origin.slice(0, colon)
     tag = origin.slice(colon + 1)
+    if (VERSION.test(tag)) {
+      tag = (await getLatestVersion(name)) ?? tag
+      origin = `${name}:${tag}`
+    }
   } else {
     tag = getTag(lines[line - 1], origin)
   }
@@ -131,12 +150,12 @@ async function updateReference(
     return undefined
   }
 
-  if (digest === pinned) {
+  let updated = `${origin}@${digest}`
+  if (updated === reference) {
     print(styleText('gray', '  Already pinned to latest manifest digest'))
     return undefined
   }
 
-  let updated = `${origin}@${digest}`
   print(
     `  ${styleText(['red', 'bold'], reference)} → ` +
       styleText(['green', 'bold'], updated)

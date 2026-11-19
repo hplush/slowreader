@@ -1,7 +1,7 @@
 // Merge SBOM of web client and landing with server packages, Node.js,
-// and system packages to dist/.well-known/sbom. Dockerfile gives paths
-// to server’s SBOM and to apk databases of other stages, since web client
-// stage has only its own packages.
+// system packages, and health check image to dist/.well-known/sbom.
+// Dockerfile gives paths to server’s SBOM and to apk databases of other
+// stages, since web client stage has only its own packages.
 
 import { readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -45,9 +45,9 @@ for (let component of [
   ...readComponents(readFileSync(join(DIST, '.well-known/sbom'), 'utf8')),
   ...readComponents(readFileSync(landing, 'utf8')),
   ...readComponents(readFileSync(process.argv[2]!, 'utf8')),
-  ...readApk(process.argv[3]!),
-  ...readApk(process.argv[4]!).filter(i =>
-    process.argv.slice(5).includes(i.name)
+  ...readApk(process.argv[4]!),
+  ...readApk(process.argv[5]!).filter(i =>
+    process.argv.slice(6).includes(i.name)
   )
 ]) {
   if (component.purl.startsWith('pkg:npm/%40slowreader/')) continue
@@ -67,6 +67,18 @@ components.set(`pkg:generic/node@${node}`, {
   'purl': `pkg:generic/node@${node}`,
   'type': 'platform',
   'version': node
+})
+
+let [, repository, name, version, digest] = process.argv[3]!.match(
+  /^(.+\/([^/:]+)):([^@]+)@(.+)$/
+)!
+let healthcheck = `pkg:oci/${name}@${encodeURIComponent(digest!)}?repository_url=${repository}&tag=${version}`
+components.set(healthcheck, {
+  'bom-ref': healthcheck,
+  'name': name!,
+  'purl': healthcheck,
+  'type': 'application',
+  version
 })
 
 rmSync(landing)

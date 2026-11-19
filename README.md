@@ -379,7 +379,7 @@ docker run -p 2553:2553 -v slowreader:/data -e DATABASE_URL=file:///data -e WEB_
 
 See [environment variables](#environment-variables) for other options.
 
-Every release has `sbom.cdx.json` CycloneDX SBOM with system packages, Node.js, server’s production npm packages, and npm packages inside web client and landing assets (not build tools like Vite). Servers also give it on `/.well-known/sbom`. The image also has SPDX SBOM attestation with system packages.
+Every release has `sbom.cdx.json` CycloneDX SBOM with system packages, health check tool, Node.js, server’s production npm packages, and npm packages inside web client and landing assets (not build tools like Vite). Servers also give it on `/.well-known/sbom`. The image also has SPDX SBOM attestation with system packages.
 
 ## Guides
 
