@@ -6,6 +6,7 @@
     commonMessages,
     deleteCategory,
     GENERAL_CATEGORY,
+    layoutType,
     organizeMessages as t
   } from '@slowreader/core'
 
@@ -20,6 +21,7 @@
   let { page }: { page: CategoriesPage } = $props()
 
   let { expanded, groups, opened, readings, sync } = $derived(page)
+  let mobile = $derived($layoutType === 'mobile')
 </script>
 
 <PopupablePage padding title={[$t.categoriesTitle, $t.feedsTitle]}>
@@ -36,8 +38,42 @@
     {:else}
       <Stack gap="s" role="menu">
         {#each $groups as [category, feeds] (category.id)}
+          {#snippet actions(describedby: string)}
+            <Button
+              aria-describedby={describedby}
+              icon={mdiRenameOutline}
+              onclick={() => {
+                let title = prompt($commonMessages.categoryName, category.title)
+                if (title) {
+                  changeCategory(category.id, { title })
+                }
+              }}
+              size={mobile ? 'wide' : 'icon'}
+              variant="secondary"
+            >
+              {mobile ? $t.rename : $t.renameCategory}
+            </Button>
+            <Button
+              aria-describedby={describedby}
+              icon={mdiTrashCanOutline}
+              onclick={() => {
+                if (confirm($t.deleteCategoryConform)) {
+                  deleteCategory(category.id)
+                }
+              }}
+              size={mobile ? 'wide' : 'icon'}
+              variant="secondary-dangerous"
+            >
+              {mobile ? $t.delete : $t.deleteCategory}
+            </Button>
+          {/snippet}
           <Foldable
             id={`${category.id}-feeds`}
+            actions={category.id !== GENERAL_CATEGORY &&
+            category.id !== 'broken'
+              ? actions
+              : undefined}
+            compact={mobile}
             disabled={feeds.length === 0}
             hint={$t.feedsCount(feeds.length)}
             onexpand={() => {
@@ -47,42 +83,9 @@
               page.toggle(category.id)
             }}
             open={$expanded.has(category.id)}
+            short={String(feeds.length)}
             title={category.title}
           >
-            {#snippet actions(describedby: string)}
-              {#if category.id !== GENERAL_CATEGORY && category.id !== 'broken'}
-                <Button
-                  aria-describedby={describedby}
-                  icon={mdiRenameOutline}
-                  onclick={() => {
-                    let title = prompt(
-                      $commonMessages.categoryName,
-                      category.title
-                    )
-                    if (title) {
-                      changeCategory(category.id, { title })
-                    }
-                  }}
-                  size="icon"
-                  variant="secondary"
-                >
-                  {$t.renameCategory}
-                </Button>
-                <Button
-                  aria-describedby={describedby}
-                  icon={mdiTrashCanOutline}
-                  onclick={() => {
-                    if (confirm($t.deleteCategoryConform)) {
-                      deleteCategory(category.id)
-                    }
-                  }}
-                  size="icon"
-                  variant="secondary-dangerous"
-                >
-                  {$t.deleteCategory}
-                </Button>
-              {/if}
-            {/snippet}
             <Feeds current={$opened} list={feeds} readings={$readings} />
           </Foldable>
         {/each}

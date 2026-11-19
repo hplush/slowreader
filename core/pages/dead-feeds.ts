@@ -3,7 +3,7 @@ import { atom, effect } from 'nanostores'
 import { getAccounts } from '../account.ts'
 import { type DeadFeed, getDeadFeed, markDeadFeedsSeen } from '../dead-feeds.ts'
 import { type FeedValue, getFeedReadings, getFeeds } from '../feed.ts'
-import { formatTimeShort, i18nFormat } from '../format.ts'
+import { i18nFormat } from '../format.ts'
 import { clock } from '../night-lock.ts'
 import type { PostValue } from '../schema.ts'
 import { createPage } from './common.ts'
@@ -45,10 +45,10 @@ export const deadFeedsPage = createPage('deadFeeds', () => {
         if (!dead) continue
         lists[dead.type].push(feed)
         if (dead.type !== 'missing') {
-          hints[feed.url] = formatTimeShort(
-            format,
-            new Date(dead.lastPost * 1000)
-          )
+          hints[feed.url] = format.time(new Date(dead.lastPost * 1000), {
+            month: 'short',
+            year: 'numeric'
+          })
         }
       }
       let groups: DeadFeeds = [

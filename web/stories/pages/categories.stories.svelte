@@ -32,8 +32,24 @@
         'Pneumonoultramicroscopicsilicovolcanoconiosis'
     },
     { categoryId: 'long', title: 'Long category' },
+    {
+      categoryId: 'design',
+      title: 'Smashing Magazine — For Web Designers And Developers'
+    },
     { categoryId: 'unknown', title: 'Broken category' },
     { reading: 'slow', title: 'My friend' }
+  ]
+
+  const CATEGORIES = [
+    { id: 'code', title: 'Code' },
+    { id: 'empty', title: 'Empty' },
+    { id: 'design', title: 'Design and typography' },
+    {
+      id: 'long',
+      title:
+        'Pneumonoultramicroscopicsilicovolcanoconiosis' +
+        'Pneumonoultramicroscopicsilicovolcanoconiosis'
+    }
   ]
 </script>
 
@@ -45,19 +61,28 @@
 
 <Story name="List" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
-    categories={[
-      { id: 'code', title: 'Code' },
-      { id: 'empty', title: 'Empty' },
-      {
-        id: 'long',
-        title:
-          'Pneumonoultramicroscopicsilicovolcanoconiosis' +
-          'Pneumonoultramicroscopicsilicovolcanoconiosis'
-      }
-    ]}
+    categories={CATEGORIES}
     feeds={FEEDS}
     oninit={() => {
       pages.categories().toggle('code')
+    }}
+  >
+    <CategoriesPage page={pages.categories()} />
+  </Scene>
+</Story>
+
+<Story
+  name="List Mobile"
+  asChild
+  globals={{ viewport: { value: 'mobile2' } }}
+  parameters={{ layout: 'fullscreen' }}
+>
+  <Scene
+    categories={CATEGORIES}
+    feeds={FEEDS}
+    oninit={() => {
+      pages.categories().toggle('code')
+      pages.categories().toggle('empty')
     }}
   >
     <CategoriesPage page={pages.categories()} />

@@ -8,39 +8,45 @@
   let {
     actions,
     children,
+    compact = false,
     disabled = false,
     hint,
     id,
     onexpand,
     ontoggle,
     open,
+    short,
     title
   }: {
     actions?: Snippet<[string]>
     children: Snippet
+    compact?: boolean
     disabled?: boolean
     hint: string
     id: string
     onexpand: () => void
     ontoggle: () => void
     open: boolean
+    short: string
     title: string
   } = $props()
+
+  let locked = $derived(disabled && !(compact && actions))
 </script>
 
 <div class="foldable" class:is-open={open}>
   <div class="foldable_header">
     <Clickable
       class="foldable_button"
-      aria-controls={id}
+      aria-controls={disabled ? undefined : id}
       aria-expanded={open}
-      {disabled}
+      disabled={locked}
       onclick={(e: MouseEvent) => {
         // Only for mouse click, space/Enter we will handle below
         if (e.detail) ontoggle()
       }}
       onkeydown={(e: KeyboardEvent) => {
-        if (disabled) return
+        if (locked) return
         if (e.key === 'Enter') {
           // KeyUX moves focus into the list on Enter, so it only opens
           onexpand()
@@ -54,14 +60,24 @@
         <Icon path={mdiChevronDown} />
       </span>
       <span id={`${id}-title`} class="foldable_title">{title}</span>
-      <span class="foldable_hint">{hint}</span>
+      <span class="foldable_hint" aria-hidden="true">{short}</span>
+      <span class="sr-only">{hint}</span>
     </Clickable>
-    {@render actions?.(`${id}-title`)}
+    {#if !compact}
+      {@render actions?.(`${id}-title`)}
+    {/if}
   </div>
   {#if open}
-    <div {id} class="foldable_content">
-      {@render children()}
-    </div>
+    {#if compact && actions}
+      <div class="foldable_actions">
+        {@render actions(`${id}-title`)}
+      </div>
+    {/if}
+    {#if !disabled}
+      <div {id} class="foldable_content">
+        {@render children()}
+      </div>
+    {/if}
   {/if}
 </div>
 
@@ -145,6 +161,11 @@
       .foldable_button:active & {
         translate: 0 1px;
       }
+    }
+
+    .foldable_actions {
+      display: flex;
+      gap: 0.375rem;
     }
 
     .foldable_content {
