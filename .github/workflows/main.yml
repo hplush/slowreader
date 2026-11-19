@@ -44,17 +44,48 @@ jobs:
           persist-credentials: false
       - name: Initialize Node.js
         uses: $/.github/actions/init-node
+      - name: Download passkey providers
+        run: pnpm -F server aaguids
+      - name: Run tests
+        run: pnpm run --parallel -F '*' -F '!loader-tests' '/^test:(?!offline:build$)/'
+        env:
+          FORCE_COLOR: 1
+  size:
+    name: Build and Size
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
+        with:
+          egress-policy: block
+          allowed-endpoints: >
+            api.github.com:443
+            ghcr.io:443
+            pkg-containers.githubusercontent.com:443
+            github.com:443
+            nodejs.org:443
+            release-assets.githubusercontent.com:443
+            objects.githubusercontent.com:443
+            raw.githubusercontent.com:443
+            registry.npmjs.org:443
+            storybook.js.org:443
+            tuf-repo-cdn.sigstore.dev:443
+      - name: Checkout the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Initialize Node.js
+        uses: $/.github/actions/init-node
       - name: Copy landing screenshots from the demo image
         run: |
           IMAGE=$(grep -oE 'ghcr.io/hplush/slowreader-demo@sha256:[0-9a-f]+' Dockerfile)
           docker create --name demo "$IMAGE" none
           docker cp demo:/screenshots landings/screenshots
-      - name: Build landings
-        run: pnpm -F landings build
-      - name: Download passkey providers
-        run: pnpm -F server aaguids
-      - name: Run tests
-        run: pnpm run --parallel -F '*' -F '!loader-tests' '/^test:/'
+      - name: Build and check size
+        run: node --run test:offline:build
         env:
           FORCE_COLOR: 1
   build:
