@@ -28,6 +28,14 @@ function print(message: string): void {
   process.stdout.write(message + '\n')
 }
 
+let printedFile: string | undefined
+
+function printPosition(file: string, line: number): void {
+  if (printedFile && printedFile !== file) print('')
+  printedFile = file
+  print(`${file}:${line + 1}`)
+}
+
 function splitName(name: string): [string, string] {
   let slash = name.indexOf('/')
   let registry = name.slice(0, slash)
@@ -102,7 +110,7 @@ async function updateReference(
 ): Promise<string | undefined> {
   if (!reference.includes('/')) return undefined
 
-  print(`${file}:${line + 1}`)
+  printPosition(file, line)
 
   let [origin, pinned] = reference.split('@') as [string, string | undefined]
   let colon = origin.lastIndexOf(':')
@@ -168,7 +176,7 @@ function updatePackages(
   text: string,
   latest: Map<string, string>
 ): string {
-  print(`${file}:${line + 1}`)
+  printPosition(file, line)
   return text.replace(PACKAGE, (pinned, name: string) => {
     let updated = `${name}=${latest.get(name)}`
     if (!latest.has(name)) {
@@ -219,5 +227,4 @@ for (let file of files) {
     }
   }
   if (changed) writeFileSync(path, lines.join('\n'))
-  print('')
 }
