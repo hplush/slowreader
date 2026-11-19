@@ -16,8 +16,11 @@
     "-p",
     "2556:2556",
     "-p",
-    "2557:2557"
+    "2557:2557",
+    "-p",
+    "3719:3719"
   ],
+  "containerEnv": { "MEX_HOST": "0.0.0.0", "MEX_PORT": "3719" },
   "customizations": {
     "vscode": {
       "extensions": [

@@ -3,3 +3,4 @@ LICENSE.md
 CHANGELOG.md
 unreleased-changes/*.md
 !unreleased-changes/README.md
+.mex
