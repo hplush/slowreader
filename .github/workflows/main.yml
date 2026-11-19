@@ -51,7 +51,7 @@ jobs:
         env:
           FORCE_COLOR: 1
   size:
-    name: Build and Size
+    name: Check Size
     permissions:
       contents: read
     runs-on: ubuntu-latest
