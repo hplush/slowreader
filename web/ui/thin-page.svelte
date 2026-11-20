@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte'
 
+  import { trackKeyboard } from '../lib/keyboard.ts'
   import Page from './page.svelte'
 
   let {
@@ -24,7 +25,7 @@
   }}
   {title}
 >
-  <div class="thin-page_center">
+  <div class="thin-page_center" {@attach trackKeyboard}>
     {@render children()}
   </div>
 </Page>
@@ -60,6 +61,10 @@
       width: var(--thin-content-width);
       max-width: 100%;
       margin: 1rem 0 2rem 0;
+
+      &.is-keyboard {
+        align-self: flex-start;
+      }
     }
   }
 </style>

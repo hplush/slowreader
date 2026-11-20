@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte'
 
+  import { trackKeyboard } from '../lib/keyboard.ts'
   import Page from './page.svelte'
 
   let {
@@ -25,6 +26,7 @@
 >
   <div
     class="two-options-page_center"
+    {@attach trackKeyboard}
     {@attach center => {
       let first = center.children[0]
       if (first instanceof HTMLElement) {
@@ -72,6 +74,10 @@
       align-items: flex-start;
       justify-content: center;
       height: var(--two-options-page-height, auto);
+
+      &.is-keyboard {
+        align-self: flex-start;
+      }
 
       @media (--mobile) {
         flex-direction: column-reverse;
