@@ -331,6 +331,49 @@ describe('html', () => {
     )
   })
 
+  test('does not truncate HTML in the middle of the code', () => {
+    equal(
+      truncate(
+        '<p>Any library meets you with this:</p>' +
+          '<pre>npm install super-carousel</pre><p>and the next step:</p>',
+        10,
+        45
+      ),
+      '<p>Any library meets you with this:</p>' +
+        '<p><post-marker>…</post-marker></p>'
+    )
+    equal(
+      truncate(
+        '<p>Install it:</p><pre>npm install super-carousel</pre>' +
+          '<p>And then import the carousel into your script.</p>',
+        10,
+        45
+      ),
+      '<p>Install it:</p><pre>npm install super-carousel</pre>' +
+        '<p><post-marker>…</post-marker></p>'
+    )
+    equal(
+      truncate(
+        '<p>Dynamic imports. Use <code>import.meta.resolve()</code> too</p>',
+        10,
+        30
+      ),
+      '<p>Dynamic imports. Use <post-marker>…</post-marker></p>'
+    )
+    equal(
+      truncate(
+        'Run it:<pre><code>npm install super-carousel</code></pre>',
+        5,
+        20
+      ),
+      'Run it:<post-marker>…</post-marker>'
+    )
+    equal(
+      truncate('<pre>npm install super-carousel</pre>', 5, 15),
+      '<pre>npm install <post-marker>…</post-marker></pre>'
+    )
+  })
+
   test('does not truncate HTML at dot inside domain', () => {
     equal(
       truncate('<p>Visit lamardecitas.net for more information</p>', 10, 25),

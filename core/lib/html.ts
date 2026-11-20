@@ -90,7 +90,8 @@ const BLOCK_TAGS = new Set([
   'h5',
   'h6',
   'li',
-  'p'
+  'p',
+  'pre'
 ])
 
 const ELEMENT_NODE = 1
@@ -483,6 +484,9 @@ function skipSpaces(node: Node | null): Node | null {
  * as a checkpoint. If the limit is reached inside a block which started
  * after the checkpoint, everything after it is replaced by `…`.
  *
+ * Code is not cut in the middle: `<pre>` or `<code>` with a text before it
+ * is replaced by `…` as a whole.
+ *
  * `…` is wrapped into `<post-marker>`, so `addMarker()` can find the cut.
  * Sanitizer removes this tag, so the article can’t fake it.
  *
@@ -535,8 +539,13 @@ export function truncateDOM(root: Element, min: number, max: number): boolean {
       isTag(previous, 'br') &&
       isTag(skipSpaces(previous!.previousSibling), 'br')
     let block = !!checkpoint && inNewBlock(text, checkpoint)
+    let code =
+      text.parentElement!.closest('pre') ?? text.parentElement!.closest('code')
     if (checkpoint && (doubleBr || block)) {
       cutToCheckpoint(block)
+    } else if (code && chars > 0) {
+      removeAfter(code)
+      code.replaceWith(createMarker(document, '…'))
     } else {
       text.nodeValue = truncateText(
         text.nodeValue!,
