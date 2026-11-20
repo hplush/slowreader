@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.20261119.1
+
+_2026-11-20 · +12 −1_
+
+### Fixes
+
+- Fixed “This User ID is already taken” error on creating a cloud account after the demo.
+
 ## 0.20261119.0
 
 _2026-11-19 · +7181 −1346_
