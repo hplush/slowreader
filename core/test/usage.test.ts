@@ -3,18 +3,26 @@ import { afterEach, beforeEach, describe, mock, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import {
+  addCategory,
+  addFeed,
   client,
   clock,
+  deleteCategory,
+  GENERAL_CATEGORY,
   getTables,
   lastUsage,
   needUsefulReminder,
+  openedCategoryId,
   remindUseful,
   nightLock,
+  testFeed,
+  trackLinkReading,
   trackUsage,
   userId,
   type UsageValue,
   usage24hours,
   usageBalance,
+  usageCategories,
   usageMood,
   usageSessions,
   usageSince
@@ -92,6 +100,7 @@ describe('usage', () => {
     let rows = await waitUsages(list => list[0]?.to === START + 5 * MINUTE)
     deepEqual(rows, [
       {
+        categoryId: null,
         from: START,
         id: lastUsage.get()!.id,
         to: START + 5 * MINUTE,
@@ -149,18 +158,18 @@ describe('usage', () => {
     )
   })
 
-  test('ignores sessions shorter than 10 seconds', async t => {
+  test('ignores sessions shorter than 3 seconds', async t => {
     openRoute({ params: {}, route: 'fast' })
-    at(9_000)
+    at(2_000)
     openRoute({ params: {}, route: 'slow' })
     equal(lastUsage.get()!.type, 'slow')
-    at(9_000 + MINUTE)
+    at(2_000 + MINUTE)
     openRoute({ params: {}, route: 'home' })
 
     let rows = await waitUsages(list => list.length === 1)
     deepEqual(
       rows.map(row => [row.type, row.from - START, row.to - START]),
-      [['slow', 9_000, 9_000 + MINUTE]]
+      [['slow', 2_000, 2_000 + MINUTE]]
     )
 
     t.after(usageSessions.listen(() => {}))
@@ -170,10 +179,99 @@ describe('usage', () => {
       from: START + 2 * MINUTE,
       id: 'short',
       saved: START + 2 * MINUTE,
-      to: START + 2 * MINUTE + 9_000,
+      to: START + 2 * MINUTE + 2_000,
       type: 'fast'
     })
     equal(usageSessions.get()!.length, 1)
+  })
+
+  test('splits sessions by the category', async t => {
+    let general = await addFeed(testFeed({ reading: 'slow' }))
+    let news = await addCategory({ title: 'News' })
+    let feed = await addFeed(testFeed({ categoryId: news, reading: 'slow' }))
+
+    t.after(openedCategoryId.listen(() => {}))
+    openRoute({ params: { feed }, route: 'slow' })
+    await waitFor(openedCategoryId, id => id === news)
+    at(MINUTE)
+    openRoute({ params: { category: news }, route: 'slow' })
+    at(2 * MINUTE)
+    openRoute({ params: { feed: general }, route: 'slow' })
+    at(3 * MINUTE)
+    openRoute({ params: {}, route: 'slow' })
+    at(4 * MINUTE)
+    openRoute({ params: { category: news }, route: 'fast' })
+    at(5 * MINUTE)
+    openRoute({ params: { category: GENERAL_CATEGORY }, route: 'fast' })
+    at(6 * MINUTE)
+    openRoute({ params: {}, route: 'home' })
+
+    let rows = await waitUsages(list => list.length === 5)
+    deepEqual(
+      rows.map(row => [
+        row.type,
+        row.categoryId,
+        (row.from - START) / MINUTE,
+        (row.to - START) / MINUTE
+      ]),
+      [
+        ['slow', news, 0, 2],
+        ['slow', GENERAL_CATEGORY, 2, 3],
+        ['slow', null, 3, 4],
+        ['fast', news, 4, 5],
+        ['fast', GENERAL_CATEGORY, 5, 6]
+      ]
+    )
+
+    t.after(usageSessions.listen(() => {}))
+    await waitFor(usageSessions, list => list?.length === 5)
+    deepEqual(
+      usageSessions.get()!.map(session => session.categoryId),
+      [news, GENERAL_CATEGORY, undefined, news, GENERAL_CATEGORY]
+    )
+  })
+
+  test('counts the link reading if user returned in 5 minutes', async () => {
+    trackLinkReading()
+    equal(lastUsage.get(), undefined)
+
+    openRoute({ params: {}, route: 'slow' })
+    at(MINUTE)
+    trackLinkReading()
+    setTestVisibility(false)
+    let first = lastUsage.get()!.id
+
+    at(3 * MINUTE)
+    setTestVisibility(true)
+    equal(lastUsage.get()!.id, first)
+    at(3.5 * MINUTE)
+    setTestVisibility(false)
+
+    at(5.5 * MINUTE)
+    setTestVisibility(true)
+    let second = lastUsage.get()!.id
+    notEqual(second, first)
+    at(6.5 * MINUTE)
+    trackLinkReading()
+    setTestVisibility(false)
+
+    at(11.5 * MINUTE)
+    setTestVisibility(true)
+    notEqual(lastUsage.get()!.id, second)
+    at(12.5 * MINUTE)
+    exitTestApp()
+    trackLinkReading()
+    equal(lastUsage.get()!.linkOpenedAt, undefined)
+
+    let rows = await waitUsages(list => list.length === 3)
+    deepEqual(
+      rows.map(row => [(row.from - START) / MINUTE, (row.to - START) / MINUTE]),
+      [
+        [0, 3.5],
+        [5.5, 6.5],
+        [11.5, 12.5]
+      ]
+    )
   })
 
   test('does not count the hidden app', () => {
@@ -221,7 +319,13 @@ describe('usage', () => {
     await restartApp()
     let rows = await waitUsages(list => list.length === 1)
     deepEqual(rows, [
-      { from: START - MINUTE, id: 'closed', to: START - 30_000, type: 'slow' }
+      {
+        categoryId: null,
+        from: START - MINUTE,
+        id: 'closed',
+        to: START - 30_000,
+        type: 'slow'
+      }
     ])
   })
 
@@ -240,8 +344,14 @@ describe('usage', () => {
   test('combines devices and deletes old sessions', async () => {
     await getTables().usages.create([
       {
-        from: START - 30 * 60 * MINUTE,
+        from: START - 8 * 24 * 60 * MINUTE,
         id: 'old',
+        to: START - 7 * 24 * 60 * MINUTE - MINUTE,
+        type: 'fast'
+      },
+      {
+        from: START - 30 * 60 * MINUTE,
+        id: 'yesterday',
         to: START - 25 * 60 * MINUTE,
         type: 'fast'
       },
@@ -274,11 +384,65 @@ describe('usage', () => {
     unbind()
 
     await restartApp()
-    await waitUsages(list => list.length === 2)
+    await waitUsages(list => list.length === 3)
     deepEqual(
       (await loadUsages()).map(row => row.id),
-      ['phone', 'laptop']
+      ['yesterday', 'phone', 'laptop']
     )
+  })
+
+  test('sums the last 7 days by category', async t => {
+    let hour = 60 * MINUTE
+    let news = await addCategory({ title: 'News' })
+    let deleted = await addCategory({ title: 'Deleted' })
+    await getTables().usages.create([
+      {
+        categoryId: news,
+        from: START - 8 * 24 * hour,
+        to: START - 7 * 24 * hour + 7 * hour,
+        type: 'slow'
+      },
+      {
+        categoryId: GENERAL_CATEGORY,
+        from: START - 90 * hour,
+        to: START - 76 * hour,
+        type: 'slow'
+      },
+      {
+        categoryId: deleted,
+        from: START - 70 * hour,
+        to: START - 60 * hour,
+        type: 'fast'
+      },
+      { from: START - 50 * hour, to: START - 40 * hour, type: 'slow' },
+      {
+        categoryId: news,
+        from: START - 22 * hour,
+        to: START - hour,
+        type: 'fast'
+      }
+    ])
+    await deleteCategory(deleted)
+    clock.set(new Date(START))
+    t.after(usageCategories.listen(() => {}))
+    await waitFor(usageCategories, list => list.length === 2)
+    deepEqual(usageCategories.get(), [
+      {
+        id: news,
+        minutesPerDay: 240,
+        parts: [
+          { minutesPerDay: 60, type: 'slow', width: 25 },
+          { minutesPerDay: 180, type: 'fast', width: 75 }
+        ],
+        title: 'News'
+      },
+      {
+        id: GENERAL_CATEGORY,
+        minutesPerDay: 120,
+        parts: [{ minutesPerDay: 120, type: 'slow', width: 50 }],
+        title: 'General'
+      }
+    ])
   })
 
   test('balances Useful and Fun', async t => {

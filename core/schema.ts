@@ -319,6 +319,7 @@ export const settingsTable = defineCrdtTable('settings', {
 export const usagesTable = defineCrdtTable(
   'usages',
   {
+    categoryId: optional(string()),
     from: bigint(),
     to: bigint(),
     type: oneOf(READINGS)

@@ -614,6 +614,23 @@ export const backRoute = computed(
   }
 )
 
+/**
+ * Category of the opened reading. Useful’s feed has only its own ID
+ * in the route, so its category is taken from the menu.
+ */
+export const openedCategoryId = computed(
+  [router, $tree],
+  (route, tree): string | undefined => {
+    if (route.route === 'fast') return route.params.category
+    if (route.route !== 'slow') return undefined
+    let { category, feed } = route.params
+    return (
+      category ??
+      tree.slow.find(([, feeds]) => feeds.some(i => i.id === feed))?.[0].id
+    )
+  }
+)
+
 export const menuLoading = computed([$reduced, $unread], (reduced, unread) => {
   return !reduced || !unread
 })

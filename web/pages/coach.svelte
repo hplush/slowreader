@@ -20,6 +20,7 @@
   import Stack from '../ui/stack.svelte'
   import Switch from '../ui/switch.svelte'
   import ThinPage from '../ui/thin-page.svelte'
+  import UsageCategories from '../ui/usage-categories.svelte'
   import UsageTimeline from '../ui/usage-timeline.svelte'
 
   let { page }: { page: CoachPage } = $props()
@@ -28,6 +29,7 @@
     nightLockEnabled,
     nightLockFrom,
     nightLockTo,
+    usageCategories,
     usageSum,
     usageTimeline
   } = $derived(page)
@@ -51,16 +53,19 @@
           variant="title"
         />
         {#if $trackUsage}
-          <Stack align="stretch" gap="s">
-            <ReadingNumbers
-              fast={formatDuration($i18nFormat, $usageSum.fast)}
-              legend
-              slow={formatDuration($i18nFormat, $usageSum.slow)}
-            />
-            <UsageTimeline
-              marks={$usageTimeline.marks}
-              parts={$usageTimeline.parts}
-            />
+          <Stack align="stretch" gap="l">
+            <Stack align="stretch" gap="s">
+              <ReadingNumbers
+                fast={formatDuration($i18nFormat, $usageSum.fast)}
+                legend
+                slow={formatDuration($i18nFormat, $usageSum.slow)}
+              />
+              <UsageTimeline
+                marks={$usageTimeline.marks}
+                parts={$usageTimeline.parts}
+              />
+            </Stack>
+            <UsageCategories categories={$usageCategories} />
           </Stack>
           <Switch
             icon={mdiScaleBalance}

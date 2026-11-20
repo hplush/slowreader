@@ -94,7 +94,7 @@ Because all actions are encrypted on the server, clients control server’s log 
 
 When the last reason is removed, the client removes `shadow` action and sends `0/clean` to the server, so the log on the server keeps exactly the actions owning at least one live cell, plus the tombstones inside the retention window. Tombstones are deleted by the clients too: any device removes the tombstones older than 1 month on the start and on the connect.
 
-`usages` deletions keep no tombstone: every device deletes sessions older than 24 hours by itself.
+`usages` deletions keep no tombstone: every device deletes sessions older than 7 days by itself.
 
 ### Local Mode
 

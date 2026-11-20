@@ -4,9 +4,12 @@ import { computed, effect } from 'nanostores'
 
 import { onClient } from './client.ts'
 import { getEnvironment } from './environment.ts'
+import { openedCategoryId } from './menu.ts'
+import { commonMessages } from './messages/index.ts'
 import { clock, nightLockState } from './night-lock.ts'
 import { router } from './router.ts'
 import {
+  GENERAL_CATEGORY,
   lazyDbQuery,
   getCrdt,
   getTables,
@@ -21,15 +24,21 @@ export type { UsageValue }
 export type UsageType = UsageValue['type']
 
 export interface UsageSession {
+  categoryId?: string
   from: number
   id: string
   to: number
   type: UsageType
 }
 
-export type LastUsage = UsageSession & { created: boolean; saved: number }
+export type LastUsage = UsageSession & {
+  created: boolean
+  linkOpenedAt?: number
+  saved: number
+}
 
 const DAY = 24 * 60 * 60 * 1000
+const WEEK = 7 * DAY
 
 export const lastUsage = persistentAtom<LastUsage | undefined>(
   'slowreader:last-usage',
@@ -55,7 +64,7 @@ function warnIfOpened(error: unknown): void {
 let writing = Promise.resolve()
 
 function tooShort(session: UsageSession): boolean {
-  return session.to - session.from < 10_000
+  return session.to - session.from < 3_000
 }
 
 function save(usage: LastUsage): LastUsage {
@@ -64,7 +73,7 @@ function save(usage: LastUsage): LastUsage {
   }
   let crdt = getCrdt()
   let usages = getTables().usages
-  let { created, from, id, to, type } = usage
+  let { categoryId, created, from, id, to, type } = usage
   writing = writing
     .then(async () => {
       // The previous write could wait until the sign-out
@@ -74,7 +83,7 @@ function save(usage: LastUsage): LastUsage {
       if (created) {
         await usages.update(id, { to })
       } else {
-        await usages.create({ from, id, to, type })
+        await usages.create({ categoryId, from, id, to, type })
       }
     })
     .catch(warnIfOpened)
@@ -99,16 +108,27 @@ function extend(now: number): void {
   lastUsage.set(now - last.saved >= 60_000 ? save(next) : next)
 }
 
-function start(type: UsageType, now: number): void {
+function start(
+  type: UsageType,
+  categoryId: string | undefined,
+  now: number
+): void {
   let last = lastUsage.get()
-  // A quick look at another tab should not split the session
-  if (last?.type === type && now >= last.to && now - last.to < 60_000) {
-    lastUsage.set({ ...last, to: now })
+  if (
+    last?.type === type &&
+    last.categoryId === categoryId &&
+    now >= last.to &&
+    // A quick look at another tab should not split the session
+    (now - last.to < 60_000 ||
+      (last.linkOpenedAt && now - last.linkOpenedAt < 5 * 60_000))
+  ) {
+    lastUsage.set({ ...last, linkOpenedAt: undefined, to: now })
     current = last.id
   } else {
     if (last) save(last)
     current = nanoid()
     lastUsage.set({
+      categoryId,
       created: false,
       from: now,
       id: current,
@@ -125,6 +145,17 @@ function stop(now: number): void {
   current = undefined
 }
 
+/**
+ * Call it when the user opens a link from a post. If the user returns
+ * in less than 5 minutes, the time outside is counted as the same reading.
+ */
+export function trackLinkReading(): void {
+  let last = lastUsage.get()
+  if (last && last.id === current) {
+    lastUsage.set({ ...last, linkOpenedAt: Date.now() })
+  }
+}
+
 onClient(logux => {
   cleaning = false
   let unbindCleaning = logux.on('cleaning', () => {
@@ -133,6 +164,7 @@ onClient(logux => {
   let closed = lastUsage.get()?.id
   let visible = false
   let reading: undefined | UsageType
+  let categoryId: string | undefined
 
   function update(): void {
     let now = Date.now()
@@ -148,17 +180,20 @@ onClient(logux => {
     ) {
       next = 'fast'
     }
-    if (next === reading) {
+    let category = next ? openedCategoryId.get() : undefined
+    if (next === reading && category === categoryId) {
       extend(now)
     } else {
       stop(now)
-      if (next) start(next, now)
+      if (next) start(next, category, now)
       reading = next
+      categoryId = category
     }
   }
 
   let env = getEnvironment()
   let unbindRouter = router.subscribe(update)
+  let unbindCategory = openedCategoryId.listen(update)
   let unbindLock = nightLockState.listen(update)
   let unbindTracking = trackUsage.listen(update)
   let unbindVisibility = env.onVisibilityChange(value => {
@@ -175,13 +210,14 @@ onClient(logux => {
     if (lastUsage.get()?.id === closed) saveLastUsage()
     getCrdt()
       .ready.then(() => {
-        return getTables().usages.deleteWhere`"to" < ${Date.now() - DAY}`
+        return getTables().usages.deleteWhere`"to" < ${Date.now() - WEEK}`
       })
       .catch(warnIfOpened)
   })
   return () => {
     unbindCleaning()
     unbindRouter()
+    unbindCategory()
     unbindTracking()
     unbindLock()
     unbindVisibility()
@@ -194,8 +230,8 @@ onClient(logux => {
 let $rows = lazyDbQuery(() => getTables().usages.select())
 
 /**
- * Sessions of all devices. The current session of this device is taken
- * from `localStorage` to be always fresh.
+ * Sessions of all devices for the last 7 days. The current session
+ * of this device is taken from `localStorage` to be always fresh.
  */
 export const usageSessions = computed(
   [$rows, lastUsage],
@@ -203,10 +239,12 @@ export const usageSessions = computed(
     if (!rows) return undefined
     let sessions = rows
       .filter(row => row.id !== last?.id)
-      .map(({ from, id, to, type }) => ({ from, id, to, type }))
+      .map(({ categoryId, from, id, to, type }) => {
+        return { categoryId: categoryId ?? undefined, from, id, to, type }
+      })
     if (last) {
-      let { from, id, to, type } = last
-      sessions.push({ from, id, to, type })
+      let { categoryId, from, id, to, type } = last
+      sessions.push({ categoryId, from, id, to, type })
     }
     return sessions
       .filter(session => !tooShort(session))
@@ -216,7 +254,7 @@ export const usageSessions = computed(
 
 /**
  * Sessions of the last 24 hours. The session, which started before,
- * is cut by the period start. Older rows just wait for the deletion.
+ * is cut by the period start.
  */
 export const usage24hours = computed(
   [usageSessions, clock],
@@ -337,3 +375,53 @@ export function usageSince(
   }
   return ms
 }
+
+export interface UsageCategory {
+  id: string
+  minutesPerDay: number
+  /**
+   * Width is in percents of the category with the longest reading.
+   */
+  parts: { minutesPerDay: number; type: UsageType; width: number }[]
+  title: string
+}
+
+let $categories = lazyDbQuery(() => getTables().categories.select())
+
+/**
+ * Average reading time by category for the last 7 days, the longest
+ * is first. Deleted category is not counted.
+ */
+export const usageCategories = computed(
+  [usageSessions, $categories, clock, commonMessages],
+  (sessions, categories, now, t): UsageCategory[] => {
+    let since = now.getTime() - WEEK
+    let sums = [
+      { id: GENERAL_CATEGORY, title: t.generalCategory },
+      ...(categories ?? [])
+    ]
+      .map(({ id, title }) => {
+        let own = (sessions ?? []).filter(i => i.categoryId === id)
+        let parts = (['slow', 'fast'] as const)
+          .map(type => {
+            let minutesPerDay = usageSince(own, type, since) / 60_000 / 7
+            return { minutesPerDay, type }
+          })
+          .filter(part => part.minutesPerDay > 0)
+        let minutesPerDay = parts.reduce(
+          (sum, part) => sum + part.minutesPerDay,
+          0
+        )
+        return { id, minutesPerDay, parts, title }
+      })
+      .filter(category => category.minutesPerDay > 0)
+      .toSorted((a, b) => b.minutesPerDay - a.minutesPerDay)
+    return sums.map(category => ({
+      ...category,
+      parts: category.parts.map(part => {
+        let width = (part.minutesPerDay / sums[0]!.minutesPerDay) * 100
+        return { ...part, width }
+      })
+    }))
+  }
+)

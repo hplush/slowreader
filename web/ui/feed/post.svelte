@@ -24,6 +24,7 @@
   } from '@slowreader/core'
   import type { Snippet } from 'svelte'
 
+  import { trackPostLinks } from '../../lib/post-links.ts'
   import { getPopupHash } from '../../stores/url-router.ts'
   import Button from '../button.svelte'
   import FeedLink from '../feed-link.svelte'
@@ -95,6 +96,7 @@
   class:is-current={current}
   class:is-protected={post.protected}
   class:is-read={'read' in post && post.read}
+  {@attach trackPostLinks}
   oncopy={event => {
     if (post.protected) event.preventDefault()
   }}
