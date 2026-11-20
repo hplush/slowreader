@@ -84,6 +84,13 @@ function write(bytes: Uint8Array<ArrayBuffer>): Promise<void> {
   })
 }
 
+function getRandomUserId(): string {
+  return Array.from(
+    crypto.getRandomValues(new Uint8Array(16)),
+    i => i % 10
+  ).join('')
+}
+
 async function copy(): Promise<void> {
   if (await appIsOpen()) {
     message('Slow Reader is open in another tab. Close it and reload.')
@@ -120,7 +127,11 @@ async function copy(): Promise<void> {
 
   localStorage.clear()
   for (let [key, value] of Object.entries(manifest.storage)) {
-    localStorage.setItem(key, value)
+    if (key === 'slowreader:userId') {
+      localStorage.setItem('slowreader:userId', getRandomUserId())
+    } else {
+      localStorage.setItem(key, value)
+    }
   }
   localStorage.setItem('slowreader:demo', 'yes')
 
