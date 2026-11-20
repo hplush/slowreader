@@ -81,7 +81,7 @@ site:
     - ./check-site.sh || STATUS=1
     - !reference [.commit, script]
     # GitLab publishes the page only from a successful job
-    - "[ $STATUS = 0 ]"
+    - '[ $STATUS = 0 ]'
     # Second job for the page would double compute minutes of every check
     - ./build-index.sh
   pages: true
