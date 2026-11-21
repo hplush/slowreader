@@ -9,7 +9,7 @@ export const feedsMessages = i18n('feeds', {
   openPostLink: 'Open post link',
   prevPage: 'Back',
   reader: 'Read mode',
-  readPage: 'Mark as read',
+  readPage: 'Mark read',
   readPageAndNext: 'Mark read & next',
   recommended: 'Recommended',
   sponsored: 'Sponsored'
