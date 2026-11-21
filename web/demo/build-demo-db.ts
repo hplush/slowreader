@@ -195,6 +195,7 @@ cacheMediaReading.set('none')
 await refreshPosts()
 unbindRefresh()
 delete storage['slowreader:cacheMediaReading']
+delete storage['slowreader:userId']
 for (let failed of refreshErrors.get()) {
   if ('feed' in failed) {
     warning(`Skipped ${failed.feed.url}: ${errorToMessage(failed.error)}`)

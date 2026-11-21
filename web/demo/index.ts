@@ -127,12 +127,9 @@ async function copy(): Promise<void> {
 
   localStorage.clear()
   for (let [key, value] of Object.entries(manifest.storage)) {
-    if (key === 'slowreader:userId') {
-      localStorage.setItem('slowreader:userId', getRandomUserId())
-    } else {
-      localStorage.setItem(key, value)
-    }
+    localStorage.setItem(key, value)
   }
+  localStorage.setItem('slowreader:userId', getRandomUserId())
   localStorage.setItem('slowreader:demo', 'yes')
 
   location.href = '/app'
