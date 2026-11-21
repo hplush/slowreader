@@ -219,6 +219,42 @@ describe('missing feeds in refresh', () => {
     equal((await reload(feed)).loaderData, old.replace('false', 'true'))
   })
 
+  test('tracks feed without posts after first posts', async () => {
+    let feed = await create({
+      lastPublishedAt: Math.round(Date.now() / 1000),
+      loader: 'rss'
+    })
+    spyOn(loaders.rss, 'getPosts', empty)
+    await refreshPosts()
+    match(
+      (await reload(feed)).loaderData!,
+      /^\{"failedSince":\d+,"missing":false\}$/
+    )
+  })
+
+  test('does not track unchanged feed', async () => {
+    let feed = await create({ loader: 'rss' })
+    spyOn(loaders.rss, 'getPosts', () => createPostsList(() => 'unchanged'))
+    await refreshPosts()
+    equal((await reload(feed)).loaderData, null)
+  })
+
+  test('loads whole failing feed', async () => {
+    let refreshedAt = Math.round(Date.now() / 1000)
+    let alive = await create({ loader: 'rss', refreshedAt })
+    let failing = await create({
+      loader: 'rss',
+      loaderData: failedDaysAgo(1),
+      refreshedAt
+    })
+    let posts = spyOn(loaders.rss, 'getPosts', withPost)
+    await refreshPosts()
+    let last = new Map(posts.calls.map(call => [call[1], call[3]]))
+    equal(last.get(alive.url)?.refreshedAt, refreshedAt)
+    equal(last.get(failing.url)?.refreshedAt, null)
+    equal((await reload(failing)).loaderData, null)
+  })
+
   test('does not blame feeds when nobody answers', async () => {
     let feed = await create({ loader: 'rss' })
     let error = status(400, 'getaddrinfo ENOTFOUND a.com\n')

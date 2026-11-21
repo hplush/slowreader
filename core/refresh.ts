@@ -50,6 +50,7 @@ import {
 import { accountsMessages } from './messages/index.ts'
 import {
   forgetFeedError,
+  isFailingFeed,
   trackFeedError,
   trackMissingFeed
 } from './missing-feeds.ts'
@@ -543,8 +544,11 @@ async function processPage(
 
 function loadTargetPosts(target: RefreshTarget, task: DownloadTask): PostsList {
   if ('feed' in target) {
+    // Unchanged failed feed would not tell, whether it has posts now
     return getFeedLatestPosts(
-      target.feed,
+      isFailingFeed(target.feed)
+        ? { ...target.feed, refreshedAt: null }
+        : target.feed,
       task,
       target.owner && getAccountAuth(target.owner)
     )
@@ -723,10 +727,11 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
         if (error) throw error
         answered = true
         if ('feed' in target) {
-          if (pages.get().list.length === 0) {
-            await trackMissingFeed(target.feed)
-          } else {
+          let { list, unchanged } = pages.get()
+          if (list.length > 0) {
             await forgetFeedError(target.feed)
+          } else if (!unchanged) {
+            await trackMissingFeed(target.feed)
           }
           await trackFeedRedirect(target.feed, task)
         }

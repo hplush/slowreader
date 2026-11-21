@@ -63,6 +63,10 @@ export function getMissingSince(feed: TrackedFeed): number | undefined {
   return errors?.missing ? errors.failedSince + MISSING_AFTER : undefined
 }
 
+export function isFailingFeed(feed: TrackedFeed): boolean {
+  return !!getErrors(feed)
+}
+
 export async function forgetFeedError(feed: TrackedFeed): Promise<void> {
   if (getErrors(feed)) await changeFeed(feed.id, { loaderData: null })
 }

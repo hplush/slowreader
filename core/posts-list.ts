@@ -8,6 +8,7 @@ export interface PostsListValue {
   hasNext: boolean
   isLoading: boolean
   list: OriginPost[]
+  unchanged: boolean
 }
 
 export type PostsList = {
@@ -20,12 +21,14 @@ export type PostsList = {
 
 export type PostsListResult = [ParsedPost[], PostsListLoader | undefined]
 
+export type FirstPageResult = 'unchanged' | PostsListResult
+
 export interface PostsListLoader {
   (): Promise<PostsListResult>
 }
 
-export interface PostsListSyncLoader {
-  (): PostsListResult
+export interface FirstPageLoader {
+  (): FirstPageResult | Promise<FirstPageResult>
 }
 
 function addIds(posts: ParsedPost[]): OriginPost[] {
@@ -35,14 +38,13 @@ function addIds(posts: ParsedPost[]): OriginPost[] {
 /**
  * Feed’s posts. Abstraction to hide complexity with pagination.
  */
-export function createPostsList(
-  load: PostsListLoader | PostsListSyncLoader
-): PostsList {
+export function createPostsList(load: FirstPageLoader): PostsList {
   let $map = map<StoreValue<PostsList>>({
     error: undefined,
     hasNext: true,
     isLoading: true,
-    list: []
+    list: [],
+    unchanged: false
   })
   let $store = {
     ...$map,
@@ -52,44 +54,50 @@ export function createPostsList(
 
   let loadNext: PostsListLoader | undefined
 
-  function handleLoading(promise: Promise<PostsListResult>): void {
-    $store.loading = promise
-      .then(([nextPosts, nextLoader]) => {
-        let posts = addIds(nextPosts)
-        loadNext = nextLoader
+  function addPage(result: FirstPageResult): OriginPost[] {
+    if (result === 'unchanged') {
+      $store.set({
+        error: undefined,
+        hasNext: false,
+        isLoading: false,
+        list: [],
+        unchanged: true
+      })
+      return []
+    }
+    let posts = addIds(result[0])
+    loadNext = result[1]
+    $store.set({
+      error: undefined,
+      hasNext: !!loadNext,
+      isLoading: false,
+      list: [...$store.get().list, ...posts],
+      unchanged: false
+    })
+    return posts
+  }
+
+  function handleLoading(promise: Promise<FirstPageResult>): void {
+    $store.loading = promise.then(addPage).catch((e: unknown) => {
+      if (e instanceof Error) {
         $store.set({
-          error: undefined,
-          hasNext: !!nextLoader,
+          error: e,
+          hasNext: false,
           isLoading: false,
-          list: [...$store.get().list, ...posts]
+          list: $store.get().list,
+          unchanged: false
         })
-        return posts
-      })
-      .catch((e: unknown) => {
-        if (e instanceof Error) {
-          $store.set({
-            error: e,
-            hasNext: false,
-            isLoading: false,
-            list: $store.get().list
-          })
-        }
-        return []
-      })
+      }
+      return []
+    })
   }
 
   try {
     let result = load()
-    if ('then' in result) {
+    if (result instanceof Promise) {
       handleLoading(result)
     } else {
-      loadNext = result[1]
-      $store.set({
-        error: undefined,
-        hasNext: !!loadNext,
-        isLoading: false,
-        list: addIds(result[0])
-      })
+      addPage(result)
     }
     /* node:coverage ignore next 3 */
   } catch (e) {

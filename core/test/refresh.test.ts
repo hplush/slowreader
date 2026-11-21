@@ -913,6 +913,7 @@ describe('refresh', () => {
             `<?xml version="1.0"?>
             <rss><channel>
               <title>Feed</title>
+              <item><link>https://example.com/1</link></item>
             </channel></rss>`,
             {
               headers: {

@@ -410,7 +410,8 @@ describe('rss loader', () => {
             title: '5',
             url: 'https://example.com/5'
           }
-        ]
+        ],
+        unchanged: false
       }
     )
   })
@@ -460,7 +461,8 @@ describe('rss loader', () => {
       error: undefined,
       hasNext: true,
       isLoading: true,
-      list: []
+      list: [],
+      unchanged: false
     })
 
     await page.loading
@@ -477,7 +479,8 @@ describe('rss loader', () => {
           title: '1',
           url: 'https://example.com/1'
         }
-      ]
+      ],
+      unchanged: false
     })
   })
 
@@ -618,7 +621,8 @@ describe('rss loader', () => {
             title: '4',
             url: 'https://example.com/4'
           }
-        ]
+        ],
+        unchanged: false
       }
     )
   })
@@ -965,5 +969,6 @@ describe('rss loader', () => {
       'If-Modified-Since': 'Thu, 01 Jan 2026 00:00:00 GMT'
     })
     equal(page2.get().list.length, 0)
+    equal(page2.get().unchanged, true)
   })
 })

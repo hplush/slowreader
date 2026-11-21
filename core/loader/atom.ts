@@ -19,7 +19,6 @@ import {
   findXmlBase,
   findXmlLang,
   getUpdatedAt,
-  type LastRefresh,
   type Loader,
   toAvatarUrl,
   toTime
@@ -159,18 +158,10 @@ async function parseFeed(
   let nextPage = document.querySelector<HTMLLinkElement>('link[rel=next]')
   if (nextPage) {
     let nextUrl = buildFullURL(nextPage, response.url)
-    return [posts, () => loadFeed(task, nextUrl)]
+    return [posts, async () => parseFeed(task, await task.text(nextUrl))]
   } else {
     return [posts, undefined]
   }
-}
-
-async function loadFeed(
-  task: DownloadTask,
-  url: string,
-  last?: LastRefresh
-): Promise<PostsListResult> {
-  return fetchIfModified(task, url, last, response => parseFeed(task, response))
 }
 
 export const atom: Loader = {
@@ -193,7 +184,9 @@ export const atom: Loader = {
     if (text) {
       return createPostsList(() => parseFeed(task, text))
     } else {
-      return createPostsList(() => loadFeed(task, url, last))
+      return createPostsList(() =>
+        fetchIfModified(task, url, last, response => parseFeed(task, response))
+      )
     }
   },
 

@@ -402,7 +402,8 @@ describe('json feed loader', () => {
             updatedAt: undefined,
             url: 'https://example.com/2'
           }
-        ]
+        ],
+        unchanged: false
       }
     )
   })
@@ -442,7 +443,8 @@ describe('json feed loader', () => {
       error: undefined,
       hasNext: true,
       isLoading: true,
-      list: []
+      list: [],
+      unchanged: false
     })
 
     await page.loading
@@ -473,7 +475,8 @@ describe('json feed loader', () => {
           updatedAt: undefined,
           url: 'https://example.com/2'
         }
-      ]
+      ],
+      unchanged: false
     })
   })
 
@@ -580,7 +583,8 @@ describe('json feed loader', () => {
             updatedAt: undefined,
             url: undefined
           }
-        ]
+        ],
+        unchanged: false
       }
     )
   })
@@ -678,7 +682,8 @@ describe('json feed loader', () => {
       error: undefined,
       hasNext: true,
       isLoading: true,
-      list: []
+      list: [],
+      unchanged: false
     })
 
     await page.loading
@@ -736,7 +741,8 @@ describe('json feed loader', () => {
           updatedAt: undefined,
           url: 'https://example.com/3'
         }
-      ]
+      ],
+      unchanged: false
     })
   })
 
@@ -893,5 +899,6 @@ describe('json feed loader', () => {
       'If-Modified-Since': 'Thu, 01 Jan 2026 00:00:00 GMT'
     })
     equal(page2.get().list.length, 0)
+    equal(page2.get().unchanged, true)
   })
 })

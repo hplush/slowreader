@@ -7,7 +7,11 @@ import type {
   ParsedPost,
   PostMedia
 } from '../post.ts'
-import type { PostsList, PostsListResult } from '../posts-list.ts'
+import type {
+  FirstPageResult,
+  PostsList,
+  PostsListResult
+} from '../posts-list.ts'
 import type { AccountCredentials, AccountValue, NewAccount } from '../schema.ts'
 import type { LoaderName } from './index.ts'
 
@@ -808,12 +812,12 @@ export async function fetchIfModified(
   parseCb: (
     response: TextResponse
   ) => Promise<PostsListResult> | PostsListResult
-): Promise<PostsListResult> {
+): Promise<FirstPageResult> {
   let headers = last?.refreshedAt
     ? { 'If-Modified-Since': new Date(last.refreshedAt * 1000).toUTCString() }
     : undefined
   let response = await task.text(url, { headers })
-  if (response.status === 304) return [[], undefined]
+  if (response.status === 304) return 'unchanged'
   return parseCb(response)
 }
 

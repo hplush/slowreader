@@ -235,7 +235,8 @@ describe('rss1 loader', () => {
             title: '2',
             url: 'https://example.com/2'
           }
-        ]
+        ],
+        unchanged: false
       }
     )
   })
@@ -271,7 +272,8 @@ describe('rss1 loader', () => {
           title: '1',
           url: undefined
         }
-      ]
+      ],
+      unchanged: false
     })
   })
 

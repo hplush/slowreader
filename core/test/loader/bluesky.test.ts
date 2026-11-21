@@ -632,7 +632,8 @@ describe('bluesky loader', () => {
           unsupported: true,
           url: 'https://bsky.app/profile/jane.bsky.social/post/6'
         }
-      ]
+      ],
+      unchanged: false
     })
 
     expectRequest(

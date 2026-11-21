@@ -699,7 +699,8 @@ describe('mastodon loader', () => {
           },
           url: 'https://mastodon.social/@jane/5'
         }
-      ]
+      ],
+      unchanged: false
     })
 
     expectRequest(
