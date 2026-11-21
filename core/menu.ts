@@ -590,6 +590,39 @@ export const unreadFastMenu = computed([$tree, $unread], (tree, unread) => {
   })
 })
 
+export function nextUnreadRoute(
+  reading: 'fast' | 'slow',
+  current: { categoryId?: string; feedId?: string }
+):
+  | { params: { category: string }; route: 'fast' }
+  | { params: { feed: string }; route: 'slow' }
+  | undefined {
+  let tree = $tree.get()
+  if (reading === 'fast') {
+    let unread = unreadFastMenu.get()
+    let next = tree.fast
+      .slice(tree.fast.findIndex(i => i.id === current.categoryId) + 1)
+      .find(i => unread.includes(i))
+    return next && { params: { category: next.id }, route: 'fast' }
+  } else {
+    let unread = slowMenu.get().flatMap(([, feeds]) => feeds.map(i => i[0].id))
+    let index = tree.slow.findIndex(([category, feeds]) => {
+      return (
+        category.id === current.categoryId ||
+        feeds.some(i => i.id === current.feedId)
+      )
+    })
+    let feeds = tree.slow[index]?.[1] ?? []
+    let position = feeds.findIndex(i => i.id === current.feedId)
+    let next = [
+      ...feeds.slice(position + 1),
+      ...feeds.slice(0, position + 1),
+      ...tree.slow.slice(index + 1).flatMap(i => i[1])
+    ].find(i => unread.includes(i.id))
+    return next && { params: { feed: next.id }, route: 'slow' }
+  }
+}
+
 export const openableMenu = computed([fastMenu, slowMenu], (fast, slow) => ({
   fast: fast.length > 1,
   slow: slow.length > 0

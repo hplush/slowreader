@@ -233,17 +233,29 @@ describe('feeds page', () => {
     let feed2 = await addFeed(
       testFeed({ categoryId: category, slowReader: 'list', title: 'F2' })
     )
-    await addPost(testPost({ feedId: feed1, reading: 'slow' }))
-    await addPost(testPost({ feedId: feed2, reading: 'slow' }))
+    let feed3 = await addFeed(
+      testFeed({ categoryId: category, slowReader: 'list', title: 'F3' })
+    )
+    let feed4 = await addFeed(
+      testFeed({
+        categoryId: await addCategory({ title: 'B' }),
+        slowReader: 'list',
+        title: 'F4'
+      })
+    )
+    for (let feedId of [feed1, feed2, feed3, feed4]) {
+      await addPost(testPost({ feedId, reading: 'slow' }))
+    }
     await setTimeout(10)
 
-    let page = openPage({ params: { feed: feed1 }, route: 'slow' })
-    await waitLoading(page.loading)
-    await ensureReader(page.posts, 'list').readPage()
-    await setTimeout(10)
-
-    equal(page.params.feed.get(), feed2)
-    equal(page.posts.get()!.name, 'list')
+    let page = openPage({ params: { feed: feed2 }, route: 'slow' })
+    for (let next of [feed3, feed1, feed4]) {
+      await waitLoading(page.loading)
+      await ensureReader(page.posts, 'list').readPage()
+      await setTimeout(10)
+      equal(page.params.feed.get(), next)
+      equal(page.posts.get()!.name, 'list')
+    }
   })
 
   test('opens all posts of the slow category', async () => {
@@ -428,29 +440,38 @@ describe('feeds page', () => {
   test('opens the next fast category after the last post was read', async () => {
     busyUntilMenuLoader()
     await waitLoading(busy)
+    let category1 = await addCategory({ fastReader: 'feed', title: 'A1' })
     let first = await addFeed(
-      testFeed({
-        categoryId: await addCategory({ fastReader: 'feed', title: 'A1' }),
-        fastReader: 'feed',
-        reading: 'fast'
-      })
+      testFeed({ categoryId: category1, fastReader: 'feed', reading: 'fast' })
     )
-    let category = await addCategory({ fastReader: 'feed', title: 'A2' })
+    let category2 = await addCategory({ fastReader: 'feed', title: 'A2' })
     let second = await addFeed(
-      testFeed({ categoryId: category, fastReader: 'feed', reading: 'fast' })
+      testFeed({ categoryId: category2, fastReader: 'feed', reading: 'fast' })
+    )
+    let category3 = await addCategory({ fastReader: 'feed', title: 'A3' })
+    let third = await addFeed(
+      testFeed({ categoryId: category3, fastReader: 'feed', reading: 'fast' })
     )
     await addPost(testPost({ feedId: first, reading: 'fast' }))
     await addPost(testPost({ feedId: second, reading: 'fast' }))
+    await addPost(testPost({ feedId: third, reading: 'fast' }))
     await setTimeout(10)
 
-    let page = openPage({ params: {}, route: 'fast' })
+    let page = openPage({ params: { category: category2 }, route: 'fast' })
     await waitLoading(page.loading)
     await ensureReader(page.posts, 'feed').readPage()
     await setTimeout(10)
 
     equal(router.get().route, 'fast')
-    equal(page.params.category.get(), category)
+    equal(page.params.category.get(), category3)
     equal(ensureReader(page.posts, 'feed').list.get().length, 1)
+
+    await waitLoading(page.loading)
+    await ensureReader(page.posts, 'feed').readPage()
+    await setTimeout(10)
+
+    equal(router.get().route, 'fast')
+    equal(page.params.category.get(), category1)
   })
 
   test('opens the first fast category with posts', async () => {

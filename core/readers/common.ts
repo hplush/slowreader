@@ -3,13 +3,13 @@ import { atom, onMount, type ReadableAtom, type WritableAtom } from 'nanostores'
 
 import { canUseAccount, getAccountAuth, loadAccounts } from '../account.ts'
 import { onClient } from '../client.ts'
-import { getEnvironment } from '../environment.ts'
+import { getEnvironment, layoutType } from '../environment.ts'
 import { isRemoteError } from '../errors.ts'
 import { loadFeed } from '../feed.ts'
 import { isSaveData } from '../lib/network.ts'
 import { nextValue } from '../lib/stores.ts'
 import { loaders } from '../loader/index.ts'
-import { slowMenu, unreadFastMenu } from '../menu.ts'
+import { nextUnreadRoute, slowMenu, unreadFastMenu } from '../menu.ts'
 import {
   addHandles,
   addMediaSizes,
@@ -160,6 +160,14 @@ export async function readAndMove(
               popups: []
             }
           : current
+      )
+    } else if (layoutType.get() === 'desktop') {
+      navigate(
+        {
+          ...(nextUnreadRoute(filter.reading, filter) ?? { params: {}, route }),
+          popups: []
+        },
+        true
       )
     } else {
       navigate({ params: {}, popups: [], route }, true)
