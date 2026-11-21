@@ -29,5 +29,9 @@ table inet proxy_firewall {
     ip6 daddr {
       ::/127, ::ffff:0:0/96, 64:ff9b::/96, fc00::/7, fe80::/10, ff00::/8
     } reject
+    # Users read feeds from our website, but requests to server’s own IP
+    # skip Cloud Firewall and ufw
+    fib daddr type local tcp dport != { 80, 443 } reject
+    fib daddr type local meta l4proto != tcp reject
   }
 }

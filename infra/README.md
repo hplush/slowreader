@@ -53,7 +53,9 @@ Quadlet units in `/etc/containers/systemd/users/` run blue and green containers 
 
 `Pull=never` stops Podman from downloading images: only `deploy-service` puts verified images there. App gets `DATABASE_URL`, `ANALYTICS_TOKEN`, and optional `TELEGRAM_API_ID` with `TELEGRAM_API_HASH` from Podman secrets of `slowreader-app` user and connects to PostgreSQL by Unix socket.
 
-nftables blocks `slowreader-proxy` user from loopback, private networks, and Hetzner metadata, so the proxy can’t load our internal services.
+nftables blocks `slowreader-proxy` user from loopback, private networks, Hetzner metadata, and server’s own IP except Caddy ports, so the proxy can’t load our internal services.
+
+Proxy container has its own IP instead of the server’s one from pasta, so it can load feeds from `slowreader.app`.
 
 ### Self-Healing
 

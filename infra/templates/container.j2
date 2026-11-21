@@ -19,6 +19,11 @@ Volume=/run/postgresql:/run/postgresql:ro
 # nginx keeps request bodies and proxied answers there
 Tmpfs=/var/lib/nginx/tmp
 {% endif %}
+{% if name == 'slowreader-proxy' %}
+# pasta gives the container the server’s own IP by default, so requests
+# to our website would never leave the container
+Network=pasta:-a,10.0.2.100,-n,24,-g,10.0.2.2
+{% endif %}
 PublishPort=127.0.0.1:{{ service.ports[color] }}:2553
 ReadOnly=true
 DropCapability=all
