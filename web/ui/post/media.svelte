@@ -1,8 +1,18 @@
 <script lang="ts">
-  import { mdiClose, mdiEyeOutline, mdiPlay, mdiVolumeOff } from '@mdi/js'
+  import {
+    mdiClose,
+    mdiEyeOutline,
+    mdiFileOutline,
+    mdiMusicNote,
+    mdiOpenInNew,
+    mdiPlay,
+    mdiVolumeOff
+  } from '@mdi/js'
   import {
     canAutoplayVideos,
     commonMessages,
+    formatSize,
+    i18nFormat,
     isLoaderMedia,
     isMediaCached,
     type ReaderMedia,
@@ -30,10 +40,12 @@
 
   let {
     media,
+    postUrl,
     protect = false,
     warningClicked = false
   }: {
     media: ReaderMedia[]
+    postUrl?: string
     protect?: boolean | null
     warningClicked?: boolean
   } = $props()
@@ -406,7 +418,7 @@
           >
             {@render sources(item)}
           </video>
-        {:else if item.type.startsWith('audio')}
+        {:else if item.type.startsWith('audio') && !isLoaderMedia(item.url)}
           <audio
             class="post-media_audio"
             {@attach mediaSrc(item.url)}
@@ -415,6 +427,32 @@
             preload="none"
             title={item.alt}
           ></audio>
+        {:else}
+          <a
+            class="post-media_file"
+            href={isLoaderMedia(item.url) ? postUrl : item.url}
+            rel="noopener"
+            target="_blank"
+          >
+            <Icon
+              path={item.type.startsWith('audio')
+                ? mdiMusicNote
+                : mdiFileOutline}
+            />
+            <span class="post-media_name">
+              {item.name ??
+                (item.type.startsWith('audio') ? $t.audioFile : $t.file)}
+            </span>
+            {#if item.size?.bytes}
+              <span class="post-media_bytes">
+                {formatSize($i18nFormat, item.size.bytes)}
+              </span>
+            {/if}
+            {#if isLoaderMedia(item.url)}
+              <span class="sr-only">{$t.openInApp}</span>
+            {/if}
+            <Icon path={mdiOpenInNew} />
+          </a>
         {/if}
       {/each}
     </div>
@@ -643,6 +681,46 @@
 
     .post-media_audio {
       width: 100%;
+    }
+
+    .post-media_file {
+      @mixin clickable;
+
+      --icon-size: 1.25rem;
+
+      position: relative;
+      z-index: 2;
+      box-sizing: border-box;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      width: 100%;
+      min-height: var(--control-height);
+      padding: 0.375rem 0.625rem;
+      border: calc(var(--min-size) / 2) solid var(--flat-border-color);
+      border-radius: var(--base-radius);
+
+      &:hover .post-media_name,
+      &:focus-visible .post-media_name {
+        text-decoration: underline;
+      }
+
+      &:focus-visible {
+        outline-offset: -3px;
+      }
+    }
+
+    .post-media_name {
+      flex: 1 1 0;
+      min-width: 0;
+      overflow-wrap: anywhere;
+      font: var(--secondary-title-font);
+    }
+
+    .post-media_bytes {
+      font: var(--secondary-font);
+      color: var(--secondary-text-color);
+      white-space: nowrap;
     }
 
     .post-media_cover {

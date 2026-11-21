@@ -99,6 +99,7 @@
               text,
               !full
             )}
+            postUrl={userPostUrl(quoted)}
             {warningClicked}
           />
           {#if quoted.preview}

@@ -4,9 +4,11 @@ import { i18n } from '../../i18n.ts'
 
 export const postMessages = i18n('post', {
   afterFirst: params('{time} after'),
+  audioFile: 'Audio',
   copyUrl: 'Copy post URL',
   downloadImage: 'Download image',
   downloadSensitive: 'Download & show',
+  file: 'File',
   sensitiveMedia: 'Sensitive media',
   hideSpoiler: 'Hide text',
   hideWarning: 'Hide',

@@ -1544,6 +1544,123 @@ describe('telegram loader', () => {
     )
   })
 
+  test('shows music, voice messages, and documents by name', async () => {
+    function document(name: string, type: string, size: number): object {
+      return {
+        '@type': 'messageDocument',
+        'caption': { '@type': 'formattedText', 'text': '' },
+        'document': {
+          '@type': 'document',
+          'document': file(62, size),
+          'file_name': name,
+          'mime_type': type
+        }
+      }
+    }
+    mockHistory(0, {
+      0: [
+        rich(9, [
+          paragraph(plain('Listen')),
+          {
+            '@type': 'pageBlockAudio',
+            'audio': {
+              '@type': 'audio',
+              'audio': file(65, 500),
+              'file_name': 'track.flac',
+              'mime_type': 'audio/flac',
+              'performer': '',
+              'title': ''
+            },
+            'caption': { '@type': 'pageBlockCaption', 'text': plain('Track') }
+          }
+        ]),
+        message(8, {
+          content: {
+            '@type': 'messageAudio',
+            'audio': {
+              '@type': 'audio',
+              'audio': file(61, 4000),
+              'file_name': 'ave.mp3',
+              'mime_type': 'audio/mpeg',
+              'performer': 'Franz Schubert',
+              'title': 'Ave Maria'
+            },
+            'caption': { '@type': 'formattedText', 'text': '' }
+          }
+        }),
+        message(7, {
+          content: {
+            '@type': 'messageVoiceNote',
+            'caption': { '@type': 'formattedText', 'text': 'Listen' },
+            'voice_note': {
+              '@type': 'voiceNote',
+              'mime_type': 'audio/ogg',
+              'voice': file(63, 300)
+            }
+          }
+        }),
+        message(6, {
+          content: document('photo.png', 'image/png', 2000),
+          media_album_id: 'files'
+        }),
+        message(5, {
+          content: document('book.pdf', 'application/pdf', 1000),
+          media_album_id: 'files'
+        })
+      ]
+    })
+    let posts = await loadFeedPosts('{"id":"-1000000000005"}')
+    deepEqual(
+      posts.map(post => ({
+        media: post.media,
+        sizes: post.mediaSizes,
+        text: post.full,
+        unsupported: post.unsupported
+      })),
+      [
+        {
+          media: [
+            { name: 'track.flac', type: 'audio/flac', url: 'telegram:5/9/0' }
+          ],
+          sizes: [{ bytes: 500 }],
+          text: '<p>Listen</p><p>Track</p>',
+          unsupported: undefined
+        },
+        {
+          media: [
+            {
+              name: 'Franz Schubert — Ave Maria',
+              type: 'audio/mpeg',
+              url: 'telegram:5/8'
+            }
+          ],
+          sizes: [{ bytes: 4000 }],
+          text: undefined,
+          unsupported: undefined
+        },
+        {
+          media: [{ type: 'audio/ogg', url: 'telegram:5/7' }],
+          sizes: [{ bytes: 300 }],
+          text: '<p>Listen</p>',
+          unsupported: undefined
+        },
+        {
+          media: [
+            { name: 'book.pdf', type: 'application/pdf', url: 'telegram:5/5' },
+            {
+              name: 'photo.png',
+              type: 'application/octet-stream',
+              url: 'telegram:5/6'
+            }
+          ],
+          sizes: [{ bytes: 1000 }, { bytes: 2000 }],
+          text: undefined,
+          unsupported: undefined
+        }
+      ]
+    )
+  })
+
   test('loads the rest of long posts with rich formatting', async () => {
     deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
     mockHistory(1, {

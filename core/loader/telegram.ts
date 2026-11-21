@@ -1169,7 +1169,7 @@ function formatBlock(post: RichPost, block: unknown): string {
         .join('') +
       '</table>'
     )
-  } else if (/^(Photo|Video|Animation)$/.test(type)) {
+  } else if (/^(Photo|Video|Animation|Audio|VoiceNote|Document)$/.test(type)) {
     let url = `${post.url}/${String(post.files.length)}`
     let media = toMedia(url, block)
     if (media) {
@@ -1488,12 +1488,38 @@ function getMediaFile(content: unknown, part?: string): MediaFile | undefined {
   )
 }
 
+/**
+ * Music, voice message, or document, which readers show only by name.
+ */
+function toAttachedFile(
+  url: string,
+  content: Record<string, unknown>
+): [PostMedia, MediaSize] | undefined {
+  let attached = content.audio ?? content.voice_note ?? content.document
+  if (!isObject(attached)) return undefined
+  let file = attached.audio ?? attached.voice ?? attached.document
+  if (!isObject(file)) return undefined
+  let media: PostMedia = {
+    // Readers would load a photo sent as a document like post’s image
+    type: /^(audio|application|text)\//.test(String(attached.mime_type))
+      ? String(attached.mime_type)
+      : 'application/octet-stream',
+    url
+  }
+  let name =
+    [attached.performer, attached.title].filter(Boolean).join(' — ') ||
+    attached.file_name
+  if (typeof name === 'string' && name) media.name = name
+  return [media, { bytes: Number(file.size) }]
+}
+
 function toMedia(
   url: string,
   content: unknown
 ): [PostMedia, MediaSize] | undefined {
+  if (!isObject(content)) return undefined
   let file = getMediaFile(content)
-  if (!file || !isObject(content)) return undefined
+  if (!file) return toAttachedFile(url, content)
   let media: PostMedia = { type: file.type.split('/')[0]!, url }
   if (content.animation) media.type = 'video;mode=gif'
   if (content.video_note) media.type = 'video;mode=round'

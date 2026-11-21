@@ -389,7 +389,9 @@
           'and shows the loader over a blurred preview. The video is a ' +
           'whole file, so it waits for the click. The second video was ' +
           'clicked and shows the loader until the file is ready. ' +
-          'Round video from Telegram stays round before the click.</p>' +
+          'Round video from Telegram stays round before the click. ' +
+          'Music, voice message, and document have only a name and a link ' +
+          'to the post or to the file.</p>' +
           '<p>Images inside the text are loaded the same way: ' +
           'normal, still loading, and broken.</p>' +
           '<img src="telegram:5/6" alt="" width="700" height="441">' +
@@ -416,6 +418,17 @@
             poster: 'telegram:5/3/poster',
             type: 'video;mode=round',
             url: 'telegram:5/3'
+          },
+          {
+            name: 'Franz Schubert — Ellens Gesang III, op. 52 no. 6, D. 839',
+            type: 'audio/mpeg',
+            url: 'telegram:5/7'
+          },
+          { type: 'audio/ogg', url: 'telegram:5/8' },
+          {
+            name: 'annual-report-of-the-very-long-company-name-2026-final.pdf',
+            type: 'application/pdf',
+            url: 'https://example.com/report.pdf'
           }
         ],
         mediaSizes: [
@@ -424,7 +437,9 @@
           { height: 441, width: 700 },
           { bytes: 28089, height: 1080, width: 1920 },
           { bytes: 28089, height: 1080, width: 1920 },
-          { bytes: 28089, height: 384, width: 384 }
+          { bytes: 28089, height: 384, width: 384 },
+          { bytes: 4400000 },
+          { bytes: 310000 }
         ],
         preview: {
           image: 'telegram:5/5/preview',

@@ -175,6 +175,7 @@
       {/if}
       <PostMedia
         media={getMediaOutsideText(post.media, intro, post.intro === null)}
+        postUrl={url}
         protect={post.protected}
       />
       {#if post.quoted}

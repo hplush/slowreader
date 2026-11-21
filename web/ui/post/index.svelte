@@ -91,6 +91,7 @@
           text,
           false
         )}
+        postUrl={userPostUrl(post)}
         {protect}
         {warningClicked}
       />
