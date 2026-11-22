@@ -4,6 +4,7 @@ import { computed, effect } from 'nanostores'
 
 import { onClient } from './client.ts'
 import { getEnvironment } from './environment.ts'
+import { warnIfOpened } from './lib/sign-out.ts'
 import { openedCategoryId } from './menu.ts'
 import { commonMessages } from './messages/index.ts'
 import { clock, nightLockState } from './night-lock.ts'
@@ -51,15 +52,6 @@ export const lastUsage = persistentAtom<LastUsage | undefined>(
     }
   }
 )
-
-/**
- * Sign-out cancels the writes, which were not finished yet.
- */
-let cleaning = false
-
-function warnIfOpened(error: unknown): void {
-  if (!cleaning && hasDatabase()) getEnvironment().warn(error)
-}
 
 let writing = Promise.resolve()
 
@@ -156,11 +148,7 @@ export function trackLinkReading(): void {
   }
 }
 
-onClient(logux => {
-  cleaning = false
-  let unbindCleaning = logux.on('cleaning', () => {
-    cleaning = true
-  })
+onClient(() => {
   let closed = lastUsage.get()?.id
   let visible = false
   let reading: undefined | UsageType
@@ -215,7 +203,6 @@ onClient(logux => {
       .catch(warnIfOpened)
   })
   return () => {
-    unbindCleaning()
     unbindRouter()
     unbindCategory()
     unbindTracking()
