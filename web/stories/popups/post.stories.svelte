@@ -242,7 +242,12 @@
 </script>
 
 <Story name="Read" asChild parameters={{ layout: 'fullscreen' }}>
-  <Scene feeds={[FEED]} oninit={open(true)} posts={[POST]}>
+  <Scene
+    feeds={[FEED]}
+    oninit={open(true)}
+    posts={[POST]}
+    reactions={[{ at: 1600000000, feedId: 'feed', id: 'post-1', type: 'like' }]}
+  >
     {#if popup}
       <LoadedPopup {popup}>
         {#snippet loaded(loadedPopup)}

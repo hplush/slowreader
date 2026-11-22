@@ -17,7 +17,9 @@ import {
   DEFAULT_REFRESH_STATISTICS,
   deleteAccount,
   deleteFeed,
+  downloadingCloudData,
   fastPostsMaxAge,
+  getTables,
   lastRefresh,
   type LoadedAuthor,
   nightLock,
@@ -45,11 +47,14 @@ import {
   refreshStatus,
   refreshTotalProgress,
   saveDataMode,
+  seenBuffer,
+  setPostReaction,
   setRequestMethod,
   stopRefreshing,
   testAccount,
   testFeed,
   testPost,
+  trackSeen,
   waitLoading
 } from '../index.ts'
 import type { AccountLoader } from '../loader/common.ts'
@@ -96,6 +101,36 @@ describe('refresh', () => {
 
   test('is ready to be stopped from the start', () => {
     stopRefreshing()
+  })
+
+  test('deletes statistics of missing feeds once a day', async t => {
+    let seenFeeds = (): string[] => Object.keys(seenBuffer.get()!.feeds)
+    async function addOrphans(): Promise<void> {
+      await setPostReaction({ feedId: 'missing', id: 'post' }, 'like')
+      trackSeen('missing', 1)
+    }
+    t.after(() => {
+      downloadingCloudData.set(false)
+      seenBuffer.set(null)
+    })
+
+    await addOrphans()
+    lastRefresh.set(Date.now() - 2 * 86_400_000)
+    downloadingCloudData.set(true)
+    await refreshPosts()
+    equal((await getTables().reactions.load()).length, 1)
+    deepEqual(seenFeeds(), ['missing'])
+
+    lastRefresh.set(Date.now() - 2 * 86_400_000)
+    downloadingCloudData.set(false)
+    await refreshPosts()
+    equal((await getTables().reactions.load()).length, 0)
+    deepEqual(seenFeeds(), [])
+
+    await addOrphans()
+    await refreshPosts()
+    equal((await getTables().reactions.load()).length, 1)
+    deepEqual(seenFeeds(), ['missing'])
   })
 
   function fakeSyncState(state: CrossTabClient['state']): typeof fakeState {
@@ -1575,6 +1610,8 @@ describe('refresh of accounts', () => {
 
 describe('auto refresh', () => {
   beforeEach(async () => {
+    // Refresh of the previous test is too recent for the auto refresh
+    lastRefresh.set(0)
     mockRequest()
     startClient()
     await waitLoading(syncedSettingsLoading)

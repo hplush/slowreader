@@ -38,6 +38,7 @@ import type {
 import { getOriginKey, loaders, tryLoadFeedData } from './loader/index.ts'
 import { accountsMessages } from './messages/index.ts'
 import { deletePost, recalcPostsReading } from './post.ts'
+import { deleteFeedStats } from './reactions.ts'
 import {
   ACCOUNT_SERVICES,
   type AccountChanges,
@@ -238,6 +239,7 @@ export async function deleteAccount(accountId: string): Promise<void> {
           SELECT "id" FROM "feeds" WHERE "accountId" = ${accountId}
         )
       `
+      await deleteFeedStats(feeds.map(feed => feed.id))
       await tables.feeds.deleteWhere`"accountId" = ${accountId}`
     }
     await tables.accounts.delete(accountId)

@@ -5,6 +5,8 @@
   import CategoriesPage from '../../pages/categories.svelte'
   import Scene from '../scene.svelte'
 
+  const NOW = Math.round(Date.now() / 1000)
+
   let { Story } = defineMeta({
     component: CategoriesPage,
     title: 'Pages/Categories'
@@ -27,6 +29,7 @@
     },
     {
       categoryId: 'code',
+      id: 'long',
       title:
         'Pneumonoultramicroscopicsilicovolcanoconiosis' +
         'Pneumonoultramicroscopicsilicovolcanoconiosis'
@@ -34,6 +37,7 @@
     { categoryId: 'long', title: 'Long category' },
     {
       categoryId: 'design',
+      id: 'popular',
       title: 'Smashing Magazine — For Web Designers And Developers'
     },
     { categoryId: 'unknown', title: 'Broken category' },
@@ -66,6 +70,13 @@
     oninit={() => {
       pages.categories().toggle('code')
     }}
+    reactions={[
+      { at: NOW, feedId: 'a', id: 'liked', type: 'like' },
+      { at: NOW, feedId: 'a', id: 'opened', type: 'open' },
+      { at: NOW, feedId: 'a', id: 'disliked', type: 'dislike' },
+      { at: NOW, feedId: 'long', id: 'bad', type: 'dislike' }
+    ]}
+    seen={{ a: 12, long: 9, popular: 30 }}
   >
     <CategoriesPage page={pages.categories()} />
   </Scene>

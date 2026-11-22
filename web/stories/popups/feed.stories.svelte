@@ -11,6 +11,8 @@
     title: 'Popups/Feed'
   })
 
+  const NOW = Math.round(Date.now() / 1000)
+
   const ICON =
     'data:image/svg+xml,' +
     encodeURIComponent(
@@ -118,6 +120,14 @@
   ]
 </script>
 
+<script lang="ts">
+  import type { StoryContext } from 'storybook/internal/types'
+
+  async function openLiked({ canvas, userEvent }: StoryContext): Promise<void> {
+    await userEvent.click(await canvas.findByRole('radio', { name: 'Liked' }))
+  }
+</script>
+
 <Story name="New" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     responses={[
@@ -172,12 +182,107 @@
       {
         avatar: ICON,
         categoryId: 'long',
+        id: 'news',
         url: 'https://example.com/news.atom'
-      }
+      },
+      { id: 'popular', url: 'https://example.com/popular.atom' }
+    ]}
+    reactions={[
+      {
+        at: 1600000000,
+        feedId: 'news',
+        id: 'old',
+        type: 'like',
+        url: 'https://example.com/news/2020/very-long-post-address-to-wrap'
+      },
+      {
+        at: 1600000000,
+        feedId: 'news',
+        id: 'bad',
+        type: 'dislike',
+        url: 'https://example.com/news/1'
+      },
+      { at: NOW, feedId: 'news', id: 'liked1', type: 'like' },
+      { at: NOW, feedId: 'news', id: 'liked2', type: 'like' },
+      { at: NOW, feedId: 'news', id: 'disliked', type: 'dislike' },
+      { at: NOW, feedId: 'news', id: 'opened1', type: 'open' },
+      { at: NOW, feedId: 'news', id: 'opened2', type: 'link' },
+      { at: NOW, feedId: 'news', id: 'opened3', type: 'share' }
     ]}
     responses={[['https://example.com/news.atom', QUIET_ATOM]]}
+    seen={{ news: 24, popular: 40 }}
   >
     <LoadedPopup popup={popups.feed('https://example.com/news.atom')}>
+      {#snippet loaded(popup)}
+        <FeedPopupComponent {popup} />
+      {/snippet}
+    </LoadedPopup>
+  </Scene>
+</Story>
+
+<Story
+  name="Added Liked"
+  asChild
+  parameters={{ layout: 'fullscreen' }}
+  play={openLiked}
+>
+  <Scene
+    feeds={[
+      { id: 'jane', loader: 'mastodon', url: 'https://mastodon.social/@jane' }
+    ]}
+    reactions={[
+      {
+        at: 1600000002,
+        feedId: 'jane',
+        id: 'liked1',
+        type: 'like',
+        url: 'https://mastodon.social/@jane/1'
+      },
+      {
+        at: 1600000001,
+        feedId: 'jane',
+        id: 'liked2',
+        type: 'like',
+        url: 'https://mastodon.social/@jane/2'
+      },
+      {
+        at: 1600000000,
+        feedId: 'jane',
+        id: 'deleted',
+        type: 'like',
+        url: 'https://mastodon.social/@jane/404'
+      }
+    ]}
+    responses={[
+      [
+        'https://mastodon.social/@jane',
+        '<!DOCTYPE html><html><head>' +
+          '<meta content="Jane (@jane@mastodon.social)" property="og:title">' +
+          '</head></html>'
+      ],
+      [
+        `${MASTODON_API}/lookup?acct=jane`,
+        {
+          body: JSON.stringify(STATUSES[0]!.account),
+          contentType: 'application/json'
+        }
+      ],
+      [
+        `${MASTODON_API}/jane/statuses?exclude_replies=true`,
+        { body: JSON.stringify(STATUSES), contentType: 'application/json' }
+      ],
+      [
+        'https://mastodon.social/api/v1/statuses/1',
+        { body: JSON.stringify(STATUSES[0]), contentType: 'application/json' }
+      ],
+      [
+        'https://mastodon.social/api/v1/statuses/2',
+        { body: JSON.stringify(STATUSES[1]), contentType: 'application/json' }
+      ],
+      ['https://mastodon.social/api/v1/statuses/404', { status: 404 }]
+    ]}
+  >
+    <LoadedPopup popup={popups.feed('https://mastodon.social/@jane')}>
       {#snippet loaded(popup)}
         <FeedPopupComponent {popup} />
       {/snippet}

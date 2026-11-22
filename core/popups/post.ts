@@ -25,6 +25,14 @@ import {
   type PostValue,
   type PreviewPost
 } from '../post.ts'
+import {
+  getPostReaction,
+  getReaction,
+  loadReactedByUrl,
+  type PostReaction,
+  type ReactedPost,
+  trackInterest
+} from '../reactions.ts'
 import { loadPreviewThread, loadThreadByUrl, updateThread } from '../thread.ts'
 import { type CreatedLoadedPopup, definePopup } from './common.ts'
 
@@ -104,11 +112,17 @@ export const post = definePopup('post', async loader => {
   // The whole thread from its start, the shown post could be in the middle
   let $parts = atom<(OriginPost | PostValue)[]>([])
   let updating: Promise<(OriginPost | PostValue)[]> | undefined
+  let reacted: ReactedPost | undefined
   if (stored) {
     $post = storeFromQuery(getPost(stored.id), stored, row => row)
+    if (stored.feedId) {
+      reacted = { feedId: stored.feedId, id: stored.id, url: stored.url }
+      trackInterest(reacted, 'open')
+    }
   } else if (target.startsWith('https:')) {
     service = findPostLoader(target)
     if (!service) throw new NotFoundError()
+    reacted = await loadReactedByUrl(target)
     let postLoader: Loader = loaders[service]
     let $byUrl = atom(await postLoader.getPostByUrl!(task, target))
     updating = loadThreadByUrl(task, postLoader, {
@@ -130,6 +144,7 @@ export const post = definePopup('post', async loader => {
     }
     $post = atom(preview)
     $parts.set([preview, ...(preview.threadParts ?? [])])
+    if (preview.url) reacted = await loadReactedByUrl(preview.url)
     let postLoader: Loader = loaders[service]
     if (preview.url && postLoader.getPostByUrl) {
       // Preview has no parts of reposted threads
@@ -156,6 +171,10 @@ export const post = definePopup('post', async loader => {
       }
     })
   }
+
+  let $reaction: ReadableAtom<PostReaction> = reacted
+    ? storeFromQuery(getReaction(reacted.id), 'none', getPostReaction)
+    : atom('none')
 
   let postValue = $post.get()
   if ('feedId' in postValue) {
@@ -241,6 +260,8 @@ export const post = definePopup('post', async loader => {
     loader: service,
     post: computed($start, value => addHandles(value, service)),
     publishedAt: $publishedAt,
+    reacted,
+    reaction: $reaction,
     read,
     thread: $thread,
     userPostUrl: getUserPostUrls()

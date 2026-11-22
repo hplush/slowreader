@@ -20,7 +20,7 @@
 
   let { page }: { page: CategoriesPage } = $props()
 
-  let { expanded, groups, opened, readings, sync } = $derived(page)
+  let { expanded, groups, opened, readings, stats, sync } = $derived(page)
   let mobile = $derived($layoutType === 'mobile')
 </script>
 
@@ -86,7 +86,12 @@
             short={String(feeds.length)}
             title={category.title}
           >
-            <Feeds current={$opened} list={feeds} readings={$readings} />
+            <Feeds
+              current={$opened}
+              list={feeds}
+              readings={$readings}
+              stats={$stats}
+            />
           </Foldable>
         {/each}
       </Stack>

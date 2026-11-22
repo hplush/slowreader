@@ -22,6 +22,7 @@ import {
   solveNightTask,
   testFeed,
   testPost,
+  trackSeen,
   userId,
   waitLoading
 } from '../../index.ts'
@@ -34,7 +35,8 @@ import {
   persistentDatabase,
   openRoute,
   setTestUser,
-  nextPagination
+  nextPagination,
+  waitUntil
 } from '../utils.ts'
 
 describe('feeds page', () => {
@@ -172,6 +174,9 @@ describe('feeds page', () => {
     encryptionKey.set(key)
     await waitLoading(page.loading)
     equal(page.feed.get()?.id, feed)
+    trackSeen(feed, 2)
+    await waitUntil(() => page.feedStats.get()?.seen === 2)
+    equal(page.feedStats.get()!.max, 2)
     equal(page.posts.get()!.name, 'feed')
   })
 

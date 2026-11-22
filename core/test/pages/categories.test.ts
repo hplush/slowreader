@@ -19,6 +19,7 @@ import {
   loaders,
   testAccount,
   testFeed,
+  trackSeen,
   testPost,
   waitLoading
 } from '../../index.ts'
@@ -62,7 +63,7 @@ describe('categories page', () => {
     deepEqual([...page.expanded.get()], ['b'])
   })
 
-  test('groups feeds by categories', async () => {
+  test('groups feeds by categories', async t => {
     let page = openPage({
       params: {},
       route: 'categories'
@@ -81,6 +82,14 @@ describe('categories page', () => {
     deepEqual(page.readings.get(), {
       [(await loadFeed(feed1))!.url]: 'fast',
       [(await loadFeed(feed2))!.url]: 'fast'
+    })
+    trackSeen(feed1, 2)
+    t.after(page.stats.listen(() => {}))
+    deepEqual([...page.stats.get()], [])
+    page.expand(idA)
+    deepEqual(Object.fromEntries(page.stats.get()), {
+      [feed1]: { disliked: 0, liked: 0, max: 2, opened: 0, seen: 2 },
+      [feed2]: { disliked: 0, liked: 0, max: 2, opened: 0, seen: 0 }
     })
 
     let idC = await addCategory({ title: 'C' })

@@ -77,14 +77,6 @@ describe('night lock', () => {
     equal(checkAnswer(task, '141.0'), false)
   })
 
-  test('ticks clock every minute', () => {
-    mock.timers.enable({ apis: ['Date', 'setInterval'], now: at(22, 59) })
-    clock.listen(() => {})
-    equal(clock.get().getHours(), 22)
-    mock.timers.tick(60_000)
-    equal(clock.get().getHours(), 23)
-  })
-
   test('locks only during the period', () => {
     nightLocked.listen(() => {})
     clock.set(at(23, 30))

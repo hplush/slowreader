@@ -4,10 +4,11 @@ import { computed, effect } from 'nanostores'
 
 import { onClient } from './client.ts'
 import { getEnvironment } from './environment.ts'
+import { clock } from './lib/date.ts'
 import { warnIfOpened } from './lib/sign-out.ts'
 import { openedCategoryId } from './menu.ts'
 import { commonMessages } from './messages/index.ts'
-import { clock, nightLockState } from './night-lock.ts'
+import { nightLockState } from './night-lock.ts'
 import { router } from './router.ts'
 import {
   GENERAL_CATEGORY,

@@ -272,6 +272,27 @@ describe('log', () => {
     await waitUntil(async () => (await logEntries()).length === 0)
   })
 
+  test('keeps no tombstone for views and reactions', async () => {
+    await signUpCloudUser()
+
+    let view = await getTables().views.create({
+      day: 1,
+      days: [],
+      feedId: 'feed'
+    })
+    let reaction = await getTables().reactions.create({
+      at: 1,
+      feedId: 'feed',
+      type: 'like'
+    })
+    await waitSync()
+    await getTables().views.delete(view)
+    await getTables().reactions.delete(reaction)
+    await waitSync()
+    await waitUntil(async () => (await getServerLogIds()).length === 0)
+    await waitUntil(async () => (await logEntries()).length === 0)
+  })
+
   test('restores the tables from themselves on the schema change', async () => {
     await signUpCloudUser()
 

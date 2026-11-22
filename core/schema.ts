@@ -53,6 +53,16 @@ const READERS = ['feed', 'list'] as const satisfies readonly UsefulReaderName[]
 
 const READINGS = ['fast', 'slow'] as const
 
+/**
+ * What user did with the post without like or dislike.
+ */
+export type PostInterest = 'link' | 'open' | 'share'
+
+/**
+ * `none` is user’s refusal of the reaction, which the app set by itself.
+ */
+export type ReactionType = 'dislike' | 'like' | 'none' | PostInterest
+
 export const ACCOUNT_SERVICES = ['mastodon', 'bluesky', 'telegram'] as const
 
 export type AccountService = (typeof ACCOUNT_SERVICES)[number]
@@ -297,6 +307,20 @@ export const postsTable = defineCrdtTable(
   ]
 )
 
+export const reactionsTable = defineCrdtTable(
+  'reactions',
+  {
+    at: bigint(),
+    feedId: string(),
+    type: string<ReactionType>(),
+    url: optional(string())
+  },
+  [
+    // Liked and disliked posts in the feed popup
+    ['feedId', 'at DESC']
+  ]
+)
+
 export const settingsTable = defineCrdtTable('settings', {
   // Creation sets only it, since other devices could create the row too
   createdAt: optional(bigint()),
@@ -327,27 +351,48 @@ export const usagesTable = defineCrdtTable(
   ['to']
 )
 
+/**
+ * Posts of the feed, which user saw on one device, by days. Every device
+ * writes only own rows to not lose counts of another device.
+ */
+export const viewsTable = defineCrdtTable(
+  'views',
+  {
+    // The last day when the device saw the feed
+    day: number(),
+    days: json([json({ count: number(), day: number() })]),
+    feedId: string()
+  },
+  ['feedId']
+)
+
 type AccountsSchema = typeof accountsTable.schema
 type CategoriesSchema = typeof categoriesTable.schema
 type FeedsSchema = typeof feedsTable.schema
 type FiltersSchema = typeof filtersTable.schema
 type PostsSchema = typeof postsTable.schema
+type ReactionsSchema = typeof reactionsTable.schema
 type SettingsSchema = typeof settingsTable.schema
 type UsagesSchema = typeof usagesTable.schema
+type ViewsSchema = typeof viewsTable.schema
 
 export type AccountValue = CrdtTableRow<AccountsSchema>
 export type CategoryValue = CrdtTableRow<CategoriesSchema>
 export type FeedValue = CrdtTableRow<FeedsSchema>
 export type FilterValue = CrdtTableRow<FiltersSchema>
 export type PostValue = CrdtTableRow<PostsSchema>
+export type ReactionValue = CrdtTableRow<ReactionsSchema>
 export type SettingsValue = CrdtTableRow<SettingsSchema>
 export type UsageValue = CrdtTableRow<UsagesSchema>
+export type ViewValue = CrdtTableRow<ViewsSchema>
 
 export type NewAccount = NewCrdtRow<AccountsSchema>
 export type NewCategory = NewCrdtRow<CategoriesSchema>
 export type NewFeed = NewCrdtRow<FeedsSchema>
 export type NewFilter = NewCrdtRow<FiltersSchema>
 export type NewPost = NewCrdtRow<PostsSchema>
+export type NewReaction = NewCrdtRow<ReactionsSchema>
+export type NewView = NewCrdtRow<ViewsSchema>
 
 export type AccountChanges = Partial<CrdtRowFields<AccountsSchema>>
 export type CategoryChanges = Partial<CrdtRowFields<CategoriesSchema>>
@@ -362,8 +407,10 @@ export interface Tables {
   feeds: CrdtTable<FeedsSchema>
   filters: CrdtTable<FiltersSchema>
   posts: CrdtTable<PostsSchema>
+  reactions: CrdtTable<ReactionsSchema>
   settings: CrdtTable<SettingsSchema>
   usages: CrdtTable<UsagesSchema>
+  views: CrdtTable<ViewsSchema>
 }
 
 let currentCrdt: CrdtDatabase | undefined
@@ -536,8 +583,10 @@ async function uploadLocalData(logux: CrossTabClient): Promise<void> {
     tables.feeds,
     tables.filters,
     tables.posts,
+    tables.reactions,
     tables.settings,
-    tables.usages
+    tables.usages,
+    tables.views
   ])
   if (actions.length > 0) {
     await busyDuring(
@@ -654,8 +703,10 @@ function openDatabase(logux: CrossTabClient, db: Database): void {
     feeds: crdt.table(feedsTable),
     filters: crdt.table(filtersTable),
     posts: crdt.table(postsTable),
+    reactions: crdt.table(reactionsTable),
     settings: crdt.table(settingsTable),
-    usages: crdt.table(usagesTable)
+    usages: crdt.table(usagesTable),
+    views: crdt.table(viewsTable)
   }
   // The tracker parses actions by the tables, so it is installed after them
   if (cloud) currentTracker = trackLog(logux, crdt)

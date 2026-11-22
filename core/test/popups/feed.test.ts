@@ -14,10 +14,13 @@ import {
   commonMessages,
   createPostsList,
   type FeedPopup,
+  formatPublishedAt,
   GENERAL_CATEGORY,
   getLinkPopup,
   getPopupId,
+  getTables,
   HTTPStatusError,
+  i18nFormat,
   loaders,
   loadFeed,
   loadFeeds,
@@ -26,9 +29,11 @@ import {
   NetworkError,
   openedPopups,
   organizeMessages,
+  setPostReaction,
   testAccount,
   testFeed,
   testPost,
+  trackSeen,
   waitLoading
 } from '../../index.ts'
 import {
@@ -213,6 +218,181 @@ describe('feed popup', () => {
     equal(checkLoadedPopup(popup).title, 'Atom')
     let addedId = await checkLoadedPopup(popup).add()
     equal(checkLoadedPopup(popup).feed.get()?.id, addedId)
+  })
+
+  test('shows statistics and reactions of the feed', async t => {
+    let feedId = await addFeed(
+      testFeed({ loader: 'mastodon', url: 'https://mastodon.social/@jane' })
+    )
+    spyOn(loaders.mastodon, 'getPosts', () => {
+      return createPostsList(() => Promise.resolve([[], undefined]))
+    })
+    t.after(restoreAll)
+    let post = 'https://mastodon.social/@jane/1'
+    let now = Math.round(Date.now() / 1000)
+    await getTables().reactions.create([
+      { at: now - 20, feedId, id: 'a', type: 'like', url: post },
+      {
+        at: now - 10,
+        feedId,
+        id: 'b',
+        type: 'dislike',
+        url: 'https://a.com/1'
+      },
+      { at: now, feedId, id: 'c', type: 'like' },
+      { at: now, feedId, id: 'd', type: 'open' },
+      { at: now, feedId: 'other', id: 'e', type: 'like' }
+    ])
+    trackSeen(feedId, 5)
+
+    let popup = openTestPopup('feed', 'https://mastodon.social/@jane')
+    await waitLoading(popup.loading)
+    let loaded = checkLoadedPopup(popup)
+    let unbind = loaded.stats.listen(() => {})
+    await waitUntil(() => loaded.reactions.get().length === 2)
+    deepEqual(
+      loaded.reactions.get().map(reaction => ({
+        id: reaction.id,
+        liked: reaction.liked,
+        popup: reaction.popup,
+        title: reaction.title,
+        url: reaction.url
+      })),
+      [
+        {
+          id: 'b',
+          liked: false,
+          popup: undefined,
+          title: 'a.com/1',
+          url: 'https://a.com/1'
+        },
+        {
+          id: 'a',
+          liked: true,
+          popup: post,
+          title: 'mastodon.social/@jane/1',
+          url: post
+        }
+      ]
+    )
+    equal(
+      loaded.reactions.get()[0]!.reactedAt,
+      formatPublishedAt(i18nFormat.get(), now - 10)
+    )
+    await waitUntil(() => loaded.stats.get()?.liked === 2)
+    deepEqual(loaded.stats.get(), {
+      disliked: 1,
+      liked: 2,
+      max: 5,
+      opened: 1,
+      seen: 5
+    })
+
+    await loaded.remove()
+    unbind()
+    deepEqual(loaded.reactions.get(), [])
+    equal(loaded.stats.get(), undefined)
+  })
+
+  test('loads liked posts of social feed by URLs', async t => {
+    let author = 'https://mastodon.social/@jane'
+    let feedId = await addFeed(testFeed({ loader: 'mastodon', url: author }))
+    let mastodon = loaders.mastodon as Required<typeof loaders.mastodon>
+    spyOn(mastodon, 'getPosts', () => {
+      return createPostsList(() => Promise.resolve([[], undefined]))
+    })
+    let offline = false
+    let byUrl = spyOn(mastodon, 'getPostByUrl', (task, url) => {
+      if (offline) {
+        return Promise.reject(new Error('Offline'))
+      } else if (url.endsWith('/2')) {
+        return Promise.reject(new HTTPStatusError(404, url, '', new Headers()))
+      } else {
+        return Promise.resolve({
+          author: {
+            title: 'Author',
+            url: url.endsWith('/1') ? 'https://mastodon.social/@other' : author
+          },
+          id: url,
+          originId: url,
+          url
+        })
+      }
+    })
+    t.after(restoreAll)
+    await getTables().reactions.create([
+      ...Array.from({ length: 12 }, (_, i) => ({
+        at: 100 - i,
+        feedId,
+        id: `liked${i}`,
+        type: 'like' as const,
+        url: `${author}/${i}`
+      })),
+      {
+        at: 1,
+        feedId,
+        id: 'web',
+        type: 'like' as const,
+        url: 'https://a.com/1'
+      },
+      { at: 1, feedId, id: 'no-url', type: 'like' as const },
+      { at: 1, feedId, id: 'opened', type: 'open' as const }
+    ])
+
+    let popup = openTestPopup('feed', author)
+    await waitLoading(popup.loading)
+    let loaded = checkLoadedPopup(popup)
+    let unbindLiked = loaded.likedPosts.listen(() => {})
+    let unbindDisliked = loaded.dislikedPosts.listen(() => {})
+    t.after(() => {
+      unbindLiked()
+      unbindDisliked()
+    })
+    await waitUntil(() => !!loaded.likedPosts.get())
+    equal(loaded.dislikedPosts.get(), undefined)
+
+    let liked = loaded.likedPosts.get()!
+    await liked.loading
+    deepEqual(
+      liked.get().list.map(post => post.url),
+      [0, 1, 3, 4, 5, 6, 7, 8, 9].map(i => `${author}/${i}`)
+    )
+    deepEqual(
+      liked.get().list.map(post => post.author?.url),
+      [undefined, 'https://mastodon.social/@other', ...Array(7)]
+    )
+    equal(liked.get().hasNext, true)
+    equal(byUrl.calls.length, 10)
+
+    await liked.next()
+    equal(liked.get().list.length, 11)
+    equal(liked.get().hasNext, false)
+
+    offline = true
+    await setPostReaction({ feedId, id: 'bad', url: `${author}/20` }, 'dislike')
+    await waitUntil(() => !!loaded.dislikedPosts.get())
+    equal(loaded.likedPosts.get(), liked)
+    await loaded.dislikedPosts.get()!.loading
+    equal(loaded.dislikedPosts.get()!.get().error!.message, 'Offline')
+
+    await setPostReaction({ feedId, id: 'bad' }, 'none')
+    await waitUntil(() => !loaded.dislikedPosts.get())
+  })
+
+  test('has no posts to load for liked posts of web feed', async () => {
+    let feedId = await addFeed(testFeed({ url: 'https://a.com/atom' }))
+    expectRequest('https://a.com/atom').andRespond(
+      200,
+      '<feed><title>Atom</title></feed>',
+      'text/xml'
+    )
+    await setPostReaction({ feedId, id: '1', url: 'https://a.com/1' }, 'like')
+
+    let popup = openTestPopup('feed', 'https://a.com/atom')
+    await waitLoading(popup.loading)
+    let loaded = checkLoadedPopup(popup)
+    await waitUntil(() => loaded.reactions.get().length === 1)
+    equal(loaded.likedPosts.get(), undefined)
   })
 
   test('keeps title of unsubscribed feed without origin title', async () => {

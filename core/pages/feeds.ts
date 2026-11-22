@@ -12,6 +12,7 @@ import {
 } from '../menu.ts'
 import { type NightLockState, nightLockState } from '../night-lock.ts'
 import { deletePost, fastPostsCount, slowPostsCount } from '../post.ts'
+import { getFeedStats } from '../reactions.ts'
 import {
   loadReadPostIds,
   type PostFilter,
@@ -51,6 +52,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
     let $postsLoading = atom(true)
     let $posts = atom<Reader | undefined>()
     let $feed = atom<FeedValue | undefined>()
+    let $stats = getFeedStats(computed($feed, feed => (feed ? [feed.id] : [])))
     let $category = atom<CategoryValue | undefined>()
 
     let lastFilter: PostFilter | undefined
@@ -330,6 +332,9 @@ let pages = (['slow', 'fast'] as const).map(reading => {
         await freeDatabasePages()
       },
       feed: $feed,
+      feedStats: computed([$feed, $stats], (feed, stats) => {
+        return feed && stats.get(feed.id)
+      }),
       loading: $loading,
       locked: $locked,
       params,

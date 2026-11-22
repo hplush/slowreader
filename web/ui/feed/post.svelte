@@ -14,6 +14,7 @@
     getPostPopupParam,
     i18nFormat,
     isOpenedPost,
+    likedPosts,
     openedPost,
     postMessages,
     type PreviewPost,
@@ -30,6 +31,7 @@
   import FeedLink from '../feed-link.svelte'
   import FormattedText from '../formatted-text.svelte'
   import PostByline from '../post/byline.svelte'
+  import PostLikes from '../post/likes.svelte'
   import PostMedia from '../post/media.svelte'
   import PostOpenNote from '../post/open-note.svelte'
   import PostPoll from '../post/poll.svelte'
@@ -62,6 +64,11 @@
   let hasByline = $derived(!!(author || post.author || post.repostedBy))
   let feedInHeader = $derived(!!author && !post.repostedBy)
   let dynamic = $derived('dynamic' in post ? post.dynamic : undefined)
+  let reacted = $derived(
+    'feedId' in post && post.feedId
+      ? { feedId: post.feedId, id: post.id, url: post.url }
+      : undefined
+  )
 </script>
 
 {#snippet byline(aside: Snippet | undefined)}
@@ -96,7 +103,7 @@
   class:is-current={current}
   class:is-protected={post.protected}
   class:is-read={'read' in post && post.read}
-  {@attach trackPostLinks}
+  {@attach trackPostLinks(reacted)}
   oncopy={event => {
     if (post.protected) event.preventDefault()
   }}
@@ -207,10 +214,19 @@
     {/if}
     {#if !dynamic}
       <footer class="feed-post_actions">
+        {#if reacted}
+          <div class="feed-post_action">
+            <PostLikes
+              liked={$likedPosts?.get(post.id)}
+              post={reacted}
+              variant="plain"
+            />
+          </div>
+        {/if}
         <div class="feed-post_fill"></div>
         {#if url}
           <div class="feed-post_action">
-            <PostShare {url} variant="plain" />
+            <PostShare post={reacted} {url} variant="plain" />
           </div>
         {/if}
         {#if url}

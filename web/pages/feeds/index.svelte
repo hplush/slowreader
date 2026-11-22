@@ -23,6 +23,7 @@
   import { getPopupHash } from '../../stores/url-router.ts'
   import Button from '../../ui/button.svelte'
   import FeedLink from '../../ui/feed-link.svelte'
+  import FeedStats from '../../ui/feed-stats.svelte'
   import Feed from '../../ui/feed/index.svelte'
   import Loader from '../../ui/loader.svelte'
   import NavbarFast from '../../ui/navbar/fast.svelte'
@@ -40,7 +41,7 @@
   import FeedsWelcomePage from './welcome.svelte'
 
   let { page }: { page: FeedsPage } = $props()
-  let { feed, locked, menu, posts, postsLoading } = $derived(page)
+  let { feed, feedStats, locked, menu, posts, postsLoading } = $derived(page)
   let reader = $derived(
     $posts?.name === 'feed' || $posts?.name === 'list' ? $posts : undefined
   )
@@ -97,7 +98,7 @@
 {:else}
   <PopupablePage title={page.reading === 'slow' ? $navbar.slow : $navbar.fast}>
     <Stack height="stretch">
-      <Stack justify="space-between" row>
+      <Stack align="center" justify="space-between" row>
         {#if $feed}
           <FeedLink
             avatar={$feed.avatar}
@@ -108,6 +109,13 @@
           />
         {:else}
           <div></div>
+        {/if}
+        {#if $feed && $feedStats}
+          <FeedStats
+            href={getPopupHash($router, 'feed', $feed.url)}
+            stats={$feedStats}
+            variant="stacked"
+          />
         {/if}
         {#if $posts && $posts.name !== 'empty'}
           <Radio

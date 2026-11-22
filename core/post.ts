@@ -34,6 +34,7 @@ import {
   type PostValue,
   type QuotedPost
 } from './schema.ts'
+import { trackSeen } from './views.ts'
 
 export type {
   MediaSize,
@@ -434,8 +435,16 @@ export async function changeRead(
       `
     })
   )
+  let seen = await getCrdt().select<{ count: number; feedId: string }>`
+    SELECT "feedId", COUNT(*) AS "count" FROM "posts"
+    WHERE "feedId" IS NOT NULL AND "read" = ${read ? 0 : 1} AND "id" IN (
+      SELECT "value" FROM json_each(${JSON.stringify(postIds)})
+    )
+    GROUP BY "feedId"
+  `
   let ids = [...postIds, ...parts.flat().map(part => part.id)]
   await changePost(ids, { read })
+  for (let { count, feedId } of seen) trackSeen(feedId, read ? count : -count)
   if (read) await readListener?.(ids)
 }
 

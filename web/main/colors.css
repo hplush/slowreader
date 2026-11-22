@@ -95,6 +95,9 @@
     --note-warning-background: oklch(0.95 0.05 95);
     --usage-slow-color: oklch(0.72 0.15 70);
     --usage-fast-color: oklch(0.7 0.12 250);
+    --stats-liked-color: oklch(0.62 0.16 150);
+    --stats-opened-color: oklch(0.82 0.1 150);
+    --stats-disliked-color: oklch(0.62 0.18 25);
     --bottom-panel-shadow:
       --linear-shadow(0 0 0.375rem oklch(0 0 0 / 5%)),
       inset 0 0.5px 0 0 oklch(1 0 0);
@@ -177,6 +180,9 @@
     --note-warning-background: oklch(0.25 0.05 95);
     --usage-slow-color: oklch(0.8 0.14 75);
     --usage-fast-color: oklch(0.75 0.11 250);
+    --stats-liked-color: oklch(0.75 0.16 150);
+    --stats-opened-color: oklch(0.5 0.08 150);
+    --stats-disliked-color: oklch(0.7 0.16 25);
     --field-l: -0.05;
     --field-c: 0;
     --current-l: 0.15;

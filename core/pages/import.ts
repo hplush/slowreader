@@ -5,7 +5,13 @@ import { addAccount } from '../account.ts'
 import { busyDuring } from '../busy.ts'
 import { addCategory, loadCategories } from '../category.ts'
 import { deleteDemo } from '../demo.ts'
-import { addCandidate, addFeed, loadFeedByUrl, loadFeedUrls } from '../feed.ts'
+import {
+  addCandidate,
+  addFeed,
+  loadFeedByUrl,
+  loadFeeds,
+  loadFeedUrls
+} from '../feed.ts'
 import { importFilters } from '../filter.ts'
 import {
   createDownloadTask,
@@ -16,6 +22,7 @@ import { parseDocument } from '../lib/html.ts'
 import { type FeedLoader, findFeed } from '../loader/index.ts'
 import { importMessages } from '../messages/index.ts'
 import { addPost } from '../post.ts'
+import { addReaction } from '../reactions.ts'
 import { GENERAL_CATEGORY } from '../schema.ts'
 import {
   customPostFont,
@@ -34,6 +41,7 @@ import {
   theme,
   trackUsage
 } from '../settings.ts'
+import { addView } from '../views.ts'
 import { isDemo } from '../welcome.ts'
 import { createPage } from './common.ts'
 import { isStateExportFile, type StateExport } from './export.ts'
@@ -260,6 +268,13 @@ export const importPage = createPage('import', () => {
       )
       done(batch.length)
     }
+
+    // Feed with the same URL was here before the import with another ID
+    let feedIds = new Set((await loadFeeds()).map(feed => feed.id))
+    await addReaction(
+      (json.reactions ?? []).filter(reaction => feedIds.has(reaction.feedId))
+    )
+    await addView((json.views ?? []).filter(view => feedIds.has(view.feedId)))
   }
 
   function importFile(file: File): Promise<void> {

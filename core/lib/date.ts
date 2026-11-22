@@ -1,3 +1,33 @@
+import { atom, computed, onMount } from 'nanostores'
+
+export const clock = atom(new Date())
+
+onMount(clock, () => {
+  clock.set(new Date())
+  let interval = setInterval(() => {
+    clock.set(new Date())
+  }, 60_000)
+  return () => {
+    clearInterval(interval)
+  }
+})
+
+/**
+ * Number of the UTC day since 1970.
+ */
+export function getDay(time = Date.now()): number {
+  return Math.floor(time / 86_400_000)
+}
+
+export const currentDay = computed(clock, now => getDay(now.getTime()))
+
+/**
+ * How many UTC midnights passed since the time in milliseconds.
+ */
+export function dayDiff(time: number): number {
+  return getDay() - getDay(time)
+}
+
 /**
  * Unix time in seconds, as times are kept in the database.
  */

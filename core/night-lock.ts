@@ -1,5 +1,6 @@
-import { atom, computed, effect, onMount } from 'nanostores'
+import { atom, computed, effect } from 'nanostores'
 
+import { clock } from './lib/date.ts'
 import { router } from './router.ts'
 import { nightLock } from './settings.ts'
 
@@ -11,18 +12,6 @@ export interface NightTask {
 export type NightLockState =
   | { locked: false }
   | { locked: true; task: NightTask; until: number; wrong: boolean }
-
-export const clock = atom(new Date())
-
-onMount(clock, () => {
-  clock.set(new Date())
-  let interval = setInterval(() => {
-    clock.set(new Date())
-  }, 60_000)
-  return () => {
-    clearInterval(interval)
-  }
-})
 
 export function inTimeRange(now: Date, from: number, to: number): boolean {
   let hour = now.getHours()

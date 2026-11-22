@@ -8,22 +8,28 @@
     mdiOpenInNew,
     mdiPlusCircleOutline,
     mdiSleep,
+    mdiThumbDownOutline,
+    mdiThumbUpOutline,
     mdiTrashCanOutline
   } from '@mdi/js'
   import {
     addMessages as add,
     errorToMessage,
     type FeedPopup,
+    getFeedStatsBar,
     getPopupId,
     hasPersonAvatar,
     isAccountService,
-    organizeMessages as t
+    type PostsListValue,
+    organizeMessages as t,
+    toPreviewPost
   } from '@slowreader/core'
 
   import { autoplayOnlyInside } from '../lib/media.ts'
   import Button from '../ui/button.svelte'
   import CategorySelect from '../ui/category-select.svelte'
   import FeedAvatar from '../ui/feed-avatar.svelte'
+  import FeedStats from '../ui/feed-stats.svelte'
   import Feed from '../ui/feed/index.svelte'
   import Input from '../ui/input.svelte'
   import Label from '../ui/label.svelte'
@@ -31,6 +37,7 @@
   import Note from '../ui/note.svelte'
   import Output from '../ui/output.svelte'
   import Popup from '../ui/popup.svelte'
+  import PostReactions from '../ui/post/reactions.svelte'
   import Radio from '../ui/radio.svelte'
   import Select from '../ui/select.svelte'
   import Stack from '../ui/stack.svelte'
@@ -44,18 +51,53 @@
     avatar,
     categories,
     deleting,
+    dislikedPosts,
     feed,
     followedBy,
+    likedPosts,
     owner,
     posts,
     previews,
+    reactions,
     reading,
     site,
+    stats,
     userPostUrl
   } = $derived(popup)
 
   let subscribed = $derived($feed ?? $followedBy)
+
+  let chosen = $state<'disliked' | 'liked' | 'recent'>('recent')
+  // The switch disappears on unfollow
+  let list = $derived($feed ? chosen : 'recent')
+  // Posts are loaded from the service only when user opens their tab
+  let cards = $derived.by(() => {
+    if (list === 'liked') return $likedPosts
+    if (list === 'disliked') return $dislikedPosts
+  })
 </script>
+
+{#snippet loading(value: PostsListValue, next: () => void)}
+  {#if value.isLoading && value.list.length === 0}
+    <Loader track="feed-popup-posts" />
+  {:else}
+    {#if value.error && !value.isLoading}
+      <Note icon={mdiAlertCircleOutline} variant="dangerous">
+        {errorToMessage(value.error)}
+      </Note>
+    {/if}
+    {#if value.hasNext}
+      <Button
+        icon={mdiChevronDown}
+        loader={value.isLoading}
+        onclick={next}
+        size="wide"
+      >
+        {$t.morePosts}
+      </Button>
+    {/if}
+  {/if}
+{/snippet}
 
 <Popup
   id={getPopupId(popup.name, popup.param)}
@@ -195,45 +237,77 @@
         {/if}
       {/if}
     {/if}
-    <Stack gap="s">
+    {#if $stats}
       <Stack gap="xs">
-        <Label
-          dangerous={$activity?.silence === 'twoYears'}
-          hint={$activity?.hint}
-          icon={$activity?.silence ? mdiSleep : undefined}
-          tag="h2"
-          warning={$activity?.warning}
-        >
-          {$t.feedPosts}
+        <Label hint={$t.statsSeen(getFeedStatsBar($stats).total)} tag="h2">
+          {$t.stats}
         </Label>
-        {#if $previews.length > 0}
+        <FeedStats stats={$stats} variant="legend" />
+      </Stack>
+    {/if}
+    {#if $feed}
+      <Radio
+        label={$t.postsList}
+        labelless
+        onchange={value => {
+          chosen = value
+        }}
+        size="wide"
+        value={list}
+        values={[
+          ['recent', $t.recentPosts],
+          ['liked', $t.likedPosts],
+          ['disliked', $t.dislikedPosts]
+        ]}
+      />
+    {/if}
+    {#if list === 'recent'}
+      <Stack gap="s">
+        <Stack gap="xs">
+          <Label
+            dangerous={$activity?.silence === 'twoYears'}
+            hint={$activity?.hint}
+            icon={$activity?.silence ? mdiSleep : undefined}
+            tag="h2"
+            warning={$activity?.warning}
+          >
+            {$t.feedPosts}
+          </Label>
+          {#if $previews.length > 0}
+            <Feed
+              feedUrl={popup.param}
+              highlight={false}
+              posts={$previews}
+              userPostUrl={$userPostUrl}
+            />
+          {/if}
+        </Stack>
+        {@render loading($posts, posts.next)}
+      </Stack>
+    {:else if cards && $cards}
+      <Stack gap="s">
+        {#if $cards.list.length > 0}
           <Feed
             feedUrl={popup.param}
             highlight={false}
-            posts={$previews}
+            posts={$cards.list.map(i => toPreviewPost(i, popup.loader))}
             userPostUrl={$userPostUrl}
           />
         {/if}
+        {@render loading($cards, cards.next)}
       </Stack>
-      {#if $posts.isLoading && $posts.list.length === 0}
-        <Loader track="feed-popup-posts" />
-      {:else}
-        {#if $posts.error && !$posts.isLoading}
-          <Note icon={mdiAlertCircleOutline} variant="dangerous">
-            {errorToMessage($posts.error)}
-          </Note>
-        {/if}
-        {#if $posts.hasNext}
-          <Button
-            icon={mdiChevronDown}
-            loader={$posts.isLoading}
-            onclick={posts.next}
-            size="wide"
-          >
-            {$t.morePosts}
-          </Button>
-        {/if}
-      {/if}
-    </Stack>
+    {:else if list === 'liked'}
+      <PostReactions
+        empty={$t.noLikedPosts}
+        icon={mdiThumbUpOutline}
+        list={$reactions.filter(i => i.liked)}
+      />
+    {:else}
+      <PostReactions
+        empty={$t.noDislikedPosts}
+        icon={mdiThumbDownOutline}
+        list={$reactions.filter(i => !i.liked)}
+      />
+    {/if}
   </Stack>
 </Popup>

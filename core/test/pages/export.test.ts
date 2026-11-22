@@ -10,12 +10,17 @@ import {
   addFilter,
   addPost,
   GENERAL_CATEGORY,
+  getTables,
+  seenBuffer,
+  setPostReaction,
   testAccount,
   testFeed,
   testPost,
+  trackInterest,
+  trackSeen,
   waitLoading
 } from '../../index.ts'
-import { cleanClient, startClient, openPage } from '../utils.ts'
+import { cleanClient, startClient, openPage, waitUntil } from '../utils.ts'
 
 describe('export page', () => {
   let saved: { content: Blob; filename: string } | undefined
@@ -87,6 +92,15 @@ describe('export page', () => {
       query: 'include(text)'
     })
     let post = await addPost(testPost({ feedId: feed }))
+    await setPostReaction(
+      { feedId: feed, id: post, url: 'http://a.com/1' },
+      'dislike'
+    )
+    trackInterest({ feedId: feed, id: 'opened' }, 'open')
+    await waitUntil(async () => {
+      return (await getTables().reactions.load()).length === 2
+    })
+    trackSeen(feed, 2)
 
     let page = openPage({
       params: {},
@@ -102,6 +116,9 @@ describe('export page', () => {
     equal(filename.startsWith('slowreader-'), true)
     equal(filename.endsWith('.json'), true)
     let json = JSON.parse(await saved!.content.text())
+    json.reactions.sort((a: { id: string }, b: { id: string }) => {
+      return a.id.localeCompare(b.id)
+    })
     deepEqual(json, {
       accounts: [account],
       categories: [
@@ -174,6 +191,22 @@ describe('export page', () => {
           warning: null
         }
       ],
+      reactions: [
+        {
+          at: json.reactions[0].at,
+          feedId: feed,
+          id: 'opened',
+          type: 'open',
+          url: null
+        },
+        {
+          at: json.reactions[1].at,
+          feedId: feed,
+          id: post,
+          type: 'dislike',
+          url: 'http://a.com/1'
+        }
+      ],
       settings: {
         customPostFont: '',
         fastPostsMaxAge: 604800,
@@ -193,7 +226,15 @@ describe('export page', () => {
         useQuietCursor: false,
         useReducedMotion: false
       },
-      subprotocol: SUBPROTOCOL
+      subprotocol: SUBPROTOCOL,
+      views: [
+        {
+          day: Math.floor(Date.now() / 86_400_000),
+          days: [{ count: 2, day: Math.floor(Date.now() / 86_400_000) }],
+          feedId: feed,
+          id: `${seenBuffer.get()!.device}:${feed}`
+        }
+      ]
     })
   })
 

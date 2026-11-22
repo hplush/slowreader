@@ -1,4 +1,4 @@
-import { atom, computed, onMount } from 'nanostores'
+import { atom, computed, effect, onMount, type ReadableAtom } from 'nanostores'
 
 import {
   type AccountValue,
@@ -14,7 +14,12 @@ import {
   unfollowByAccount
 } from '../account.ts'
 import { getCategories, getCategoryOptions } from '../category.ts'
-import { errorToMessage, NotFoundError, ParseError } from '../errors.ts'
+import {
+  errorToMessage,
+  HTTPStatusError,
+  NotFoundError,
+  ParseError
+} from '../errors.ts'
 import {
   addCandidate,
   changeFeed,
@@ -27,28 +32,41 @@ import {
   loadFeedByUrl,
   updateFeedData
 } from '../feed.ts'
-import { formatActivity, i18nFormat } from '../format.ts'
+import {
+  formatActivity,
+  formatPublishedAt,
+  humanizeUrl,
+  i18nFormat
+} from '../format.ts'
 import { createDownloadTask, type TextResponse } from '../lib/download.ts'
 import { waitSql } from '../lib/stores.ts'
 import {
   type FeedLoader,
   findFeed,
   isWebFeed,
+  type Loader,
   type LoaderName,
   loaders,
   tryLoadFeedData
 } from '../loader/index.ts'
 import { accountsMessages, organizeMessages } from '../messages/index.ts'
-import { collapseThreads, toPreviewPost } from '../post.ts'
+import { collapseThreads, type OriginPost, toPreviewPost } from '../post.ts'
 import {
   createPostsList,
   getPostsActivity,
-  type PostsList
+  type PostsList,
+  type PostsListLoader
 } from '../posts-list.ts'
+import {
+  getFeedReactions,
+  getFeedStats,
+  type ReactionValue
+} from '../reactions.ts'
 import { loadRecentPosts } from '../refresh.ts'
 import type { FeedChanges } from '../schema.ts'
 import { addThreadStarts } from '../thread.ts'
 import { type CreatedLoadedPopup, definePopup } from './common.ts'
+import { canOpenPostUrl } from './post.ts'
 
 /**
  * Which popup opens a link from post’s text or link preview instead
@@ -380,6 +398,78 @@ export const feed = definePopup('feed', async url => {
     }
   }
 
+  let $stats = getFeedStats(
+    computed($feed, created => (created ? [created.id] : []))
+  )
+
+  let $reactions = atom<ReactionValue[]>([])
+  let unbindReactions = effect(
+    computed($feed, created => created?.id),
+    feedId => {
+      $reactions.set([])
+      if (!feedId) return
+      return getFeedReactions(feedId).subscribe(rows => {
+        if (rows.status === 'ready') $reactions.set(rows.value)
+      })
+    }
+  )
+
+  let postLoader: Loader = loaders[service]
+
+  function loadPostsByUrls(urls: string[]): PostsListLoader {
+    return async () => {
+      let page = await Promise.all(
+        urls.slice(0, 10).map(async (postUrl): Promise<OriginPost[]> => {
+          try {
+            let { author, ...post } = await postLoader.getPostByUrl!(
+              task,
+              postUrl
+            )
+            // The feed is the author of own posts
+            return [author?.url === feedUrl ? post : { ...post, author }]
+          } catch (e) {
+            // Author deleted the post
+            if (HTTPStatusError.is(e, [404, 410])) return []
+            throw e
+          }
+        })
+      )
+      return [
+        page.flat(),
+        urls.length > 10 ? loadPostsByUrls(urls.slice(10)) : undefined
+      ]
+    }
+  }
+
+  /**
+   * Liked posts are deleted after reading. Only some services can load
+   * them again by URL, 10 posts per page to not hit the rate limits.
+   */
+  function getReactedPosts(
+    liked: boolean
+  ): ReadableAtom<PostsList | undefined> {
+    let loaded: string | undefined
+    let list: PostsList | undefined
+    return computed($reactions, reactions => {
+      let urls = reactions.flatMap(reaction => {
+        return reaction.type === (liked ? 'like' : 'dislike') &&
+          reaction.url &&
+          canOpenPostUrl(reaction.url)
+          ? [reaction.url]
+          : []
+      })
+      // Like of another post should not load the shown posts again
+      if (urls.join(' ') !== loaded) {
+        loaded = urls.join(' ')
+        list =
+          urls.length > 0 && postLoader.getPostByUrl
+            ? createPostsList(loadPostsByUrls(urls))
+            : undefined
+      }
+      return list
+    })
+  }
+
   let title = ''
   if (existing) {
     title = existing.originTitle || existing.title
@@ -396,13 +486,16 @@ export const feed = definePopup('feed', async url => {
     change,
     changeAccount,
     deleting: $deleting,
+    dislikedPosts: getReactedPosts(false),
     destroy() {
       task.destroy()
       unbindFeeds()
+      unbindReactions()
     },
     feed: $feed,
     finalUnfollow: !!loaders[service].isFinalUnfollow?.(feedUrl),
     followedBy: $followedBy,
+    likedPosts: getReactedPosts(true),
     activity: computed(
       [posts, i18nFormat, organizeMessages],
       (_, format, t) => {
@@ -418,11 +511,30 @@ export const feed = definePopup('feed', async url => {
       collapseThreads(value.list).map(i => toPreviewPost(i, service))
     ),
     remove,
+    reactions: computed([$reactions, i18nFormat], (reactions, format) => {
+      // Deleted post without URL has nothing to show
+      return reactions.flatMap(reaction => {
+        if (!reaction.url) return []
+        return {
+          id: reaction.id,
+          liked: reaction.type === 'like',
+          // Only some services can load deleted post again
+          popup: canOpenPostUrl(reaction.url) ? reaction.url : undefined,
+          reactedAt: formatPublishedAt(format, reaction.at),
+          title: humanizeUrl(reaction.url, service),
+          url: reaction.url
+        }
+      })
+    }),
     reading: computed([$feed, $owner], (created, owner) =>
       getFeedReading(created ?? { reading: null }, owner)
     ),
     rename,
     site: $site,
+    stats: computed([$feed, $stats], (created, stats) => {
+      return created ? stats.get(created.id) : undefined
+    }),
+
     title,
     userPostUrl: getUserPostUrls()
   }

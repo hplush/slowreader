@@ -49,6 +49,7 @@ import {
   type PostsList,
   type ReaderName,
   type RouteName,
+  seenBuffer,
   setLayoutType,
   setupEnvironment,
   type NextPager,
@@ -124,6 +125,7 @@ let testKey = await toEncryptionKey(new Uint8Array(32))
 export function setTestUser(enable = true): void {
   hasSources.set(undefined)
   lastUsage.set(undefined)
+  seenBuffer.set(null)
   welcomeSteps.set(undefined)
   extensionState.set('missing')
   encryptionKeyLost.set(false)

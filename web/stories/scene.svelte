@@ -23,6 +23,7 @@
     extensionState,
     fastPostsMaxAge,
     type FeedValue,
+    flushSeen,
     generalFastReader,
     generalSlowReader,
     getTables,
@@ -36,6 +37,7 @@
     mediaStatistics,
     type NetworkType,
     type NewCategory,
+    type NewReaction,
     nightLock,
     noStatistics,
     openWarnings,
@@ -52,6 +54,7 @@
     removeTrackers,
     requestMethod,
     saveDataMode,
+    seenBuffer,
     showSensitiveMedia,
     showUsageBalance,
     signOut,
@@ -64,7 +67,9 @@
     testPost,
     textSize,
     theme,
+    trackSeen,
     trackUsage,
+    updateMaxSeen,
     useReducedMotion,
     waitLoading,
     welcomeSteps
@@ -93,8 +98,10 @@
     oninit = () => {},
     passkeys = true,
     posts,
+    reactions,
     responses = [],
     route,
+    seen = {},
     share = true,
     user = true
   }: {
@@ -106,8 +113,10 @@
     oninit?: () => void
     passkeys?: boolean
     posts?: Partial<PostValue>[]
+    reactions?: NewReaction[]
     responses?: [string, PreparedResponse | string][]
     route?: BaseRoute | Omit<BaseRoute, 'hash'> | ParamlessRouteName
+    seen?: Record<string, number>
     share?: boolean
     user?: boolean
   } = $props()
@@ -115,6 +124,7 @@
   async function fillScene(): Promise<void> {
     baseRouter.set({ hash: '', params: {}, route: 'about' })
     lastUsage.set(undefined)
+    seenBuffer.set(null)
     if (user) await startLocalUser(testCredentials())
     // Waits for the database too, so the app will not reset `busy`
     // and other stores, which the story sets in `oninit()`
@@ -152,6 +162,11 @@
         })
       )
     }
+
+    if (reactions?.length) await getTables().reactions.create(reactions)
+    for (let [feedId, count] of Object.entries(seen)) trackSeen(feedId, count)
+    await flushSeen()
+    await updateMaxSeen()
 
     oninit()
 

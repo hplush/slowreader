@@ -31,7 +31,7 @@ import {
   type NewFeed
 } from './feed.ts'
 import { type FilterChecker, loadFilterChecker } from './filter.ts'
-import { nowInSeconds } from './lib/date.ts'
+import { clock, dayDiff, nowInSeconds } from './lib/date.ts'
 import { debounceTask } from './lib/debounce.ts'
 import { createDownloadTask, type DownloadTask } from './lib/download.ts'
 import { canUseNetwork } from './lib/network.ts'
@@ -55,7 +55,7 @@ import {
   trackFeedError,
   trackMissingFeed
 } from './missing-feeds.ts'
-import { clock, nightLocked } from './night-lock.ts'
+import { nightLocked } from './night-lock.ts'
 import {
   deleteFastPostsBefore,
   getSortedAt,
@@ -69,6 +69,7 @@ import {
   withoutDeletedPosts
 } from './post.ts'
 import { getPostsFrequency, type PostsList } from './posts-list.ts'
+import { deleteOrphanStats } from './reactions.ts'
 import { sendReadPositions } from './read-sync.ts'
 import {
   refreshLock,
@@ -80,6 +81,7 @@ import {
   cacheImages,
   cacheMediaReading,
   cacheVideos,
+  downloadingCloudData,
   fastPostsMaxAge,
   lastRefresh,
   autoRefresh,
@@ -633,6 +635,7 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
   refreshStatistics.set({ ...DEFAULT_REFRESH_STATISTICS, initializing: 'sync' })
   mediaStatistics.set({ ...DEFAULT_MEDIA_STATISTICS })
   mediaErrors.set([])
+  let previousRefresh = lastRefresh.get()
   lastRefresh.set(Date.now())
 
   // Other device could already load these posts and move feed markers
@@ -672,6 +675,10 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
     )
   })
   let feeds = await loadFeedsForRefresh(owners.map(account => account.id))
+  if (dayDiff(previousRefresh) >= 1 && !downloadingCloudData.get()) {
+    await deleteOrphanStats()
+    if (run !== currentRun) return
+  }
   if (auto && feeds.length + accounts.length === 0) {
     releaseRefreshLock()
     refreshStatus.set('no')

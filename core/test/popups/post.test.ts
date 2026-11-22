@@ -12,6 +12,7 @@ import {
   formatDuration,
   formatPublishedAt,
   GENERAL_CATEGORY,
+  getTables,
   HTTPStatusError,
   i18nFormat,
   loaders,
@@ -21,6 +22,7 @@ import {
   type OriginPost,
   postMessages,
   type PostValue,
+  setPostReaction,
   testFeed,
   testPost,
   waitLoading
@@ -36,7 +38,8 @@ import {
   getPopup,
   mockRequest,
   openTestPopup,
-  openRoute
+  openRoute,
+  waitUntil
 } from '../utils.ts'
 
 describe('post popup', () => {
@@ -108,6 +111,82 @@ describe('post popup', () => {
 
     await waitLoading(popup5.loading)
     equal(popup5.notFound, true)
+  })
+
+  test('shows reaction to saved post', async () => {
+    let feed = await addFeed(testFeed())
+    let id = await addPost(testPost({ feedId: feed }))
+    let own = await addPost(testPost({ accountId: 'account', feedId: null }))
+
+    let popup = openTestPopup('post', `id:${id}`)
+    await waitLoading(popup.loading)
+    let loaded = checkLoadedPopup(popup)
+    deepEqual(loaded.reacted, {
+      feedId: feed,
+      id,
+      url: `http://example.com/${id.replace('post-', '')}`
+    })
+    await waitUntil(() => loaded.reaction.get() === 'open')
+    equal((await getTables().reactions.get(id))!.type, 'open')
+
+    await setPostReaction(loaded.reacted, 'like')
+    equal(loaded.reaction.get(), 'like')
+    await setPostReaction(loaded.reacted, 'dislike')
+    equal(loaded.reaction.get(), 'dislike')
+    await setPostReaction(loaded.reacted, 'open')
+    equal(loaded.reaction.get(), 'open')
+    await setPostReaction(loaded.reacted, 'none')
+    equal(loaded.reaction.get(), 'none')
+
+    let again = openTestPopup('post', `id:${id}`)
+    await waitLoading(again.loading)
+    await setTimeout(50)
+    equal(checkLoadedPopup(again).reaction.get(), 'none')
+
+    let ownPopup = openTestPopup('post', `id:${own}`)
+    await waitLoading(ownPopup.loading)
+    equal(checkLoadedPopup(ownPopup).reacted, undefined)
+    equal(checkLoadedPopup(ownPopup).reaction.get(), 'none')
+    equal((await getTables().reactions.load()).length, 1)
+  })
+
+  test('shows reaction to deleted post opened by URL', async () => {
+    let url = 'https://mastodon.social/@jane/1'
+    let mastodon = loaders.mastodon as Required<typeof loaders.mastodon>
+    spyOn(mastodon, 'getPostByUrl', () =>
+      Promise.resolve({ id: url, originId: '1', title: 'Network', url })
+    )
+    spyOn(mastodon, 'getThreadAncestors', () => Promise.resolve([]))
+    spyOn(mastodon, 'getThreadDescendants', () => Promise.resolve([]))
+    await setPostReaction({ feedId: 'feed', id: 'deleted', url }, 'dislike')
+
+    let popup = openTestPopup('post', url)
+    await waitLoading(popup.loading)
+    deepEqual(checkLoadedPopup(popup).reacted, {
+      feedId: 'feed',
+      id: 'deleted',
+      url
+    })
+    await waitUntil(() => checkLoadedPopup(popup).reaction.get() === 'dislike')
+    equal((await getTables().reactions.get('deleted'))!.type, 'dislike')
+
+    let other = openTestPopup('post', 'https://mastodon.social/@jane/2')
+    await waitLoading(other.loading)
+    equal(checkLoadedPopup(other).reacted, undefined)
+    equal(checkLoadedPopup(other).reaction.get(), 'none')
+
+    let preview = openTestPopup(
+      'post',
+      getPostPopupParam({
+        loader: 'mastodon',
+        origin: { id: 'preview', originId: '1', url }
+      })
+    )
+    await waitLoading(preview.loading)
+    equal(checkLoadedPopup(preview).reacted!.id, 'deleted')
+    await waitUntil(() => {
+      return checkLoadedPopup(preview).reaction.get() === 'dislike'
+    })
   })
 
   test('read saved post', async () => {

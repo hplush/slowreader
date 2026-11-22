@@ -2,6 +2,7 @@
   import { mdiChevronRight } from '@mdi/js'
   import {
     type FeedLoader,
+    type FeedStats as FeedStatsValue,
     type FeedValue,
     getPopupId,
     hasPersonAvatar,
@@ -10,6 +11,7 @@
 
   import { getPopupHash } from '../stores/url-router.ts'
   import FeedAvatar from './feed-avatar.svelte'
+  import FeedStats from './feed-stats.svelte'
   import Links from './links.svelte'
 
   type FeedLike = FeedLoader | FeedValue
@@ -21,6 +23,7 @@
     id,
     list,
     readings,
+    stats,
     variant
   }: {
     avatars?: Record<string, string>
@@ -29,6 +32,7 @@
     id?: string
     list: readonly FeedLike[]
     readings?: Record<string, 'fast' | 'slow'>
+    stats?: ReadonlyMap<string, FeedStatsValue>
     variant?: 'dangerous'
   } = $props()
 
@@ -63,6 +67,11 @@
       {/if}
       {feed.title}
     </span>
+    {#if 'id' in feed && stats?.has(feed.id)}
+      <span class="feeds_stats">
+        <FeedStats stats={stats.get(feed.id)!} variant="stacked" />
+      </span>
+    {/if}
   {/snippet}
 </Links>
 
@@ -75,6 +84,12 @@
       flex-shrink: 1;
       align-items: center;
       min-width: 0;
+    }
+
+    .feeds_stats {
+      display: flex;
+      flex-shrink: 0;
+      margin-inline-start: 0.5rem;
     }
   }
 </style>

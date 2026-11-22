@@ -1,4 +1,4 @@
-import { atom, effect } from 'nanostores'
+import { atom, computed, effect } from 'nanostores'
 
 import { getAccounts } from '../account.ts'
 import {
@@ -7,6 +7,7 @@ import {
   getCategories
 } from '../category.ts'
 import { getFeedReadings, getFeeds } from '../feed.ts'
+import { getFeedStats } from '../reactions.ts'
 import type { PostValue } from '../schema.ts'
 import { createPage } from './common.ts'
 import { injectFollowsSync } from './mixins/follows-sync.ts'
@@ -58,6 +59,14 @@ export const categoriesPage = createPage('categories', () => {
     loading: $loading,
     params: {},
     readings: $readings,
+    // User can have 10K feeds, so only opened categories are counted
+    stats: getFeedStats(
+      computed([$groups, $expanded], (groups, expanded) => {
+        return groups.flatMap(([category, feeds]) => {
+          return expanded.has(category.id) ? feeds.map(feed => feed.id) : []
+        })
+      })
+    ),
     sync: followsSyncMixin.sync,
     toggle(categoryId: string) {
       let expanded = new Set($expanded.get())

@@ -1,13 +1,25 @@
 <script lang="ts">
   import { mdiCheck, mdiContentCopy, mdiShareVariantOutline } from '@mdi/js'
-  import { commonMessages, postMessages as t } from '@slowreader/core'
+  import {
+    commonMessages,
+    postMessages as t,
+    trackInterest
+  } from '@slowreader/core'
 
   import { createClipboard } from '../../lib/clipboard.ts'
   import { canShare, shareUrl } from '../../lib/share.ts'
   import Announce from '../announce.svelte'
   import Button, { type ButtonVariant } from '../button.svelte'
 
-  let { url, variant }: { url: string; variant?: ButtonVariant } = $props()
+  let {
+    post,
+    url,
+    variant
+  }: {
+    post?: { feedId?: null | string; id: string }
+    url: string
+    variant?: ButtonVariant
+  } = $props()
 
   let { copied, copy } = createClipboard()
 </script>
@@ -16,6 +28,7 @@
   <Button
     icon={mdiShareVariantOutline}
     onclick={() => {
+      if (post) trackInterest(post, 'share')
       shareUrl(url)
     }}
     size="icon"
@@ -28,7 +41,10 @@
     <Button
       color={$copied ? 'success' : undefined}
       icon={$copied ? mdiCheck : mdiContentCopy}
-      onclick={() => copy(url)}
+      onclick={() => {
+        if (post) trackInterest(post, 'share')
+        copy(url)
+      }}
       size="icon"
       {variant}
     >

@@ -9,6 +9,7 @@ import { type FilterValue, loadFilters } from '../filter.ts'
 import { formatCurrentTime } from '../format.ts'
 import { escapeXml } from '../lib/html.ts'
 import { loadPostsForExport, type PostValue } from '../post.ts'
+import { loadReactions, type ReactionValue } from '../reactions.ts'
 import { GENERAL_CATEGORY } from '../schema.ts'
 import {
   customPostFont,
@@ -30,6 +31,7 @@ import {
   useQuietCursor,
   useReducedMotion
 } from '../settings.ts'
+import { flushSeen, loadViews, type ViewValue } from '../views.ts'
 import { createPage } from './common.ts'
 
 export interface StateExport {
@@ -38,9 +40,12 @@ export interface StateExport {
   feeds: FeedValue[]
   filters: FilterValue[]
   posts: PostValue[]
+  // Older backups have no statistics of feeds
+  reactions?: ReactionValue[]
   // Older backups do not have newer settings
   settings: Partial<Settings>
   subprotocol: number
+  views?: ViewValue[]
 }
 
 export function isStateExportFile(state: unknown): state is StateExport {
@@ -171,6 +176,7 @@ export const exportPage = createPage('export', () => {
       if (page.length < POSTS_PER_PAGE) break
     }
     file.write(total === 0 ? '],\n' : '\n  ],\n')
+    file.write(jsonRows('reactions', await loadReactions()))
 
     let settings = {
       customPostFont: customPostFont.get(),
@@ -192,6 +198,9 @@ export const exportPage = createPage('export', () => {
       useReducedMotion: useReducedMotion.get()
     } satisfies Settings
     file.write(`  "settings": ${JSON.stringify(settings)},\n`)
+    // Counters of the last minute are not in the database yet
+    await flushSeen()
+    file.write(jsonRows('views', await loadViews()))
     file.write(`  "subprotocol": ${SUBPROTOCOL}\n}\n`)
 
     if (stopped) {

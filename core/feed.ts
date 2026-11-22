@@ -22,6 +22,7 @@ import {
   recalcPostsReading
 } from './post.ts'
 import type { PostsList } from './posts-list.ts'
+import { deleteFeedStats, moveFeedStats } from './reactions.ts'
 import {
   type AccountValue,
   type FeedChanges,
@@ -160,6 +161,7 @@ export function addFeed(
 
 export async function deleteFeed(feedId: string): Promise<void> {
   await getTables().posts.deleteWhere`"feedId" = ${feedId}`
+  await deleteFeedStats([feedId])
   return getTables().feeds.delete(feedId)
 }
 
@@ -193,6 +195,7 @@ export async function moveFeed(
     } else {
       await recalcPostsReading(existing.id)
     }
+    await moveFeedStats(feed.id, existing.id)
     await deleteFeed(feed.id)
     return existing.id
   }

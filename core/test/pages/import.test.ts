@@ -16,9 +16,11 @@ import {
   deleteCategory,
   deleteFeed,
   deleteFilter,
+  deleteOrphanStats,
   deletePost,
   fastPostsMaxAge,
   generalFastReader,
+  getTables,
   GENERAL_CATEGORY,
   isDemo,
   loadAccounts,
@@ -26,6 +28,7 @@ import {
   loaders,
   loadFeeds,
   loadFilters,
+  loadReactions,
   importMessages,
   loadPosts,
   type NewCategory,
@@ -37,9 +40,13 @@ import {
   removeTrackers,
   postFont,
   postLineHeight,
+  seenBuffer,
+  setPostReaction,
   setRequestMethod,
   remindUseful,
   showUsageBalance,
+  trackInterest,
+  trackSeen,
   trackUsage,
   syncedSettingsLoading,
   testAccount,
@@ -56,7 +63,8 @@ import {
   expectRequest,
   mockRequest,
   openPage,
-  setupNodeDom
+  setupNodeDom,
+  waitUntil
 } from '../utils.ts'
 
 setupNodeDom()
@@ -131,6 +139,12 @@ describe('import page', () => {
     await addFeed(FEED)
     await addFilter(FILTER)
     await addPost(POST)
+    await setPostReaction({ feedId: FEED.id, id: POST.id }, 'like')
+    await setPostReaction({ feedId: 'missing', id: 'p2' }, 'like')
+    trackInterest({ feedId: FEED.id, id: 'opened' }, 'open')
+    await waitUntil(async () => (await loadReactions()).length === 3)
+    trackSeen(FEED.id, 3)
+    trackSeen('missing', 1)
     await waitLoading(syncedSettingsLoading)
     theme.set('light')
     cacheImages.set('never')
@@ -158,6 +172,11 @@ describe('import page', () => {
     await deletePost(POST.id)
     await deleteFilter(FILTER.id)
     await deleteFeed(FEED.id)
+    await deleteOrphanStats()
+    // File is imported on another device
+    let device = seenBuffer.get()!.device
+    seenBuffer.set(null)
+    deepEqual(await getTables().views.load(), [])
     await deleteCategory(CATEGORY.id)
     theme.set('system')
     cacheImages.set('always')
@@ -252,6 +271,14 @@ describe('import page', () => {
         warning: null
       }
     ])
+    deepEqual((await loadReactions()).map(reaction => reaction.id).toSorted(), [
+      'opened',
+      POST.id
+    ])
+    deepEqual(
+      (await getTables().views.load()).map(row => [row.id, row.days[0]!.count]),
+      [[`${device}:${FEED.id}`, 3]]
+    )
   })
 
   test('imports accounts', async () => {

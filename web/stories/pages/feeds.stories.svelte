@@ -20,6 +20,8 @@
   import { answerNightTaskWrong, lockAtNight } from '../environment.ts'
   import Scene from '../scene.svelte'
 
+  const NOW = Math.round(Date.now() / 1000)
+
   const POSTS = [
     {
       feedId: 'feed',
@@ -439,9 +441,19 @@
 
 <Story name="List" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
-    feeds={[{ id: 'feed', reading: 'slow', title: 'The Mozilla Blog' }]}
+    feeds={[
+      { id: 'feed', reading: 'slow', title: 'The Mozilla Blog' },
+      { id: 'popular', reading: 'slow' }
+    ]}
     posts={[...LIST_THREAD, ...POSTS]}
+    reactions={[
+      { at: NOW, feedId: 'feed', id: 'liked', type: 'like' },
+      { at: NOW, feedId: 'feed', id: 'opened1', type: 'open' },
+      { at: NOW, feedId: 'feed', id: 'opened2', type: 'link' },
+      { at: NOW, feedId: 'feed', id: 'disliked', type: 'dislike' }
+    ]}
     route={{ params: { feed: 'feed' }, route: 'slow' }}
+    seen={{ feed: 24, popular: 40 }}
   >
     <FeedsPage page={pages.slow()} />
   </Scene>
@@ -526,6 +538,10 @@
       }
     ]}
     posts={POSTS.map(i => ({ ...i, reading: 'fast' }))}
+    reactions={[
+      { at: 1600000000, feedId: 'feed', id: 'post-1', type: 'like' },
+      { at: 1600000000, feedId: 'feed', id: 'post-2', type: 'dislike' }
+    ]}
     route={{ params: { category: GENERAL_CATEGORY }, route: 'fast' }}
   >
     <FeedsPage page={pages.fast()} />

@@ -1,10 +1,18 @@
 <script lang="ts">
-  import { mdiEyeCheckOutline, mdiOpenInNew } from '@mdi/js'
+  import {
+    mdiCircleOutline,
+    mdiCursorDefaultClick,
+    mdiEyeCheckOutline,
+    mdiOpenInNew,
+    mdiThumbDown,
+    mdiThumbUp
+  } from '@mdi/js'
   import {
     getPopupId,
     hasPersonAvatar,
     type PostPopup,
     router,
+    setPostReaction,
     postMessages as t
   } from '@slowreader/core'
   import { onMount } from 'svelte'
@@ -17,8 +25,10 @@
   import FeedLink from '../ui/feed-link.svelte'
   import Popup from '../ui/popup.svelte'
   import Post from '../ui/post/index.svelte'
+  import PostLikes from '../ui/post/likes.svelte'
   import PostShare from '../ui/post/share.svelte'
   import PostThreadPart from '../ui/post/thread-part.svelte'
+  import Radio from '../ui/radio.svelte'
   import SmallLink from '../ui/small-link.svelte'
   import Stack from '../ui/stack.svelte'
   import Switch from '../ui/switch.svelte'
@@ -26,9 +36,21 @@
 
   let { popup }: { popup: PostPopup } = $props()
 
-  let { feed, post, publishedAt, read, thread, userPostUrl } = $derived(popup)
+  let {
+    feed,
+    post,
+    publishedAt,
+    reacted,
+    reaction,
+    read,
+    thread,
+    userPostUrl
+  } = $derived(popup)
 
   let url = $derived($userPostUrl($post))
+  let liked = $derived(
+    { dislike: false, like: true, none: undefined, open: undefined }[$reaction]
+  )
 
   onMount(() => {
     if (popup.read) {
@@ -48,9 +70,12 @@
 <Popup
   id={getPopupId(popup.name, popup.param)}
   {@attach autoplayOnlyInside}
-  {@attach trackPostLinks}
+  {@attach trackPostLinks(reacted)}
 >
   {#snippet header()}
+    {#if reacted}
+      <PostLikes {liked} post={reacted} />
+    {/if}
     {#if popup.read}
       <Toggle
         icon={mdiEyeCheckOutline}
@@ -60,7 +85,7 @@
       />
     {/if}
     {#if url}
-      <PostShare {url} />
+      <PostShare post={reacted} {url} />
     {/if}
     {#if url}
       <Button href={url} icon={mdiOpenInNew} size="icon" target="_blank">
@@ -107,7 +132,7 @@
           />
         {/each}
       </Stack>
-      <Stack>
+      <Stack gap="l">
         {#if url}
           <Button
             href={url}
@@ -119,12 +144,32 @@
             {$t.url}
           </Button>
         {/if}
-        {#if popup.read}
-          <Switch
-            icon={mdiEyeCheckOutline}
-            label={$t.readCheckbox}
-            store={popup.read}
-          />
+        {#if reacted || popup.read}
+          <Stack>
+            {#if reacted}
+              <Radio
+                label={$t.reaction}
+                onchange={value => {
+                  setPostReaction(reacted, value)
+                }}
+                size="wide"
+                value={$reaction}
+                values={[
+                  ['like', $t.like, mdiThumbUp],
+                  ['open', $t.openReaction, mdiCursorDefaultClick],
+                  ['none', $t.noReaction, mdiCircleOutline],
+                  ['dislike', $t.dislike, mdiThumbDown]
+                ]}
+              />
+            {/if}
+            {#if popup.read}
+              <Switch
+                icon={mdiEyeCheckOutline}
+                label={$t.readCheckbox}
+                store={popup.read}
+              />
+            {/if}
+          </Stack>
         {/if}
       </Stack>
     </Stack>
