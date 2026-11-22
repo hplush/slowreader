@@ -101,4 +101,42 @@ describe('coach page', () => {
       ]
     })
   })
+
+  test('shows reading of a few categories as a single part', async () => {
+    let noon = new Date(2026, 0, 1, 12).getTime()
+    let minute = 60 * 1000
+    await getTables().usages.create([
+      {
+        categoryId: 'a',
+        from: noon - 60 * minute,
+        to: noon - 50 * minute,
+        type: 'slow'
+      },
+      {
+        categoryId: 'b',
+        from: noon - 49.5 * minute,
+        to: noon - 40 * minute,
+        type: 'slow'
+      },
+      { from: noon - 40 * minute, to: noon - 30 * minute, type: 'fast' },
+      { from: noon - 28 * minute, to: noon - 20 * minute, type: 'fast' }
+    ])
+    let page = openPage({ params: {}, route: 'coach' })
+    clock.set(new Date(noon))
+    await waitFor(page.usageTimeline, value => value.parts.length === 3)
+    deepEqual(
+      page.usageTimeline
+        .get()
+        .parts.map(part => [
+          part.type,
+          (noon - part.from) / minute,
+          (noon - part.to) / minute
+        ]),
+      [
+        ['fast', 28, 20],
+        ['fast', 40, 30],
+        ['slow', 60, 40]
+      ]
+    )
+  })
 })

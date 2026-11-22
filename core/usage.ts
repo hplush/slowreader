@@ -153,9 +153,17 @@ onClient(() => {
   let visible = false
   let reading: undefined | UsageType
   let categoryId: string | undefined
+  let awake = 0
 
   function update(): void {
     let now = Date.now()
+    // Asleep device does not hide the page, only stops the minute clock
+    if (reading && now - awake > 2 * 60_000) {
+      stop(awake)
+      reading = undefined
+      categoryId = undefined
+    }
+    awake = now
     let route = router.get()
     let next: undefined | UsageType
     let tracking = visible && trackUsage.get()
@@ -183,6 +191,7 @@ onClient(() => {
   let unbindRouter = router.subscribe(update)
   let unbindCategory = openedCategoryId.listen(update)
   let unbindLock = nightLockState.listen(update)
+  let unbindClock = clock.listen(update)
   let unbindTracking = trackUsage.listen(update)
   let unbindVisibility = env.onVisibilityChange(value => {
     visible = value
@@ -207,6 +216,7 @@ onClient(() => {
     unbindCategory()
     unbindTracking()
     unbindLock()
+    unbindClock()
     unbindVisibility()
     unbindExit()
     unbindDatabase()
@@ -322,6 +332,7 @@ export interface UsageTimeline {
 /**
  * Sessions and round hours in percents of the last 24 hours.
  * Newest sessions go first, since they are more interesting.
+ * Reading of a few categories in a row is a single part.
  */
 export const usageTimeline = computed(
   [usage24hours, clock],
@@ -336,8 +347,17 @@ export const usageTimeline = computed(
       if (left >= 25 && left <= 80) marks.push({ left, time: mark.getTime() })
       mark.setHours(mark.getHours() + 6)
     }
+    let joined: { from: number; to: number; type: UsageType }[] = []
+    for (let { from, to, type } of sessions ?? []) {
+      let last = joined.at(-1)
+      if (last?.type === type && from - last.to < 60_000) {
+        last.to = Math.max(last.to, to)
+      } else {
+        joined.push({ from, to, type })
+      }
+    }
     let next = now.getTime()
-    let parts = (sessions ?? []).toReversed().map(({ from, to, type }) => {
+    let parts = joined.toReversed().map(({ from, to, type }) => {
       let spaceAfter = (Math.max(0, next - to) / DAY) * 100
       next = Math.min(next, from)
       return { from, spaceAfter, to, type, width: ((to - from) / DAY) * 100 }

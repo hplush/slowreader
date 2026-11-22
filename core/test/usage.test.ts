@@ -92,6 +92,8 @@ describe('usage', () => {
     openRoute({ params: {}, route: 'fast' })
     at(2 * MINUTE)
     openRoute({ hash: 'post=1', params: {}, route: 'fast' })
+    at(4 * MINUTE)
+    clock.set(new Date())
     at(5 * MINUTE)
     setTestVisibility(false)
     at(20 * MINUTE)
@@ -270,6 +272,25 @@ describe('usage', () => {
         [0, 3.5],
         [5.5, 6.5],
         [11.5, 12.5]
+      ]
+    )
+  })
+
+  test('does not count the sleep of the device', async () => {
+    openRoute({ params: {}, route: 'fast' })
+    at(MINUTE)
+    clock.set(new Date())
+    at(105 * MINUTE)
+    clock.set(new Date())
+    at(106 * MINUTE)
+    openRoute({ params: {}, route: 'home' })
+
+    let rows = await waitUsages(list => list.length === 2)
+    deepEqual(
+      rows.map(row => [(row.from - START) / MINUTE, (row.to - START) / MINUTE]),
+      [
+        [0, 1],
+        [105, 106]
       ]
     )
   })
