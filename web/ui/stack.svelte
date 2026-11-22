@@ -122,7 +122,6 @@
 
       &.is-height-stretch {
         flex-grow: 1;
-        min-height: 100%;
       }
 
       &.is-row {
