@@ -23,7 +23,6 @@
     extensionState,
     fastPostsMaxAge,
     type FeedValue,
-    flushSeen,
     generalFastReader,
     generalSlowReader,
     getTables,
@@ -165,7 +164,6 @@
 
     if (reactions?.length) await getTables().reactions.create(reactions)
     for (let [feedId, count] of Object.entries(seen)) trackSeen(feedId, count)
-    await flushSeen()
     await updateMaxSeen()
 
     oninit()

@@ -125,6 +125,25 @@ describe('views', () => {
     deepEqual(Object.fromEntries(seen.get()), { [feed1]: 1, [feed2]: 1 })
   })
 
+  test('keeps the scale after the reading and with unsaved posts', async () => {
+    let feed = await addFeed(testFeed())
+    await getTables().views.create({
+      day: TODAY,
+      days: [{ count: 4, day: TODAY }],
+      feedId: feed,
+      id: `other:${feed}`
+    })
+    let post = await addPost(testPost({ feedId: feed }))
+
+    await changeRead([post], true)
+    equal(maxSeen.get(), 5)
+    deepEqual(seenBuffer.get()!.saved, {})
+
+    trackSeen('b', 7)
+    await updateMaxSeen()
+    equal(maxSeen.get(), 7)
+  })
+
   test('counts merged thread once', async () => {
     let feed = await addFeed(testFeed())
     let start = await addPost(

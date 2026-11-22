@@ -34,7 +34,7 @@ import {
   type PostValue,
   type QuotedPost
 } from './schema.ts'
-import { trackSeen } from './views.ts'
+import { raiseMaxSeen, trackSeen } from './views.ts'
 
 export type {
   MediaSize,
@@ -445,7 +445,10 @@ export async function changeRead(
   let ids = [...postIds, ...parts.flat().map(part => part.id)]
   await changePost(ids, { read })
   for (let { count, feedId } of seen) trackSeen(feedId, read ? count : -count)
-  if (read) await readListener?.(ids)
+  if (read) {
+    await raiseMaxSeen(seen.map(i => i.feedId))
+    await readListener?.(ids)
+  }
 }
 
 export function getPostId(sourceId: string, origin: OriginPost): string {

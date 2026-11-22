@@ -225,6 +225,19 @@ export async function deleteOrphanSeen(): Promise<void> {
   await updateMaxSeen()
 }
 
+function withUnsaved(
+  saved: readonly { count: number; feedId: string }[],
+  feedIds: readonly string[],
+  buffer: null | SeenBuffer
+): Map<string, number> {
+  let seen = new Map(saved.map(row => [row.feedId, row.count]))
+  for (let feedId of feedIds) {
+    let unsaved = (buffer?.feeds[feedId] ?? 0) - (buffer?.saved[feedId] ?? 0)
+    if (unsaved) seen.set(feedId, (seen.get(feedId) ?? 0) + unsaved)
+  }
+  return seen
+}
+
 /**
  * How many posts of these feeds user saw on all devices for the last 90 days.
  * The database sums only rows of these feeds.
@@ -245,13 +258,8 @@ export function getSeen(
       GROUP BY "views"."feedId"
     `
   )
-  return computed([$saved, seenBuffer], (saved, buffer) => {
-    let seen = new Map(saved?.map(row => [row.feedId, row.count]))
-    for (let feedId of feedIds) {
-      let unsaved = (buffer?.feeds[feedId] ?? 0) - (buffer?.saved[feedId] ?? 0)
-      if (unsaved) seen.set(feedId, (seen.get(feedId) ?? 0) + unsaved)
-    }
-    return seen
+  return computed([$saved, seenBuffer], (saved = [], buffer) => {
+    return withUnsaved(saved, feedIds, buffer)
   })
 }
 
@@ -259,14 +267,16 @@ export function getSeen(
  * Seen posts of the most read feed for the last 90 days.
  *
  * The query walks counters of all feeds, so the app asks it only for
- * the first shown bar, on a new day and after the feed deletion.
- * The number can be a little behind.
+ * the first shown bar, on a new day and after the feed deletion. Between
+ * them only feeds of read posts raise it, so the number can be
+ * a little behind.
  */
 export const maxSeen = atom(0)
 
 let maxSeenDay: number | undefined
 
 export async function updateMaxSeen(): Promise<void> {
+  await flushSeen()
   let crdt = getCrdt()
   // Queries during the database creation break its transactions
   await crdt.ready
@@ -279,6 +289,29 @@ export async function updateMaxSeen(): Promise<void> {
     )
   `
   maxSeen.set(rows[0]?.max ?? 0)
+}
+
+export async function raiseMaxSeen(feedIds: readonly string[]): Promise<void> {
+  let crdt = getCrdt()
+  // Queries during the database creation break its transactions
+  await crdt.ready
+  let saved = await crdt.select<{ count: number; feedId: string }>`
+    SELECT "views"."feedId" AS "feedId",
+      SUM("item"."value" ->> 'count') AS "count"
+    FROM "views", json_each("views"."days") AS "item"
+    WHERE "views"."feedId" IN (
+        SELECT "value" FROM json_each(${JSON.stringify(feedIds)})
+      )
+      AND "item"."value" ->> 'day' > ${getDay() - STATS_DAYS}
+    GROUP BY "views"."feedId"
+  `
+  maxSeen.set(
+    Math.max(
+      // `get()` would mount the store and walk counters of all feeds
+      maxSeen.value,
+      ...withUnsaved(saved, feedIds, seenBuffer.get()).values()
+    )
+  )
 }
 
 onMount(maxSeen, () =>

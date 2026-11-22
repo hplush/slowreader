@@ -369,8 +369,8 @@ describe('reactions', () => {
     )
     deepEqual(seenBuffer.get()!.feeds, { [feed2]: 1 })
     deepEqual(
-      (await getTables().views.load()).map(row => row.id),
-      ['other:2']
+      (await getTables().views.load()).map(row => row.feedId),
+      [feed2, feed2]
     )
     let stats = getFeedStats(atom([feed1, feed2]))
     stats.listen(() => {})
