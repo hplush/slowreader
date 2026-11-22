@@ -9,7 +9,13 @@ export function hideIconsOnWrap(texts: string): Attachment<HTMLElement> {
         [...element.querySelectorAll(texts)].some(text => {
           let range = document.createRange()
           range.selectNodeContents(text)
-          return range.getClientRects().length > 1
+          return (
+            new Set(
+              [...range.getClientRects()]
+                .filter(rect => rect.width > 0)
+                .map(rect => rect.top)
+            ).size > 1
+          )
         })
       )
     })
