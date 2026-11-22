@@ -3,6 +3,7 @@
     type FeedStats,
     type FeedStatsType,
     getFeedStatsBar,
+    i18nFormat,
     organizeMessages as t
   } from '@slowreader/core'
 
@@ -38,7 +39,9 @@
     class:is-liked={type === 'liked'}
     title={label}
   >
-    <span aria-hidden="true">{count}</span>
+    <span aria-hidden="true">
+      {$i18nFormat.number(count, { notation: 'compact' })}
+    </span>
     <span class="sr-only">{label}</span>
   </li>
 {/snippet}
@@ -187,15 +190,19 @@
     }
 
     .feed-stats_numbers {
-      display: flex;
-      gap: 0.375rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
       font: var(--badge-font);
       font-variant-numeric: tabular-nums;
       color: var(--text-color);
+      word-spacing: 0.1875rem;
+      white-space: nowrap;
       list-style: none;
     }
 
     .feed-stats_number {
+      display: inline;
+
       &.is-liked {
         color: var(--success-text-color);
       }

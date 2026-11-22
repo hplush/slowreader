@@ -453,7 +453,7 @@
       { at: NOW, feedId: 'feed', id: 'disliked', type: 'dislike' }
     ]}
     route={{ params: { feed: 'feed' }, route: 'slow' }}
-    seen={{ feed: 24, popular: 40 }}
+    seen={{ feed: 2400, popular: 4000 }}
   >
     <FeedsPage page={pages.slow()} />
   </Scene>
