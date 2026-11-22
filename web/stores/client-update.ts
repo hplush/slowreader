@@ -1,4 +1,10 @@
-import { forgetLocalData, saveData } from '@slowreader/core'
+import {
+  busy,
+  client,
+  forgetLocalData,
+  hasCloud,
+  saveData
+} from '@slowreader/core'
 import { atom } from 'nanostores'
 
 import type { MediaCacheName, ToServiceWorker } from '../main/sw.ts'
@@ -40,7 +46,47 @@ export async function checkClientUpdate(): Promise<void> {
   }
 }
 
+function isReloadUnwanted(): boolean {
+  let task = busy.get()
+  let logux = client.get()
+  return (
+    !document.hidden ||
+    !!document.activeElement?.matches(':read-write') ||
+    [...document.querySelectorAll<HTMLMediaElement>('audio, video')].some(
+      i => !i.paused && !i.ended && !i.muted
+    ) ||
+    (task && !!task.blocking) ||
+    (hasCloud.get() && !!logux && logux.state !== 'synchronized')
+  )
+}
+
+function updateHiddenTabs(): void {
+  let tabs = new BroadcastChannel('slowreader:update')
+  let refused = false
+  tabs.addEventListener('message', (event: MessageEvent<'ask' | 'refuse'>) => {
+    if (event.data === 'refuse') {
+      refused = true
+    } else if (isReloadUnwanted()) {
+      tabs.postMessage('refuse')
+    }
+  })
+  setInterval(
+    async () => {
+      if (saveData.get()) return
+      await checkClientUpdate()
+      if (clientUpdate.get() !== 'available' || isReloadUnwanted()) return
+      refused = false
+      tabs.postMessage('ask')
+      setTimeout(() => {
+        if (!refused && !isReloadUnwanted()) void updateClient()
+      }, 1000)
+    },
+    15 * 60 * 1000
+  )
+}
+
 async function startClientUpdates(): Promise<void> {
+  updateHiddenTabs()
   if (saveData.get()) {
     clientUpdate.set(registration?.waiting ? 'available' : 'unchecked')
   } else {
