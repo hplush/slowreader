@@ -5,6 +5,7 @@ import { setTimeout } from 'node:timers/promises'
 import {
   addCategory,
   addFeed,
+  addPost,
   client,
   clock,
   deleteCategory,
@@ -15,7 +16,9 @@ import {
   openedCategoryId,
   remindUseful,
   nightLock,
+  shownReader,
   testFeed,
+  testPost,
   trackLinkReading,
   trackUsage,
   userId,
@@ -59,6 +62,14 @@ async function waitUsages(
     await setTimeout(10)
   }
   throw new Error('Usages did not get the expected value')
+}
+
+async function openUsefulFeed(categoryId?: string): Promise<string> {
+  let feed = await addFeed(testFeed({ categoryId, reading: 'slow' }))
+  await addPost(testPost({ feedId: feed, reading: 'slow' }))
+  openRoute({ params: { feed }, route: 'slow' })
+  await waitFor(shownReader, reader => reader?.name === 'feed')
+  return feed
 }
 
 async function restartApp(): Promise<void> {
@@ -112,25 +123,25 @@ describe('usage', () => {
   })
 
   test('writes the database at most once a minute', async () => {
-    openRoute({ params: {}, route: 'slow' })
+    let feed = await openUsefulFeed()
     at(30_000)
-    openRoute({ hash: 'post=a', params: {}, route: 'slow' })
+    openRoute({ hash: 'post=a', params: { feed }, route: 'slow' })
     equal(lastUsage.get()!.to, START + 30_000)
     equal(lastUsage.get()!.created, false)
 
     at(70_000)
-    openRoute({ hash: 'post=b', params: {}, route: 'slow' })
+    openRoute({ hash: 'post=b', params: { feed }, route: 'slow' })
     let rows = await waitUsages(list => list.length === 1)
     equal(rows[0]!.to, START + 70_000)
 
     at(90_000)
-    openRoute({ hash: 'post=c', params: {}, route: 'slow' })
+    openRoute({ hash: 'post=c', params: { feed }, route: 'slow' })
     equal(lastUsage.get()!.to, START + 90_000)
     equal((await loadUsages())[0]!.to, START + 70_000)
   })
 
   test('keeps the session after a short break', async () => {
-    openRoute({ params: {}, route: 'slow' })
+    await openUsefulFeed()
     at(MINUTE)
     setTestVisibility(false)
     let first = lastUsage.get()!.id
@@ -163,7 +174,7 @@ describe('usage', () => {
   test('ignores sessions shorter than 3 seconds', async t => {
     openRoute({ params: {}, route: 'fast' })
     at(2_000)
-    openRoute({ params: {}, route: 'slow' })
+    await openUsefulFeed()
     equal(lastUsage.get()!.type, 'slow')
     at(2_000 + MINUTE)
     openRoute({ params: {}, route: 'home' })
@@ -188,27 +199,25 @@ describe('usage', () => {
   })
 
   test('splits sessions by the category', async t => {
-    let general = await addFeed(testFeed({ reading: 'slow' }))
     let news = await addCategory({ title: 'News' })
-    let feed = await addFeed(testFeed({ categoryId: news, reading: 'slow' }))
-
     t.after(openedCategoryId.listen(() => {}))
-    openRoute({ params: { feed }, route: 'slow' })
+    let general = await openUsefulFeed()
+    await openUsefulFeed(news)
     await waitFor(openedCategoryId, id => id === news)
     at(MINUTE)
     openRoute({ params: { category: news }, route: 'slow' })
+    await waitFor(shownReader, reader => reader?.name === 'feed')
     at(2 * MINUTE)
     openRoute({ params: { feed: general }, route: 'slow' })
+    await waitFor(shownReader, reader => reader?.name === 'feed')
     at(3 * MINUTE)
-    openRoute({ params: {}, route: 'slow' })
-    at(4 * MINUTE)
     openRoute({ params: { category: news }, route: 'fast' })
-    at(5 * MINUTE)
+    at(4 * MINUTE)
     openRoute({ params: { category: GENERAL_CATEGORY }, route: 'fast' })
-    at(6 * MINUTE)
+    at(5 * MINUTE)
     openRoute({ params: {}, route: 'home' })
 
-    let rows = await waitUsages(list => list.length === 5)
+    let rows = await waitUsages(list => list.length === 4)
     deepEqual(
       rows.map(row => [
         row.type,
@@ -219,25 +228,41 @@ describe('usage', () => {
       [
         ['slow', news, 0, 2],
         ['slow', GENERAL_CATEGORY, 2, 3],
-        ['slow', null, 3, 4],
-        ['fast', news, 4, 5],
-        ['fast', GENERAL_CATEGORY, 5, 6]
+        ['fast', news, 3, 4],
+        ['fast', GENERAL_CATEGORY, 4, 5]
       ]
     )
 
     t.after(usageSessions.listen(() => {}))
-    await waitFor(usageSessions, list => list?.length === 5)
+    await waitFor(usageSessions, list => list?.length === 4)
     deepEqual(
       usageSessions.get()!.map(session => session.categoryId),
-      [news, GENERAL_CATEGORY, undefined, news, GENERAL_CATEGORY]
+      [news, GENERAL_CATEGORY, news, GENERAL_CATEGORY]
     )
+  })
+
+  test('counts Useful only with posts on the screen', async () => {
+    openRoute({ params: {}, route: 'slow' })
+    await waitFor(shownReader, reader => reader?.name === 'empty')
+    at(MINUTE)
+    let feed = await addFeed(testFeed({ reading: 'slow' }))
+    openRoute({ params: { feed }, route: 'slow' })
+    at(2 * MINUTE)
+    equal(lastUsage.get(), undefined)
+
+    await addPost(testPost({ feedId: feed, reading: 'slow' }))
+    await waitFor(shownReader, reader => reader?.name === 'feed')
+    at(3 * MINUTE)
+    clock.set(new Date())
+    let { from, to } = lastUsage.get()!
+    deepEqual([from - START, to - START], [2 * MINUTE, 3 * MINUTE])
   })
 
   test('counts the link reading if user returned in 5 minutes', async () => {
     trackLinkReading()
     equal(lastUsage.get(), undefined)
 
-    openRoute({ params: {}, route: 'slow' })
+    await openUsefulFeed()
     at(MINUTE)
     trackLinkReading()
     setTestVisibility(false)
@@ -295,26 +320,26 @@ describe('usage', () => {
     )
   })
 
-  test('does not count the hidden app', () => {
+  test('does not count the hidden app', async () => {
     setTestVisibility(false)
-    openRoute({ params: {}, route: 'slow' })
+    await openUsefulFeed()
     at(MINUTE)
     openRoute({ params: {}, route: 'home' })
     equal(lastUsage.get(), undefined)
   })
 
-  test('stops when tracking is disabled', () => {
-    openRoute({ params: {}, route: 'slow' })
+  test('stops when tracking is disabled', async () => {
+    let feed = await openUsefulFeed()
     at(MINUTE)
     trackUsage.set(false)
     equal(lastUsage.get()!.to, START + MINUTE)
     at(5 * MINUTE)
-    openRoute({ hash: 'post=a', params: {}, route: 'slow' })
+    openRoute({ hash: 'post=a', params: { feed }, route: 'slow' })
     equal(lastUsage.get()!.to, START + MINUTE)
   })
 
-  test('moves only the session of the visible tab', () => {
-    openRoute({ params: {}, route: 'slow' })
+  test('moves only the session of the visible tab', async () => {
+    let feed = await openUsefulFeed()
     lastUsage.set({
       created: false,
       from: START,
@@ -324,7 +349,7 @@ describe('usage', () => {
       type: 'fast'
     })
     at(MINUTE)
-    openRoute({ hash: 'post=a', params: {}, route: 'slow' })
+    openRoute({ hash: 'post=a', params: { feed }, route: 'slow' })
     equal(lastUsage.get()!.to, START)
   })
 

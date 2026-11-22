@@ -9,6 +9,7 @@ import { warnIfOpened } from './lib/sign-out.ts'
 import { openedCategoryId } from './menu.ts'
 import { commonMessages } from './messages/index.ts'
 import { nightLockState } from './night-lock.ts'
+import { shownReader } from './reader.ts'
 import { router } from './router.ts'
 import {
   GENERAL_CATEGORY,
@@ -166,9 +167,14 @@ onClient(() => {
     }
     awake = now
     let route = router.get()
+    let shown = shownReader.get()?.name
     let next: undefined | UsageType
     let tracking = visible && trackUsage.get()
-    if (tracking && route.route === 'slow') {
+    if (
+      tracking &&
+      route.route === 'slow' &&
+      (shown === 'feed' || shown === 'list')
+    ) {
       next = 'slow'
     } else if (
       tracking &&
@@ -191,6 +197,7 @@ onClient(() => {
   let env = getEnvironment()
   let unbindRouter = router.subscribe(update)
   let unbindCategory = openedCategoryId.listen(update)
+  let unbindReader = shownReader.listen(update)
   let unbindLock = nightLockState.listen(update)
   let unbindClock = clock.listen(update)
   let unbindTracking = trackUsage.listen(update)
@@ -215,6 +222,7 @@ onClient(() => {
   return () => {
     unbindRouter()
     unbindCategory()
+    unbindReader()
     unbindTracking()
     unbindLock()
     unbindClock()
