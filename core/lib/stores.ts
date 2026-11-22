@@ -149,6 +149,29 @@ export function channelList<Item>(
 }
 
 /**
+ * Store with the last loaded result of the query. It follows the query
+ * only while it has listeners, so there is nothing to unbind on exit.
+ *
+ * Result is kept when `map` returns `undefined`, for instance, for a deleted
+ * row.
+ */
+export function storeFromQuery<Value, Result>(
+  $query: ReadableAtom<Loadable<Value>>,
+  initial: Result,
+  map: (value: Value) => Result | undefined
+): ReadableAtom<Result> {
+  let $result = atom(initial)
+  onMount($result, () => {
+    return $query.subscribe(query => {
+      if (query.status !== 'ready') return
+      let result = map(query.value)
+      if (result !== undefined) $result.set(result)
+    })
+  })
+  return $result
+}
+
+/**
  * Writable store of the row’s column for form controls like `Switch`.
  * It follows the row and saves user’s changes by `change`.
  */

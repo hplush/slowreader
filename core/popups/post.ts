@@ -11,6 +11,7 @@ import { NotFoundError } from '../errors.ts'
 import { type FeedValue, loadFeed } from '../feed.ts'
 import { formatDuration, formatPublishedAt, i18nFormat } from '../format.ts'
 import { createDownloadTask } from '../lib/download.ts'
+import { storeFromQuery } from '../lib/stores.ts'
 import { type Loader, type LoaderName, loaders } from '../loader/index.ts'
 import { postMessages } from '../messages/index.ts'
 import {
@@ -103,13 +104,8 @@ export const post = definePopup('post', async loader => {
   // The whole thread from its start, the shown post could be in the middle
   let $parts = atom<(OriginPost | PostValue)[]>([])
   let updating: Promise<(OriginPost | PostValue)[]> | undefined
-  let unbindStored = (): void => {}
   if (stored) {
-    let $stored = atom<OriginPost | PostValue>(stored)
-    unbindStored = getPost(stored.id).subscribe(row => {
-      if (row.status === 'ready' && row.value) $stored.set(row.value)
-    })
-    $post = $stored
+    $post = storeFromQuery(getPost(stored.id), stored, row => row)
   } else if (target.startsWith('https:')) {
     service = findPostLoader(target)
     if (!service) throw new NotFoundError()
@@ -238,7 +234,6 @@ export const post = definePopup('post', async loader => {
   return {
     destroy() {
       task.destroy()
-      unbindStored()
       unbindPost()
       unbindRead()
     },

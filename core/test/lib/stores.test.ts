@@ -2,8 +2,8 @@ import { atom, cleanStores } from 'nanostores'
 import { deepEqual, equal } from 'node:assert/strict'
 import { describe, test } from 'node:test'
 
-import { subscribeUntil, switchOf } from '../../index.ts'
-import { storeFromColumn } from '../../lib/stores.ts'
+import { type Loadable, subscribeUntil, switchOf } from '../../index.ts'
+import { storeFromColumn, storeFromQuery } from '../../lib/stores.ts'
 
 describe('stores', () => {
   test('runs until first true', () => {
@@ -55,6 +55,28 @@ describe('stores', () => {
     cleanStores($follow)
     $follow.set(true)
     deepEqual(changes, [false])
+  })
+
+  test('creates store from the query result', () => {
+    let $query = atom<Loadable<number | undefined>>({ status: 'loading' })
+    let $double = storeFromQuery($query, 0, value => value && value * 2)
+    let unbind = $double.listen(() => {})
+    equal($double.get(), 0)
+
+    $query.set({ status: 'ready', value: 1 })
+    equal($double.get(), 2)
+
+    $query.set({ status: 'loading' })
+    equal($double.get(), 2)
+    $query.set({ status: 'ready', value: undefined })
+    equal($double.get(), 2)
+    $query.set({ status: 'ready', value: 4 })
+    equal($double.get(), 8)
+
+    equal($query.lc, 1)
+    unbind()
+    cleanStores($double)
+    equal($query.lc, 0)
   })
 
   test('shows two setting values as boolean', t => {
