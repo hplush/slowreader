@@ -3,17 +3,14 @@
 </script>
 
 <script lang="ts">
-  import {
-    mdiCheckboxMultipleMarkedOutline,
-    mdiFormatListChecks,
-    mdiPageLayoutHeaderFooter
-  } from '@mdi/js'
+  import { mdiCheckboxMultipleMarkedOutline } from '@mdi/js'
   import {
     type FeedsPage,
     hasPersonAvatar,
     navbarMessages as navbar,
     needUsefulReminder,
     openableMenu,
+    organizeMessages as organize,
     router,
     feedsMessages as t
   } from '@slowreader/core'
@@ -31,7 +28,6 @@
   import NextPagination from '../../ui/next-pagination.svelte'
   import NumberPagination from '../../ui/number-pagination.svelte'
   import PopupablePage from '../../ui/popupable-page.svelte'
-  import Radio from '../../ui/radio.svelte'
   import Stack from '../../ui/stack.svelte'
   import ThinPage from '../../ui/thin-page.svelte'
   import FeedsEmptyPage from './empty.svelte'
@@ -41,7 +37,8 @@
   import FeedsWelcomePage from './welcome.svelte'
 
   let { page }: { page: FeedsPage } = $props()
-  let { feed, feedStats, locked, menu, posts, postsLoading } = $derived(page)
+  let { category, feed, feedStats, locked, menu, posts, postsLoading } =
+    $derived(page)
   let reader = $derived(
     $posts?.name === 'feed' || $posts?.name === 'list' ? $posts : undefined
   )
@@ -101,11 +98,20 @@
       <Stack align="center" justify="space-between" row>
         {#if $feed}
           <FeedLink
+            anchor="edit-reader"
             avatar={$feed.avatar}
             avatarRound={hasPersonAvatar($feed.loader)}
+            edit={$organize.editFeed}
             feedId={$feed.id}
             href={getPopupHash($router, 'feed', $feed.url)}
             title={$feed.title}
+          />
+        {:else if $category}
+          <FeedLink
+            anchor="edit-reader"
+            edit={$organize.editCategory}
+            href={getPopupHash($router, 'category', $category.id)}
+            title={$category.title}
           />
         {:else}
           <div></div>
@@ -115,20 +121,6 @@
             href={getPopupHash($router, 'feed', $feed.url)}
             stats={$feedStats}
             variant="stacked"
-          />
-        {/if}
-        {#if $posts && $posts.name !== 'empty'}
-          <Radio
-            anchor="reader"
-            label={$t.reader}
-            labelless
-            onchange={page.changeReader}
-            size="icon"
-            value={$posts.name}
-            values={[
-              ['feed', $t.feedReader, mdiPageLayoutHeaderFooter],
-              ['list', $t.listReader, mdiFormatListChecks]
-            ]}
           />
         {/if}
       </Stack>

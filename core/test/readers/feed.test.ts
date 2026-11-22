@@ -56,9 +56,9 @@ describe('feed reader', () => {
   })
 
   test('loads authors of the category', async () => {
-    let categoryId = await addCategory({ fastReader: 'feed', title: 'A' })
-    let feed1 = await addFeed(testFeed({ categoryId, fastReader: 'feed' }))
-    let feed2 = await addFeed(testFeed({ categoryId, fastReader: 'feed' }))
+    let categoryId = await addCategory({ reader: 'feed', title: 'A' })
+    let feed1 = await addFeed(testFeed({ categoryId, reader: 'feed' }))
+    let feed2 = await addFeed(testFeed({ categoryId, reader: 'feed' }))
     for (let i = 1; i <= 4; i++) {
       await addPost(
         testPost({
@@ -80,9 +80,9 @@ describe('feed reader', () => {
   })
 
   test('picks pager by reading', async () => {
-    let categoryId = await addCategory({ fastReader: 'feed', title: 'A' })
-    let fast = await addFeed(testFeed({ categoryId, fastReader: 'feed' }))
-    let slow = await addFeed(testFeed({ slowReader: 'feed' }))
+    let categoryId = await addCategory({ reader: 'feed', title: 'A' })
+    let fast = await addFeed(testFeed({ categoryId, reader: 'feed' }))
+    let slow = await addFeed(testFeed({ reader: 'feed' }))
     for (let i = 1; i <= 25; i++) {
       await addPost(testPost({ feedId: fast, publishedAt: i, reading: 'fast' }))
       await addPost(testPost({ feedId: slow, publishedAt: i, reading: 'slow' }))
@@ -102,7 +102,7 @@ describe('feed reader', () => {
   })
 
   test('loads intro without the whole article', async () => {
-    let feedId = await addFeed(testFeed({ slowReader: 'feed' }))
+    let feedId = await addFeed(testFeed({ reader: 'feed' }))
     for (let post of [
       { full: 'Full article', intro: 'Intro', publishedAt: 4 },
       { full: 'Same', intro: 'Same', publishedAt: 3 },
@@ -137,7 +137,7 @@ describe('feed reader', () => {
   })
 
   test('loads media with their sizes', async () => {
-    let feedId = await addFeed(testFeed({ slowReader: 'feed' }))
+    let feedId = await addFeed(testFeed({ reader: 'feed' }))
     let first = { type: 'image', url: 'https://example.com/a.png' }
     let second = { type: 'image', url: 'https://example.com/b.png' }
     await addPost(
@@ -161,7 +161,7 @@ describe('feed reader', () => {
   })
 
   test('loads social fields', async () => {
-    let feedId = await addFeed(testFeed({ slowReader: 'feed' }))
+    let feedId = await addFeed(testFeed({ reader: 'feed' }))
     let social = {
       author: { title: 'Author', url: 'https://example.com/@author' },
       preview: { url: 'https://example.com/' },
@@ -192,7 +192,7 @@ describe('feed reader', () => {
   })
 
   test('reads account posts', async () => {
-    let categoryId = await addCategory({ fastReader: 'feed', title: 'A' })
+    let categoryId = await addCategory({ reader: 'feed', title: 'A' })
     let other = await addCategory({ title: 'B' })
     let feedId = await addFeed(
       testFeed({
@@ -322,7 +322,7 @@ describe('feed reader', () => {
     t.after(() => {
       deviceSessions.set({})
     })
-    let categoryId = await addCategory({ fastReader: 'feed', title: 'A' })
+    let categoryId = await addCategory({ reader: 'feed', title: 'A' })
     let [ads, free, away, rss, fast] = await Promise.all(
       [
         { accountId, loader: 'telegram' as const, url: 'https://t.me/ads' },
@@ -339,7 +339,7 @@ describe('feed reader', () => {
           loader: 'telegram' as const,
           url: 'https://t.me/ads'
         }
-      ].map(feed => addFeed(testFeed({ slowReader: 'feed', ...feed })))
+      ].map(feed => addFeed(testFeed({ reader: 'feed', ...feed })))
     )
     for (let feedId of [ads!, free!, away!, rss!]) {
       await addPost(testPost({ feedId, reading: 'slow' }))

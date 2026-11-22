@@ -186,9 +186,8 @@ export async function moveFeed(
     if (existing.accountId) {
       let settings: FeedChanges = {
         categoryId: feed.categoryId,
-        fastReader: feed.fastReader,
-        reading: feed.reading,
-        slowReader: feed.slowReader
+        reader: feed.reader,
+        reading: feed.reading
       }
       if (feed.title !== feed.originTitle) settings.title = feed.title
       await changeFeed(existing.id, settings)
@@ -366,7 +365,6 @@ export function testFeed(feed: Partial<FeedValue> = {}): FeedValue {
     accountId: null,
     avatar: null,
     categoryId: GENERAL_CATEGORY,
-    fastReader: null,
     frequency: null,
     id: `feed-${testFeedId}`,
     lastOriginId: null,
@@ -375,9 +373,9 @@ export function testFeed(feed: Partial<FeedValue> = {}): FeedValue {
     loaderData: null,
     originTitle: null,
     protected: null,
+    reader: null,
     reading: 'fast',
     refreshedAt: null,
-    slowReader: null,
     title: `Test ${testFeedId}`,
     url: `http://example.com/${testFeedId}`,
     ...feed

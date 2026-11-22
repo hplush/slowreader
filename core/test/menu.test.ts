@@ -442,7 +442,7 @@ describe('menu', () => {
     ])
 
     let general = slowMenu.get()
-    await changeCategory(idB, { fastReader: 'list' })
+    await changeCategory(idB, { reader: 'list' })
     equal(slowMenu.get(), general)
 
     await deleteCategory(idA)

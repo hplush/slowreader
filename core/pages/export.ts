@@ -14,8 +14,7 @@ import { GENERAL_CATEGORY } from '../schema.ts'
 import {
   customPostFont,
   fastPostsMaxAge,
-  generalFastReader,
-  generalSlowReader,
+  generalReader,
   nightLock,
   openWarnings,
   postFont,
@@ -181,8 +180,7 @@ export const exportPage = createPage('export', () => {
     let settings = {
       customPostFont: customPostFont.get(),
       fastPostsMaxAge: fastPostsMaxAge.get(),
-      generalFastReader: generalFastReader.get(),
-      generalSlowReader: generalSlowReader.get(),
+      generalReader: generalReader.get(),
       nightLock: nightLock.get(),
       openWarnings: openWarnings.get(),
       postFont: postFont.get(),

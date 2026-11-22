@@ -31,9 +31,9 @@ describe('list reader', () => {
   })
 
   test('picks pager by reading', async () => {
-    let categoryId = await addCategory({ fastReader: 'list', title: 'A' })
+    let categoryId = await addCategory({ reader: 'list', title: 'A' })
     let fast = await addFeed(testFeed({ categoryId }))
-    let slow = await addFeed(testFeed({ slowReader: 'list' }))
+    let slow = await addFeed(testFeed({ reader: 'list' }))
     for (let i = 1; i <= 75; i++) {
       await addPost(
         testPost({

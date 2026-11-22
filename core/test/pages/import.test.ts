@@ -19,7 +19,7 @@ import {
   deleteOrphanStats,
   deletePost,
   fastPostsMaxAge,
-  generalFastReader,
+  generalReader,
   getTables,
   GENERAL_CATEGORY,
   isDemo,
@@ -127,7 +127,7 @@ describe('import page', () => {
   })
 
   afterEach(async () => {
-    generalFastReader.set('feed')
+    generalReader.set('feed')
     removeTrackers.set(true)
     await cleanClient()
     restoreAll()
@@ -154,7 +154,7 @@ describe('import page', () => {
     remindUseful.set(false)
     showUsageBalance.set(false)
     trackUsage.set(false)
-    generalFastReader.set('list')
+    generalReader.set('list')
     textSize.set(150)
     postFont.set('custom')
     postLineHeight.set('relaxed')
@@ -186,7 +186,7 @@ describe('import page', () => {
     remindUseful.set(true)
     showUsageBalance.set(true)
     trackUsage.set(true)
-    generalFastReader.set('feed')
+    generalReader.set('feed')
     textSize.set(100)
     postFont.set('default')
     postLineHeight.set('normal')
@@ -220,20 +220,17 @@ describe('import page', () => {
     equal(remindUseful.get(), false)
     equal(showUsageBalance.get(), false)
     equal(trackUsage.get(), false)
-    equal(generalFastReader.get(), 'list')
+    equal(generalReader.get(), 'list')
     equal(textSize.get(), 150)
     equal(postFont.get(), 'custom')
     equal(postLineHeight.get(), 'relaxed')
     equal(customPostFont.get(), 'Comic Sans MS')
-    deepEqual(await loadCategories(), [
-      { ...CATEGORY, fastReader: null, slowReader: null }
-    ])
+    deepEqual(await loadCategories(), [{ ...CATEGORY, reader: null }])
     deepEqual(await loadFeeds(), [
       {
         ...FEED,
         accountId: null,
         avatar: null,
-        fastReader: null,
         frequency: null,
         lastOriginId: null,
         lastPublishedAt: null,
@@ -241,7 +238,7 @@ describe('import page', () => {
         originTitle: null,
         protected: null,
         refreshedAt: null,
-        slowReader: null
+        reader: null
       }
     ])
     deepEqual(await loadFilters(), [FILTER])
@@ -585,6 +582,30 @@ describe('import page', () => {
     equal(page.done.get(), 0)
     equal(page.fileError.get(), false)
     deepEqual(page.feedErrors.get(), [])
+  })
+
+  test('imports backups with removed columns', async () => {
+    let backup = {
+      accounts: [],
+      categories: [{ ...CATEGORY, fastReader: 'list', slowReader: null }],
+      feeds: [{ ...testFeed({ id: 'old' }), slowReader: 'list' }],
+      filters: [],
+      posts: [],
+      settings: { generalFastReader: 'list' },
+      subprotocol: SUBPROTOCOL
+    }
+    await waitLoading(syncedSettingsLoading)
+    let page = openPage({ params: {}, route: 'import' })
+    page.importFile(file('json', JSON.stringify(backup)))
+    await waitLoading(busy)
+    await setTimeout(100)
+    equal(page.fileError.get(), false)
+    deepEqual(await loadCategories(), [{ ...CATEGORY, reader: null }])
+    deepEqual(
+      (await loadFeeds()).map(i => [i.id, i.reader]),
+      [['old', null]]
+    )
+    equal(generalReader.get(), 'feed')
   })
 
   test('rejects backups from other versions', async () => {

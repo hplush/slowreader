@@ -8,10 +8,10 @@ import {
   addPost,
   busy,
   busyUntilMenuLoader,
+  changeReader,
   clock,
   encryptionKey,
-  generalFastReader,
-  generalSlowReader,
+  generalReader,
   nightLock,
   GENERAL_CATEGORY,
   isDemo,
@@ -47,8 +47,7 @@ describe('feeds page', () => {
   afterEach(async () => {
     openRoute({ params: {}, route: 'about' })
     nightLock.set({ enabled: false, from: 23, to: 7 })
-    generalFastReader.set('feed')
-    generalSlowReader.set('feed')
+    generalReader.set('feed')
     await cleanClient()
   })
 
@@ -233,18 +232,18 @@ describe('feeds page', () => {
     await waitLoading(busy)
     let category = await addCategory({ title: 'A' })
     let feed1 = await addFeed(
-      testFeed({ categoryId: category, slowReader: 'list', title: 'F1' })
+      testFeed({ categoryId: category, reader: 'list', title: 'F1' })
     )
     let feed2 = await addFeed(
-      testFeed({ categoryId: category, slowReader: 'list', title: 'F2' })
+      testFeed({ categoryId: category, reader: 'list', title: 'F2' })
     )
     let feed3 = await addFeed(
-      testFeed({ categoryId: category, slowReader: 'list', title: 'F3' })
+      testFeed({ categoryId: category, reader: 'list', title: 'F3' })
     )
     let feed4 = await addFeed(
       testFeed({
         categoryId: await addCategory({ title: 'B' }),
-        slowReader: 'list',
+        reader: 'list',
         title: 'F4'
       })
     )
@@ -266,13 +265,13 @@ describe('feeds page', () => {
   test('opens all posts of the slow category', async () => {
     busyUntilMenuLoader()
     await waitLoading(busy)
-    let category = await addCategory({ slowReader: 'list', title: 'A' })
+    let category = await addCategory({ reader: 'list', title: 'A' })
     let feed1 = await addFeed(testFeed({ categoryId: category, title: 'F1' }))
     let feed2 = await addFeed(testFeed({ categoryId: category, title: 'F2' }))
     let other = await addFeed(
       testFeed({
         categoryId: await addCategory({ title: 'B' }),
-        slowReader: 'list'
+        reader: 'list'
       })
     )
     await addPost(testPost({ feedId: feed1, reading: 'slow' }))
@@ -305,10 +304,10 @@ describe('feeds page', () => {
     await waitLoading(busy)
     let category = await addCategory({ title: 'A' })
     let feed1 = await addFeed(
-      testFeed({ categoryId: category, slowReader: 'list', title: 'F1' })
+      testFeed({ categoryId: category, reader: 'list', title: 'F1' })
     )
     let feed2 = await addFeed(
-      testFeed({ categoryId: category, slowReader: 'list', title: 'F2' })
+      testFeed({ categoryId: category, reader: 'list', title: 'F2' })
     )
     await addPost(testPost({ feedId: feed1, reading: 'slow' }))
     await addPost(testPost({ feedId: feed2, reading: 'slow' }))
@@ -339,13 +338,13 @@ describe('feeds page', () => {
     let feed1 = await addFeed(
       testFeed({
         categoryId: await addCategory({ title: 'A1' }),
-        slowReader: 'list'
+        reader: 'list'
       })
     )
     let feed2 = await addFeed(
       testFeed({
         categoryId: await addCategory({ title: 'A2' }),
-        slowReader: 'list'
+        reader: 'list'
       })
     )
     await addPost(testPost({ feedId: feed1, reading: 'slow' }))
@@ -381,15 +380,15 @@ describe('feeds page', () => {
     await waitLoading(busy)
     let fast = await addFeed(
       testFeed({
-        categoryId: await addCategory({ fastReader: 'feed', title: 'A1' }),
-        fastReader: 'feed',
+        categoryId: await addCategory({ reader: 'feed', title: 'A1' }),
+        reader: 'feed',
         reading: 'fast'
       })
     )
     let slow = await addFeed(
       testFeed({
         categoryId: await addCategory({ title: 'A2' }),
-        slowReader: 'list'
+        reader: 'list'
       })
     )
     await addPost(testPost({ feedId: fast, reading: 'fast' }))
@@ -409,7 +408,7 @@ describe('feeds page', () => {
   test('locks fast posts at night', async () => {
     busyUntilMenuLoader()
     await waitLoading(busy)
-    let category = await addCategory({ fastReader: 'feed', title: 'A' })
+    let category = await addCategory({ reader: 'feed', title: 'A' })
     let feed = await addFeed(
       testFeed({ categoryId: category, reading: 'fast' })
     )
@@ -445,17 +444,17 @@ describe('feeds page', () => {
   test('opens the next fast category after the last post was read', async () => {
     busyUntilMenuLoader()
     await waitLoading(busy)
-    let category1 = await addCategory({ fastReader: 'feed', title: 'A1' })
+    let category1 = await addCategory({ reader: 'feed', title: 'A1' })
     let first = await addFeed(
-      testFeed({ categoryId: category1, fastReader: 'feed', reading: 'fast' })
+      testFeed({ categoryId: category1, reader: 'feed', reading: 'fast' })
     )
-    let category2 = await addCategory({ fastReader: 'feed', title: 'A2' })
+    let category2 = await addCategory({ reader: 'feed', title: 'A2' })
     let second = await addFeed(
-      testFeed({ categoryId: category2, fastReader: 'feed', reading: 'fast' })
+      testFeed({ categoryId: category2, reader: 'feed', reading: 'fast' })
     )
-    let category3 = await addCategory({ fastReader: 'feed', title: 'A3' })
+    let category3 = await addCategory({ reader: 'feed', title: 'A3' })
     let third = await addFeed(
-      testFeed({ categoryId: category3, fastReader: 'feed', reading: 'fast' })
+      testFeed({ categoryId: category3, reader: 'feed', reading: 'fast' })
     )
     await addPost(testPost({ feedId: first, reading: 'fast' }))
     await addPost(testPost({ feedId: second, reading: 'fast' }))
@@ -484,14 +483,14 @@ describe('feeds page', () => {
     await waitLoading(busy)
     await addFeed(
       testFeed({
-        categoryId: await addCategory({ fastReader: 'feed', title: 'A1' }),
-        fastReader: 'feed',
+        categoryId: await addCategory({ reader: 'feed', title: 'A1' }),
+        reader: 'feed',
         reading: 'fast'
       })
     )
-    let category = await addCategory({ fastReader: 'feed', title: 'A2' })
+    let category = await addCategory({ reader: 'feed', title: 'A2' })
     let feed = await addFeed(
-      testFeed({ categoryId: category, fastReader: 'feed', reading: 'fast' })
+      testFeed({ categoryId: category, reader: 'feed', reading: 'fast' })
     )
     await addPost(testPost({ feedId: feed, reading: 'fast' }))
     await setTimeout(10)
@@ -505,13 +504,13 @@ describe('feeds page', () => {
   test('renders empty reader for the fast category without posts', async () => {
     busyUntilMenuLoader()
     await waitLoading(busy)
-    let read = await addCategory({ fastReader: 'feed', title: 'A1' })
+    let read = await addCategory({ reader: 'feed', title: 'A1' })
     await addFeed(
-      testFeed({ categoryId: read, fastReader: 'feed', reading: 'fast' })
+      testFeed({ categoryId: read, reader: 'feed', reading: 'fast' })
     )
-    let unread = await addCategory({ fastReader: 'feed', title: 'A2' })
+    let unread = await addCategory({ reader: 'feed', title: 'A2' })
     let feed = await addFeed(
-      testFeed({ categoryId: unread, fastReader: 'feed', reading: 'fast' })
+      testFeed({ categoryId: unread, reader: 'feed', reading: 'fast' })
     )
     await addPost(testPost({ feedId: feed, reading: 'fast' }))
     await setTimeout(10)
@@ -567,7 +566,7 @@ describe('feeds page', () => {
     await waitLoading(busy)
     let category = await addCategory({ title: 'A' })
     let feed = await addFeed(
-      testFeed({ categoryId: category, reading: 'slow', slowReader: 'list' })
+      testFeed({ categoryId: category, reading: 'slow', reader: 'list' })
     )
     await addFeed(testFeed({ categoryId: category, reading: 'fast' }))
     await addPost(testPost({ feedId: feed, reading: 'slow' }))
@@ -632,7 +631,7 @@ describe('feeds page', () => {
     await setTimeout(10)
     equal(page.posts.get()!.name, 'feed')
 
-    page.changeReader('list')
+    changeReader({ feedId: feed1 }, 'list')
     await setTimeout(1)
     equal(page.posts.get()!.name, 'list')
 
@@ -669,7 +668,7 @@ describe('feeds page', () => {
     await setTimeout(1)
     equal(page.posts.get()!.name, 'feed')
 
-    page.changeReader('list')
+    changeReader({ categoryId: category2 }, 'list')
     await setTimeout(10)
     equal(page.posts.get()!.name, 'list')
 
@@ -695,13 +694,37 @@ describe('feeds page', () => {
     await setTimeout(10)
     equal(page.posts.get()!.name, 'feed')
 
-    let saving = page.changeReader('list')
+    let saving = changeReader({ feedId: feed }, 'list')
     equal(page.posts.get()!.name, 'list')
-    let reverting = page.changeReader('feed')
+    let reverting = changeReader({ feedId: feed }, 'feed')
     equal(page.posts.get()!.name, 'feed')
     await Promise.all([saving, reverting])
     equal(page.posts.get()!.name, 'feed')
-    equal((await loadFeed(feed))?.slowReader, 'feed')
+    equal((await loadFeed(feed))?.reader, 'feed')
+  })
+
+  test('keeps reader on change of another feed', async () => {
+    let feed = await addFeed(testFeed({ reading: 'slow' }))
+    let other = await addFeed(testFeed({ reading: 'slow' }))
+    await addPost(testPost({ feedId: feed, reading: 'slow' }))
+    await addPost(testPost({ feedId: feed, reading: 'slow' }))
+    let page = openPage({ params: { feed }, route: 'slow' })
+    await setTimeout(10)
+    let from = ensureReader(page.posts, 'feed').list.get()[0]!
+    openRoute({
+      params: { feed, from: `${from.sortedAt}:${from.id}` },
+      route: 'slow'
+    })
+    let reader = page.posts.get()
+
+    await changeReader({ feedId: other }, 'list')
+    equal(page.posts.get(), reader)
+    equal(typeof (router.get().params as { from?: string }).from, 'string')
+    equal((await loadFeed(other))?.reader, 'list')
+
+    await changeReader({ feedId: feed }, 'list')
+    equal(page.posts.get()!.name, 'list')
+    equal((router.get().params as { from?: string }).from, undefined)
   })
 
   test('changes reader of general category', async () => {
@@ -716,11 +739,10 @@ describe('feeds page', () => {
     await setTimeout(10)
     equal(page.posts.get()!.name, 'feed')
 
-    page.changeReader('list')
+    changeReader({ categoryId: GENERAL_CATEGORY }, 'list')
     await setTimeout(10)
     equal(page.posts.get()!.name, 'list')
-    equal(generalFastReader.get(), 'list')
-    equal(generalSlowReader.get(), 'feed')
+    equal(generalReader.get(), 'list')
 
     page = openPage({
       params: { category: GENERAL_CATEGORY },

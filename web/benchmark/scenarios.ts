@@ -125,6 +125,8 @@ export function createScenarios(
       name: 'switch-reader',
       async prepare() {
         await open(slowPage(feed, 0))
+        await click(byAnchor('edit-reader'))
+        await waitFor(byAnchor('reader-feed'))
       },
       async run() {
         await click(byAnchor('reader-feed'))

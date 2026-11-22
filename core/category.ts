@@ -13,7 +13,7 @@ import {
   getTables,
   type NewCategory
 } from './schema.ts'
-import { generalFastReader, generalSlowReader } from './settings.ts'
+import { generalReader } from './settings.ts'
 
 export type { CategoryValue, NewCategory }
 
@@ -24,7 +24,7 @@ export function getCategory(
 ): ReadableAtom<SqlStoreValue<CategoryValue | undefined>> {
   if (categoryId === GENERAL_CATEGORY) {
     return computed(
-      [generalFastReader, generalSlowReader, t],
+      [generalReader, t],
       (): SqlStoreValue<CategoryValue | undefined> => ({
         status: 'ready',
         value: getGeneralCategory()
@@ -94,8 +94,7 @@ export async function changeCategory(
   changes: CategoryChanges
 ): Promise<void> {
   if (categoryId === GENERAL_CATEGORY) {
-    if (changes.fastReader) generalFastReader.set(changes.fastReader)
-    if (changes.slowReader) generalSlowReader.set(changes.slowReader)
+    if (changes.reader) generalReader.set(changes.reader)
   } else {
     await getTables().categories.update(categoryId, changes)
   }
@@ -157,9 +156,8 @@ export function feedsByCategory(
 
 export function getGeneralCategory(): CategoryValue {
   return {
-    fastReader: generalFastReader.get(),
     id: GENERAL_CATEGORY,
-    slowReader: generalSlowReader.get(),
+    reader: generalReader.get(),
     title: t.value?.generalCategory || 'General'
   }
 }

@@ -93,7 +93,6 @@
     feeds={FEEDS}
     oninit={() => {
       pages.categories().toggle('code')
-      pages.categories().toggle('empty')
     }}
   >
     <CategoriesPage page={pages.categories()} />

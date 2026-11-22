@@ -1,15 +1,12 @@
 <script lang="ts">
-  import { mdiRenameOutline, mdiTrashCanOutline } from '@mdi/js'
+  import { mdiPencilOutline } from '@mdi/js'
   import {
     type CategoriesPage,
-    changeCategory,
-    commonMessages,
-    deleteCategory,
-    GENERAL_CATEGORY,
-    layoutType,
+    router,
     organizeMessages as t
   } from '@slowreader/core'
 
+  import { getPopupHash } from '../stores/url-router.ts'
   import Button from '../ui/button.svelte'
   import Feeds from '../ui/feeds.svelte'
   import Foldable from '../ui/foldable.svelte'
@@ -21,7 +18,6 @@
   let { page }: { page: CategoriesPage } = $props()
 
   let { expanded, groups, opened, readings, stats, sync } = $derived(page)
-  let mobile = $derived($layoutType === 'mobile')
 </script>
 
 <PopupablePage padding title={[$t.categoriesTitle, $t.feedsTitle]}>
@@ -41,39 +37,16 @@
           {#snippet actions(describedby: string)}
             <Button
               aria-describedby={describedby}
-              icon={mdiRenameOutline}
-              onclick={() => {
-                let title = prompt($commonMessages.categoryName, category.title)
-                if (title) {
-                  changeCategory(category.id, { title })
-                }
-              }}
-              size={mobile ? 'wide' : 'icon'}
-              variant="secondary"
+              href={getPopupHash($router, 'category', category.id)}
+              icon={mdiPencilOutline}
+              size="icon"
             >
-              {mobile ? $t.rename : $t.renameCategory}
-            </Button>
-            <Button
-              aria-describedby={describedby}
-              color="dangerous"
-              icon={mdiTrashCanOutline}
-              onclick={() => {
-                if (confirm($t.deleteCategoryConform)) {
-                  deleteCategory(category.id)
-                }
-              }}
-              size={mobile ? 'wide' : 'icon'}
-            >
-              {mobile ? $t.delete : $t.deleteCategory}
+              {$t.editCategory}
             </Button>
           {/snippet}
           <Foldable
             id={`${category.id}-feeds`}
-            actions={category.id !== GENERAL_CATEGORY &&
-            category.id !== 'broken'
-              ? actions
-              : undefined}
-            compact={mobile}
+            {actions}
             disabled={feeds.length === 0}
             hint={$t.feedsCount(feeds.length)}
             onexpand={() => {

@@ -117,8 +117,7 @@ export const accountsTable = defineCrdtTable(
 export const categoriesTable = defineCrdtTable(
   'categories',
   {
-    fastReader: optional(oneOf(READERS)),
-    slowReader: optional(oneOf(READERS)),
+    reader: optional(oneOf(READERS)),
     title: string()
   },
   ['title']
@@ -130,7 +129,6 @@ export const feedsTable = defineCrdtTable(
     accountId: optional(string()),
     avatar: optional(string()),
     categoryId: optional(string()),
-    fastReader: optional(oneOf(READERS)),
     // Posts per day on the last refresh
     frequency: optional(number()),
     lastOriginId: optional(string()),
@@ -139,9 +137,9 @@ export const feedsTable = defineCrdtTable(
     loaderData: optional(string()),
     originTitle: optional(string()),
     protected: optional(boolean()),
+    reader: optional(oneOf(READERS)),
     reading: optional(oneOf(READINGS)),
     refreshedAt: optional(bigint()),
-    slowReader: optional(oneOf(READERS)),
     title: string(),
     url: string()
   },
@@ -327,8 +325,7 @@ export const settingsTable = defineCrdtTable('settings', {
   deadFeedsSeenAt: optional(bigint()),
   devtoolDisabledLoaderMethods: optional(json([string()])),
   fastPostsMaxAge: optional(number()),
-  generalFastReader: optional(oneOf(READERS)),
-  generalSlowReader: optional(oneOf(READERS)),
+  generalReader: optional(oneOf(READERS)),
   nightLock: optional(
     json({ enabled: boolean(), from: number(), to: number() })
   ),

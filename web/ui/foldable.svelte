@@ -8,7 +8,6 @@
   let {
     actions,
     children,
-    compact = false,
     disabled = false,
     hint,
     id,
@@ -18,9 +17,8 @@
     short,
     title
   }: {
-    actions?: Snippet<[string]>
+    actions: Snippet<[string]>
     children: Snippet
-    compact?: boolean
     disabled?: boolean
     hint: string
     id: string
@@ -30,8 +28,6 @@
     short: string
     title: string
   } = $props()
-
-  let locked = $derived(disabled && !(compact && actions))
 </script>
 
 <div class="foldable" class:is-open={open}>
@@ -40,13 +36,13 @@
       class="foldable_button"
       aria-controls={disabled ? undefined : id}
       aria-expanded={open}
-      disabled={locked}
+      {disabled}
       onclick={(e: MouseEvent) => {
         // Only for mouse click, space/Enter we will handle below
         if (e.detail) ontoggle()
       }}
       onkeydown={(e: KeyboardEvent) => {
-        if (locked) return
+        if (disabled) return
         if (e.key === 'Enter') {
           // KeyUX moves focus into the list on Enter, so it only opens
           onexpand()
@@ -63,21 +59,12 @@
       <span class="foldable_hint" aria-hidden="true">{short}</span>
       <span class="sr-only">{hint}</span>
     </Clickable>
-    {#if !compact}
-      {@render actions?.(`${id}-title`)}
-    {/if}
+    {@render actions(`${id}-title`)}
   </div>
-  {#if open}
-    {#if compact && actions}
-      <div class="foldable_actions">
-        {@render actions(`${id}-title`)}
-      </div>
-    {/if}
-    {#if !disabled}
-      <div {id} class="foldable_content">
-        {@render children()}
-      </div>
-    {/if}
+  {#if open && !disabled}
+    <div {id} class="foldable_content">
+      {@render children()}
+    </div>
   {/if}
 </div>
 
@@ -93,7 +80,7 @@
 
     .foldable_header {
       display: flex;
-      gap: 0.5rem;
+      gap: 0.25rem;
       align-items: center;
     }
 
@@ -105,8 +92,10 @@
       gap: 0.5rem;
       align-items: baseline;
       min-width: 0;
-      padding: 0.25rem 0.5rem 0.25rem 0.25rem;
+      padding: max(0rem, (var(--control-height) - 1lh) / 2) 0.5rem
+        max(0rem, (var(--control-height) - 1lh) / 2) 0.25rem;
       margin-inline-start: -0.25rem;
+      font: var(--app-title-font);
       text-align: start;
       border-radius: var(--base-radius);
 
@@ -144,7 +133,6 @@
     .foldable_title {
       flex-shrink: 1;
       min-width: 0;
-      font: var(--app-title-font);
       overflow-wrap: anywhere;
 
       .foldable_button:active & {
@@ -163,18 +151,8 @@
       }
     }
 
-    .foldable_actions {
-      display: flex;
-      gap: 0.375rem;
-      margin-top: 0.125rem;
-    }
-
     .foldable_content {
-      margin-top: 0.5rem;
-
-      .foldable_actions + & {
-        margin-top: 0.375rem;
-      }
+      margin-top: 0.375rem;
     }
   }
 </style>

@@ -123,9 +123,8 @@ describe('export page', () => {
       accounts: [account],
       categories: [
         {
-          fastReader: null,
           id: category,
-          slowReader: null,
+          reader: null,
           title: 'A'
         }
       ],
@@ -134,7 +133,6 @@ describe('export page', () => {
           accountId: null,
           avatar: null,
           categoryId: category,
-          fastReader: null,
           frequency: null,
           id: feed,
           lastOriginId: null,
@@ -145,7 +143,7 @@ describe('export page', () => {
           protected: null,
           reading: 'fast',
           refreshedAt: null,
-          slowReader: null,
+          reader: null,
           title: '1',
           url: 'http://example.com/5'
         }
@@ -210,8 +208,7 @@ describe('export page', () => {
       settings: {
         customPostFont: '',
         fastPostsMaxAge: 604800,
-        generalFastReader: 'feed',
-        generalSlowReader: 'feed',
+        generalReader: 'feed',
         nightLock: { enabled: false, from: 23, to: 4 },
         openWarnings: false,
         postFont: 'default',

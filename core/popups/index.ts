@@ -1,5 +1,6 @@
 import type { PopupName } from '../router.ts'
 import { account } from './account.ts'
+import { category } from './category.ts'
 import type { PopupCreator } from './common.ts'
 import { feed } from './feed.ts'
 import { passkey } from './passkey.ts'
@@ -8,6 +9,7 @@ import { refresh } from './refresh.ts'
 import { session } from './session.ts'
 
 export type { AccountPopup } from './account.ts'
+export type { CategoryPopup } from './category.ts'
 export {
   type BasePopup,
   getPopupId,
@@ -23,6 +25,7 @@ export type { SessionPopup } from './session.ts'
 
 export const popups = {
   account,
+  category,
   feed,
   passkey,
   post,

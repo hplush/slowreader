@@ -736,7 +736,7 @@
   parameters={{ layout: 'fullscreen' }}
 >
   <Scene
-    categories={[{ fastReader: 'list', id: 'list', title: 'Photo' }]}
+    categories={[{ id: 'list', reader: 'list', title: 'Photo' }]}
     feeds={[
       {
         categoryId: 'list',
@@ -765,8 +765,8 @@
     feeds={[
       {
         id: 'feed',
+        reader: 'feed',
         reading: 'slow',
-        slowReader: 'feed',
         title: 'The Mozilla Blog'
       }
     ]}

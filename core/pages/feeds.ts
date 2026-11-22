@@ -1,9 +1,8 @@
 import { atom, computed, effect, type ReadableAtom } from 'nanostores'
 
-import { type CategoryValue, changeCategory, getCategory } from '../category.ts'
+import { type CategoryValue, getCategory } from '../category.ts'
 import { layoutType } from '../environment.ts'
-import { changeFeed, type FeedValue, getFeed } from '../feed.ts'
-import { waitLoading } from '../lib/stores.ts'
+import { type FeedValue, getFeed } from '../feed.ts'
 import {
   firstUnreadSlowFeedId,
   menuLoading,
@@ -13,11 +12,8 @@ import {
 import { type NightLockState, nightLockState } from '../night-lock.ts'
 import { deletePost, fastPostsCount, slowPostsCount } from '../post.ts'
 import { getFeedStats } from '../reactions.ts'
-import {
-  loadReadPostIds,
-  type PostFilter,
-  type UsefulReaderName
-} from '../readers/common.ts'
+import { isOpenedInReader, pickedReader, shownReader } from '../reader.ts'
+import { loadReadPostIds, type PostFilter } from '../readers/common.ts'
 import {
   type BaseReader,
   emptyReader,
@@ -83,6 +79,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
       prevReading?.exit()
       prevReading = reader
       $posts.set(reader)
+      shownReader.set(reader)
     }
 
     let params = {
@@ -160,9 +157,6 @@ let pages = (['slow', 'fast'] as const).map(reading => {
       }
     )
 
-    let readerProp =
-      reading === 'fast' ? ('fastReader' as const) : ('slowReader' as const)
-
     // Only the emptiness matters here, while the count changes on every added
     // or deleted post. Without it every post of the refresh would re-create
     // the reader.
@@ -176,15 +170,6 @@ let pages = (['slow', 'fast'] as const).map(reading => {
     // and on the reader’s name.
     let lastKey: string | undefined
 
-    let $picked = atom<
-      | {
-          categoryId: string | undefined
-          feedId: string | undefined
-          reader: UsefulReaderName
-        }
-      | undefined
-    >()
-
     let unbindPosts = effect(
       [
         $feed,
@@ -197,7 +182,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
         $menu,
         unreadFastMenu,
         $locked,
-        $picked
+        pickedReader
       ],
       (
         feed,
@@ -212,6 +197,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
         locked,
         picked
       ) => {
+        let row = feed ?? category
         let readerName: 'none' | ReaderName
         if (menu || locked.locked) {
           readerName = 'none'
@@ -227,7 +213,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
         ) {
           // The link to the category, which was read on another device
           readerName = loadingMenu ? 'none' : 'empty'
-        } else if (!feed && !category) {
+        } else if (!row) {
           // The loader is only for the target, which is still loading:
           // the menu without a feed to open is a normal state
           readerName =
@@ -236,14 +222,10 @@ let pages = (['slow', 'fast'] as const).map(reading => {
               : 'empty'
         } else {
           readerName =
-            (picked &&
-            picked.feedId === feedId &&
-            picked.categoryId === categoryId
+            picked &&
+            isOpenedInReader(picked, { category: categoryId, feed: feedId })
               ? picked.reader
-              : undefined) ??
-            feed?.[readerProp] ??
-            category?.[readerProp] ??
-            'feed'
+              : (row.reader ?? 'feed')
         }
 
         let filter: PostFilter
@@ -284,41 +266,8 @@ let pages = (['slow', 'fast'] as const).map(reading => {
       }
     )
 
-    async function changeReader(reader: UsefulReaderName): Promise<void> {
-      let feedId = $feedId.get()
-      let categoryId = $categoryId.get()
-      navigate(route =>
-        route.route === reading
-          ? { ...route, params: { ...route.params, from: undefined } }
-          : route
-      )
-      // Firefox spends seconds on the database commit
-      let picked = { categoryId, feedId, reader }
-      $picked.set(picked)
-      // Queries of the new reader would wait for the write transaction
-      let shown = $posts.get()
-      if (shown) {
-        await waitLoading(
-          computed(
-            [shown.loading, $posts],
-            (loading, current) => loading && current === shown
-          )
-        )
-      }
-      try {
-        if (feedId) {
-          await changeFeed(feedId, { [readerProp]: reader })
-        } else if (categoryId) {
-          await changeCategory(categoryId, { [readerProp]: reader })
-        }
-      } finally {
-        if ($picked.get() === picked) $picked.set(undefined)
-      }
-    }
-
     return {
       category: $category,
-      changeReader,
       menu: $menu,
       async exit() {
         unbindTarget()
@@ -327,6 +276,8 @@ let pages = (['slow', 'fast'] as const).map(reading => {
         unbindRedirect()
         unbindPosts()
         prevReading?.exit()
+        // The next page is created before this one is destroyed
+        if (shownReader.get() === prevReading) shownReader.set(undefined)
         prevLoadingUnbind()
         await deleteRead()
         await freeDatabasePages()

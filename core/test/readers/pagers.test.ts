@@ -69,9 +69,9 @@ describe('next pager', () => {
     count: number,
     publishedAt: (i: number) => number = i => i
   ): Promise<{ categoryId: string; last: string }> {
-    let categoryId = await addCategory({ fastReader: 'feed', title: 'A' })
-    let feed1 = await addFeed(testFeed({ categoryId, fastReader: 'feed' }))
-    let feed2 = await addFeed(testFeed({ categoryId, fastReader: 'feed' }))
+    let categoryId = await addCategory({ reader: 'feed', title: 'A' })
+    let feed1 = await addFeed(testFeed({ categoryId, reader: 'feed' }))
+    let feed2 = await addFeed(testFeed({ categoryId, reader: 'feed' }))
     let last = ''
     for (let i = 1; i <= count; i++) {
       last = await addPost(
@@ -267,7 +267,7 @@ describe('number pager', () => {
     count: number,
     publishedAt: (i: number) => number = i => i
   ): Promise<string> {
-    let feedId = await addFeed(testFeed({ slowReader: 'list' }))
+    let feedId = await addFeed(testFeed({ reader: 'list' }))
     for (let i = 1; i <= count; i++) {
       await addPost(
         testPost({
@@ -285,10 +285,10 @@ describe('number pager', () => {
     keepMount(slowMenu)
     let categoryId = await addCategory({ title: 'A' })
     let feed1 = await addFeed(
-      testFeed({ categoryId, slowReader: 'list', title: 'Feed 1' })
+      testFeed({ categoryId, reader: 'list', title: 'Feed 1' })
     )
     let feed2 = await addFeed(
-      testFeed({ categoryId, slowReader: 'list', title: 'Feed 2' })
+      testFeed({ categoryId, reader: 'list', title: 'Feed 2' })
     )
     for (let i = 1; i <= 75; i++) {
       await addPost(

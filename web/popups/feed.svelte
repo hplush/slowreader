@@ -5,7 +5,9 @@
     mdiChevronDown,
     mdiFire,
     mdiFood,
+    mdiFormatListChecks,
     mdiOpenInNew,
+    mdiPageLayoutHeaderFooter,
     mdiPlusCircleOutline,
     mdiSleep,
     mdiThumbDownOutline,
@@ -59,6 +61,7 @@
     posts,
     previews,
     reactions,
+    reader,
     reading,
     site,
     stats,
@@ -235,6 +238,21 @@
         {:else if isAccountService(popup.loader) && !popup.noAnonymous}
           <Status label={$t.account}>{$t.anonymous}</Status>
         {/if}
+      {/if}
+      {#if $reader}
+        <Stack row="half-if-fits">
+          <Radio
+            anchor="reader"
+            label={$t.view}
+            onchange={popup.changeReader}
+            size="wide"
+            value={$reader}
+            values={[
+              ['list', $t.viewList, mdiFormatListChecks],
+              ['feed', $t.viewFeed, mdiPageLayoutHeaderFooter]
+            ]}
+          />
+        </Stack>
       {/if}
     {/if}
     {#if $stats}

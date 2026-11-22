@@ -62,6 +62,8 @@ import {
   getFeedStats,
   type ReactionValue
 } from '../reactions.ts'
+import { changeReader } from '../reader.ts'
+import type { UsefulReaderName } from '../readers/common.ts'
 import { loadRecentPosts } from '../refresh.ts'
 import type { FeedChanges } from '../schema.ts'
 import { addThreadStarts } from '../thread.ts'
@@ -485,6 +487,10 @@ export const feed = definePopup('feed', async url => {
     categories: getCategoryOptions(categoriesStore),
     change,
     changeAccount,
+    async changeReader(reader: UsefulReaderName): Promise<void> {
+      let created = $feed.get()
+      if (created) await changeReader({ feedId: created.id }, reader)
+    },
     deleting: $deleting,
     dislikedPosts: getReactedPosts(false),
     destroy() {
@@ -526,6 +532,7 @@ export const feed = definePopup('feed', async url => {
         }
       })
     }),
+    reader: computed($feed, created => created && (created.reader ?? 'feed')),
     reading: computed([$feed, $owner], (created, owner) =>
       getFeedReading(created ?? { reading: null }, owner)
     ),

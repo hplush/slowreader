@@ -8,13 +8,14 @@ export const organizeMessages = i18n('organize', {
   accountReading: 'Account',
   anonymous: 'Anonymous',
   categoriesTitle: 'Categories',
-  delete: 'Delete',
   deleteCategory: 'Delete category',
   deleteCategoryConform:
     'All feeds in this category will be moved to General. Are you sure you want to continue?',
   deleteConform:
     'This will permanently delete the feed, including its statistics and posts. Are you sure?',
   dislikedPosts: 'Disliked',
+  editCategory: 'Edit category',
+  editFeed: 'Edit feed',
   deleteFinalConform:
     'This will delete the feed and leave the private channel. You can return only by an invite. Are you sure?',
   fast: 'Fun',
@@ -50,8 +51,6 @@ export const organizeMessages = i18n('organize', {
   openWebsite: 'Open website',
   postsList: 'Posts list',
   recentPosts: 'Recent',
-  rename: 'Rename',
-  renameCategory: 'Rename category',
   sameAsAccount: 'Same as account',
   slow: 'Useful',
   stats: 'Last 90 days',
@@ -67,5 +66,8 @@ export const organizeMessages = i18n('organize', {
   title: 'Feed name',
   tooFrequent: 'Feed posts too often',
   type: 'Feed type',
-  unfollow: 'Unfollow'
+  unfollow: 'Unfollow',
+  view: 'Feed view',
+  viewFeed: 'Cards',
+  viewList: 'Titles'
 })

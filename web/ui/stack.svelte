@@ -24,7 +24,7 @@
     padding?: 'xl'
     reading?: 'fast' | 'slow'
     role?: 'menu' | 'menuitem'
-    row?: 'if-fits' | boolean
+    row?: 'half-if-fits' | 'if-fits' | boolean
     width?: 'auto' | 'stretch'
     wrap?: boolean
   } = $props()
@@ -54,6 +54,7 @@
   class:is-non-comfort-mode={reading === 'fast'}
   class:is-padding-xl={padding === 'xl'}
   class:is-row={row === true}
+  class:is-row-half-if-fits={row === 'half-if-fits'}
   class:is-row-if-fits={row === 'if-fits'}
   class:is-width-auto={width === 'auto'}
   class:is-width-stretch={width === 'stretch'}
@@ -132,6 +133,11 @@
       &.is-row-if-fits {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+      }
+
+      &.is-row-half-if-fits {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
       }
 
       &.is-padding-xl {

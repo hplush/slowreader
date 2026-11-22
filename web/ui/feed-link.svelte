@@ -1,30 +1,43 @@
 <script lang="ts">
+  import { mdiTune } from '@mdi/js'
+
   import FeedAvatar from './feed-avatar.svelte'
+  import Icon from './icon.svelte'
 
   let {
+    anchor,
     avatar,
     avatarRound,
     avatarSize,
+    edit,
     feedId,
     handle,
     href,
     title,
     variant = 'main'
   }: {
-    avatar: null | string
-    avatarRound: boolean
+    anchor?: string
     avatarSize?: 'medium' | 'small'
-    feedId: string
+    edit?: string
     handle?: string
     href: string
     title: string
     variant?: 'main' | 'secondary'
-  } = $props()
+  } & (
+    | { avatar: null | string; avatarRound: boolean; feedId: string }
+    | { avatar?: undefined; avatarRound?: undefined; feedId?: undefined }
+  ) = $props()
 </script>
 
-<div class="feed-link" class:is-secondary={variant === 'secondary'}>
-  <a class="feed-link_link" {href}>
-    <FeedAvatar {avatar} {feedId} round={avatarRound} size={avatarSize} />
+<div
+  class="feed-link"
+  class:is-editable={!!edit}
+  class:is-secondary={variant === 'secondary'}
+>
+  <a class="feed-link_link" data-anchor={anchor ?? null} {href}>
+    {#if feedId !== undefined}
+      <FeedAvatar {avatar} {feedId} round={avatarRound} size={avatarSize} />
+    {/if}
     {#if handle}
       <span class="feed-link_names">
         <span class="feed-link_text">{title}</span>
@@ -32,6 +45,12 @@
       </span>
     {:else}
       <span class="feed-link_text">{title}</span>
+    {/if}
+    {#if edit}
+      <span class="feed-link_edit">
+        <Icon path={mdiTune} />
+      </span>
+      <span class="sr-only">{edit}</span>
     {/if}
   </a>
 </div>
@@ -72,6 +91,28 @@
       &:active {
         translate: 0 1px;
       }
+
+      .feed-link.is-editable & {
+        width: fit-content;
+        padding-inline: 0.5rem;
+        margin-inline-start: -0.5rem;
+
+        &:hover,
+        &:active,
+        &:focus-visible {
+          text-decoration: none;
+          background: --tune-background(--flat-button --flat-button-hover);
+        }
+
+        &:active {
+          box-shadow: var(--pressed-shadow);
+        }
+      }
+    }
+
+    .feed-link_edit {
+      flex-shrink: 0;
+      margin-inline-start: -0.125rem;
     }
 
     .feed-link_names {

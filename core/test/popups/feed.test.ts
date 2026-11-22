@@ -409,6 +409,31 @@ describe('feed popup', () => {
     equal(checkLoadedPopup(popup).title, 'Mine')
   })
 
+  test('changes reader of the feed', async () => {
+    let feedId = await addFeed(
+      testFeed({ reader: 'list', url: 'https://a.com/atom' })
+    )
+    expectRequest('https://a.com/atom').andRespond(
+      200,
+      '<feed><title>Atom</title></feed>',
+      'text/xml'
+    )
+    let opened = openTestPopup('feed', 'https://a.com/atom')
+    await waitLoading(opened.loading)
+    let popup = checkLoadedPopup(opened)
+    let unbind = popup.reader.listen(() => {})
+    equal(popup.reader.get(), 'list')
+
+    await popup.changeReader('feed')
+    await waitUntil(() => popup.reader.get() === 'feed')
+    equal((await loadFeed(feedId))?.reader, 'feed')
+    unbind()
+
+    await popup.remove()
+    equal(popup.reader.get(), undefined)
+    await popup.changeReader('list')
+  })
+
   test('loads feeds by URL popup', async () => {
     expectRequest('https://a.com/atom').andRespond(
       200,

@@ -282,7 +282,7 @@ async function fillClient(
       loader: 'rss',
       reading,
       refreshedAt: now,
-      slowReader: feedId === READER_FEED ? 'feed' : undefined,
+      reader: feedId === READER_FEED ? 'feed' : undefined,
       title: sentence(random, 1, 4),
       url: `https://example.com/${feedId}.xml`
     })

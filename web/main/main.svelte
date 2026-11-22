@@ -35,6 +35,7 @@
   import StoragePage from '../pages/storage.svelte'
   import WelcomePage from '../pages/welcome.svelte'
   import AccountPopup from '../popups/account.svelte'
+  import CategoryPopup from '../popups/category.svelte'
   import ErrorPopup from '../popups/error.svelte'
   import FeedPopup from '../popups/feed.svelte'
   import LoadingPopup from '../popups/loading.svelte'
@@ -152,6 +153,8 @@
       <AccountPopup {popup} />
     {:else if isPopup(popup, 'session')}
       <SessionPopup {popup} />
+    {:else if isPopup(popup, 'category')}
+      <CategoryPopup {popup} />
     {:else}
       {missedPopup(popup)}
     {/if}
