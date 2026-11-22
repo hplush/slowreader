@@ -216,7 +216,13 @@ async function startServer(): Promise<[string, () => void]> {
     if (e instanceof Error && e.message.includes('busy')) throw e
   }
 
-  let serverArgs = ['--port', String(PORT), '--strictPort']
+  let serverArgs = [
+    '--host',
+    '127.0.0.1',
+    '--port',
+    String(PORT),
+    '--strictPort'
+  ]
   if (!dev) {
     status('Building app…')
     let build = spawnSync(join(ROOT, 'node_modules/.bin/vite'), ['build'], {
