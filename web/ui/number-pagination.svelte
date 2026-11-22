@@ -43,7 +43,7 @@
         disabled={!pages.hasNext}
         href={getPaginationURL($router, `${pages.page + 1}`)}
         icon={mdiArrowRight}
-        variant="attention"
+        variant="secondary"
       >
         {$t.nextPage}
       </Button>

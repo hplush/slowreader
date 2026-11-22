@@ -153,21 +153,20 @@
         />
       {:else if reader && $pages}
         {#if $readingPage || $list?.some(post => !post.read)}
-          <Stack align="center">
-            <Button
-              anchor="read-page"
-              icon={mdiCheckboxMultipleMarkedOutline}
-              loader={$readingPage}
-              onclick={reader.readPage}
-              size="pill"
-            >
-              {#if $pages.hasNext}
-                {$t.readPageAndNext}
-              {:else}
-                {$t.readPage}
-              {/if}
-            </Button>
-          </Stack>
+          <Button
+            anchor="read-page"
+            icon={mdiCheckboxMultipleMarkedOutline}
+            loader={$readingPage}
+            onclick={reader.readPage}
+            size="wide"
+            variant={$readingPage ? 'secondary' : 'attention'}
+          >
+            {#if $pages.hasNext}
+              {$t.readPageAndNext}
+            {:else}
+              {$t.readPage}
+            {/if}
+          </Button>
         {/if}
         <NumberPagination pages={$pages} />
       {/if}
