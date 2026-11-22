@@ -1,4 +1,5 @@
 <script context="module" lang="ts">
+  import { syncStatus } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import MenuPage from '../../pages/menu.svelte'
@@ -17,7 +18,12 @@
   globals={{ viewport: { value: 'mobile2' } }}
   parameters={{ layout: 'fullscreen' }}
 >
-  <Scene route="menu">
+  <Scene
+    oninit={() => {
+      syncStatus.set('error')
+    }}
+    route="menu"
+  >
     <MenuPage />
     <Navbar />
   </Scene>

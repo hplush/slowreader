@@ -8,7 +8,8 @@
     navigate,
     pages,
     type PostValue,
-    saveDataMode
+    saveDataMode,
+    syncStatus
   } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
@@ -807,11 +808,23 @@
     ]}
     feeds={[
       { categoryId: 'browsers', id: 'mozilla', title: 'The Mozilla Blog' },
-      { categoryId: 'socials', id: 'mastadon', title: 'Mastodon Blog' }
+      { categoryId: 'socials', id: 'mastadon', title: 'Mastodon Blog' },
+      ...Array.from({ length: 24 }, (_, i) => ({
+        categoryId: 'socials',
+        id: `blog${i}`,
+        title: `Blog ${i + 1}`
+      }))
     ]}
+    oninit={() => {
+      syncStatus.set('disconnected')
+    }}
     posts={[
       { feedId: 'mozilla', reading: 'slow' },
-      { feedId: 'mastadon', reading: 'slow' }
+      { feedId: 'mastadon', reading: 'slow' },
+      ...Array.from({ length: 24 }, (_, i) => ({
+        feedId: `blog${i}`,
+        reading: 'slow' as const
+      }))
     ]}
     route="slow"
   >
@@ -835,6 +848,9 @@
       { categoryId: 'browsers', id: 'mozilla', title: 'The Mozilla Blog' },
       { categoryId: 'socials', id: 'mastadon', title: 'Mastodon Blog' }
     ]}
+    oninit={() => {
+      syncStatus.set('sending')
+    }}
     route="fast"
   >
     <FeedsPage page={pages.fast()} />

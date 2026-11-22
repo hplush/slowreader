@@ -142,8 +142,8 @@
         <NavbarOther />
       {/if}
     </div>
+    <NavbarSync />
   {/if}
-  <NavbarSync />
 </nav>
 
 <style lang="postcss">

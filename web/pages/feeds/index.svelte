@@ -25,6 +25,7 @@
   import Loader from '../../ui/loader.svelte'
   import NavbarFast from '../../ui/navbar/fast.svelte'
   import NavbarSlow from '../../ui/navbar/slow.svelte'
+  import NavbarSync from '../../ui/navbar/sync.svelte'
   import NextPagination from '../../ui/next-pagination.svelte'
   import NumberPagination from '../../ui/number-pagination.svelte'
   import PopupablePage from '../../ui/popupable-page.svelte'
@@ -77,6 +78,7 @@
 {#if $menu}
   <ThinPage title={page.reading === 'slow' ? $navbar.slow : $navbar.fast}>
     <div {@attach keepMenuScroll(page.reading)}>
+      <NavbarSync />
       {#if page.reading === 'slow'}
         <NavbarSlow />
       {:else}

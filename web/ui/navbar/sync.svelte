@@ -43,39 +43,56 @@
   {@const iconOnly =
     $syncStatus === 'sending' || $syncStatus === 'sendingAfterWait'}
   <div class="navbar-sync" class:is-icon-only={iconOnly}>
-    <Button
-      color={COLORS[$syncStatusType]}
-      href={getURL({ params: {}, route: 'cloud' })}
-      icon={ICONS[$syncStatus]}
-      size={iconOnly ? 'icon-pill' : 'pill'}
-      variant="plain"
-    >
-      {#if $syncStatus === 'wait' || $syncStatus === 'disconnected'}
-        {$t.offlineStatus}
-      {:else if $syncStatus === 'connecting' || $syncStatus === 'connectingAfterWait'}
-        {$t.connectingStatus}
-      {:else if $syncStatus === 'sending' || $syncStatus === 'sendingAfterWait'}
-        {$t.sending}
-      {:else}
-        {$t[`${$syncStatus}Status`]}
-      {/if}
-    </Button>
+    <div class="navbar-sync_corner">
+      <Button
+        color={COLORS[$syncStatusType]}
+        href={getURL({ params: {}, route: 'cloud' })}
+        icon={ICONS[$syncStatus]}
+        size={iconOnly ? 'icon-pill' : 'pill'}
+        variant="plain"
+      >
+        {#if $syncStatus === 'wait' || $syncStatus === 'disconnected'}
+          {$t.offlineStatus}
+        {:else if $syncStatus === 'connecting' || $syncStatus === 'connectingAfterWait'}
+          {$t.connectingStatus}
+        {:else if $syncStatus === 'sending' || $syncStatus === 'sendingAfterWait'}
+          {$t.sending}
+        {:else}
+          {$t[`${$syncStatus}Status`]}
+        {/if}
+      </Button>
+    </div>
   </div>
 {/if}
 
-<style>
+<style lang="postcss">
   :global {
     .navbar-sync {
       padding: 0 0.375rem;
 
-      &.is-icon-only {
-        position: absolute;
-        bottom: 0;
-        inset-inline-start: 0;
+      @media (--desktop) {
+        &.is-icon-only {
+          position: absolute;
+          bottom: 0;
+          inset-inline-start: 0;
+        }
       }
 
       @media (--no-desktop) {
-        display: none;
+        height: var(--control-height);
+        padding: 0;
+      }
+    }
+
+    .navbar-sync_corner {
+      @media (--no-desktop) {
+        @mixin background var(--land-color);
+
+        position: fixed;
+        top: 0.5rem;
+        inset-inline-end: calc(var(--page-padding) + 0.125rem);
+        z-index: 3;
+        border-radius: 0.75rem;
       }
     }
   }
