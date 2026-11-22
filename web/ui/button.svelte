@@ -26,6 +26,7 @@
     MouseEventHandler
   } from 'svelte/elements'
 
+  import { hideIconsOnWrap } from '../lib/wrap.ts'
   import Clickable from './clickable.svelte'
   import Icon from './icon.svelte'
   import Loader from './loader.svelte'
@@ -102,9 +103,18 @@
       />
     {/if}
   </span>
-  <span class="button_cap" aria-hidden={!!loader}>
+  <span
+    class="button_cap"
+    {@attach !!icon &&
+      size !== 'icon' &&
+      size !== 'icon-pill' &&
+      hideIconsOnWrap('.button_text')}
+    aria-hidden={!!loader}
+  >
     {#if icon}
-      <Icon path={icon} />
+      <span class="button_icon">
+        <Icon path={icon} />
+      </span>
     {/if}
     <span
       class="button_text"
@@ -370,6 +380,14 @@
 
       .button.is-loader & {
         opacity: 0%;
+      }
+    }
+
+    .button_icon {
+      display: contents;
+
+      .button_cap.is-iconless & {
+        display: none;
       }
     }
 

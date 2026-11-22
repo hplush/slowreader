@@ -164,6 +164,9 @@
     <Section width={300}>
       <Button {icon} {onclick} size="wide">Wide</Button>
     </Section>
+    <Section width={228}>
+      <Button {icon} {onclick} size="wide">Icon hides to keep one line</Button>
+    </Section>
     <Section width={300}>
       <Button {icon} {onclick} size="big" variant="main">Big</Button>
     </Section>

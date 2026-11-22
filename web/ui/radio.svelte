@@ -1,4 +1,5 @@
 <script generics="Value extends string" lang="ts">
+  import { hideIconsOnWrap } from '../lib/wrap.ts'
   import Icon from './icon.svelte'
   import Label from './label.svelte'
 
@@ -31,24 +32,6 @@
   }
 
   let position = $derived(values.findIndex(i => i[0] === current))
-
-  function hideIconsOnWrap(gutter: HTMLElement): () => void {
-    let observer = new ResizeObserver(() => {
-      gutter.classList.remove('is-iconless')
-      gutter.classList.toggle(
-        'is-iconless',
-        [...gutter.querySelectorAll('.radio_name')].some(name => {
-          let range = document.createRange()
-          range.selectNodeContents(name)
-          return range.getClientRects().length > 1
-        })
-      )
-    })
-    observer.observe(gutter)
-    return () => {
-      observer.disconnect()
-    }
-  }
 </script>
 
 <fieldset
@@ -60,7 +43,10 @@
   {#if !labelless}
     <Label tag="legend">{label}</Label>
   {/if}
-  <div class="radio_gutter" {@attach size !== 'icon' && hideIconsOnWrap}>
+  <div
+    class="radio_gutter"
+    {@attach size !== 'icon' && hideIconsOnWrap('.radio_name')}
+  >
     <div
       style:--radio-width={`${100 / values.length}%`}
       style:--radio-position={position}
