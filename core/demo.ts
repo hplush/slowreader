@@ -2,6 +2,7 @@ import { busyDuring } from './busy.ts'
 import { deleteCategory, loadCategories } from './category.ts'
 import { loadFeedByUrl, RELEASES_FEED } from './feed.ts'
 import { welcomeMessages } from './messages/index.ts'
+import { deleteOrphanStats } from './reactions.ts'
 import { freeDatabasePages, getTables } from './schema.ts'
 import { isDemo } from './welcome.ts'
 
@@ -18,6 +19,7 @@ export async function deleteDemo(): Promise<void> {
       await deleteCategory(category.id)
     }
   }
+  await deleteOrphanStats()
   await freeDatabasePages()
   isDemo.set(false)
 }

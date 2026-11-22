@@ -5,6 +5,7 @@ import {
   addCategory,
   addFeed,
   addPost,
+  addView,
   busy,
   deleteDemoWithBusy,
   hasSources,
@@ -13,7 +14,10 @@ import {
   loadCategories,
   loadFeeds,
   loadPosts,
+  loadReactions,
+  loadViews,
   RELEASES_FEED,
+  setPostReaction,
   testFeed,
   testPost,
   userId,
@@ -74,6 +78,12 @@ describe('demo', () => {
       testPost({ feedId: demoFeed }),
       testPost({ feedId, title: 'Release' })
     ])
+    await setPostReaction({ feedId: demoFeed, id: 'demo' }, 'like')
+    await setPostReaction({ feedId, id: 'release' }, 'like')
+    await addView([
+      { day: 1, days: [{ count: 1, day: 1 }], feedId: demoFeed, id: 'a' },
+      { day: 1, days: [{ count: 1, day: 1 }], feedId, id: 'b' }
+    ])
     isDemo.set(true)
     equal(hasSources.get(), true)
 
@@ -91,6 +101,14 @@ describe('demo', () => {
     deepStrictEqual(
       (await loadCategories()).map(i => i.id),
       [categoryId]
+    )
+    deepStrictEqual(
+      (await loadReactions()).map(i => i.id),
+      ['release']
+    )
+    deepStrictEqual(
+      (await loadViews()).map(i => i.id),
+      ['b']
     )
     equal(hasSources.get(), false)
   })

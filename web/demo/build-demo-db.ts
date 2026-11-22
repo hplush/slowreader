@@ -5,12 +5,16 @@ import { nodeDriver } from '@nanostores/sql/node'
 import {
   addCandidate,
   addCategory,
+  addReaction,
+  addView,
   cacheMediaReading,
   changeFeed,
   createDownloadTask,
   currentPage,
   deleteFeed,
+  deletePost,
   errorToMessage,
+  fastPostsMaxAge,
   findFeed,
   generateCredentials,
   getCrdt,
@@ -22,12 +26,15 @@ import {
   loadFeedByUrl,
   loadFeedsByCategory,
   moveLastSyncedToPast,
+  type NewReaction,
+  type NewView,
   refreshErrors,
   refreshPosts,
   refreshStatistics,
   setProxyAsRequestMethod,
   setupEnvironment,
-  startLocalUser
+  startLocalUser,
+  STATS_DAYS
 } from '@slowreader/core'
 import { setupNodeDom } from '@slowreader/core/node'
 import {
@@ -35,7 +42,7 @@ import {
   openRoute,
   setWarningTracking
 } from '@slowreader/core/test'
-import { createHash } from 'node:crypto'
+import { createHash, randomUUID } from 'node:crypto'
 import { readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
@@ -66,6 +73,63 @@ const FAST = ['Comics', 'Art', 'Mastodon', 'BlueSky', 'Short Facts']
  * the refresh when to stop, and drops the feeds which were quiet for longer.
  */
 const DAYS = 30
+
+interface Habit {
+  /**
+   * How many old posts of the feed get a dislike.
+   */
+  disliked: number
+  liked: number
+  /**
+   * Share of seen posts, which user opened.
+   */
+  opened: number
+  /**
+   * For how many last days user does not read the feed.
+   */
+  quit: number
+  /**
+   * Share of published posts, which user saw.
+   */
+  read: number
+}
+
+const FAVOURITE = { disliked: 0, liked: 7, opened: 0.2, quit: 0, read: 1 }
+const USUAL = { disliked: 1, liked: 3, opened: 0.15, quit: 0, read: 0.8 }
+const NOISY = { disliked: 3, liked: 1, opened: 0.1, quit: 0, read: 0.4 }
+const ABANDONED = { disliked: 0, liked: 0, opened: 0.1, quit: 30, read: 0.6 }
+
+/**
+ * The rest of the feeds get the habit by the hash of their URL.
+ */
+const BY_HAND: Record<string, Habit> = {
+  'https://slowreader.app/releases.atom': FAVOURITE
+}
+
+const BY_HASH: Habit[] = [
+  FAVOURITE,
+  FAVOURITE,
+  USUAL,
+  USUAL,
+  USUAL,
+  USUAL,
+  USUAL,
+  NOISY,
+  NOISY,
+  ABANDONED
+]
+
+/**
+ * The same numbers on every build keep the landing screenshots stable.
+ */
+function seededRandom(seed: number): () => number {
+  return () => {
+    seed = (seed + 0x6d2b79f5) | 0
+    let mixed = Math.imul(seed ^ (seed >>> 15), 1 | seed)
+    mixed = (mixed + Math.imul(mixed ^ (mixed >>> 7), 61 | mixed)) ^ mixed
+    return ((mixed ^ (mixed >>> 14)) >>> 0) / 4294967296
+  }
+}
 
 setupNodeDom()
 
@@ -213,6 +277,99 @@ let empty = await getCrdt().select<{ title: string }>`
 for (let feed of empty) {
   warning(`No posts in ${DAYS} days: ${feed.title}`)
 }
+
+// Reading history of the demo user, so the statistics of the feeds look like
+// after a real use. Likes and dislikes go to the oldest loaded posts, which
+// are deleted as the app does it with read posts.
+let now = Math.floor(Date.now() / 1000)
+let today = Math.floor(now / 86400)
+let nextVisit = seededRandom(1)
+let visitedDaysAgo = Array.from({ length: STATS_DAYS }, () => {
+  return nextVisit() < 0.75
+})
+let followed = await getCrdt().select<{ id: string; url: string }>`
+  SELECT "id", "url" FROM "feeds"
+`
+let views: NewView[] = []
+let reactions: NewReaction[] = []
+let read: string[] = []
+for (let feed of followed) {
+  let posts = await getCrdt().select<{
+    id: string
+    reading: 'fast' | 'slow'
+    sortedAt: number
+    threadId: null | string
+    url: null | string
+  }>`
+    SELECT "id", "reading", "sortedAt", "threadId", "url" FROM "posts"
+    WHERE "feedId" = ${feed.id} AND "merged" = 0 ORDER BY "sortedAt"
+  `
+  let oldest = posts[0]
+  if (!oldest) continue
+  let next = seededRandom(
+    createHash('sha256').update(feed.url).digest().readUInt32LE(0)
+  )
+  let habit = BY_HAND[feed.url] ?? BY_HASH[Math.floor(next() * BY_HASH.length)]!
+  let perDay =
+    posts.length / Math.min(DAYS, Math.max(1, (now - oldest.sortedAt) / 86400))
+
+  let days: NewView['days'] = []
+  let unread = 0
+  for (let ago = STATS_DAYS - 1; ago >= Math.max(1, habit.quit); ago--) {
+    unread += perDay * habit.read * (0.5 + next())
+    if (!visitedDaysAgo[ago]) continue
+    let count = Math.floor(unread)
+    if (count === 0) continue
+    unread -= count
+    days.push({ count, day: today - ago })
+  }
+  if (days.length === 0) continue
+  views.push({
+    day: days.at(-1)!.day,
+    days,
+    feedId: feed.id,
+    id: `demo:${feed.id}`
+  })
+
+  // The first refresh deletes these posts anyway
+  let old = posts.filter(post => {
+    return (
+      post.reading === 'fast' && post.sortedAt < now - fastPostsMaxAge.get()
+    )
+  })
+  if (old.length === 0) old = posts.slice(0, Math.floor(posts.length / 4))
+  for (let post of old
+    .filter(i => i.url && !i.threadId)
+    .slice(0, habit.liked + habit.disliked)) {
+    reactions.push({
+      at: Math.min(now, post.sortedAt + 86400),
+      feedId: feed.id,
+      id: post.id,
+      type:
+        next() < habit.disliked / (habit.liked + habit.disliked)
+          ? 'dislike'
+          : 'like',
+      url: post.url
+    })
+    read.push(post.id)
+  }
+
+  let seen = days.reduce((sum, day) => sum + day.count, 0)
+  for (let i = 0; i < Math.round(seen * habit.opened); i++) {
+    reactions.push({
+      at:
+        days[Math.floor(next() * days.length)]!.day * 86400 +
+        Math.floor(next() * 86400),
+      feedId: feed.id,
+      id: randomUUID(),
+      type: next() < 0.7 ? 'open' : 'link'
+    })
+  }
+}
+await addView(views)
+await addReaction(reactions)
+await deletePost(read)
+success('Added reading history of the demo user')
 
 printAboveProgress('')
 
