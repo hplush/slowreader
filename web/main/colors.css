@@ -156,7 +156,7 @@
   :root {
     --selection-color: oklch(0.5 0.1 102);
     --text-color: var(--light-text-color);
-    --dangerous-text-color: oklch(0.84 0.1 20);
+    --dangerous-text-color: oklch(0.82 0.12 20);
     --warning-text-color: oklch(0.85 0.12 90);
     --success-text-color: oklch(0.7 0.16 150);
     --url-color: oklch(0.78 0.114 240);
