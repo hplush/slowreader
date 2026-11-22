@@ -194,7 +194,8 @@
       }
 
       .click-to-load.is-round & {
-        padding: 15%;
+        justify-content: flex-start;
+        padding: calc(50% - 2rem) 15% 0 15%;
       }
     }
 
