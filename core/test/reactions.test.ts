@@ -1,4 +1,4 @@
-import { atom } from 'nanostores'
+import { atom, cleanStores } from 'nanostores'
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
@@ -191,7 +191,10 @@ describe('reactions', () => {
 
     let ids = atom(['a', 'b', 'new'])
     let stats = getFeedStats(ids)
-    t.after(stats.listen(() => {}))
+    stats.listen(() => {})
+    t.after(() => {
+      cleanStores(stats)
+    })
     await waitUntil(() => stats.get().get('a')?.max === 20)
     deepEqual(Object.fromEntries(stats.get()), {
       a: { disliked: 1, liked: 2, max: 20, opened: 2, seen: 10 },
@@ -243,7 +246,10 @@ describe('reactions', () => {
 
   test('grows the scale to feeds on the screen', async t => {
     let stats = getFeedStats(atom(['a', 'b']))
-    t.after(stats.listen(() => {}))
+    stats.listen(() => {})
+    t.after(() => {
+      cleanStores(stats)
+    })
     trackSeen('a', 4)
     deepEqual(Object.fromEntries(stats.get()), {
       a: { disliked: 0, liked: 0, max: 4, opened: 0, seen: 4 },
@@ -290,7 +296,10 @@ describe('reactions', () => {
     await updateMaxSeen()
 
     let stats = getFeedStats(atom(['a']))
-    t.after(stats.listen(() => {}))
+    stats.listen(() => {})
+    t.after(() => {
+      cleanStores(stats)
+    })
     await waitUntil(() => stats.get().get('a')?.liked === 2)
     deepEqual(stats.get().get('a'), {
       disliked: 0,
@@ -364,7 +373,10 @@ describe('reactions', () => {
       ['other:2']
     )
     let stats = getFeedStats(atom([feed1, feed2]))
-    t.after(stats.listen(() => {}))
+    stats.listen(() => {})
+    t.after(() => {
+      cleanStores(stats)
+    })
     await waitUntil(() => stats.get().get(feed2)?.liked === 1)
     deepEqual(Object.fromEntries(stats.get()), {
       [feed1]: { disliked: 0, liked: 0, max: 3, opened: 0, seen: 0 },
