@@ -17,10 +17,10 @@
   {$t[`${type}Desc`]}
   <Stack gap="xs" row>
     <Button
+      color="dangerous"
       joined="start"
       onclick={deleteDemoWithBusy}
       size="wide"
-      variant="secondary-dangerous"
     >
       {$t.drop}
     </Button>

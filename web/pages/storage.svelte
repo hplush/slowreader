@@ -109,6 +109,7 @@
         </Button>
       {:else}
         <Button
+          color="dangerous"
           icon={mdiTrashCanOutline}
           onclick={() => {
             if (confirm(t.get().deleteWarning)) {
@@ -116,7 +117,6 @@
             }
           }}
           size="wide"
-          variant="secondary-dangerous"
         >
           {$t.deleteData}
         </Button>

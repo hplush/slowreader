@@ -236,11 +236,12 @@
             </Stack>
             <Stack gap="s" row>
               <Button
+                color="secondary"
                 disabled={$submitting}
                 icon={mdiChevronLeft}
                 onclick={page.cancel}
                 size="wide"
-                variant="plain-secondary"
+                variant="plain"
               >
                 {$t.cancel}
               </Button>

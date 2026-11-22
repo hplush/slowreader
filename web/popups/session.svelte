@@ -20,9 +20,9 @@
 <Popup id={getPopupId(popup.name, popup.param)}>
   {#snippet header()}
     <Button
+      color={$session?.current ? undefined : 'dangerous'}
       icon={mdiLogout}
       onclick={popup.signOut}
-      variant={$session?.current ? 'secondary' : 'secondary-dangerous'}
     >
       {$t.signOutSession}
     </Button>

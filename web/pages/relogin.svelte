@@ -26,10 +26,10 @@
       <Stack gap="xxl">
         <SignInForm {page} submit={$t.relogin} title={$t.reloginForm} />
         <Button
+          color="dangerous"
           icon={mdiLogout}
           onclick={page.signOut}
           size="wide"
-          variant="secondary-dangerous"
         >
           {$t.exit}
         </Button>

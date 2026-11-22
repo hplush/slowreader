@@ -53,8 +53,9 @@
         {...props}
       />
     {/if}
-    <div class="output_button" class:is-copied={$copied}>
+    <div class="output_button">
       <Button
+        color={$copied ? 'success' : undefined}
         icon={$copied ? mdiCheck : mdiContentCopy}
         joined="end"
         onclick={() => copy(value)}
@@ -116,10 +117,6 @@
       position: absolute;
       inset-block-start: 0;
       inset-inline-end: 0;
-    }
-
-    .output_button.is-copied {
-      --text-color: var(--success-text-color);
     }
   }
 </style>

@@ -74,6 +74,7 @@
       </Button>
     {:else}
       <Button
+        color="dangerous"
         icon={mdiTrashCanOutline}
         loader={$deleting}
         onclick={() => {
@@ -87,7 +88,6 @@
             popup.remove()
           }
         }}
-        variant="secondary-dangerous"
       >
         {$t.unfollow}
       </Button>

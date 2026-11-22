@@ -32,13 +32,13 @@
 <Popup id={getPopupId(popup.name, popup.param)}>
   {#snippet header()}
     <Button
+      color="dangerous"
       icon={mdiTrashCanOutline}
       onclick={() => {
         if (confirm($t.deleteConfirm)) {
           popup.remove()
         }
       }}
-      variant="secondary-dangerous"
     >
       {$t.deleteAccount}
     </Button>

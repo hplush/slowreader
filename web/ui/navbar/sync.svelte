@@ -32,10 +32,10 @@
     wrongCredentials: mdiCloudAlert
   } satisfies Partial<Record<SyncStatus, string>>
 
-  const STYLES = {
-    error: 'plain-dangerous',
-    other: 'plain-secondary',
-    wait: 'plain'
+  const COLORS = {
+    error: 'dangerous',
+    other: 'secondary',
+    wait: undefined
   } as const
 </script>
 
@@ -44,10 +44,11 @@
     $syncStatus === 'sending' || $syncStatus === 'sendingAfterWait'}
   <div class="navbar-sync" class:is-icon-only={iconOnly}>
     <Button
+      color={COLORS[$syncStatusType]}
       href={getURL({ params: {}, route: 'cloud' })}
       icon={ICONS[$syncStatus]}
       size={iconOnly ? 'icon-pill' : 'pill'}
-      variant={STYLES[$syncStatusType]}
+      variant="plain"
     >
       {#if $syncStatus === 'wait' || $syncStatus === 'disconnected'}
         {$t.offlineStatus}

@@ -99,11 +99,7 @@
       {@render checkbox(['clean'], $t.clean)}
       {#if !todo.done.has('clean')}
         <Stack gap="xs" row>
-          <Button
-            joined="start"
-            onclick={deleteDemoWithBusy}
-            variant="secondary-dangerous"
-          >
+          <Button color="dangerous" joined="start" onclick={deleteDemoWithBusy}>
             {$t.drop}
           </Button>
           <Button joined="end" onclick={keepDemo}>{$t.keep}</Button>

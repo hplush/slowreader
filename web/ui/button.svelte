@@ -7,14 +7,9 @@
     | 'pill'
     | 'wide'
 
-  export type ButtonVariant =
-    | 'attention'
-    | 'main'
-    | 'plain-dangerous'
-    | 'plain-secondary'
-    | 'plain'
-    | 'secondary-dangerous'
-    | 'secondary'
+  export type ButtonVariant = 'attention' | 'main' | 'plain' | 'secondary'
+
+  export type ButtonColor = 'dangerous' | 'secondary' | 'success'
 
   export type ButtonPseudostate =
     | 'active'
@@ -38,6 +33,7 @@
   let {
     anchor,
     children,
+    color,
     disabled,
     icon,
     joined,
@@ -53,6 +49,7 @@
   ) & {
     anchor?: string
     children: Snippet
+    color?: ButtonColor
     disabled?: boolean
     icon?: string
     joined?: 'end' | 'middle' | 'start' | undefined
@@ -72,6 +69,9 @@
     'button': true,
     'is-attention': variant === 'attention',
     'is-big': size === 'big',
+    'is-color-dangerous': color === 'dangerous',
+    'is-color-secondary': color === 'secondary',
+    'is-color-success': color === 'success',
     'is-icon': size === 'icon',
     'is-icon-pill': size === 'icon-pill',
     'is-joined-end': joined === 'end',
@@ -81,13 +81,10 @@
     'is-main': variant === 'main',
     'is-pill': size === 'pill' || size === 'icon-pill',
     'is-plain': variant === 'plain',
-    'is-plain-dangerous': variant === 'plain-dangerous',
-    'is-plain-secondary': variant === 'plain-secondary',
     'is-pseudo-active': pseudostate === 'active',
     'is-pseudo-focus-visible': pseudostate === 'focus-visible',
     'is-pseudo-hover': pseudostate === 'hover',
     'is-secondary': variant === 'secondary',
-    'is-secondary-dangerous': variant === 'secondary-dangerous',
     'is-wide': size === 'wide' || size === 'big'
   }}
   data-anchor={anchor ?? null}
@@ -199,20 +196,76 @@
         &:focus-visible {
           background: --tune-background(--flat-button --flat-button-hover);
         }
-      }
 
-      &.is-secondary-dangerous {
-        color: var(--dangerous-text-color);
-        background: --tune-background(--flat-button --colorize, --dangerous);
-        box-shadow: var(--flat-dangerous-shadow);
+        &.is-color-dangerous {
+          background: --tune-background(--flat-button --colorize, --dangerous);
+          box-shadow: var(--flat-dangerous-shadow);
 
-        &:hover:not([aria-disabled='true']),
-        &:active:not([aria-disabled='true']),
-        &:focus-visible {
-          background: --tune-background(
-            --flat-button --flat-button-hover --colorize,
-            --dangerous
-          );
+          &:hover:not([aria-disabled='true']),
+          &:active:not([aria-disabled='true']),
+          &:focus-visible {
+            background: --tune-background(
+              --flat-button --flat-button-hover --colorize,
+              --dangerous
+            );
+          }
+        }
+
+        &.is-color-success {
+          background: --tune-background(--flat-button --colorize, --good);
+          box-shadow: var(--flat-success-shadow);
+
+          &:hover:not([aria-disabled='true']),
+          &:active:not([aria-disabled='true']),
+          &:focus-visible {
+            background: --tune-background(
+              --flat-button --flat-button-hover --colorize,
+              --good
+            );
+          }
+        }
+
+        &.is-icon[aria-pressed='true'] {
+          background: --tune-background(--current);
+
+          &:not(:active) {
+            box-shadow: var(--field-shadow);
+          }
+
+          &:hover:not([aria-disabled='true']),
+          &:active:not([aria-disabled='true']),
+          &:focus-visible {
+            background: --tune-background(--current --flat-button-hover);
+          }
+
+          &.is-color-dangerous {
+            background: --tune-background(
+              --current-tinted --colorize,
+              --dangerous
+            );
+
+            &:hover:not([aria-disabled='true']),
+            &:active:not([aria-disabled='true']),
+            &:focus-visible {
+              background: --tune-background(
+                --current-tinted --flat-button-hover --colorize,
+                --dangerous
+              );
+            }
+          }
+
+          &.is-color-success {
+            background: --tune-background(--current-tinted --colorize, --good);
+
+            &:hover:not([aria-disabled='true']),
+            &:active:not([aria-disabled='true']),
+            &:focus-visible {
+              background: --tune-background(
+                --current-tinted --flat-button-hover --colorize,
+                --good
+              );
+            }
+          }
         }
       }
 
@@ -225,33 +278,48 @@
         &:focus-visible {
           background: --tune-background(--flat-button --flat-button-hover);
         }
-      }
 
-      &.is-plain-secondary {
-        color: var(--secondary-text-color);
-        background: transparent;
+        &.is-color-dangerous {
+          &:hover:not([aria-disabled='true']),
+          &:active:not([aria-disabled='true']),
+          &:focus-visible {
+            background: --tune-background(
+              --flat-button --flat-button-hover --colorize,
+              --dangerous
+            );
+          }
+        }
 
-        &:hover:not([aria-disabled='true']),
-        &:active:not([aria-disabled='true']),
-        &:focus-visible {
-          color: var(--text-color);
-          background: --tune-background(--flat-button --flat-button-hover);
-          opacity: 100%;
+        &.is-color-success {
+          &:hover:not([aria-disabled='true']),
+          &:active:not([aria-disabled='true']),
+          &:focus-visible {
+            background: --tune-background(
+              --flat-button --flat-button-hover --colorize,
+              --good
+            );
+          }
+        }
+
+        &.is-color-secondary {
+          &:hover:not([aria-disabled='true']),
+          &:active:not([aria-disabled='true']),
+          &:focus-visible {
+            color: var(--text-color);
+          }
         }
       }
 
-      &.is-plain-dangerous {
+      &.is-color-success {
+        color: var(--success-text-color);
+      }
+
+      &.is-color-dangerous {
         color: var(--dangerous-text-color);
-        background: transparent;
+      }
 
-        &:hover:not([aria-disabled='true']),
-        &:active:not([aria-disabled='true']),
-        &:focus-visible {
-          background: --tune-background(
-            --flat-button --flat-button-hover --colorize,
-            --dangerous
-          );
-        }
+      &.is-color-secondary {
+        color: var(--secondary-text-color);
       }
 
       &[aria-disabled='true']:not(.is-loader) {

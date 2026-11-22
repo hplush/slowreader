@@ -19,11 +19,7 @@
 
 <Popup id={getPopupId(popup.name, popup.param)}>
   {#snippet header()}
-    <Button
-      icon={mdiTrashCanOutline}
-      onclick={popup.remove}
-      variant="secondary-dangerous"
-    >
+    <Button color="dangerous" icon={mdiTrashCanOutline} onclick={popup.remove}>
       {$t.delete}
     </Button>
   {/snippet}

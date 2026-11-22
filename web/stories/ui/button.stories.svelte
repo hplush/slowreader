@@ -42,20 +42,84 @@
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button disabled {icon} {onclick} variant="secondary">Disabled</Button>
+      <Button
+        aria-pressed="true"
+        {icon}
+        {onclick}
+        size="icon"
+        variant="secondary"
+      >
+        Toggled
+      </Button>
+      <Button
+        aria-pressed="true"
+        color="success"
+        {icon}
+        {onclick}
+        size="icon"
+        variant="secondary"
+      >
+        Toggled Success
+      </Button>
+      <Button
+        aria-pressed="true"
+        color="dangerous"
+        {icon}
+        {onclick}
+        size="icon"
+        variant="secondary"
+      >
+        Toggled Dangerous
+      </Button>
+      <Button color="success" {icon} {onclick} variant="secondary">
+        Success
+      </Button>
+      <Button color="success" {icon} {onclick} variant="plain">Success</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)" main>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button disabled {icon} {onclick} variant="secondary">Disabled</Button>
+      <Button
+        aria-pressed="true"
+        {icon}
+        {onclick}
+        size="icon"
+        variant="secondary"
+      >
+        Toggled
+      </Button>
+      <Button
+        aria-pressed="true"
+        color="success"
+        {icon}
+        {onclick}
+        size="icon"
+        variant="secondary"
+      >
+        Toggled Success
+      </Button>
+      <Button
+        aria-pressed="true"
+        color="dangerous"
+        {icon}
+        {onclick}
+        size="icon"
+        variant="secondary"
+      >
+        Toggled Dangerous
+      </Button>
+      <Button color="success" {icon} {onclick} variant="secondary">
+        Success
+      </Button>
+      <Button color="success" {icon} {onclick} variant="plain">Success</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
-      <Button {icon} {onclick} variant="secondary-dangerous">Dangerous</Button>
-      <Button {icon} {onclick} variant="secondary-dangerous">Dangerous</Button>
-      <Button {icon} {onclick} variant="secondary-dangerous">Dangerous</Button>
-      <Button disabled {icon} {onclick} variant="secondary-dangerous"
-        >Disabled</Button
-      >
+      <Button color="dangerous" {icon} {onclick}>Dangerous</Button>
+      <Button color="dangerous" {icon} {onclick}>Dangerous</Button>
+      <Button color="dangerous" {icon} {onclick}>Dangerous</Button>
+      <Button color="dangerous" disabled {icon} {onclick}>Disabled</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
       <Button {icon} {onclick} variant="plain">Plain</Button>
@@ -64,30 +128,30 @@
       <Button disabled {icon} {onclick} variant="plain">Disabled</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
-      <Button {icon} {onclick} variant="plain-secondary">
+      <Button color="secondary" {icon} {onclick} variant="plain">
         Plain Secondary
       </Button>
-      <Button {icon} {onclick} variant="plain-secondary">
+      <Button color="secondary" {icon} {onclick} variant="plain">
         Plain Secondary
       </Button>
-      <Button {icon} {onclick} variant="plain-secondary">
+      <Button color="secondary" {icon} {onclick} variant="plain">
         Plain Secondary
       </Button>
-      <Button disabled {icon} {onclick} variant="plain-secondary"
+      <Button color="secondary" disabled {icon} {onclick} variant="plain"
         >Disabled</Button
       >
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
-      <Button {icon} {onclick} variant="plain-dangerous">
+      <Button color="dangerous" {icon} {onclick} variant="plain">
         Plain Dangerous
       </Button>
-      <Button {icon} {onclick} variant="plain-dangerous">
+      <Button color="dangerous" {icon} {onclick} variant="plain">
         Plain Dangerous
       </Button>
-      <Button {icon} {onclick} variant="plain-dangerous">
+      <Button color="dangerous" {icon} {onclick} variant="plain">
         Plain Dangerous
       </Button>
-      <Button disabled {icon} {onclick} variant="plain-dangerous"
+      <Button color="dangerous" disabled {icon} {onclick} variant="plain"
         >Disabled</Button
       >
     </Section>
@@ -172,20 +236,84 @@
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button disabled {icon} {onclick} variant="secondary">Disabled</Button>
+      <Button
+        aria-pressed="true"
+        {icon}
+        {onclick}
+        size="icon"
+        variant="secondary"
+      >
+        Toggled
+      </Button>
+      <Button
+        aria-pressed="true"
+        color="success"
+        {icon}
+        {onclick}
+        size="icon"
+        variant="secondary"
+      >
+        Toggled Success
+      </Button>
+      <Button
+        aria-pressed="true"
+        color="dangerous"
+        {icon}
+        {onclick}
+        size="icon"
+        variant="secondary"
+      >
+        Toggled Dangerous
+      </Button>
+      <Button color="success" {icon} {onclick} variant="secondary">
+        Success
+      </Button>
+      <Button color="success" {icon} {onclick} variant="plain">Success</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)" main>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button disabled {icon} {onclick} variant="secondary">Disabled</Button>
+      <Button
+        aria-pressed="true"
+        {icon}
+        {onclick}
+        size="icon"
+        variant="secondary"
+      >
+        Toggled
+      </Button>
+      <Button
+        aria-pressed="true"
+        color="success"
+        {icon}
+        {onclick}
+        size="icon"
+        variant="secondary"
+      >
+        Toggled Success
+      </Button>
+      <Button
+        aria-pressed="true"
+        color="dangerous"
+        {icon}
+        {onclick}
+        size="icon"
+        variant="secondary"
+      >
+        Toggled Dangerous
+      </Button>
+      <Button color="success" {icon} {onclick} variant="secondary">
+        Success
+      </Button>
+      <Button color="success" {icon} {onclick} variant="plain">Success</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
-      <Button {icon} {onclick} variant="secondary-dangerous">Dangerous</Button>
-      <Button {icon} {onclick} variant="secondary-dangerous">Dangerous</Button>
-      <Button {icon} {onclick} variant="secondary-dangerous">Dangerous</Button>
-      <Button disabled {icon} {onclick} variant="secondary-dangerous"
-        >Disabled</Button
-      >
+      <Button color="dangerous" {icon} {onclick}>Dangerous</Button>
+      <Button color="dangerous" {icon} {onclick}>Dangerous</Button>
+      <Button color="dangerous" {icon} {onclick}>Dangerous</Button>
+      <Button color="dangerous" disabled {icon} {onclick}>Disabled</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
       <Button {icon} {onclick} variant="plain">Plain</Button>
@@ -194,30 +322,30 @@
       <Button disabled {icon} {onclick} variant="plain">Disabled</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
-      <Button {icon} {onclick} variant="plain-secondary">
+      <Button color="secondary" {icon} {onclick} variant="plain">
         Plain Secondary
       </Button>
-      <Button {icon} {onclick} variant="plain-secondary">
+      <Button color="secondary" {icon} {onclick} variant="plain">
         Plain Secondary
       </Button>
-      <Button {icon} {onclick} variant="plain-secondary">
+      <Button color="secondary" {icon} {onclick} variant="plain">
         Plain Secondary
       </Button>
-      <Button disabled {icon} {onclick} variant="plain-secondary"
+      <Button color="secondary" disabled {icon} {onclick} variant="plain"
         >Disabled</Button
       >
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
-      <Button {icon} {onclick} variant="plain-dangerous">
+      <Button color="dangerous" {icon} {onclick} variant="plain">
         Plain Dangerous
       </Button>
-      <Button {icon} {onclick} variant="plain-dangerous">
+      <Button color="dangerous" {icon} {onclick} variant="plain">
         Plain Dangerous
       </Button>
-      <Button {icon} {onclick} variant="plain-dangerous">
+      <Button color="dangerous" {icon} {onclick} variant="plain">
         Plain Dangerous
       </Button>
-      <Button disabled {icon} {onclick} variant="plain-dangerous"
+      <Button color="dangerous" disabled {icon} {onclick} variant="plain"
         >Disabled</Button
       >
     </Section>
@@ -265,20 +393,84 @@
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button disabled {icon} {onclick} variant="secondary">Disabled</Button>
+      <Button
+        aria-pressed="true"
+        {icon}
+        {onclick}
+        size="icon"
+        variant="secondary"
+      >
+        Toggled
+      </Button>
+      <Button
+        aria-pressed="true"
+        color="success"
+        {icon}
+        {onclick}
+        size="icon"
+        variant="secondary"
+      >
+        Toggled Success
+      </Button>
+      <Button
+        aria-pressed="true"
+        color="dangerous"
+        {icon}
+        {onclick}
+        size="icon"
+        variant="secondary"
+      >
+        Toggled Dangerous
+      </Button>
+      <Button color="success" {icon} {onclick} variant="secondary">
+        Success
+      </Button>
+      <Button color="success" {icon} {onclick} variant="plain">Success</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)" main>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button disabled {icon} {onclick} variant="secondary">Disabled</Button>
+      <Button
+        aria-pressed="true"
+        {icon}
+        {onclick}
+        size="icon"
+        variant="secondary"
+      >
+        Toggled
+      </Button>
+      <Button
+        aria-pressed="true"
+        color="success"
+        {icon}
+        {onclick}
+        size="icon"
+        variant="secondary"
+      >
+        Toggled Success
+      </Button>
+      <Button
+        aria-pressed="true"
+        color="dangerous"
+        {icon}
+        {onclick}
+        size="icon"
+        variant="secondary"
+      >
+        Toggled Dangerous
+      </Button>
+      <Button color="success" {icon} {onclick} variant="secondary">
+        Success
+      </Button>
+      <Button color="success" {icon} {onclick} variant="plain">Success</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
-      <Button {icon} {onclick} variant="secondary-dangerous">Dangerous</Button>
-      <Button {icon} {onclick} variant="secondary-dangerous">Dangerous</Button>
-      <Button {icon} {onclick} variant="secondary-dangerous">Dangerous</Button>
-      <Button disabled {icon} {onclick} variant="secondary-dangerous"
-        >Disabled</Button
-      >
+      <Button color="dangerous" {icon} {onclick}>Dangerous</Button>
+      <Button color="dangerous" {icon} {onclick}>Dangerous</Button>
+      <Button color="dangerous" {icon} {onclick}>Dangerous</Button>
+      <Button color="dangerous" disabled {icon} {onclick}>Disabled</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
       <Button {icon} {onclick} variant="plain">Plain</Button>
@@ -287,30 +479,30 @@
       <Button disabled {icon} {onclick} variant="plain">Disabled</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
-      <Button {icon} {onclick} variant="plain-secondary">
+      <Button color="secondary" {icon} {onclick} variant="plain">
         Plain Secondary
       </Button>
-      <Button {icon} {onclick} variant="plain-secondary">
+      <Button color="secondary" {icon} {onclick} variant="plain">
         Plain Secondary
       </Button>
-      <Button {icon} {onclick} variant="plain-secondary">
+      <Button color="secondary" {icon} {onclick} variant="plain">
         Plain Secondary
       </Button>
-      <Button disabled {icon} {onclick} variant="plain-secondary"
+      <Button color="secondary" disabled {icon} {onclick} variant="plain"
         >Disabled</Button
       >
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
-      <Button {icon} {onclick} variant="plain-dangerous">
+      <Button color="dangerous" {icon} {onclick} variant="plain">
         Plain Dangerous
       </Button>
-      <Button {icon} {onclick} variant="plain-dangerous">
+      <Button color="dangerous" {icon} {onclick} variant="plain">
         Plain Dangerous
       </Button>
-      <Button {icon} {onclick} variant="plain-dangerous">
+      <Button color="dangerous" {icon} {onclick} variant="plain">
         Plain Dangerous
       </Button>
-      <Button disabled {icon} {onclick} variant="plain-dangerous"
+      <Button color="dangerous" disabled {icon} {onclick} variant="plain"
         >Disabled</Button
       >
     </Section>
@@ -358,20 +550,84 @@
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button disabled {icon} {onclick} variant="secondary">Disabled</Button>
+      <Button
+        aria-pressed="true"
+        {icon}
+        {onclick}
+        size="icon"
+        variant="secondary"
+      >
+        Toggled
+      </Button>
+      <Button
+        aria-pressed="true"
+        color="success"
+        {icon}
+        {onclick}
+        size="icon"
+        variant="secondary"
+      >
+        Toggled Success
+      </Button>
+      <Button
+        aria-pressed="true"
+        color="dangerous"
+        {icon}
+        {onclick}
+        size="icon"
+        variant="secondary"
+      >
+        Toggled Dangerous
+      </Button>
+      <Button color="success" {icon} {onclick} variant="secondary">
+        Success
+      </Button>
+      <Button color="success" {icon} {onclick} variant="plain">Success</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)" main>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button disabled {icon} {onclick} variant="secondary">Disabled</Button>
+      <Button
+        aria-pressed="true"
+        {icon}
+        {onclick}
+        size="icon"
+        variant="secondary"
+      >
+        Toggled
+      </Button>
+      <Button
+        aria-pressed="true"
+        color="success"
+        {icon}
+        {onclick}
+        size="icon"
+        variant="secondary"
+      >
+        Toggled Success
+      </Button>
+      <Button
+        aria-pressed="true"
+        color="dangerous"
+        {icon}
+        {onclick}
+        size="icon"
+        variant="secondary"
+      >
+        Toggled Dangerous
+      </Button>
+      <Button color="success" {icon} {onclick} variant="secondary">
+        Success
+      </Button>
+      <Button color="success" {icon} {onclick} variant="plain">Success</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
-      <Button {icon} {onclick} variant="secondary-dangerous">Dangerous</Button>
-      <Button {icon} {onclick} variant="secondary-dangerous">Dangerous</Button>
-      <Button {icon} {onclick} variant="secondary-dangerous">Dangerous</Button>
-      <Button disabled {icon} {onclick} variant="secondary-dangerous"
-        >Disabled</Button
-      >
+      <Button color="dangerous" {icon} {onclick}>Dangerous</Button>
+      <Button color="dangerous" {icon} {onclick}>Dangerous</Button>
+      <Button color="dangerous" {icon} {onclick}>Dangerous</Button>
+      <Button color="dangerous" disabled {icon} {onclick}>Disabled</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
       <Button {icon} {onclick} variant="plain">Plain</Button>
@@ -380,30 +636,30 @@
       <Button disabled {icon} {onclick} variant="plain">Disabled</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
-      <Button {icon} {onclick} variant="plain-secondary">
+      <Button color="secondary" {icon} {onclick} variant="plain">
         Plain Secondary
       </Button>
-      <Button {icon} {onclick} variant="plain-secondary">
+      <Button color="secondary" {icon} {onclick} variant="plain">
         Plain Secondary
       </Button>
-      <Button {icon} {onclick} variant="plain-secondary">
+      <Button color="secondary" {icon} {onclick} variant="plain">
         Plain Secondary
       </Button>
-      <Button disabled {icon} {onclick} variant="plain-secondary"
+      <Button color="secondary" disabled {icon} {onclick} variant="plain"
         >Disabled</Button
       >
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
-      <Button {icon} {onclick} variant="plain-dangerous">
+      <Button color="dangerous" {icon} {onclick} variant="plain">
         Plain Dangerous
       </Button>
-      <Button {icon} {onclick} variant="plain-dangerous">
+      <Button color="dangerous" {icon} {onclick} variant="plain">
         Plain Dangerous
       </Button>
-      <Button {icon} {onclick} variant="plain-dangerous">
+      <Button color="dangerous" {icon} {onclick} variant="plain">
         Plain Dangerous
       </Button>
-      <Button disabled {icon} {onclick} variant="plain-dangerous"
+      <Button color="dangerous" disabled {icon} {onclick} variant="plain"
         >Disabled</Button
       >
     </Section>

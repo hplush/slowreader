@@ -24,8 +24,9 @@
     {$t.share}
   </Button>
 {:else}
-  <div class="post-share" class:is-copied={$copied}>
+  <div class="post-share">
     <Button
+      color={$copied ? 'success' : undefined}
       icon={$copied ? mdiCheck : mdiContentCopy}
       onclick={() => copy(url)}
       size="icon"
@@ -41,10 +42,6 @@
   :global {
     .post-share {
       display: flex;
-
-      &.is-copied {
-        --text-color: var(--success-text-color);
-      }
     }
   }
 </style>

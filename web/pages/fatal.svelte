@@ -110,10 +110,11 @@
           {@render updateButton()}
         {/if}
         <Button
+          color={hasUpdate ? 'dangerous' : undefined}
           icon={mdiDeleteAlert}
           onclick={forgetLocalDataAndAppFiles}
           size="big"
-          variant={hasUpdate ? 'secondary-dangerous' : 'main'}
+          variant={hasUpdate ? 'secondary' : 'main'}
         >
           {$t.cleanButton}
         </Button>
@@ -146,10 +147,10 @@
             {/if}
             {#if $hasCloud}
               <Button
+                color="dangerous"
                 icon={mdiDeleteAlert}
                 onclick={forgetLocalDataAndAppFiles}
                 size="pill"
-                variant="secondary-dangerous"
               >
                 {$t.cleanButton}
               </Button>

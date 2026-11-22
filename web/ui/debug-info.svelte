@@ -26,16 +26,15 @@
 <div class="debug-info">
   <div class="debug-info_header">
     <Label {id}>{label}</Label>
-    <div class="debug-info_button" class:is-copied={$copied}>
-      <Button
-        icon={$copied ? mdiCheck : mdiContentCopy}
-        onclick={() => copy(text)}
-        size="icon"
-        variant="plain"
-      >
-        {$copied ? $t.copied : $t.copyToClipboard}
-      </Button>
-    </div>
+    <Button
+      color={$copied ? 'success' : undefined}
+      icon={$copied ? mdiCheck : mdiContentCopy}
+      onclick={() => copy(text)}
+      size="icon"
+      variant="plain"
+    >
+      {$copied ? $t.copied : $t.copyToClipboard}
+    </Button>
   </div>
   <textarea
     {id}
@@ -60,10 +59,6 @@
       display: flex;
       align-items: end;
       justify-content: space-between;
-    }
-
-    .debug-info_button.is-copied {
-      --text-color: var(--success-text-color);
     }
 
     .debug-info_text {

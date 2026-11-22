@@ -55,6 +55,7 @@
             </Button>
             <Button
               aria-describedby={describedby}
+              color="dangerous"
               icon={mdiTrashCanOutline}
               onclick={() => {
                 if (confirm($t.deleteCategoryConform)) {
@@ -62,7 +63,6 @@
                 }
               }}
               size={mobile ? 'wide' : 'icon'}
-              variant="secondary-dangerous"
             >
               {mobile ? $t.delete : $t.deleteCategory}
             </Button>

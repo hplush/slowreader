@@ -182,10 +182,11 @@
             {/if}
           {/if}
           <Button
+            color="secondary"
             disabled={$reauthing}
             onclick={page.cancelReauth}
             size="wide"
-            variant="plain-secondary"
+            variant="plain"
           >
             {$t.cancel}
           </Button>
@@ -248,6 +249,7 @@
         {/if}
         {#if $unsavedData}
           <Button
+            color="dangerous"
             icon={mdiTrashCanOutline}
             onclick={() => {
               if (confirm(t.get().deleteWarning)) {
@@ -255,7 +257,6 @@
               }
             }}
             size="wide"
-            variant="secondary-dangerous"
           >
             {$t.exitWaitSync}
           </Button>
@@ -356,10 +357,10 @@
           </Links>
           {#if $sessions.value.some(i => !i.current)}
             <Button
+              color="dangerous"
               icon={mdiLogout}
               onclick={page.deleteOtherSessions}
               size="wide"
-              variant="secondary-dangerous"
             >
               {$t.signOutOthers}
             </Button>
@@ -390,6 +391,7 @@
       <Stack>
         <Title>{$t.dangerousTitle}</Title>
         <Button
+          color="dangerous"
           icon={mdiTrashCanOutline}
           loader={$deletingAccount}
           onclick={() => {
@@ -398,7 +400,6 @@
             }
           }}
           size="wide"
-          variant="secondary-dangerous"
         >
           {$t.deleteAccount}
         </Button>

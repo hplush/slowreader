@@ -83,6 +83,8 @@
     --note-icon-c: 0.03;
     --field-l: 0.025;
     --current-l: 0.025;
+    --current-tinted-l: -0.07;
+    --current-tinted-c: 0.04;
     --balance-marker-l: -0.09;
     --opened-feed-l: 0.05;
     --placeholder-l: -0.06;
@@ -108,6 +110,8 @@
     --pressed-shadow: inset 0 1px 2px oklch(0 0 0 / 50%);
     --flat-dangerous-shadow: inset 0 0 0 0.5px
       oklch(from var(--dangerous-text-color) l c h / 30%);
+    --flat-success-shadow: inset 0 0 0 0.5px
+      oklch(from var(--success-text-color) l c h / 30%);
     --field-shadow:
       inset 0 -0.5px 0 0 oklch(1 0 0), inset 0 0 0 0.5px oklch(0 0 0 / 10%),
       inset 0 1px 2px oklch(0 0 0 / 18%);
@@ -176,6 +180,8 @@
     --field-l: -0.05;
     --field-c: 0;
     --current-l: 0.15;
+    --current-tinted-l: 0.15;
+    --current-tinted-c: 0.04;
     --balance-marker-l: 0.15;
     --opened-feed-l: 0.15;
     --placeholder-l: 0.15;
@@ -198,6 +204,8 @@
       inset 0 1px 2px oklch(0 0 0), inset 0 -0.5px 0 oklch(1 0 0 / 40%);
     --flat-dangerous-shadow: inset 0 0 0 0.5px
       oklch(from var(--dangerous-text-color) l c h / 60%);
+    --flat-success-shadow: inset 0 0 0 0.5px
+      oklch(from var(--success-text-color) l c h / 60%);
     --field-shadow:
       inset 0 -0.5px 0 0 oklch(1 0 0 / 30%), inset 0 0 0 0.5px oklch(0 0 0),
       inset 0 1px 2px oklch(0 0 0 / 50%);

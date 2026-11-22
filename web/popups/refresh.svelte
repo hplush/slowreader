@@ -42,11 +42,7 @@
 <Popup id="refresh">
   {#snippet header()}
     {#if $stoppableRefreshing}
-      <Button
-        icon={mdiStop}
-        onclick={stopRefreshing}
-        variant="secondary-dangerous"
-      >
+      <Button color="dangerous" icon={mdiStop} onclick={stopRefreshing}>
         {$t.stop}
       </Button>
     {:else}
