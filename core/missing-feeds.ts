@@ -1,5 +1,6 @@
 import { HTTPStatusError, isNoDomainError } from './errors.ts'
 import { changeFeed, type FeedValue } from './feed.ts'
+import { nowInSeconds } from './lib/date.ts'
 import { isObject } from './loader/common.ts'
 import { isWebFeed } from './loader/index.ts'
 
@@ -38,7 +39,7 @@ function getErrors(feed: TrackedFeed): FeedErrors | undefined {
 export async function trackMissingFeed(feed: TrackedFeed): Promise<void> {
   if (!isWebFeed(feed.loader)) return
   let errors = getErrors(feed)
-  let now = Math.round(Date.now() / 1000)
+  let now = nowInSeconds()
   if (!errors) {
     errors = { failedSince: now, missing: false }
   } else if (!errors.missing && now - errors.failedSince > MISSING_AFTER) {

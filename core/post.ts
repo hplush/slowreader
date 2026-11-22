@@ -8,6 +8,7 @@ import { getFeedReading, loadFeed } from './feed.ts'
 import { loadFilterChecker } from './filter.ts'
 import { humanizeUrl } from './format.ts'
 import { $locale } from './i18n.ts'
+import { nowInSeconds } from './lib/date.ts'
 import {
   addMarker,
   isLoaderMedia,
@@ -516,7 +517,7 @@ export function getSortedAt(post: {
   sortedAt?: number
 }): number | undefined {
   let time = post.sortedAt ?? post.publishedAt ?? undefined
-  return time && Math.min(time, Math.round(Date.now() / 1000))
+  return time && Math.min(time, nowInSeconds())
 }
 
 export function getSourceId(source: PostSource): string {
@@ -528,7 +529,7 @@ export function processOriginPost(
   source: PostSource,
   reading: PostValue['reading']
 ): { id: string } & NewPost {
-  let publishedAt = origin.publishedAt ?? Math.round(Date.now() / 1000)
+  let publishedAt = origin.publishedAt ?? nowInSeconds()
   let post = {
     ...origin,
     ...source,

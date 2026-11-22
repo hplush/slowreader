@@ -4,6 +4,7 @@ import {
   ParseError,
   UserFacingError
 } from '../errors.ts'
+import { nowInSeconds } from '../lib/date.ts'
 import {
   createDownloadTask,
   type DownloadTask,
@@ -878,7 +879,7 @@ function toCredentials(
     accessToken: readString(token, 'access_token'),
     expiresAt:
       typeof token.expires_in === 'number'
-        ? Math.round(Date.now() / 1000) + token.expires_in
+        ? nowInSeconds() + token.expires_in
         : undefined,
     refreshToken: readString(token, 'refresh_token')
   }
@@ -951,7 +952,7 @@ async function requestByAccount(
   retried: { nonce?: true; token?: true } = {}
 ): Promise<TextResponse> {
   let credentials = getCredentials(auth.account)
-  let now = Math.round(Date.now() / 1000)
+  let now = nowInSeconds()
   if (!retried.token && credentials.expiresAt && credentials.expiresAt < now) {
     await refreshTokens(auth)
     return requestByAccount(task, auth, path, body, { ...retried, token: true })

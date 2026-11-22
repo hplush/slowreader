@@ -1,12 +1,9 @@
 import { type EventName, sendEvents } from '@slowreader/api'
 
 import { getEnvironment, onEnvironment } from './environment.ts'
+import { getToday } from './lib/date.ts'
 import { hasCloud, noStatistics } from './settings.ts'
 import { getServerUrl } from './sync-server.ts'
-
-function getToday(): string {
-  return new Date().toISOString().slice(0, 10)
-}
 
 /**
  * `daily` counts devices instead of cases without knowing any device ID.

@@ -25,6 +25,7 @@ import {
   moveFeed,
   type NewFeed
 } from './feed.ts'
+import { nowInSeconds } from './lib/date.ts'
 import type { DownloadTask } from './lib/download.ts'
 import { createQueue } from './lib/queue.ts'
 import { getStableId } from './lib/stable-id.ts'
@@ -401,7 +402,7 @@ onClient(() => () => {
  */
 export function needFollowsSync(account: AccountValue): boolean {
   if (!canUseAccount(account)) return false
-  let now = Math.round(Date.now() / 1000)
+  let now = nowInSeconds()
   return !account.followsSyncedAt || now - account.followsSyncedAt >= 86400
 }
 
@@ -524,7 +525,7 @@ async function loadFollows(service: AccountService): Promise<void> {
   }
   await loadLastPublished(service, [...synced])
   await tables.accounts.update([...synced], {
-    followsSyncedAt: Math.round(Date.now() / 1000)
+    followsSyncedAt: nowInSeconds()
   })
 }
 

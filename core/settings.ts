@@ -4,6 +4,7 @@ import { atom, computed, effect, type StoreValue } from 'nanostores'
 import type { FillStatistics } from './benchmark.ts'
 import { busyDuring } from './busy.ts'
 import { onClient } from './client.ts'
+import { nowInSeconds } from './lib/date.ts'
 import { followNetworkUse } from './lib/network.ts'
 import { waitLoading } from './lib/stores.ts'
 import { createSyncedSetting, syncSettings } from './lib/synced-setting.ts'
@@ -271,7 +272,7 @@ onClient(() =>
         trackUsage
       ],
       syncedSettingsLoading,
-      () => ({ createdAt: Math.round(Date.now() / 1000) })
+      () => ({ createdAt: nowInSeconds() })
     )
     void busyDuring(commonMessages.get().loadingData, () =>
       waitLoading(syncedSettingsLoading)

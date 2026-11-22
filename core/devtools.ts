@@ -7,6 +7,7 @@ import { deviceSessions } from './device-sessions.ts'
 import type { TelegramObject, TelegramRequest } from './environment.ts'
 import { HTTPStatusError } from './errors.ts'
 import { changeFeed, loadFeed, loadFeedByUrl, loadFeeds } from './feed.ts'
+import { nowInSeconds } from './lib/date.ts'
 import { loaders } from './loader/index.ts'
 import { sendToTelegram } from './loader/telegram.ts'
 import { loadPopupPost } from './popups/post.ts'
@@ -26,7 +27,7 @@ export async function moveLastSyncedToPast(days = 30): Promise<void> {
       (await loadFeeds()).map(feed => feed.id),
       {
         lastOriginId: null,
-        lastPublishedAt: Math.round(Date.now() / 1000) - days * 24 * 60 * 60,
+        lastPublishedAt: nowInSeconds() - days * 24 * 60 * 60,
         refreshedAt: null
       }
     )

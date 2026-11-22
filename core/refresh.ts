@@ -31,6 +31,7 @@ import {
   type NewFeed
 } from './feed.ts'
 import { type FilterChecker, loadFilterChecker } from './filter.ts'
+import { nowInSeconds } from './lib/date.ts'
 import { debounceTask } from './lib/debounce.ts'
 import { createDownloadTask, type DownloadTask } from './lib/download.ts'
 import { canUseNetwork } from './lib/network.ts'
@@ -648,7 +649,7 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
   }
 
   refreshStatistics.setKey('initializing', 'feeds')
-  refreshedAt = Math.round(Date.now() / 1000)
+  refreshedAt = nowInSeconds()
   untouched = new Map()
   untouchedAccounts = []
   await waitLoading(syncedSettingsLoading)

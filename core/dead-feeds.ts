@@ -1,6 +1,7 @@
 import { atom } from 'nanostores'
 
 import type { FeedValue } from './feed.ts'
+import { nowInSeconds } from './lib/date.ts'
 import { waitLoading } from './lib/stores.ts'
 import { getMissingSince } from './missing-feeds.ts'
 import { deadFeedsSeenAt, syncedSettingsLoading } from './settings.ts'
@@ -34,7 +35,7 @@ deadFeedsSeenAt.listen(() => {
 
 export async function markDeadFeedsSeen(): Promise<void> {
   await waitLoading(syncedSettingsLoading)
-  deadFeedsSeenAt.set(Math.round(Date.now() / 1000))
+  deadFeedsSeenAt.set(nowInSeconds())
 }
 
 export function checkDeadFeeds(feeds: FeedValue[]): void {

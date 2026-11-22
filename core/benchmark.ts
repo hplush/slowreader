@@ -3,6 +3,7 @@ import { busyDuring } from './busy.ts'
 import { addCategory } from './category.ts'
 import { client } from './client.ts'
 import { addFeed } from './feed.ts'
+import { nowInSeconds } from './lib/date.ts'
 import { setLoaderReporter } from './loader.ts'
 import { benchmarkMessages } from './messages/index.ts'
 import { addPost, type NewPost, type PostValue, uniqueMedia } from './post.ts'
@@ -89,7 +90,7 @@ const HOUR = 60 * 60
 
 const YEAR = 365 * 24 * 60 * 60
 
-let newest = Math.round(Date.now() / 1000)
+let newest = nowInSeconds()
 
 const DISTRIBUTION: [number, number, number][] = [
   [0.4, 0, 10],
@@ -161,7 +162,7 @@ function item(id: string, postId: string, published: number): string {
 function rss(url: string): string {
   let id = new URL(url).pathname.replace(/^\//, '').replace(/\.xml$/, '')
   let index = Number(id.match(/\d+$/)?.[0] ?? 0)
-  let old = Math.round(Date.now() / 1000) - HOUR
+  let old = nowInSeconds() - HOUR
 
   let items = ''
   if (index % 5 === 0) {
@@ -255,7 +256,7 @@ async function fillClient(
       { categories: 10, feeds: 100 }
   let random = createRandom(SEED)
   let started = performance.now()
-  let now = Math.round(Date.now() / 1000)
+  let now = nowInSeconds()
 
   let categories = [GENERAL_CATEGORY]
   for (let i = 1; i < size.categories; i++) {
@@ -350,7 +351,7 @@ export async function fillReaderFeed(): Promise<void> {
   }
 
   let random = createRandom(SEED)
-  let now = Math.round(Date.now() / 1000)
+  let now = nowInSeconds()
   let reading = getAnchors()[READER_FEED_INDEX]![0]
   for (let i = 0; i < missing; i += POSTS_BATCH) {
     let batch: NewPost[] = []
