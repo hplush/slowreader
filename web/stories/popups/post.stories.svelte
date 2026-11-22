@@ -381,6 +381,7 @@
       loaders.telegram.getMedia = url => {
         if (url.endsWith('/broken')) return Promise.reject(new Error('No file'))
         if (url.endsWith('/loading')) return new Promise(() => {})
+        if (url === 'telegram:5/9') return fetch(emojiExample)
         return fetch(url === 'telegram:5/3' ? videoExample : imgExample)
       }
       open()()
@@ -395,6 +396,7 @@
           'whole file, so it waits for the click. The second video was ' +
           'clicked and shows the loader until the file is ready. ' +
           'Round video from Telegram stays round before the click. ' +
+          'Sticker is small. ' +
           'Music, voice message, and document have only a name and a link ' +
           'to the post or to the file.</p>' +
           '<p>Images inside the text are loaded the same way: ' +
@@ -424,6 +426,7 @@
             type: 'video;mode=round',
             url: 'telegram:5/3'
           },
+          { alt: '👍', type: 'image;mode=sticker', url: 'telegram:5/9' },
           {
             name: 'Franz Schubert — Ellens Gesang III, op. 52 no. 6, D. 839',
             type: 'audio/mpeg',
@@ -443,6 +446,7 @@
           { bytes: 28089, height: 1080, width: 1920 },
           { bytes: 28089, height: 1080, width: 1920 },
           { bytes: 28089, height: 384, width: 384 },
+          { height: 564, width: 400 },
           { bytes: 4400000 },
           { bytes: 310000 }
         ],
@@ -674,6 +678,11 @@
             poster: imgExample,
             type: 'video;mode=round',
             url: `${videoExample}#round`
+          },
+          {
+            alt: 'Sticker',
+            type: 'image;mode=sticker',
+            url: `${emojiExample}#sticker`
           }
         ],
         mediaSizes: [
@@ -682,7 +691,8 @@
           { height: 441, width: 700 },
           { height: 180, width: 320 },
           { height: 441, width: 700 },
-          { height: 240, width: 240 }
+          { height: 240, width: 240 },
+          { height: 564, width: 400 }
         ],
         preview: {
           image: imgExample,

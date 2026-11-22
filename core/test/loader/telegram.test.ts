@@ -1661,6 +1661,140 @@ describe('telegram loader', () => {
     )
   })
 
+  test('shows stickers and emoji posts', async () => {
+    function sticker(
+      post: number,
+      format: string,
+      preview?: string
+    ): TelegramObject {
+      return message(post, {
+        content: {
+          '@type': 'messageSticker',
+          'sticker': {
+            '@type': 'sticker',
+            'emoji': '👍',
+            'format': { '@type': `stickerFormat${format}` },
+            'height': 400,
+            'sticker': file(70 + post, 900),
+            'thumbnail': preview
+              ? {
+                  '@type': 'thumbnail',
+                  'file': file(80 + post, 50),
+                  'format': { '@type': `thumbnailFormat${preview}` },
+                  'height': 100,
+                  'width': 128
+                }
+              : undefined,
+            'width': 512
+          }
+        }
+      })
+    }
+    let stickers: Record<number, TelegramObject> = {
+      4: sticker(4, 'Tgs', 'Tgs'),
+      5: sticker(5, 'Tgs', 'Webp'),
+      6: sticker(6, 'Webm', 'Jpeg'),
+      7: sticker(7, 'Webp')
+    }
+    mockHistory(0, {
+      0: [
+        message(9, {
+          content: { '@type': 'messageDice', 'emoji': '🎲', 'value': 4 }
+        }),
+        message(8, {
+          content: { '@type': 'messageAnimatedEmoji', 'emoji': '🎉' }
+        }),
+        stickers[7]!,
+        stickers[6]!,
+        stickers[5]!,
+        stickers[4]!
+      ]
+    })
+    let posts = await loadFeedPosts('{"id":"-1000000000005"}')
+    deepEqual(
+      posts.map(post => ({
+        media: post.media,
+        sizes: post.mediaSizes,
+        text: post.full,
+        unsupported: post.unsupported
+      })),
+      [
+        {
+          media: undefined,
+          sizes: undefined,
+          text: undefined,
+          unsupported: true
+        },
+        {
+          media: undefined,
+          sizes: undefined,
+          text: '<p>🎉</p>',
+          unsupported: undefined
+        },
+        {
+          media: [
+            { alt: '👍', type: 'image;mode=sticker', url: 'telegram:5/7' }
+          ],
+          sizes: [{ bytes: 900, height: 400, width: 512 }],
+          text: undefined,
+          unsupported: undefined
+        },
+        {
+          media: [
+            { alt: '👍', type: 'image;mode=sticker', url: 'telegram:5/6' }
+          ],
+          sizes: [{ bytes: 50, height: 100, width: 128 }],
+          text: undefined,
+          unsupported: undefined
+        },
+        {
+          media: [
+            { alt: '👍', type: 'image;mode=sticker', url: 'telegram:5/5' }
+          ],
+          sizes: [{ bytes: 50, height: 100, width: 128 }],
+          text: undefined,
+          unsupported: undefined
+        },
+        {
+          media: undefined,
+          sizes: undefined,
+          text: undefined,
+          unsupported: true
+        }
+      ]
+    )
+
+    deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
+    testTelegram.answers.getMessage = ({ message_id: id }) => {
+      return stickers[Number(id) / 1048576]!
+    }
+    testTelegram.answers.downloadFile = ({ file_id: id }) => ({
+      '@type': 'file',
+      id,
+      'size': 4
+    })
+    testTelegram.files = {
+      77: new Blob(['static']),
+      85: new Blob(['frame']),
+      86: new Blob(['frame'])
+    }
+    let { getMedia } = loaders.telegram
+    for (let [url, type, text] of [
+      ['telegram:5/7', 'image/webp', 'stat'],
+      ['telegram:5/6', 'image/jpeg', 'fram'],
+      ['telegram:5/5', 'image/webp', 'fram']
+    ] as const) {
+      let response = await getMedia!(url)!
+      equal(response.headers.get('Content-Type'), type)
+      equal(await response.text(), text)
+    }
+    for (let url of ['telegram:5/7/poster', 'telegram:5/6/poster']) {
+      await rejects(getMedia!(url)!, {
+        message: 'Telegram post has no such media'
+      })
+    }
+  })
+
   test('loads the rest of long posts with rich formatting', async () => {
     deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
     mockHistory(1, {

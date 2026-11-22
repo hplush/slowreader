@@ -1262,6 +1262,9 @@ function getText(chatId: number, message: Record<string, unknown>): string {
   let content = message.content
   if (!isObject(content)) return ''
   if (isObject(content.text)) return formatText(content.text)
+  if (content['@type'] === 'messageAnimatedEmoji') {
+    return formatText({ text: content.emoji })
+  }
   return (
     parseRichMessage(chatId, message)?.html ??
     formatText(isObject(content.poll) ? content.poll.question : content.caption)
@@ -1447,6 +1450,23 @@ function toMediaFile(
   }
 }
 
+function getThumbnail(source: unknown): MediaFile | undefined {
+  let thumbnail = isObject(source) ? source.thumbnail : undefined
+  if (!isObject(thumbnail) || !isObject(thumbnail.format)) return undefined
+  let format = /^thumbnailFormat(Jpeg|Png|Webp|Gif)$/.exec(
+    String(thumbnail.format['@type'])
+  )
+  return (
+    (format &&
+      toMediaFile(
+        thumbnail.file,
+        `image/${format[1]!.toLowerCase()}`,
+        thumbnail
+      )) ??
+    undefined
+  )
+}
+
 /**
  * File of the post’s content or of a block of the post with rich formatting
  * by the end of media URL: the media itself, video’s `poster`,
@@ -1462,24 +1482,17 @@ function getMediaFile(content: unknown, part?: string): MediaFile | undefined {
     return photo && toMediaFile(photo.photo, 'image/jpeg', photo)
   }
   let video = content.video ?? content.animation ?? content.video_note
-  if (part === 'poster') {
-    let poster = isObject(video) ? video.thumbnail : undefined
-    if (!isObject(poster) || !isObject(poster.format)) return undefined
-    let format = /^thumbnailFormat(Jpeg|Png|Webp|Gif)$/.exec(
-      String(poster.format['@type'])
-    )
-    return (
-      (format &&
-        toMediaFile(
-          poster.file,
-          `image/${format[1]!.toLowerCase()}`,
-          poster
-        )) ??
-      undefined
-    )
-  }
+  if (part === 'poster') return getThumbnail(video)
   let photo = getLargestSize(content.photo)
   if (photo) return toMediaFile(photo.photo, 'image/jpeg', photo)
+  let sticker = content.sticker
+  if (isObject(sticker)) {
+    // Animated stickers are shown only as a static picture
+    return isObject(sticker.format) &&
+      sticker.format['@type'] === 'stickerFormatWebp'
+      ? toMediaFile(sticker.sticker, 'image/webp', sticker)
+      : getThumbnail(sticker)
+  }
   if (!isObject(video)) return undefined
   return toMediaFile(
     video.video ?? video.animation,
@@ -1523,6 +1536,12 @@ function toMedia(
   let media: PostMedia = { type: file.type.split('/')[0]!, url }
   if (content.animation) media.type = 'video;mode=gif'
   if (content.video_note) media.type = 'video;mode=round'
+  if (isObject(content.sticker)) {
+    media.type = 'image;mode=sticker'
+    if (typeof content.sticker.emoji === 'string') {
+      media.alt = content.sticker.emoji
+    }
+  }
   if (getMediaFile(content, 'poster')) media.poster = `${url}/poster`
   if (content.has_spoiler) media.sensitive = true
   // Telegram puts a tiny blurred copy of the image into the post itself

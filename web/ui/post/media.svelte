@@ -62,6 +62,10 @@
     return item.type.endsWith(';mode=round')
   }
 
+  function isSticker(item: ReaderMedia): boolean {
+    return item.type.endsWith(';mode=sticker')
+  }
+
   function trackPlayback(url: string, video: HTMLVideoElement): void {
     if (video.paused) playback.set(url, 'paused')
     else playback.set(url, video.muted ? 'muted' : 'voiced')
@@ -193,6 +197,7 @@
       : undefined}
     class="post-media_item"
     class:is-loading={!loaded.has(item.url)}
+    class:is-sticker={isSticker(item)}
     {@attach focusClicked(item.url)}
     {@attach mediaSrc(item.url, { once: !!protect })}
     alt={item.alt ?? ''}
@@ -331,11 +336,14 @@
 {/snippet}
 
 {#snippet click(item: ReaderMedia)}
+  {@const scale = isSticker(item)
+    ? 192 / Math.max(item.size?.width ?? 0, item.size?.height ?? 0, 192)
+    : 1}
   <ClickToLoad
     alt={item.alt}
     bytes={item.size?.approximate ? undefined : item.size?.bytes}
     focus={stopped === item.url}
-    height={item.size?.height}
+    height={item.size?.height && item.size.height * scale}
     onload={() => {
       if (item.sensitive) revealed = true
       clicked = item.url
@@ -351,7 +359,7 @@
     sensitive={!!item.sensitive && !sensitiveShown}
     url={item.url}
     video={!item.type.startsWith('image')}
-    width={item.size?.width}
+    width={item.size?.width && item.size.width * scale}
   />
 {/snippet}
 
@@ -388,6 +396,7 @@
               item.size.height &&
               `${item.size.width} / ${item.size.height}`}
             class="post-media_item is-broken"
+            class:is-sticker={isSticker(item)}
           >
             <BrokenImage alt={item.alt} />
           </span>
@@ -520,6 +529,14 @@
         display: block;
         width: 100%;
         aspect-ratio: 16 / 9;
+      }
+
+      &.is-sticker {
+        max-width: 12rem;
+        max-height: 12rem;
+        object-fit: contain;
+        background: none;
+        border-radius: 0;
       }
     }
 
