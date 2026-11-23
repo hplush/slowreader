@@ -1,17 +1,24 @@
 <script lang="ts">
+  import { mdiAlertOutline, mdiSleep } from '@mdi/js'
   import {
+    type FeedPopup,
     type FeedStats,
     type FeedStatsType,
     getFeedStatsBar,
     i18nFormat,
     organizeMessages as t
   } from '@slowreader/core'
+  import type { StoreValue } from 'nanostores'
+
+  import Icon from './icon.svelte'
 
   let {
+    activity,
     href,
     stats,
     variant
   }: {
+    activity?: StoreValue<FeedPopup['activity']>
     href?: string
     stats: FeedStats
     variant: 'legend' | 'stacked'
@@ -72,7 +79,7 @@
     </div>
   </div>
   {#if variant === 'legend'}
-    {#if bar.parts.length > 0}
+    {#if bar.parts.length > 0 || activity}
       <ul class="feed-stats_legend" role="list">
         {#each bar.parts as part (part.type)}
           <li class="feed-stats_item">
@@ -85,6 +92,20 @@
             {getLabel(part.type, part.count)}
           </li>
         {/each}
+        {#if activity}
+          <li
+            class="feed-stats_activity"
+            class:is-dangerous={activity.silence === 'twoYears'}
+            class:is-warning={!!activity.warning}
+            title={activity.warning}
+          >
+            {#if activity.warning}
+              <Icon path={activity.silence ? mdiSleep : mdiAlertOutline} />
+              <span class="sr-only">{activity.warning}</span>
+            {/if}
+            {activity.hint}
+          </li>
+        {/if}
       </ul>
     {/if}
   {:else}
@@ -233,6 +254,21 @@
       width: 0.625rem;
       height: 0.625rem;
       border-radius: 0.125rem;
+    }
+
+    .feed-stats_activity {
+      display: flex;
+      gap: 0.25rem;
+      align-items: center;
+      margin-inline-start: auto;
+
+      &.is-warning {
+        color: var(--warning-text-color);
+      }
+
+      &.is-dangerous {
+        color: var(--dangerous-text-color);
+      }
     }
   }
 </style>

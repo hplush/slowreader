@@ -3,6 +3,7 @@
     mdiAccount,
     mdiAlertCircleOutline,
     mdiChevronDown,
+    mdiClockOutline,
     mdiFire,
     mdiFood,
     mdiFormatListChecks,
@@ -10,7 +11,9 @@
     mdiPageLayoutHeaderFooter,
     mdiPlusCircleOutline,
     mdiSleep,
+    mdiThumbDown,
     mdiThumbDownOutline,
+    mdiThumbUp,
     mdiThumbUpOutline,
     mdiTrashCanOutline
   } from '@mdi/js'
@@ -44,6 +47,7 @@
   import Select from '../ui/select.svelte'
   import Stack from '../ui/stack.svelte'
   import Status from '../ui/status.svelte'
+  import Tabs from '../ui/tabs.svelte'
 
   let { popup }: { popup: FeedPopup } = $props()
 
@@ -100,6 +104,20 @@
       </Button>
     {/if}
   {/if}
+{/snippet}
+
+{#snippet recent()}
+  <Stack gap="s">
+    {#if $previews.length > 0}
+      <Feed
+        feedUrl={popup.param}
+        highlight={false}
+        posts={$previews}
+        userPostUrl={$userPostUrl}
+      />
+    {/if}
+    {@render loading($posts, posts.next)}
+  </Stack>
 {/snippet}
 
 <Popup
@@ -260,72 +278,63 @@
         <Label hint={$t.statsSeen(getFeedStatsBar($stats).total)} tag="h2">
           {$t.stats}
         </Label>
-        <FeedStats stats={$stats} variant="legend" />
+        <FeedStats activity={$activity} stats={$stats} variant="legend" />
       </Stack>
     {/if}
     {#if $feed}
-      <Radio
+      <Tabs
         label={$t.postsList}
-        labelless
         onchange={value => {
           chosen = value
         }}
-        size="wide"
         value={list}
         values={[
-          ['recent', $t.recentPosts],
-          ['liked', $t.likedPosts],
-          ['disliked', $t.dislikedPosts]
+          ['recent', $t.recentPosts, mdiClockOutline],
+          ['liked', $t.likedPosts, mdiThumbUp],
+          ['disliked', $t.dislikedPosts, mdiThumbDown]
         ]}
-      />
-    {/if}
-    {#if list === 'recent'}
-      <Stack gap="s">
-        <Stack gap="xs">
-          <Label
-            dangerous={$activity?.silence === 'twoYears'}
-            hint={$activity?.hint}
-            icon={$activity?.silence ? mdiSleep : undefined}
-            tag="h2"
-            warning={$activity?.warning}
-          >
-            {$t.feedPosts}
-          </Label>
-          {#if $previews.length > 0}
-            <Feed
-              feedUrl={popup.param}
-              highlight={false}
-              posts={$previews}
-              userPostUrl={$userPostUrl}
-            />
-          {/if}
-        </Stack>
-        {@render loading($posts, posts.next)}
-      </Stack>
-    {:else if cards && $cards}
-      <Stack gap="s">
-        {#if $cards.list.length > 0}
-          <Feed
-            feedUrl={popup.param}
-            highlight={false}
-            posts={$cards.list.map(i => toPreviewPost(i, popup.loader))}
-            userPostUrl={$userPostUrl}
+      >
+        {#if list === 'recent'}
+          {@render recent()}
+        {:else if cards && $cards}
+          <Stack gap="s">
+            {#if $cards.list.length > 0}
+              <Feed
+                feedUrl={popup.param}
+                highlight={false}
+                posts={$cards.list.map(i => toPreviewPost(i, popup.loader))}
+                userPostUrl={$userPostUrl}
+              />
+            {/if}
+            {@render loading($cards, cards.next)}
+          </Stack>
+        {:else if list === 'liked'}
+          <PostReactions
+            empty={$t.noLikedPosts}
+            icon={mdiThumbUpOutline}
+            list={$reactions.filter(i => i.liked)}
+          />
+        {:else}
+          <PostReactions
+            empty={$t.noDislikedPosts}
+            icon={mdiThumbDownOutline}
+            list={$reactions.filter(i => !i.liked)}
           />
         {/if}
-        {@render loading($cards, cards.next)}
-      </Stack>
-    {:else if list === 'liked'}
-      <PostReactions
-        empty={$t.noLikedPosts}
-        icon={mdiThumbUpOutline}
-        list={$reactions.filter(i => i.liked)}
-      />
+      </Tabs>
     {:else}
-      <PostReactions
-        empty={$t.noDislikedPosts}
-        icon={mdiThumbDownOutline}
-        list={$reactions.filter(i => !i.liked)}
-      />
+      <Stack gap="xs">
+        <Label
+          dangerous={$activity?.silence === 'twoYears'}
+          hint={$activity?.hint}
+          icon={$activity?.silence ? mdiSleep : undefined}
+          tag="h2"
+          warning={$activity?.warning}
+        >
+          {$t.feedPosts}
+        </Label>
+        {@render recent()}
+      </Stack>
     {/if}
   </Stack>
 </Popup>

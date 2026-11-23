@@ -124,7 +124,7 @@
   import type { StoryContext } from 'storybook/internal/types'
 
   async function openLiked({ canvas, userEvent }: StoryContext): Promise<void> {
-    await userEvent.click(await canvas.findByRole('radio', { name: 'Liked' }))
+    await userEvent.click(await canvas.findByRole('tab', { name: 'Liked' }))
   }
 </script>
 

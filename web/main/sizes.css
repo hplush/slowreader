@@ -14,6 +14,10 @@
   --min-size: 1px;
   --navbar-width: 0px;
   --popup-size: calc((100vw - var(--navbar-width)) / 2);
+  --popup-padding: max(
+    var(--page-padding),
+    calc((var(--popup-size) - var(--max-content-width)) / 2)
+  );
 
   &.has-navbar {
     --navbar-width: 16rem;
@@ -34,6 +38,7 @@
   @media (--mobile) {
     --thin-content-width: calc(100vw - 2 * var(--page-padding));
     --popup-size: 100vw;
+    --popup-padding: var(--page-padding);
     --control-height: 2.25rem;
   }
 }

@@ -19,22 +19,10 @@ export const organizeMessages = i18n('organize', {
   deleteFinalConform:
     'This will delete the feed and leave the private channel. You can return only by an invite. Are you sure?',
   fast: 'Fun',
-  perDay: count({
-    many: '{count} posts per day',
-    one: '{count} post per day'
-  }),
-  perMonth: count({
-    many: '{count} posts per month',
-    one: '{count} post per month'
-  }),
-  perWeek: count({
-    many: '{count} posts per week',
-    one: '{count} post per week'
-  }),
-  perYear: count({
-    many: '{count} posts per year',
-    one: '{count} post per year'
-  }),
+  perDay: params('{count} new per day'),
+  perMonth: params('{count} new per month'),
+  perWeek: params('{count} new per week'),
+  perYear: params('{count} new per year'),
   feedPosts: 'Recent posts',
   feedsCount: count({
     many: '{count} feeds',

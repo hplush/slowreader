@@ -88,13 +88,13 @@ export function formatFrequency(
   perDay: number
 ): string {
   if (perDay >= 1) {
-    return t.perDay(Math.round(perDay))
+    return t.perDay({ count: Math.round(perDay) })
   } else if (perDay * 7 >= 1) {
-    return t.perWeek(Math.round(perDay * 7))
+    return t.perWeek({ count: Math.round(perDay * 7) })
   } else if (perDay * 30 >= 1) {
-    return t.perMonth(Math.round(perDay * 30))
+    return t.perMonth({ count: Math.round(perDay * 30) })
   } else {
-    return t.perYear(Math.max(1, Math.round(perDay * 365)))
+    return t.perYear({ count: Math.max(1, Math.round(perDay * 365)) })
   }
 }
 

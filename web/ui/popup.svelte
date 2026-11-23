@@ -105,8 +105,7 @@
       }
     }
 
-    .popup_header,
-    .popup_body {
+    .popup_header {
       @media (--no-mobile) {
         width: stretch;
         max-width: min(
@@ -114,9 +113,7 @@
           var(--popup-size)
         );
       }
-    }
 
-    .popup_header {
       @media (--mobile) {
         @mixin background var(--main-land-color);
 
@@ -148,6 +145,7 @@
     .popup_body {
       position: relative;
       box-sizing: border-box;
+      width: stretch;
       height: calc(100% - var(--navbar-height));
       overflow: hidden auto;
 
@@ -162,7 +160,7 @@
       display: flex;
       flex-direction: column;
       min-height: 100%;
-      padding: var(--page-padding);
+      padding: var(--page-padding) var(--popup-padding);
 
       @media (--mobile) {
         padding: 0;

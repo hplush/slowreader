@@ -154,23 +154,23 @@ describe('format', () => {
 
   test('formats frequency in the biggest period', () => {
     let t = organizeMessages.get()
-    equal(formatFrequency(t, 10), '10 posts per\u00A0day')
-    equal(formatFrequency(t, 1), '1 post per\u00A0day')
-    equal(formatFrequency(t, 0.2), '1 post per\u00A0week')
-    equal(formatFrequency(t, 0.04), '1 post per\u00A0month')
-    equal(formatFrequency(t, 0.02), '7 posts per\u00A0year')
-    equal(formatFrequency(t, 0.0009), '1 post per\u00A0year')
+    equal(formatFrequency(t, 10), '10 new\u00A0per\u00A0day')
+    equal(formatFrequency(t, 1), '1 new\u00A0per\u00A0day')
+    equal(formatFrequency(t, 0.2), '1 new\u00A0per\u00A0week')
+    equal(formatFrequency(t, 0.04), '1 new\u00A0per\u00A0month')
+    equal(formatFrequency(t, 0.02), '7 new\u00A0per\u00A0year')
+    equal(formatFrequency(t, 0.0009), '1 new\u00A0per\u00A0year')
   })
   test('formats posts activity', () => {
     let t = organizeMessages.get()
     let format = createMockFormatter()
     deepEqual(formatActivity(t, format, { frequency: 1, dead: false }), {
-      hint: '1 post per\u00A0day',
+      hint: '1 new\u00A0per\u00A0day',
       silence: undefined,
       warning: undefined
     })
     deepEqual(formatActivity(t, format, { frequency: 11, dead: false }), {
-      hint: '11 posts per\u00A0day',
+      hint: '11 new\u00A0per\u00A0day',
       silence: undefined,
       warning: t.tooFrequent
     })
