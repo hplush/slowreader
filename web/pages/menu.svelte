@@ -7,6 +7,6 @@
 </script>
 
 <ThinPage title={$t.menu}>
-  <NavbarSync />
   <NavbarOther />
+  <NavbarSync />
 </ThinPage>

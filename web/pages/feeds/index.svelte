@@ -78,13 +78,13 @@
 {#if $menu}
   <ThinPage title={page.reading === 'slow' ? $navbar.slow : $navbar.fast}>
     <div {@attach keepMenuScroll(page.reading)}>
-      <NavbarSync />
       {#if page.reading === 'slow'}
         <NavbarSlow />
       {:else}
         <NavbarFast />
       {/if}
     </div>
+    <NavbarSync />
   </ThinPage>
 {:else if $locked.locked}
   <ThinPage title={$navbar.fast}>
