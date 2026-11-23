@@ -591,6 +591,40 @@ describe('media cache', () => {
     deepEqual(await cached(), [])
   })
 
+  test('skips media, which was deleted or saved during the download', async () => {
+    let ids: string[] = []
+    for (let i of [1, 2, 3, 4, 5, 6]) {
+      ids.push(
+        await addPost(
+          testPost({
+            media: [{ type: 'image', url: `https://img.com/${i}.jpg` }],
+            sortedAt: 7000 - i * 1000
+          })
+        )
+      )
+    }
+    let waits = [1, 2, 3, 4].map(i => {
+      return expectRequest(`https://img.com/${i}.jpg`).andWait()
+    })
+    mediaStatistics.set({ done: 0, failed: 0, total: 0 })
+    let syncing = syncMediaCache()
+    await waitUntil(() => mediaStatistics.get().total === 6)
+
+    await deletePost([ids[0]!, ids[5]!])
+    expectRequest('https://img.com/5.jpg').andRespond(200, '5')
+    await cacheMediaOnRequest('https://img.com/5.jpg')
+    for (let wait of waits) await wait(200, '1')
+    await syncing
+
+    deepEqual(await cached(), [
+      'https://img.com/2.jpg',
+      'https://img.com/3.jpg',
+      'https://img.com/4.jpg',
+      'https://img.com/5.jpg'
+    ])
+    deepEqual(mediaStatistics.get(), { done: 4, failed: 0, total: 4 })
+  })
+
   test('downloads only videos without images', async () => {
     cacheImages.set('never')
     cacheVideos.set('always')

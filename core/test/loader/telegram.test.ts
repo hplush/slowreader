@@ -12,6 +12,7 @@ import {
   addPost,
   cacheImages,
   cacheMediaOnRequest,
+  cacheMediaReading,
   cacheVideos,
   changeAccount,
   closeLastPopup,
@@ -26,6 +27,7 @@ import {
   loadFeeds,
   loadMediaBlob,
   loadPageMedia,
+  loadPost,
   loadPosts,
   mediaErrors,
   type OriginPost,
@@ -33,6 +35,7 @@ import {
   refreshPosts,
   refreshStatistics,
   refreshStatus,
+  setupEnvironment,
   syncFollows,
   syncMediaCache,
   TelegramError,
@@ -55,6 +58,7 @@ import {
   cleanClient,
   expectRequest,
   expectWarning,
+  getTestEnvironment,
   mockRequest,
   openPage,
   openTestPopup,
@@ -2416,6 +2420,67 @@ describe('telegram loader', () => {
     equal(await isMediaCached('telegram:5/4'), true)
     equal(await isMediaCached('telegram:5/3'), false)
     equal(await isMediaCached('telegram:5/5/preview'), false)
+  })
+
+  test('saves the file of the page for the media cache', async t => {
+    let cache = getTestEnvironment().mediaCache
+    let full = new Error('No space')
+    let space = false
+    setupEnvironment({
+      ...getTestEnvironment(),
+      mediaCache: {
+        ...cache,
+        put(url, response) {
+          return space ? cache.put(url, response) : Promise.reject(full)
+        }
+      },
+      telegramCreator: testTelegramCreator
+    })
+    t.after(() => {
+      cacheMediaReading.set('all')
+      cacheImages.set('always')
+    })
+    mockHistory(0, {})
+    testTelegram.answers.getMessage = photoPost
+    testTelegram.answers.downloadFile = { '@type': 'file', 'id': 12, 'size': 5 }
+    testTelegram.files = { 12: new Blob(['photo']) }
+    let id = await addPost(
+      testPost({
+        media: [{ type: 'image', url: 'telegram:5/4' }],
+        mediaSizes: [{ approximate: true, height: 1, width: 2 }]
+      })
+    )
+    await addPost(
+      testPost({ author: { avatar: 'telegram:5/4', title: 'Author' } })
+    )
+    await addPost(testPost({ media: [{ type: 'video', url: 'telegram:5/4' }] }))
+    await syncMediaCache()
+    deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
+
+    async function showOnPage(): Promise<void> {
+      equal(await (await loadMediaBlob('telegram:5/4')!).text(), 'photo')
+      await setTimeout(10)
+    }
+
+    await expectWarning(showOnPage, [full])
+    space = true
+
+    cacheMediaReading.set('slow')
+    await showOnPage()
+    cacheMediaReading.set('all')
+    cacheImages.set('never')
+    await showOnPage()
+    equal(await isMediaCached('telegram:5/4'), false)
+
+    cacheImages.set('always')
+    await showOnPage()
+    equal(await isMediaCached('telegram:5/4'), true)
+    deepEqual((await loadPost(id))?.mediaSizes, [
+      { bytes: 5, height: 1, width: 2 }
+    ])
+    testTelegram.requests = []
+    await syncMediaCache()
+    deepEqual(testTelegram.requests, [])
   })
 
   test('gives ad of the channel as a dynamic post', async () => {

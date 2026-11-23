@@ -384,6 +384,7 @@ async function saveSizes(found: [SizeTarget, CachedMedia][]): Promise<void> {
 
 let queue = createQueue<string>([])
 let stopped = false
+let dropped = new Set<string>()
 
 function canLoadOnThisDevice(url: string): boolean {
   return (
@@ -409,6 +410,7 @@ export async function syncMediaCache(): Promise<void> {
     reading !== 'none' && videos !== 'never',
     reading === 'slow'
   )
+  dropped.clear()
   let cache = getEnvironment().mediaCache
   let cached = new Set(await cache.keys())
   let unused = [...cached].filter(url => !wanted.has(url))
@@ -435,6 +437,14 @@ export async function syncMediaCache(): Promise<void> {
     await queue.start(
       4,
       url => async task => {
+        if (dropped.has(url)) {
+          increaseKey(mediaStatistics, 'total', -1)
+          return
+        }
+        if (await cache.has(url)) {
+          increaseKey(mediaStatistics, 'done')
+          return
+        }
         let response: Response
         try {
           // Proxy loads media without the per-host delay by this header
@@ -463,6 +473,11 @@ export async function syncMediaCache(): Promise<void> {
           throw e
         }
         let real = await cache.put(url, response)
+        if (dropped.has(url)) {
+          await cache.delete([url])
+          increaseKey(mediaStatistics, 'total', -1)
+          return
+        }
         for (let target of wanted.get(url)!.targets) {
           found.push([target, real])
         }
@@ -504,12 +519,42 @@ export async function cacheMediaOnRequest(
   await getEnvironment().mediaCache.put(url, response)
 }
 
+async function savePageCopy(url: string, blob: Blob): Promise<void> {
+  if (!mediaCacheEnabled.get()) return
+  await createMediaTable(getDatabase())
+  let places = await getCrdt().select<MediaFileRow>`
+    SELECT "mediaFiles".* FROM "mediaFiles"
+    JOIN "posts" ON "posts"."id" = "mediaFiles"."postId"
+    WHERE "mediaFiles"."url" = ${url}
+      AND (
+        ${cacheMediaReading.get() === 'slow' ? 1 : 0} = 0
+        OR "posts"."reading" = 'slow'
+      )
+  `
+  let wanted = places.filter(file => {
+    return (file.video ? cacheVideos.get() : cacheImages.get()) !== 'never'
+  })
+  if (wanted.length === 0) return
+  let real = await getEnvironment().mediaCache.put(url, new Response(blob))
+  let found: [SizeTarget, CachedMedia][] = []
+  for (let file of wanted) {
+    if (file.field && file.position !== null) {
+      found.push([
+        { field: file.field, index: file.position, postId: file.postId },
+        real
+      ])
+    }
+  }
+  await saveSizes(found)
+}
+
 /**
  * File for media, which browser can not load by URL on its own, like media
  * with `telegram:` URL. `undefined` for a web URL.
  *
  * `keep` saves the loaded file to the cache with any settings. It is for
  * avatars of feeds and accounts, which are on the screen all the time.
+ * Other files are saved only for posts, which settings keep offline.
  *
  * Without `urgency` user waits for the file on the screen.
  */
@@ -525,9 +570,15 @@ export function loadMediaBlob(
     if (cached) return cached
     let loading = loadLoaderMedia(url, signal, undefined, urgency)
     if (!loading) throw new Error(`No loader for ${url}`)
-    if (!keep) return (await loading).blob()
-    await cache.put(url, await loading)
-    return (await cache.get(url))!
+    if (keep) {
+      await cache.put(url, await loading)
+      return (await cache.get(url))!
+    }
+    let blob = await (await loading).blob()
+    savePageCopy(url, blob).catch((e: unknown) => {
+      getEnvironment().warn(e)
+    })
+    return blob
   })
 }
 
@@ -614,6 +665,7 @@ async function deletePostsMedia(tx: Database, ids: string[]): Promise<void> {
     WHERE "postId" IN (SELECT "value" FROM json_each(${list}))
   `
   if (unused.length > 0) {
+    for (let row of unused) dropped.add(row.url)
     void getEnvironment().mediaCache.delete(unused.map(row => row.url))
   }
 }

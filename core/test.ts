@@ -448,6 +448,7 @@ let fetchMock: RequestMethod = async (url, opts = {}) => {
     }
 
     opts.signal?.addEventListener('abort', abortCallback)
+    if (opts.signal?.aborted) abortCallback()
     await Promise.race([expect.wait, promise])
     opts.signal?.removeEventListener('abort', abortCallback)
 
