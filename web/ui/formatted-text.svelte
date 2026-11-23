@@ -335,7 +335,7 @@
 
     .formatted-text_spoiler {
       position: relative;
-      background: --tune-background(--placeholder);
+      background: --tune-background(--gutter);
       border-radius: 0.25em;
       box-decoration-break: clone;
 
@@ -346,7 +346,7 @@
       &:hover,
       &:active,
       &:focus-visible {
-        background: --tune-background(--placeholder --placeholder-hover);
+        background: --tune-background(--gutter --gutter-hover);
       }
 
       /* Inline element can not be moved by translate */
