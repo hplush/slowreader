@@ -180,8 +180,8 @@
     --note-warning-background: oklch(0.25 0.05 95);
     --usage-slow-color: oklch(0.8 0.14 75);
     --usage-fast-color: oklch(0.75 0.11 250);
-    --stats-liked-color: oklch(0.75 0.16 150);
-    --stats-opened-color: oklch(0.5 0.08 150);
+    --stats-liked-color: oklch(0.6 0.16 150);
+    --stats-opened-color: oklch(0.76 0.1 150);
     --stats-disliked-color: oklch(0.7 0.16 25);
     --field-l: -0.05;
     --field-c: 0;
