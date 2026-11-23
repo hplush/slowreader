@@ -1,6 +1,6 @@
 # Experiments
 
-Only users with a cloud account send these events to our server. You can turn them off on the _Cloud_ page. An event is only a name, without your user ID, cookies, or IP address.
+Only users with a cloud account send these events to our server. You can turn them off in _Experiments_ on the _About_ page. An event is only a name, without your user ID, cookies, or IP address.
 
 For events sent once a day, the app keeps the date of the last sending on your device until the next day.
 

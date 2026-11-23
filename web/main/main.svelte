@@ -37,6 +37,8 @@
   import AccountPopup from '../popups/account.svelte'
   import CategoryPopup from '../popups/category.svelte'
   import ErrorPopup from '../popups/error.svelte'
+  import ExperimentPopup from '../popups/experiment.svelte'
+  import ExperimentsPopup from '../popups/experiments.svelte'
   import FeedPopup from '../popups/feed.svelte'
   import LoadingPopup from '../popups/loading.svelte'
   import PasskeyPopup from '../popups/passkey.svelte'
@@ -155,6 +157,10 @@
       <SessionPopup {popup} />
     {:else if isPopup(popup, 'category')}
       <CategoryPopup {popup} />
+    {:else if isPopup(popup, 'experiments')}
+      <ExperimentsPopup {popup} />
+    {:else if isPopup(popup, 'experiment')}
+      <ExperimentPopup {popup} />
     {:else}
       {missedPopup(popup)}
     {/if}

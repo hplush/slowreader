@@ -159,11 +159,6 @@ export const useReducedMotion = persistentBoolean('slowreader:reduced-motion')
 export const useQuietCursor = persistentBoolean('slowreader:quiet-cursor')
 
 /**
- * Not synced, because broken database errors must respect it too
- */
-export const noStatistics = persistentBoolean('slowreader:no-statistics')
-
-/**
  * Percents of the whole text and UI scale.
  */
 export const textSize = persistentAtom<number>('slowreader:textSize', 100, {

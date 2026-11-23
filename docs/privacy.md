@@ -44,7 +44,7 @@ Posts you read here are marked as read in Telegram.
 
 We have two separate counters. Neither can link data to you. The only cookie keeps you signed in to the cloud.
 
-- **App:** our server counts active cloud accounts, their browsers, passkeys, and <a href="/docs/experiments">error pages</a>. Our metrics database saves only totals without user IDs or IP addresses. Users without a cloud account don’t send error counts, and you can turn them off on the _Cloud_ page.
+- **App:** our server counts active cloud accounts, their browsers, passkeys, and <a href="/docs/experiments">error pages</a>. Our metrics database saves only totals without user IDs or IP addresses. Users without a cloud account don’t send error counts, and you can turn them off in _Experiments_ on the _About_ page.
 - **Home page and docs:** our own copy of <a href="https://plausible.io/data-policy" target="_blank">Plausible</a> counts visits. It sets no cookies, doesn’t save your IP address, and can’t connect your visits on different days.
 
 ## Logs
@@ -78,4 +78,4 @@ If you email us, we use your email address and message only to answer you. We de
 
 ## Changes
 
-We may change this policy at any time. Check this page for the latest version. Last change: November 13, 2026. See <a href="https://github.com/hplush/slowreader/commits/main/docs/privacy.md" target="_blank">the history of changes</a> of this policy.
+We may change this policy at any time. Check this page for the latest version. Last change: November 23, 2026. See <a href="https://github.com/hplush/slowreader/commits/main/docs/privacy.md" target="_blank">the history of changes</a> of this policy.

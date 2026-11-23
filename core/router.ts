@@ -43,6 +43,8 @@ export interface Routes {
 export const popupNames = {
   account: true,
   category: true,
+  experiment: true,
+  experiments: true,
   feed: true,
   passkey: true,
   post: true,

@@ -8,10 +8,11 @@ import { deepEqual } from 'node:assert/strict'
 import { after, afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
+  experimentChoices,
   fatal,
   hasCloud,
-  noStatistics,
   setupEnvironment,
+  toggleExperiment,
   track
 } from '../index.ts'
 import { cleanClient, getTestEnvironment, waitUntil } from './utils.ts'
@@ -42,7 +43,7 @@ describe('events', () => {
 
   afterEach(async () => {
     hasCloud.set(false)
-    noStatistics.set(false)
+    experimentChoices.set({})
     await cleanClient()
     await server.destroy()
     await cleanAllTables()
@@ -109,13 +110,22 @@ describe('events', () => {
     )
   })
 
-  test('does not send events of local users or after opt-out', async () => {
+  test('does not send events of local users', async () => {
     hasCloud.set(false)
     await track('fatal-crash')
-    hasCloud.set(true)
-    noStatistics.set(true)
-    await track('fatal-crash')
     deepEqual(sent, [])
+  })
+
+  test('does not send fatal errors after opt-out', async () => {
+    toggleExperiment('errors', false)
+    fatal.set({ error: 'Error', type: 'crash' })
+    toggleExperiment('errors', true)
+    fatal.set({ error: undefined, type: 'noDb' })
+    await waitUntil(() => sent.length === 1)
+    deepEqual(
+      sent.map(i => (i as { body: unknown }).body),
+      [{ events: ['fatal-noDb'] }]
+    )
   })
 
   test('ignores network errors', async () => {

@@ -2,7 +2,7 @@ import { type EventName, sendEvents } from '@slowreader/api'
 
 import { getEnvironment, onEnvironment } from './environment.ts'
 import { getToday } from './lib/date.ts'
-import { hasCloud, noStatistics } from './settings.ts'
+import { hasCloud } from './settings.ts'
 import { getServerUrl } from './sync-server.ts'
 
 /**
@@ -13,7 +13,7 @@ export async function track(
   opts: { daily?: boolean } = {}
 ): Promise<void> {
   // Local users expect the app to never contact our server
-  if (!hasCloud.get() || noStatistics.get()) return
+  if (!hasCloud.get()) return
   let { persistentStore, server } = getEnvironment()
   if (opts.daily) {
     let today = getToday()

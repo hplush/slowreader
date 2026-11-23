@@ -20,6 +20,7 @@ All clients share the logic from the core. This core logic is defined as smart s
 
 In the best scenario, the client should just subscribe to stores, render UI according to the stores, and call core function on user actions.
 
+- [`experiments/`](./experiments/): feature previews and debug data collectors, which user enables per device.
 - [`loader/`](./loader/): support of each social network or news format.
 - [`pages/`](./pages/): logic of each app’s page.
   - [`mixins/`](./pages/mixins): a way to share common logic between pages.

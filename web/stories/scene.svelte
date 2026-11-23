@@ -20,6 +20,7 @@
     DEFAULT_MEDIA_STATISTICS,
     DEFAULT_REFRESH_STATISTICS,
     deviceSessions,
+    experimentChoices,
     extensionState,
     fastPostsMaxAge,
     type FeedValue,
@@ -37,7 +38,6 @@
     type NewCategory,
     type NewReaction,
     nightLock,
-    noStatistics,
     openWarnings,
     pages,
     type ParamlessRouteName,
@@ -213,6 +213,7 @@
     welcomeSteps.set(undefined)
     closedCategories.set(new Set())
     deviceSessions.set({})
+    experimentChoices.set({})
     hasTelegram.set(false)
 
     function updateTheme(): void {
@@ -251,7 +252,6 @@
       if (page.cache) page.cache = undefined
     }
     useReducedMotion.set(false)
-    noStatistics.set(false)
     textSize.set(100)
     postFont.set('default')
     postLineHeight.set('normal')

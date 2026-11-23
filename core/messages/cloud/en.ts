@@ -84,9 +84,5 @@ export const cloudMessages = i18n('cloud', {
   lostPassword: 'Lost the password? Generate a new one with a passkey first.',
   confirmByPassword: 'Confirm with password',
   confirmByPasskey: 'Confirm with passkey',
-  confirming: 'Confirming…',
-  statisticsTitle: 'Statistics',
-  sendStatistics: 'Send error counts',
-  statisticsNote: 'Anonymous, on this device only',
-  statisticsList: 'What we send'
+  confirming: 'Confirming…'
 })

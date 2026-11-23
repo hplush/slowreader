@@ -5,6 +5,7 @@
     mdiCellphoneArrowDown,
     mdiCheckDecagram,
     mdiEye,
+    mdiFlaskOutline,
     mdiGift,
     mdiRefresh,
     mdiShieldSearch
@@ -13,6 +14,7 @@
     type AboutPage,
     getEnvironment,
     getIssueURL,
+    router,
     saveData,
     settingsMessages,
     aboutMessages as t
@@ -22,6 +24,7 @@
   import { addDebugInfo } from '../lib/debug.ts'
   import { checkClientUpdate, clientUpdate } from '../stores/client-update.ts'
   import { installApp, mobileInstall } from '../stores/install.ts'
+  import { getPopupHash } from '../stores/url-router.ts'
   import AppIcon from '../ui/app-icon.svelte'
   import Button from '../ui/button.svelte'
   import Note from '../ui/note.svelte'
@@ -34,6 +37,7 @@
   import Version from '../ui/version.svelte'
 
   let { page }: { page: AboutPage } = $props()
+  let { hasExperiments } = $derived(page)
   let debug = $derived(addDebugInfo(undefined, page.appVersion))
   let checkByClick = $derived(
     $clientUpdate === 'unchecked' || ($saveData && $clientUpdate === 'checking')
@@ -154,5 +158,17 @@
     >
       {$t.reportIssue}
     </Button>
+    {#if $hasExperiments}
+      <Stack align="center">
+        <Button
+          aria-controls="experiments-list"
+          href={getPopupHash($router, 'experiments', '1')}
+          icon={mdiFlaskOutline}
+          size="pill"
+        >
+          {$t.experiments}
+        </Button>
+      </Stack>
+    {/if}
   </Stack>
 </ThinPage>

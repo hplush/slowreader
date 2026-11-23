@@ -2,7 +2,6 @@
   import {
     mdiAccountPlus,
     mdiCellphoneKey,
-    mdiChartBar,
     mdiChevronRight,
     mdiCloudAlert,
     mdiEmailFast,
@@ -24,7 +23,6 @@
     getPopupId,
     i18nFormat,
     isDemo,
-    noStatistics,
     router,
     type SessionItem,
     settingsMessages,
@@ -49,7 +47,6 @@
   import Paper from '../ui/paper.svelte'
   import Stack from '../ui/stack.svelte'
   import Status from '../ui/status.svelte'
-  import Switch from '../ui/switch.svelte'
   import ThinPage from '../ui/thin-page.svelte'
   import Title from '../ui/title.svelte'
 
@@ -366,27 +363,6 @@
             </Button>
           {/if}
         {/if}
-      </Stack>
-      <Stack>
-        <Title>
-          {$t.statisticsTitle}
-          {#snippet action()}
-            <Button
-              href="/docs/experiments"
-              size="pill"
-              target="_blank"
-              variant="secondary"
-            >
-              {$t.statisticsList}
-            </Button>
-          {/snippet}
-        </Title>
-        <Switch
-          icon={mdiChartBar}
-          label={$t.sendStatistics}
-          note={$t.statisticsNote}
-          reverseStore={noStatistics}
-        />
       </Stack>
       <Stack>
         <Title>{$t.dangerousTitle}</Title>

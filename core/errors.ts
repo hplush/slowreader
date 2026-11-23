@@ -1,9 +1,7 @@
 import { LoguxUndoError } from '@logux/client'
-import { isEventName } from '@slowreader/api'
 import { atom } from 'nanostores'
 
 import { getEnvironment, onEnvironment } from './environment.ts'
-import { track } from './events.ts'
 import { commonMessages } from './messages/index.ts'
 
 export const fatalReasons = [
@@ -296,13 +294,5 @@ onEnvironment(({ baseRouter, errorEvents }) => {
       if (fatal.get()?.type === 'notFound') fatal.set(undefined)
       unbindRouter()
     })
-  })
-})
-
-onEnvironment(() => {
-  return fatal.listen(value => {
-    if (!value) return
-    let name = `fatal-${value.type}`
-    if (isEventName(name)) void track(name, { daily: true })
   })
 })
