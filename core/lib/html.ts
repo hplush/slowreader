@@ -376,7 +376,7 @@ export function sanitizeDOM(html: string): Element {
     ALLOWED_TAGS,
     RETURN_DOM: true,
     SANITIZE_NAMED_PROPS: true
-  }) as Element
+  })
   removeRelativeUrls(node)
   for (let media of node.querySelectorAll('video, audio')) {
     media.setAttribute('controls', '')
