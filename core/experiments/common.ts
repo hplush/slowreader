@@ -1,5 +1,6 @@
 export interface ExperimentRecords {
   addRecord(record: unknown): void
+  loadRecords(): unknown[]
   setRecord(record: unknown): void
 }
 

@@ -148,6 +148,7 @@ describe('experiments', () => {
 
     records.setRecord('three')
     equal(getExperimentRecords('collector'), '["three"]')
+    deepEqual(records.loadRecords(), ['three'])
 
     setupEnvironment(getEnvironment())
     equal(getExperimentRecords('collector'), '["three"]')
