@@ -118,6 +118,7 @@ interface Session {
    * part of the video.
    */
   files: Map<string, MediaFile>
+  followed: Set<number>
   idle: ReturnType<typeof setTimeout> | undefined
   /**
    * Sign in form waits for user’s answer longer, than TDLib’s idle time.
@@ -165,20 +166,28 @@ let sessions = new Map<string, Session>()
  * TDLib sorts the chat list by `order`, which has the date of the last
  * activity in the high 32 bits. Pinned chats and ads are always on the top.
  */
-function trackDepth(session: Session, positions: unknown): void {
+function trackPositions(
+  session: Session,
+  chatId: number,
+  positions: unknown
+): void {
   for (let position of Array.isArray(positions) ? positions : []) {
     if (
       !isObject(position) ||
       !isObject(position.list) ||
       position.list['@type'] !== 'chatListMain' ||
-      position.is_pinned ||
       position.source ||
       !/^\d+$/.test(String(position.order))
     ) {
       continue
     }
     let date = Number(BigInt(String(position.order)) >> 32n)
-    if (date > 0) session.depth = Math.min(session.depth, date)
+    if (date === 0) {
+      session.followed.delete(chatId)
+      continue
+    }
+    if (session.channels.has(chatId)) session.followed.add(chatId)
+    if (!position.is_pinned) session.depth = Math.min(session.depth, date)
   }
 }
 
@@ -192,12 +201,12 @@ function trackChat(session: Session, update: TelegramObject): void {
         '@type': 'chat'
       })
     }
-    trackDepth(session, update.chat.positions)
+    trackPositions(session, Number(update.chat.id), update.chat.positions)
   } else if (update['@type'] === 'updateChatLastMessage') {
     if (channel) channel.last_message = update.last_message
-    trackDepth(session, update.positions)
+    trackPositions(session, Number(update.chat_id), update.positions)
   } else if (update['@type'] === 'updateChatPosition') {
-    trackDepth(session, [update.position])
+    trackPositions(session, Number(update.chat_id), [update.position])
   } else if (update['@type'] === 'updateChatReadInbox' && channel) {
     channel.last_read_inbox_message_id = update.last_read_inbox_message_id
   }
@@ -218,6 +227,7 @@ function getSession(name: string): Session {
     downloads: new Map(),
     ending: false,
     files: new Map(),
+    followed: new Set(),
     idle: undefined,
     keep: false,
     loadingChats: undefined,
@@ -247,6 +257,7 @@ function getSession(name: string): Session {
     // TDLib forgets chats and files on every restart
     if (state['@type'] !== 'authorizationStateReady') {
       created.channels.clear()
+      created.followed.clear()
       created.files.clear()
       created.streams.clear()
       created.connected = false
@@ -633,18 +644,10 @@ async function loadChannelUrl(
  * Chat list has private chats and groups too. We take only channels
  * and drop the rest here, so they never reach the database.
  */
-async function loadChannels(name: string): Promise<LoadedAuthor[]> {
-  await loadChatsSince(name, 0)
-  let loaded = await sendToTelegram(name, {
-    '@type': 'getChats',
-    'chat_list': { '@type': 'chatListMain' },
-    'limit': 100_000
-  })
-  let chats = await Promise.all(
-    (Array.isArray(loaded.chat_ids) ? loaded.chat_ids : []).map(id =>
-      sendToTelegram(name, { '@type': 'getChat', 'chat_id': id })
-    )
-  )
+async function toFollows(
+  name: string,
+  chats: TelegramObject[]
+): Promise<LoadedAuthor[]> {
   let channels = await Promise.all(
     chats.map(async chat => {
       let id = getChannelId(chat)
@@ -659,6 +662,23 @@ async function loadChannels(name: string): Promise<LoadedAuthor[]> {
     })
   )
   return channels.filter(channel => !!channel)
+}
+
+async function loadChannels(name: string): Promise<LoadedAuthor[]> {
+  await loadChatsSince(name, 0)
+  let loaded = await sendToTelegram(name, {
+    '@type': 'getChats',
+    'chat_list': { '@type': 'chatListMain' },
+    'limit': 100_000
+  })
+  return toFollows(
+    name,
+    await Promise.all(
+      (Array.isArray(loaded.chat_ids) ? loaded.chat_ids : []).map(id =>
+        sendToTelegram(name, { '@type': 'getChat', 'chat_id': id })
+      )
+    )
+  )
 }
 
 /**
@@ -2066,6 +2086,21 @@ let telegramAccount: AccountLoader<SignInData> = {
 
   async getFollows(auth) {
     return loadChannels(getDevice(auth))
+  },
+
+  async getRecentFollows(auth, since, feeds) {
+    let name = getDevice(auth)
+    await loadChatsSince(name, since - 3600)
+    let session = getSession(name)
+    let known = new Set(
+      feeds.map(feed => Number(readLoaderData(feed.loaderData, 'id')))
+    )
+    return toFollows(
+      name,
+      [...session.followed]
+        .filter(id => !known.has(id))
+        .map(id => session.channels.get(id)!)
+    )
   },
 
   async getReadPosts(auth, feed, postOriginIds) {

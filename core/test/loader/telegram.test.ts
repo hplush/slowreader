@@ -2849,6 +2849,115 @@ describe('telegram loader', () => {
     deepEqual(getRequestTypes(), ['loadChats', 'loadChats', 'getChatHistory'])
   })
 
+  test('finds followed channels in the loaded part of the chat list', async () => {
+    let now = Math.round(Date.now() / 1000)
+    let auth = {
+      account: testAccount({ credentials: null, service: 'telegram' }),
+      device: 'name',
+      expire: () => Promise.resolve(),
+      reload: () => Promise.resolve(undefined),
+      save: () => Promise.resolve()
+    }
+    let feeds = [{ loaderData: '{"id":"-1001"}' }, { loaderData: null }]
+    function find(): Promise<unknown[]> {
+      testTelegram.requests = []
+      return account.getRecentFollows!(auth, now - 60, feeds).then(follows => {
+        return follows.map(author => author.url)
+      })
+    }
+    testTelegram.answers.getSupergroup = ({ supergroup_id: id }) => ({
+      '@type': 'supergroup',
+      'usernames': {
+        '@type': 'usernames',
+        'active_usernames': [`channel${String(1e12 + Number(id))}`]
+      }
+    })
+    mockChatList(
+      [
+        news(-1001, 1, { positions: [position(now - 10)] }),
+        news(-1002, 1, { positions: [position(now - 20)] }),
+        news(-1003, 1, { positions: [position(2 ** 31, { is_pinned: true })] }),
+        // Ad
+        news(-1004, 1, { positions: [position(now + 1000, { source: {} })] }),
+        news(-1005, 1, {
+          positions: [
+            position(now - 30, { list: { '@type': 'chatListArchive' } })
+          ]
+        }),
+        // Source of a forwarded post
+        news(-1006, 1, { positions: [] }),
+        news(-1007, 1, { positions: [position(now - 40)] }),
+        {
+          '@type': 'chat',
+          'id': 7,
+          'positions': [position(now - 5000)],
+          'type': { '@type': 'chatTypePrivate', 'user_id': 7 }
+        }
+      ],
+      [news(-1008, 1, { positions: [position(now - 90_000)] })]
+    )
+    deepEqual(await find(), [
+      'https://t.me/channel1002',
+      'https://t.me/channel1003',
+      'https://t.me/channel1007'
+    ])
+    deepEqual(getRequestTypes(), [
+      'loadChats',
+      'getSupergroup',
+      'getSupergroup',
+      'getSupergroup'
+    ])
+
+    sendTelegramUpdate({
+      '@type': 'updateChatPosition',
+      'chat_id': -1007,
+      'position': position(0)
+    })
+    sendTelegramUpdate({
+      '@type': 'updateChatLastMessage',
+      'chat_id': -1006,
+      'last_message': message(5),
+      'positions': [position(now)]
+    })
+    deepEqual(await find(), [
+      'https://t.me/channel1002',
+      'https://t.me/channel1003',
+      'https://t.me/channel1006'
+    ])
+
+    // TDLib forgets chats on restart
+    sendTelegramUpdate(state('Closed'))
+    deepEqual(await find(), ['https://t.me/channel1008'])
+  })
+
+  test('adds the feed of a new channel on refresh', async () => {
+    let now = Math.round(Date.now() / 1000)
+    let accountId = await addAccount(
+      testAccount({
+        credentials: null,
+        followsSyncedAt: now,
+        service: 'telegram'
+      })
+    )
+    deviceSessions.set({ [accountId]: { device: 'name', service: 'telegram' } })
+    mockHistory(1, { 0: [message(2)], 2: [message(1)] })
+    testTelegram.answers.getSupergroup = {
+      '@type': 'supergroup',
+      'usernames': { '@type': 'usernames', 'active_usernames': ['news'] }
+    }
+    mockChatList([news(-1001, 1, { positions: [position(now - 10)] })])
+    await refreshPosts()
+    deepEqual(refreshErrors.get(), [])
+    deepEqual(
+      (await loadFeeds()).map(feed => [feed.accountId, feed.title, feed.url]),
+      [[accountId, 'News', 'https://t.me/news']]
+    )
+    deepEqual(
+      (await loadPosts()).map(post => post.url),
+      ['https://t.me/news/2']
+    )
+  })
+
   test('limits parallel requests and waits for a short block', async t => {
     t.mock.timers.enable({ apis: ['setTimeout'] })
     testTelegram.answers.getMe = USER

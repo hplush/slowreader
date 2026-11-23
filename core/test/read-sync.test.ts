@@ -384,7 +384,11 @@ describe('read sync', () => {
     }
     await expectWarning(
       () => refreshPosts(),
-      [new Error('TDLib is broken'), new Error('TDLib is broken')]
+      [
+        new Error('TDLib is broken'),
+        new Error('TDLib is broken'),
+        new Error('TDLib is broken')
+      ]
     )
   })
 

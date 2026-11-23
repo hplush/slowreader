@@ -217,6 +217,16 @@ export interface AccountLoader<Data = unknown> {
   ): Promise<number | undefined>
 
   /**
+   * Followed authors with news after the date, which are not in account’s
+   * feeds. Refresh creates feeds for them.
+   */
+  getRecentFollows?(
+    auth: AccountAuth,
+    since: number,
+    feeds: Pick<FeedValue, 'loaderData'>[]
+  ): Promise<FollowedAuthor[]>
+
+  /**
    * Home timeline from the newest post. Every post has `author`.
    * Replies to other authors are skipped like in profile feeds.
    * Posts of followed hashtags have `followedTag`.

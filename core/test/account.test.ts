@@ -6,6 +6,7 @@ import { setTimeout } from 'node:timers/promises'
 import {
   addAccount,
   addFeed,
+  addRecentFollows,
   addFilter,
   addPost,
   changeAccount,
@@ -243,6 +244,69 @@ describe('account', () => {
       true
     )
     equal(needFollowsSync({ ...account, expired: true }), false)
+  })
+
+  test('adds feeds of recent follows', async () => {
+    await addAccount(testAccount())
+    let id = await addAccount(
+      testAccount({
+        credentials: null,
+        followsSyncedAt: 500,
+        service: 'telegram'
+      })
+    )
+    await addFeed(
+      testFeed({
+        accountId: id,
+        loader: 'telegram',
+        loaderData: '{"id":"-1001"}',
+        refreshedAt: 900,
+        title: 'Renamed',
+        url: 'https://t.me/old'
+      })
+    )
+    await addFeed(testFeed({ title: 'By URL', url: 'https://t.me/url' }))
+    let calls: unknown[] = []
+    let found = spyOn(
+      loaders.telegram.account! as Required<AccountLoader>,
+      'getRecentFollows',
+      (auth, since, feeds) => {
+        calls.push([auth.account.id, since, feeds.map(feed => feed.loaderData)])
+        return Promise.resolve([
+          {
+            loaderData: '{"id":"-1001"}',
+            title: 'Known',
+            url: 'https://t.me/renamed'
+          },
+          { title: 'Known', url: 'https://t.me/url' },
+          { title: 'No URL' },
+          {
+            loaderData: '{"id":"-1002"}',
+            title: 'New',
+            url: 'https://t.me/new'
+          }
+        ])
+      }
+    )
+    await addRecentFollows(await loadAccounts())
+    deepEqual(calls, [[id, 900, ['{"id":"-1001"}']]])
+    deepEqual(
+      (await loadFeeds()).map(feed => [feed.accountId, feed.title, feed.url]),
+      [
+        [null, 'By URL', 'https://t.me/url'],
+        [id, 'New', 'https://t.me/new'],
+        [id, 'Renamed', 'https://t.me/old']
+      ]
+    )
+
+    found.nextResult(Promise.reject(new NetworkError(new TypeError('off'))))
+    await addRecentFollows(await loadAccounts())
+    found.nextResult(Promise.reject(new Error('Bug')))
+    await expectWarning(
+      async () => addRecentFollows(await loadAccounts()),
+      [new Error('Bug')]
+    )
+    equal((await loadFeeds()).length, 3)
   })
 
   test('keeps Bluesky feed after handle change', async () => {

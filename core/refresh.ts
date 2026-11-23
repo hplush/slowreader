@@ -3,6 +3,7 @@ import { atom, computed, effect, map } from 'nanostores'
 
 import {
   type AccountValue,
+  addRecentFollows,
   canUseAccount,
   deletePostsReadInService,
   getAccountAuth,
@@ -674,6 +675,7 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
       !loaders[account.service].account!.getTimeline && canUseAccount(account)
     )
   })
+  if (owners.length > 0) await addRecentFollows(owners)
   let feeds = await loadFeedsForRefresh(owners.map(account => account.id))
   if (dayDiff(previousRefresh) >= 1 && !downloadingCloudData.get()) {
     await deleteOrphanStats()

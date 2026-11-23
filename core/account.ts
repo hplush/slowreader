@@ -22,6 +22,7 @@ import {
   deleteFeed,
   type FeedValue,
   loadFeed,
+  loadFeedsByUrls,
   moveFeed,
   type NewFeed
 } from './feed.ts'
@@ -578,6 +579,41 @@ export function syncFollows(service: AccountService): Promise<void> {
     })
   followsSyncing.set(service, sync)
   return sync
+}
+
+export async function addRecentFollows(
+  accounts: AccountValue[]
+): Promise<void> {
+  for (let account of accounts) {
+    let load = loaders[account.service].account!.getRecentFollows
+    if (!load) continue
+    let own = await getTables().feeds.load`WHERE "accountId" = ${account.id}`
+    let follows: FollowedAuthor[]
+    try {
+      follows = await load(
+        getAccountAuth(account),
+        Math.max(
+          account.followsSyncedAt ?? 0,
+          ...own.map(feed => feed.refreshedAt ?? 0)
+        ),
+        own
+      )
+    } catch (e) {
+      if (!isRemoteError(e)) getEnvironment().warn(e)
+      continue
+    }
+    let feeds = await loadFeedsByUrls()
+    await getTables().feeds.create(
+      follows
+        .filter(author => {
+          let key = getOriginKey(account.service, author.loaderData)
+          return (
+            author.url && !feeds.has(author.url) && !(key && feeds.has(key))
+          )
+        })
+        .map(author => toVirtualFeed(account, { ...author, url: author.url! }))
+    )
+  }
 }
 
 /**
