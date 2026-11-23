@@ -37,6 +37,17 @@
     <Output label="Formatted" value="0.20261027.1">
       <Version value="0.20261027.1" />
     </Output>
+    <Output
+      label="Multiline"
+      multiline
+      value={'[{"state":"connecting"},\n{"state":"ready"}]'}
+    />
+    <Output
+      label="Rows"
+      multiline
+      rows={3}
+      value={'Error: Database disk image is malformed\n1\n2\n3\n4'}
+    />
   </Section>
 </Story>
 
@@ -54,5 +65,16 @@
     <Output label="Formatted" value="0.20261027.1">
       <Version value="0.20261027.1" />
     </Output>
+    <Output
+      label="Multiline"
+      multiline
+      value={'[{"state":"connecting"},\n{"state":"ready"}]'}
+    />
+    <Output
+      label="Rows"
+      multiline
+      rows={3}
+      value={'Error: Database disk image is malformed\n1\n2\n3\n4'}
+    />
   </Section>
 </Story>

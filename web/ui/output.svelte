@@ -14,6 +14,9 @@
     font = 'mono',
     hint,
     label,
+    multiline = false,
+    onbeforecopy,
+    rows,
     value = $bindable(''),
     ...props
   }: {
@@ -21,6 +24,9 @@
     font?: 'mono' | 'normal'
     hint?: string
     label: string
+    multiline?: boolean
+    onbeforecopy?: () => void
+    rows?: number
   } & HTMLInputAttributes = $props()
 
   // TODO onclick select all
@@ -29,43 +35,70 @@
   let { copied, copy } = createClipboard()
 </script>
 
-<div class="output">
-  <Label {id} {hint}>{label}</Label>
-  <div class="output_control">
-    {#if children}
-      <output
+{#snippet copyButton(variant: 'plain' | 'secondary')}
+  <Button
+    color={$copied ? 'success' : undefined}
+    icon={$copied ? mdiCheck : mdiContentCopy}
+    joined={variant === 'secondary' ? 'end' : undefined}
+    onclick={() => {
+      onbeforecopy?.()
+      void copy(value)
+    }}
+    size="icon"
+    {variant}
+  >
+    {$copied ? $t.copied : $t.copyToClipboard}
+  </Button>
+{/snippet}
+
+<div class="output" class:is-filling={multiline && !rows}>
+  {#if multiline}
+    <div class="output_header">
+      <Label {id} {hint}>{label}</Label>
+      {@render copyButton('plain')}
+    </div>
+    <div class="output_area" class:is-filling={!rows}>
+      <textarea
         {id}
-        class="output_field is-formatted"
-        class:is-mono={font === 'mono'}
-      >
-        {@render children()}
-      </output>
-    {:else}
-      <input
-        {id}
-        class="output_field"
+        class="output_text"
+        class:is-filling={!rows}
         class:is-mono={font === 'mono'}
         onfocus={e => {
           e.currentTarget.select()
         }}
         readonly
-        {value}
-        {...props}
-      />
-    {/if}
-    <div class="output_button">
-      <Button
-        color={$copied ? 'success' : undefined}
-        icon={$copied ? mdiCheck : mdiContentCopy}
-        joined="end"
-        onclick={() => copy(value)}
-        size="icon"
-        variant="secondary"
-      >
-        {$copied ? $t.copied : $t.copyToClipboard}
-      </Button>
+        rows={rows ? Math.min(String(value).split('\n').length, rows) : null}
+        {value}></textarea>
     </div>
-  </div>
+  {:else}
+    <Label {id} {hint}>{label}</Label>
+    <div class="output_control">
+      {#if children}
+        <output
+          {id}
+          class="output_field is-formatted"
+          class:is-mono={font === 'mono'}
+        >
+          {@render children()}
+        </output>
+      {:else}
+        <input
+          {id}
+          class="output_field"
+          class:is-mono={font === 'mono'}
+          onfocus={e => {
+            e.currentTarget.select()
+          }}
+          readonly
+          {value}
+          {...props}
+        />
+      {/if}
+      <div class="output_button">
+        {@render copyButton('secondary')}
+      </div>
+    </div>
+  {/if}
   <Announce text={$copied ? $t.copied : ''} />
 </div>
 
@@ -75,6 +108,64 @@
       flex-shrink: 1;
       width: stretch;
       min-width: 0;
+
+      &.is-filling {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+      }
+    }
+
+    .output_header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+    }
+
+    .output_area {
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      min-height: var(--control-height);
+      padding-block: calc(var(--control-padding) / 2);
+      background: --tune-background(--gutter);
+      border-radius: var(--base-radius);
+      box-shadow: var(--field-shadow);
+
+      &:has(.output_text:focus-visible) {
+        @mixin focus;
+      }
+
+      &.is-filling {
+        flex-grow: 1;
+        min-height: 8rem;
+      }
+    }
+
+    .output_text {
+      box-sizing: border-box;
+      flex-grow: 1;
+      width: stretch;
+      padding: 0 var(--control-padding);
+      font: var(--text-font);
+      color: inherit;
+      white-space: pre;
+      resize: vertical;
+      background: transparent;
+      border: none;
+
+      &:focus-visible {
+        outline: none;
+      }
+
+      &.is-mono {
+        font: var(--regular-weight) 0.75rem/1.6 var(--mono-family);
+      }
+
+      &.is-filling {
+        white-space: pre-wrap;
+        resize: none;
+      }
     }
 
     .output_control {

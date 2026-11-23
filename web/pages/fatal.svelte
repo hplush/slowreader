@@ -29,7 +29,7 @@
   } from '../stores/client-update.ts'
   import { getURL } from '../stores/url-router.ts'
   import Button from '../ui/button.svelte'
-  import DebugInfo from '../ui/debug-info.svelte'
+  import Output from '../ui/output.svelte'
   import PageIcon from '../ui/page-icon.svelte'
   import Stack from '../ui/stack.svelte'
   import ThinPage from '../ui/thin-page.svelte'
@@ -89,6 +89,15 @@
   </Button>
 {/snippet}
 
+{#snippet debugInfo(error: string)}
+  <Output
+    label={$t.error}
+    multiline
+    rows={12}
+    value={addDebugInfo(error, page.appVersion)}
+  />
+{/snippet}
+
 <ThinPage align="center" bottom={false} title={$t[`${$reason.type}Title`]}>
   <Stack align="center" gap="xl">
     <PageIcon
@@ -100,11 +109,7 @@
       {#if $reason.type === 'brokenDatabase'}
         <p>{$t.brokenDatabaseDescription}</p>
         {#if $reason.error}
-          <DebugInfo
-            error={$reason.error}
-            label={$t.error}
-            version={page.appVersion}
-          />
+          {@render debugInfo($reason.error)}
         {/if}
         {#if hasUpdate}
           {@render updateButton()}
@@ -123,11 +128,7 @@
         {/if}
       {:else if $reason.type === 'crash'}
         <p>{$t.crashDescription}</p>
-        <DebugInfo
-          error={$reason.error}
-          label={$t.error}
-          version={page.appVersion}
-        />
+        {@render debugInfo($reason.error)}
         {#if hasUpdate}
           {@render updateButton()}
         {:else}
@@ -160,11 +161,7 @@
       {:else if $reason.type === 'noDb'}
         <p>{$t.noDbDescription}</p>
         {#if $reason.error}
-          <DebugInfo
-            error={$reason.error}
-            label={$t.error}
-            version={page.appVersion}
-          />
+          {@render debugInfo($reason.error)}
         {/if}
         {#if hasUpdate}
           {@render updateButton()}
@@ -172,11 +169,7 @@
           {@render reportButton($reason.error)}
         {/if}
       {:else if $reason.type === 'rejected'}
-        <DebugInfo
-          error={$reason.error}
-          label={$t.error}
-          version={page.appVersion}
-        />
+        {@render debugInfo($reason.error)}
         <Button
           icon={mdiCloudDownloadOutline}
           onclick={resetDatabase}
