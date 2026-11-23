@@ -191,6 +191,17 @@ describe('feed reader', () => {
     )
   })
 
+  test('shows reposter as author of self-repost', async () => {
+    let feedId = await addFeed(testFeed({ reader: 'feed' }))
+    let bob = { avatar: 'https://bob.social/a.png', title: 'Bob' }
+    await addPost(testPost({ feedId, reading: 'slow', repostedBy: bob }))
+
+    let page = openPage({ params: { feed: feedId }, route: 'slow' })
+    await waitLoading(page.postsLoading)
+    let post = ensureReader(page.posts, 'feed').list.get()[0]!
+    deepEqual(post.author, { ...bob, handle: undefined })
+  })
+
   test('reads account posts', async () => {
     let categoryId = await addCategory({ reader: 'feed', title: 'A' })
     let other = await addCategory({ title: 'B' })

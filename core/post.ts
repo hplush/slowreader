@@ -214,9 +214,12 @@ export function addHandles<
     author?: null | PostAuthor
     quoted?: null | QuotedPost
     replied?: null | QuotedPost
+    repostedBy?: null | PostAuthor
   }
 >(post: Post, loader: LoaderName | undefined): WithHandles<Post> {
-  let { author, quoted, replied } = post
+  let { quoted, replied } = post
+  // Refresh drops the author equal to the feed, like on self-repost
+  let author = post.author ?? post.repostedBy
   return {
     ...post,
     ...(author && { author: toCardAuthor(author, loader) }),
