@@ -26,9 +26,7 @@
   class="navbar-balance"
   class:is-hidden={!$showUsageBalance || !$trackUsage}
 >
-  <span class="navbar-balance_mark is-start"></span>
-  <span class="navbar-balance_mark is-middle"></span>
-  <span class="navbar-balance_mark is-end"></span>
+  <span class="navbar-balance_mark"></span>
   <span
     style:--navbar-balance-position="{($usageBalance + 1) * 50}%"
     class="navbar-balance_thumb"
@@ -87,22 +85,11 @@
 
     .navbar-balance_mark {
       position: absolute;
+      inset-inline-start: 50%;
       top: 0;
       width: var(--min-size);
       height: 0.3125rem;
       background: var(--border-color);
-
-      &.is-start {
-        inset-inline-start: 0;
-      }
-
-      &.is-middle {
-        inset-inline-start: 50%;
-      }
-
-      &.is-end {
-        inset-inline-end: 0;
-      }
     }
 
     .navbar-balance_thumb {
