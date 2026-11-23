@@ -26,6 +26,7 @@ export {
   type Loadable,
   subscribeUntil,
   switchOf,
+  viewOf,
   waitLoading
 } from './lib/stores.ts'
 export * from './lib/validators.ts'

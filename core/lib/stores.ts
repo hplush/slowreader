@@ -199,6 +199,26 @@ export function storeFromColumn<Row extends object, Column extends keyof Row>(
 }
 
 /**
+ * Writable store for form controls like `<Switch>`. It shows `read()`
+ * of the source and gives user’s changes to `write()` instead of keeping them.
+ */
+export function viewOf<Source, Value>(
+  source: ReadableAtom<Source>,
+  read: (value: Source) => Value,
+  write: (value: Value) => void
+): WritableAtom<Value> {
+  let result = atom(read(source.get()))
+  let setResult = result.set
+  onMount(result, () => {
+    return source.subscribe(value => {
+      setResult(read(value))
+    })
+  })
+  result.set = write
+  return result
+}
+
+/**
  * Boolean view of two values of the setting for `<Switch>`.
  */
 export function switchOf<Value extends string>(
@@ -206,15 +226,11 @@ export function switchOf<Value extends string>(
   on: Value,
   off: Value
 ): WritableAtom<boolean> {
-  let result = atom(store.get() === on)
-  let setResult = result.set
-  onMount(result, () => {
-    return store.subscribe(value => {
-      setResult(value === on)
-    })
-  })
-  result.set = value => {
-    if (value !== (store.get() === on)) store.set(value ? on : off)
-  }
-  return result
+  return viewOf(
+    store,
+    value => value === on,
+    value => {
+      if (value !== (store.get() === on)) store.set(value ? on : off)
+    }
+  )
 }

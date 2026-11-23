@@ -2,7 +2,7 @@ import { atom, cleanStores } from 'nanostores'
 import { deepEqual, equal } from 'node:assert/strict'
 import { describe, test } from 'node:test'
 
-import { type Loadable, subscribeUntil, switchOf } from '../../index.ts'
+import { type Loadable, subscribeUntil, switchOf, viewOf } from '../../index.ts'
 import { storeFromColumn, storeFromQuery } from '../../lib/stores.ts'
 
 describe('stores', () => {
@@ -77,6 +77,31 @@ describe('stores', () => {
     unbind()
     cleanStores($double)
     equal($query.lc, 0)
+  })
+
+  test('shows source as value and gives changes to callback', t => {
+    let source = atom({ count: 1 })
+    let writes: number[] = []
+    let view = viewOf(
+      source,
+      value => value.count * 2,
+      value => {
+        writes.push(value)
+      }
+    )
+    let unbind = view.listen(() => {})
+    t.after(() => {
+      unbind()
+      cleanStores(view)
+    })
+    equal(view.get(), 2)
+
+    view.set(10)
+    deepEqual(writes, [10])
+    equal(view.get(), 2)
+
+    source.set({ count: 3 })
+    equal(view.get(), 6)
   })
 
   test('shows two setting values as boolean', t => {
