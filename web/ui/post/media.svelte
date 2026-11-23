@@ -58,6 +58,12 @@
     if (clicked === url && video.paused) playIfVisible(video)
   }
 
+  function hiddenControls(item: ReaderMedia): string | undefined {
+    if (protect) return 'nodownload noremoteplayback'
+    if (isLoaderMedia(item.url)) return 'nodownload'
+    return undefined
+  }
+
   function isRound(item: ReaderMedia): boolean {
     return item.type.endsWith(';mode=round')
   }
@@ -307,7 +313,7 @@
     aria-label={item.alt}
     autoplay={clicked === item.url && !isLoaderMedia(item.url)}
     controls={!isRound(item) && !waitsFile(item) && !autoplayed.has(item.url)}
-    controlslist={protect ? 'nodownload noremoteplayback' : undefined}
+    controlslist={hiddenControls(item)}
     disablepictureinpicture={!!protect}
     height={item.size?.height}
     onerror={() => {
