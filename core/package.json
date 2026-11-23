@@ -11,7 +11,7 @@
   },
   "scripts": {
     "test": "FORCE_COLOR=1 pnpm run /^test:/",
-    "test:offline:coverage": "bnt --test-force-exit --coverage 100 --coverage-exclude '{benchmark*,devtools.ts,errors.ts,node.ts,test.ts,../api/**,../server/**,../proxy/**,**/test/**}'"
+    "test:offline:coverage": "bnt --test-force-exit --coverage 100 --coverage-exclude '{benchmark*,devtools.ts,errors.ts,experiments/**,node.ts,test.ts,../api/**,../server/**,../proxy/**,**/test/**}'"
   },
   "dependencies": {
     "@logux/actions": "0.8.1",
