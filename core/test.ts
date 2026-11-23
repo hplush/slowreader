@@ -9,6 +9,7 @@ import type {
   Environment,
   Network,
   PasskeySignal,
+  TelegramDebug,
   TelegramObject,
   TelegramRequest
 } from './environment.ts'
@@ -97,6 +98,15 @@ export function sendTelegramUpdate(
   }
 }
 
+let telegramDebuggers = new Set<(event: TelegramDebug) => void>()
+
+/**
+ * Send TDLib’s log line or event of its connection from every fake TDLib.
+ */
+export function sendTelegramDebug(event: TelegramDebug): void {
+  for (let listener of telegramDebuggers) listener(event)
+}
+
 /**
  * Fake TDLib creator. Tests add it to the environment, when they need
  * Telegram: `startClient({ telegramCreator: testTelegramCreator })`.
@@ -115,6 +125,12 @@ export const testTelegramCreator: NonNullable<
       testTelegram.running.delete(name)
       testTelegram.destroyed.push(name)
       return Promise.resolve()
+    },
+    onDebug(listener) {
+      telegramDebuggers.add(listener)
+      return () => {
+        telegramDebuggers.delete(listener)
+      }
     },
     onUpdate(listener) {
       listeners.add(listener)
@@ -254,6 +270,7 @@ export function getTestEnvironment(): Environment {
   testSignals = []
   testHistory = []
   testOAuthPages = []
+  telegramDebuggers.clear()
   testTelegram = {
     answers: {},
     connecting: false,

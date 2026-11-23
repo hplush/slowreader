@@ -10,6 +10,7 @@ import {
   getEnvironment,
   onEnvironment,
   type TelegramClient,
+  type TelegramDebug,
   type TelegramObject,
   type TelegramRequest
 } from '../environment.ts'
@@ -162,6 +163,24 @@ interface Session {
 
 let sessions = new Map<string, Session>()
 
+export type TelegramTrace =
+  | { answer: TelegramObject; id: number; type: 'answered' }
+  | { debug: TelegramDebug; type: 'debug' }
+  | { error: unknown; id: number; type: 'failed' }
+  | { id: number; request: TelegramRequest; type: 'queued'; urgency: Urgency }
+  | { id: number; type: 'sent' }
+  | { session: string; type: 'update'; update: TelegramObject }
+
+let trace: ((event: TelegramTrace) => void) | undefined
+let traced = 0
+
+/**
+ * Debug experiment sees every request, answer, and update of TDLib.
+ */
+export function traceTelegram(listener: typeof trace): void {
+  trace = listener
+}
+
 /**
  * TDLib sorts the chat list by `order`, which has the date of the last
  * activity in the high 32 bits. Pinned chats and ads are always on the top.
@@ -240,7 +259,11 @@ function getSession(name: string): Session {
     waiters: new Set(),
     waiting: { later: [], now: [], soon: [] }
   }
+  created.client.onDebug?.(debug => {
+    trace?.({ debug, type: 'debug' })
+  })
   created.client.onUpdate(update => {
+    trace?.({ session: name, type: 'update', update })
     if (update['@type'] === 'updateConnectionState') {
       created.connected =
         isObject(update.state) &&
@@ -299,6 +322,8 @@ export async function sendToTelegram(
 ): Promise<TelegramObject> {
   signal?.throwIfAborted()
   let session = getSession(name)
+  let id = ++traced
+  trace?.({ id, request: body, type: 'queued', urgency })
   // Long download of a video must not hold posts loading
   let limited = body['@type'] !== 'downloadFile'
   let patient = urgency !== 'now'
@@ -308,6 +333,7 @@ export async function sendToTelegram(
         let queue = session.waiting[urgency]
         function leave(): void {
           queue.splice(queue.indexOf(start), 1)
+          trace?.({ error: signal!.reason, id, type: 'failed' })
           reject(signal!.reason as Error)
         }
         function start(): void {
@@ -324,8 +350,9 @@ export async function sendToTelegram(
   }
   clearTimeout(session.idle)
   session.sent += 1
+  trace?.({ id, type: 'sent' })
   try {
-    return await session.client.send(body).catch(async (e: unknown) => {
+    let answer = await session.client.send(body).catch(async (e: unknown) => {
       let wait =
         TelegramError.is(e) && e.code === 429
           ? Number(/retry after (\d+)/.exec(e.message)?.[1])
@@ -335,6 +362,11 @@ export async function sendToTelegram(
       await delay(wait * 1000)
       return session.client.send(body)
     })
+    trace?.({ answer, id, type: 'answered' })
+    return answer
+  } catch (e) {
+    trace?.({ error: e, id, type: 'failed' })
+    throw e
   } finally {
     session.sent -= 1
     if (limited) {

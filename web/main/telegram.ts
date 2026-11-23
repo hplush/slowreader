@@ -6,6 +6,7 @@ import {
   detectNetworkError,
   fatal,
   type TelegramClient,
+  type TelegramDebug,
   TelegramError,
   type TelegramObject,
   type TelegramOptions
@@ -34,6 +35,7 @@ function isObject(value: unknown): value is Record<string, unknown> {
 function runTdlib(
   database: string,
   onUpdate: (update: TelegramObject) => void,
+  onDebug: (event: TelegramDebug) => void,
   onStop: () => void
 ): Promise<Tdlib> {
   let worker = new Worker(new URL('./telegram-worker.ts', import.meta.url), {
@@ -130,6 +132,8 @@ function runTdlib(
               waiter.resolve(answer)
             }
           }
+        } else if (data.type === 'debug') {
+          onDebug(data.debug)
         } else if (data.type === 'file') {
           files.get(data.id)?.resolve(data.data)
           files.delete(data.id)
@@ -176,6 +180,7 @@ export async function deleteTelegramDatabases(): Promise<void> {
 export function createTelegram(options: TelegramOptions): TelegramClient {
   let database = DATABASE_PREFIX + options.name
   let listeners = new Set<(update: TelegramObject) => void>()
+  let debuggers = new Set<(event: TelegramDebug) => void>()
   let running: Promise<Tdlib> | undefined
   let wanted = false
   let idle: ReturnType<typeof setTimeout> | undefined
@@ -240,6 +245,9 @@ export function createTelegram(options: TelegramOptions): TelegramClient {
             update => {
               for (let listener of listeners) listener(update)
             },
+            event => {
+              for (let listener of debuggers) listener(event)
+            },
             () => {
               // TDLib also stops by itself, like after the sign out
               if (running === starting) running = undefined
@@ -273,6 +281,12 @@ export function createTelegram(options: TelegramOptions): TelegramClient {
       await stop()
       tabs.postMessage('wait')
       await navigator.locks.request(database, () => deleteDatabase(database))
+    },
+    onDebug(listener) {
+      debuggers.add(listener)
+      return () => {
+        debuggers.delete(listener)
+      }
     },
     onUpdate(listener) {
       listeners.add(listener)

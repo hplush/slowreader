@@ -50,7 +50,8 @@ import type { SignInStep } from '../../loader/common.ts'
 import {
   loadTelegramApp,
   sendToTelegram,
-  telegramApp
+  telegramApp,
+  traceTelegram
 } from '../../loader/telegram.ts'
 import {
   checkAndRemoveRequestMock,
@@ -62,6 +63,7 @@ import {
   mockRequest,
   openPage,
   openTestPopup,
+  sendTelegramDebug,
   sendTelegramUpdate,
   startClient,
   testTelegram,
@@ -2420,6 +2422,34 @@ describe('telegram loader', () => {
     equal(await isMediaCached('telegram:5/4'), true)
     equal(await isMediaCached('telegram:5/3'), false)
     equal(await isMediaCached('telegram:5/5/preview'), false)
+  })
+
+  test('shows requests, updates, and TDLib log to debug experiment', async t => {
+    let events: string[] = []
+    traceTelegram(event => {
+      events.push(event.type === 'queued' ? event.urgency : event.type)
+    })
+    t.after(() => {
+      traceTelegram(undefined)
+    })
+    testTelegram.answers.getOption = { '@type': 'optionValueEmpty' }
+    testTelegram.answers.getChat = fail('Not found', 404)
+
+    await sendToTelegram('name', { '@type': 'getOption', 'name': 'a' })
+    await rejects(
+      sendToTelegram('name', { '@type': 'getChat', 'chat_id': 1 }, 'later')
+    )
+    sendTelegramDebug({ line: 'Log', type: 'log' })
+    deepEqual(events, [
+      'now',
+      'sent',
+      'update',
+      'answered',
+      'later',
+      'sent',
+      'failed',
+      'debug'
+    ])
   })
 
   test('saves the file of the page for the media cache', async t => {
