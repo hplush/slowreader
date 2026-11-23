@@ -89,12 +89,26 @@
       overflow: hidden;
       color: var(--text-color);
       text-decoration: none;
-      border: calc(var(--min-size) / 2) solid var(--flat-border-color);
       border-radius: var(--base-radius);
+      position: relative;
 
       &:hover .post-preview_title,
       &:focus-visible .post-preview_title {
         text-decoration: underline;
+      }
+
+      /* Image covers inset shadow of the link itself */
+      &::after {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        content: '';
+        border-radius: inherit;
+        box-shadow: var(--flat-control-shadow);
+      }
+
+      &:active::after {
+        box-shadow: var(--pressed-shadow);
       }
     }
 
@@ -105,6 +119,10 @@
 
       .post-preview.is-protected & {
         pointer-events: none;
+      }
+
+      .post-preview:active & {
+        translate: 0 var(--min-size);
       }
 
       &.is-loading,
@@ -122,6 +140,10 @@
       flex-direction: column;
       gap: 0.25rem;
       padding: 0.5rem 0.625rem;
+
+      .post-preview:active & {
+        translate: 0 var(--min-size);
+      }
     }
 
     .post-preview_host {
