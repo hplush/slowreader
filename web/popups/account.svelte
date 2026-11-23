@@ -4,6 +4,7 @@
     mdiAccountAlert,
     mdiCellphoneLink,
     mdiLogin,
+    mdiRefresh,
     mdiTrashCanOutline
   } from '@mdi/js'
   import {
@@ -90,6 +91,10 @@
             {$t.signInOnDevice}
           </Button>
         </Note>
+      {:else}
+        <Button icon={mdiRefresh} onclick={popup.updateFollows}>
+          {$t.updateFollows}
+        </Button>
       {/if}
     </Stack>
   {/if}

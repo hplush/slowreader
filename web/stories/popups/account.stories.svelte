@@ -53,7 +53,10 @@
       },
       signInError: atom(signInError),
       signingIn: atom(false),
-      uniqueId: 'account'
+      uniqueId: 'account',
+      updateFollows() {
+        return Promise.resolve()
+      }
     }
   }
 </script>

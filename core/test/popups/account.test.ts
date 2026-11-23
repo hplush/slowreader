@@ -11,7 +11,9 @@ import {
   GENERAL_CATEGORY,
   getTables,
   loaders,
+  loadFeeds,
   openedPopups,
+  organizeMessages,
   testAccount,
   UserFacingError,
   waitLoading
@@ -184,6 +186,35 @@ describe('account popup', () => {
     let popup = openTestPopup('account', 'unknown')
     await waitLoading(popup.loading)
     equal(popup.notFound, true)
+  })
+
+  test('updates follows by request', async () => {
+    let id = await addAccount(testAccount({ handle: '@user@mastodon.social' }))
+    respondProfile({}, 500)
+    let opened = openTestPopup('account', id)
+    await waitLoading(opened.loading)
+    spyOn(loaders.mastodon.account!, 'getFollows', () => {
+      return Promise.resolve([
+        {
+          lastPublishedAt: 1000,
+          title: 'Author',
+          url: 'https://mastodon.social/@author'
+        }
+      ])
+    })
+
+    let updating = checkLoadedPopup(opened).updateFollows()
+    deepEqual(busy.get(), {
+      blocking: false,
+      label: organizeMessages.get().syncingFollows,
+      progress: undefined
+    })
+    await updating
+    equal(busy.get(), false)
+    deepEqual(
+      (await loadFeeds()).map(feed => feed.url),
+      ['https://mastodon.social/@author']
+    )
   })
 
   test('signs in again', async () => {

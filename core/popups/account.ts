@@ -8,14 +8,17 @@ import {
   openAccountSignInPage,
   signInErrorToMessage,
   startAccountSignIn,
+  syncFollows,
   updateAccountProfile
 } from '../account.ts'
+import { busyDuring } from '../busy.ts'
 import { getCategories, getCategoryOptions } from '../category.ts'
 import { deviceSessions } from '../device-sessions.ts'
 import { NotFoundError } from '../errors.ts'
 import { createDownloadTask } from '../lib/download.ts'
 import { storeFromColumn, waitSql } from '../lib/stores.ts'
 import { loaders } from '../loader/index.ts'
+import { organizeMessages } from '../messages/index.ts'
 import { closeLastPopup, navigate } from '../router.ts'
 import { type CreatedLoadedPopup, definePopup } from './common.ts'
 
@@ -82,7 +85,12 @@ export const account = definePopup('account', async id => {
       }
     },
     signInError: $signInError,
-    signingIn: $signingIn
+    signingIn: $signingIn,
+    updateFollows(): Promise<void> {
+      return busyDuring(organizeMessages.get().syncingFollows, () => {
+        return syncFollows(loaded.service)
+      })
+    }
   }
 })
 

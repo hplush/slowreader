@@ -67,6 +67,7 @@ export const accountsMessages = i18n('accounts', {
   tooManyAttempts:
     'Too many attempts. Telegram asks to wait before the next one.',
   unknownHandle: 'Can’t find this handle',
+  updateFollows: 'Update follows',
   useForm: 'Sign-in by code instead',
   useScan: 'Sign in by QR code'
 })
