@@ -2,7 +2,7 @@
 
 Production runs on our own Hetzner Cloud VM with Ubuntu 26.04 and Livepatch. App and proxy run in rootless Podman behind Caddy, PostgreSQL comes from Ubuntu, and pgBackRest keeps encrypted backups in Scaleway Object Storage.
 
-[Ansible](https://docs.ansible.com) configures the server. We create the VM, DNS records, and backup bucket manually by this guide.
+Ansible configures the server. We create the VM, DNS records, and backup bucket manually by this guide.
 
 ## Apply Changes
 
