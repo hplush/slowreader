@@ -200,7 +200,8 @@ async function startSyncServer(): Promise<() => void> {
     {
       cwd: join(ROOT, '../server'),
       env: { ...process.env, DATABASE_URL: `file://${SYNC_DB}`, DEBUG: '' },
-      stdio: 'ignore'
+      // Logux server in development stops when stdin is closed
+      stdio: ['pipe', 'ignore', 'ignore']
     }
   )
   await waitServer(address)
