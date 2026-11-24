@@ -3,7 +3,7 @@
 
 import { spawn, spawnSync } from 'node:child_process'
 import { globSync, readdirSync, readFileSync, rmSync, writeSync } from 'node:fs'
-import { homedir, tmpdir } from 'node:os'
+import { cpus, homedir, tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 import {
@@ -57,6 +57,9 @@ interface Peaks {
 }
 
 interface BenchmarkResults {
+  chromium: string
+  commit: string
+  cpu: string
   feeds: number
   fill: number
   posts: number
@@ -593,6 +596,14 @@ try {
   results.total.documents = peaks.documents
   results.total.listeners = peaks.listeners
   results.total.renderer = Math.round(peaks.renderer / 1024 / 1024)
+  results.chromium =
+    spawnSync(binary, ['--version'])
+      .stdout.toString()
+      .match(/[\d.]+/)?.[0] ?? ''
+  results.commit = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: ROOT })
+    .stdout.toString()
+    .trim()
+  results.cpu = cpus()[0]?.model ?? ''
 
   if (json) {
     print(JSON.stringify(results, null, 2))

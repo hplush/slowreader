@@ -60,6 +60,19 @@ await benchmark.storage() // IndexedDB, OPFS, and localStorage sizes in bytes
 
 For benchmark development you can use `?benchmark=debug` to make it faster.
 
+## Weekly Run
+
+[Benchmark workflow](../../.github/workflows/benchmark.yml) runs the benchmark script every Monday. It fails only if a scenario run failed.
+
+Every Monday the workflow replaces the whole `benchmark` branch with a new commit without parents, which has only the last run, so the repository does not grow.
+
+[Production VictoriaMetrics](../../infra/README.md#metrics) reads the branch and keeps old runs for the chart on `dashboard.hplush.dev`.
+
+[Our Grafana](https://github.com/hplush/cloud) warns in Telegram if a number of the last run is over the median of the 4 weeks before it ([rules](https://github.com/hplush/cloud/blob/main/roles/dashboards/templates/rules.alerting.yml.j2)):
+
+- By 10% for DOM size, documents, listeners, storage, and storage growth.
+- By 30% for duration, loaders, start, database filling, JS heap, and renderer memory.
+
 ## Methodology
 
 10 categories, 100 feeds, 0–2000 posts in feed with long tail distribution (most feeds are small, few are huge), about ~18 500 posts total (2 big feeds with 5000 posts each). Network is mocked. Every 5th feed returns 3 new posts on every refresh, so `refresh` scenario also measures database inserts and menu rebuilds.
@@ -121,7 +134,11 @@ Every scenario runs 5 times. Run, which did not finish in 1 minute or did not fi
     // number, not by JS heap: it also has DOM, IndexedDB, images, workers,
     // and buffers outside the heap
     renderer: 1209
-  }
+  },
+  // Only the script adds 3 values below
+  chromium: '141.0.7390.37', // Browser version
+  commit: '9eb8ecf8a0b1c2d3e4f5061728394a5b6c7d8e9f', // Git commit of the app
+  cpu: 'AMD EPYC 7763 64-Core Processor' // Model of the processor
 }
 ```
 

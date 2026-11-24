@@ -1,5 +1,5 @@
 # {{ ansible_managed }}
-# Only app’s metrics, which we keep for 10 years
+# Only app’s metrics and benchmark, which we keep for 10 years
 global:
   scrape_interval: 60s
 scrape_configs:
@@ -13,3 +13,16 @@ scrape_configs:
           - 127.0.0.1:{{ port }}
 {% endfor %}
 {% endif %}
+  # CI replaces this file with the last weekly benchmark run
+  - job_name: benchmark
+    scheme: https
+    metrics_path: /hplush/slowreader/benchmark/metrics.prom
+    # GitHub answers 429 on frequent requests
+    scrape_interval: 15m
+    sample_limit: 1000
+    static_configs:
+      - targets: [raw.githubusercontent.com]
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: slowreader_benchmark_.*
+        action: keep

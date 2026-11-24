@@ -69,7 +69,7 @@ Proxy container has its own IP instead of the server’s one from pasta, so it c
 
 Two VictoriaMetrics instances on loopback scrape every minute.
 
-It keeps app’s `/metrics` for 10 years and server tech metrics (node, PostgreSQL, Caddy, container units, and backup results) for 1 year.
+It keeps app’s `/metrics` and the last [weekly benchmark](../docs/development/benchmark.md#weekly-run) for 10 years, and server tech metrics (node, PostgreSQL, Caddy, container units, and backup results) for 1 year.
 
 [Our Grafana](https://github.com/hplush/cloud) on `dashboard.hplush.dev` reads both through `metrics.slowreader.app` and `metrics.slowreader.app/product` with a token and IP allowlist.
 
