@@ -3,12 +3,10 @@ import { persistentJSON } from '@nanostores/persistent'
 import { getEnvironment, onEnvironment } from '../environment.ts'
 import type { Experiment, ExperimentRecords } from './common.ts'
 import { errors } from './errors.ts'
-import { online } from './online.ts'
-import { telegram } from './telegram.ts'
 
 export type { Experiment, ExperimentRecords }
 
-export const experiments: Experiment[] = [errors, telegram, online]
+export const experiments: Experiment[] = [errors]
 
 /**
  * User’s choices on this device. Experiment without a choice follows

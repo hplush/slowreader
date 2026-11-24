@@ -122,14 +122,6 @@ export interface TelegramObject {
 
 export type TelegramRequest = TelegramObject
 
-/**
- * TDLib’s own log line or event of its connection to Telegram.
- */
-export type TelegramDebug =
-  | { clean: boolean; host: string; lived: number; type: 'socketClosed' }
-  | { host: string; type: 'socketOpened'; waited: number }
-  | { line: string; type: 'log' }
-
 export interface TelegramClient {
   /**
    * Stop TDLib and keep its database.
@@ -140,11 +132,6 @@ export interface TelegramClient {
    * Stop TDLib and delete its database and files.
    */
   destroy(): Promise<void>
-
-  /**
-   * Only debug experiments listen to it.
-   */
-  onDebug?(listener: (event: TelegramDebug) => void): () => void
 
   onUpdate(listener: (update: TelegramObject) => void): () => void
 

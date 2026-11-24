@@ -5,7 +5,6 @@
 
 import glue from '@hplush/tdlib/td_wasm.js?url'
 import wasm from '@hplush/tdlib/td_wasm.wasm?url'
-import type { TelegramDebug } from '@slowreader/core'
 
 interface EmscriptenFs {
   close(stream: object): void
@@ -50,7 +49,6 @@ export type ToTelegramWorker =
 
 export type FromTelegramWorker =
   | { data: ArrayBuffer; id: number; type: 'file' }
-  | { debug: TelegramDebug; type: 'debug' }
   | { error: string; id: number; type: 'fileError' }
   | { error: string; type: 'crash' }
   | { json: string; type: 'receive' }
@@ -63,43 +61,6 @@ function post(
 ): void {
   postMessage(message, { transfer })
 }
-
-// TDLib has no API to tell about its connections
-globalThis.WebSocket = class extends WebSocket {
-  constructor(url: string | URL, protocols?: string | string[]) {
-    super(url, protocols)
-    let created = Date.now()
-    let host = new URL(url).hostname
-    this.addEventListener('open', () => {
-      post({
-        debug: { host, type: 'socketOpened', waited: Date.now() - created },
-        type: 'debug'
-      })
-    })
-    this.addEventListener('close', event => {
-      post({
-        debug: {
-          clean: event.wasClean,
-          host,
-          lived: Date.now() - created,
-          type: 'socketClosed'
-        },
-        type: 'debug'
-      })
-    })
-  }
-}
-
-// TDLib prints its log only to the console
-/* eslint-disable no-console */
-for (let level of ['debug', 'error', 'info', 'log', 'warn'] as const) {
-  let print = console[level]
-  console[level] = (...lines: unknown[]) => {
-    post({ debug: { line: lines.join(' '), type: 'log' }, type: 'debug' })
-    print.call(console, ...lines)
-  }
-}
-/* eslint-enable no-console */
 
 async function load(): Promise<(message: ToTelegramWorker) => void> {
   let { default: createTdlib } = (await import(/* @vite-ignore */ glue)) as {
