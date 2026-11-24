@@ -170,6 +170,8 @@ export function createScenarios(
     {
       name: 'read-page',
       async prepare() {
+        // The page read by the previous run has no button until leaving it
+        await open(getURL('about'))
         await fillReaderFeed()
         await open(slowPage(readerFeed))
       },
