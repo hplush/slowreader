@@ -21,11 +21,9 @@ jobs:
           egress-policy: block
           allowed-endpoints: >
             api.github.com:443
-            cdn.playwright.dev:443
             github.com:443
             nodejs.org:443
             objects.githubusercontent.com:443
-            playwright.download.prss.microsoft.com:443
             raw.githubusercontent.com:443
             registry.npmjs.org:443
             release-assets.githubusercontent.com:443
@@ -36,11 +34,10 @@ jobs:
           persist-credentials: false
       - name: Initialize Node.js
         uses: $/.github/actions/init-node
-      # Ubuntu allows the sandbox only for Chrome from the system
-      - name: Allow sandbox for downloaded Chromium
-        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
       - name: Run benchmark
         run: node web/scripts/benchmark.ts --json > result.json
+        env:
+          CHROMIUM_PATH: /opt/google/chrome/chrome
       - name: Save result for merge
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
