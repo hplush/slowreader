@@ -2426,12 +2426,11 @@ describe('telegram loader', () => {
 
   test('shows requests, updates, and TDLib log to debug experiment', async t => {
     let events: string[] = []
-    traceTelegram(event => {
-      events.push(event.type === 'queued' ? event.urgency : event.type)
-    })
-    t.after(() => {
-      traceTelegram(undefined)
-    })
+    t.after(
+      traceTelegram(event => {
+        events.push(event.type === 'queued' ? event.urgency : event.type)
+      })
+    )
     testTelegram.answers.getOption = { '@type': 'optionValueEmpty' }
     testTelegram.answers.getChat = fail('Not found', 404)
 

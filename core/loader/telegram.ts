@@ -174,14 +174,23 @@ export type TelegramTrace =
   | { id: number; type: 'sent' }
   | { session: string; type: 'update'; update: TelegramObject }
 
-let trace: ((event: TelegramTrace) => void) | undefined
+let tracers = new Set<(event: TelegramTrace) => void>()
 let traced = 0
 
+function trace(event: TelegramTrace): void {
+  for (let tracer of tracers) tracer(event)
+}
+
 /**
- * Debug experiment sees every request, answer, and update of TDLib.
+ * Debug experiments see every request, answer, and update of TDLib.
  */
-export function traceTelegram(listener: typeof trace): void {
-  trace = listener
+export function traceTelegram(
+  listener: (event: TelegramTrace) => void
+): () => void {
+  tracers.add(listener)
+  return () => {
+    tracers.delete(listener)
+  }
 }
 
 /**
@@ -263,10 +272,10 @@ function getSession(name: string): Session {
     waiting: { later: [], now: [], soon: [] }
   }
   created.client.onDebug?.(debug => {
-    trace?.({ debug, type: 'debug' })
+    trace({ debug, type: 'debug' })
   })
   created.client.onUpdate(update => {
-    trace?.({ session: name, type: 'update', update })
+    trace({ session: name, type: 'update', update })
     if (update['@type'] === 'updateConnectionState') {
       created.connected =
         isObject(update.state) &&
@@ -326,7 +335,7 @@ export async function sendToTelegram(
   signal?.throwIfAborted()
   let session = getSession(name)
   let id = ++traced
-  trace?.({ id, request: body, type: 'queued', urgency })
+  trace({ id, request: body, type: 'queued', urgency })
   // Long download of a video must not hold posts loading
   let limited = body['@type'] !== 'downloadFile'
   let patient = urgency !== 'now'
@@ -336,7 +345,7 @@ export async function sendToTelegram(
         let queue = session.waiting[urgency]
         function leave(): void {
           queue.splice(queue.indexOf(start), 1)
-          trace?.({ error: signal!.reason, id, type: 'failed' })
+          trace({ error: signal!.reason, id, type: 'failed' })
           reject(signal!.reason as Error)
         }
         function start(): void {
@@ -353,7 +362,7 @@ export async function sendToTelegram(
   }
   clearTimeout(session.idle)
   session.sent += 1
-  trace?.({ id, type: 'sent' })
+  trace({ id, type: 'sent' })
   try {
     let answer = await session.client.send(body).catch(async (e: unknown) => {
       let wait =
@@ -365,10 +374,10 @@ export async function sendToTelegram(
       await delay(wait * 1000)
       return session.client.send(body)
     })
-    trace?.({ answer, id, type: 'answered' })
+    trace({ answer, id, type: 'answered' })
     return answer
   } catch (e) {
-    trace?.({ error: e, id, type: 'failed' })
+    trace({ error: e, id, type: 'failed' })
     throw e
   } finally {
     session.sent -= 1
@@ -2262,17 +2271,17 @@ export const telegram: Loader = {
 
   getMedia(url, signal, range, urgency = 'now') {
     let id = ++traced
-    trace?.({ id, type: 'mediaAsked', url, urgency })
+    trace({ id, type: 'mediaAsked', url, urgency })
     let avatar = /^telegram:(user\/)?(\d+)\/avatar\/[\w-]*$/.exec(url)
     let media = avatar
       ? loadAvatar(!!avatar[1], Number(avatar[2]), urgency)
       : loadMedia(url, signal, range, urgency)
     media?.then(
       () => {
-        trace?.({ id, type: 'mediaLoaded' })
+        trace({ id, type: 'mediaLoaded' })
       },
       (error: unknown) => {
-        trace?.({ error, id, type: 'mediaFailed' })
+        trace({ error, id, type: 'mediaFailed' })
       }
     )
     return media

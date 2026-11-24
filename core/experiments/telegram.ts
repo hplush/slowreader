@@ -18,6 +18,7 @@ interface Around {
   connection: string
   flight: Record<string, number>
   log: Record<string, number>
+  online: boolean
   sockets: Record<string, number>
   visible: boolean
 }
@@ -178,6 +179,7 @@ function collect(records: ExperimentRecords): () => void {
   let parts = new Map<string, { sent: number; session: string }>()
   let watched = new Set<Case>()
   let connection = 'Unknown'
+  let online = false
   let visible = true
   let started: number | undefined
   let saving: ReturnType<typeof setTimeout> | undefined
@@ -189,6 +191,14 @@ function collect(records: ExperimentRecords): () => void {
     }, 5000)
   }
 
+  /**
+   * Counters of the same thing with and without the “Telegram online”
+   * experiment, to compare them in one record.
+   */
+  function mode(key: string): string {
+    return online ? `online ${key}` : key
+  }
+
   function lookAround(): Around {
     let flight: Record<string, number> = {}
     for (let request of pending.values()) count(flight, request.kind)
@@ -198,6 +208,7 @@ function collect(records: ExperimentRecords): () => void {
       connection,
       flight,
       log: {},
+      online,
       sockets: {},
       visible
     }
@@ -269,7 +280,6 @@ function collect(records: ExperimentRecords): () => void {
     if (request.stuck) {
       close(request.stuck, {
         ...request.stuck,
-        bytes: request.bytes,
         end,
         open: false,
         took: now - request.queued
@@ -320,7 +330,7 @@ function collect(records: ExperimentRecords): () => void {
     let now = Date.now()
     medias.delete(id)
     clearTimeout(media.timer)
-    add(total.media, media.urgency, now - media.asked)
+    add(total.media, mode(media.urgency), now - media.asked)
     if (!media.slow) return
     let steps: Record<string, number> = {}
     if (!media.looked) {
@@ -381,7 +391,7 @@ function collect(records: ExperimentRecords): () => void {
       for (let [id, request] of pending) {
         if (request.file !== file.id || !request.sent) continue
         if (!request.bytes && done > 0) {
-          add(total.downloads, 'firstByte', now - request.sent)
+          add(total.downloads, mode('firstByte'), now - request.sent)
         }
         if (done > 0) {
           request.bytes = [
@@ -401,6 +411,7 @@ function collect(records: ExperimentRecords): () => void {
       let state = update.authorization_state['@type']
       if (state === 'authorizationStateWaitTdlibParameters') {
         started = now
+        online = false
         prepare(session)
       } else if (state === 'authorizationStateReady' && started) {
         add(total.starts, 'ready', now - started)
@@ -434,7 +445,7 @@ function collect(records: ExperimentRecords): () => void {
     let part = parts.get(query)
     if (line.includes('Send query to connection')) {
       let session = /\[!Session:(\d+:\w+)/.exec(line)?.[1] ?? 'unknown'
-      if (part) count(total.parts, `${session} sentAgain`)
+      if (part) count(total.parts, mode(`${session} sentAgain`))
       if (parts.size > 5000) parts.clear()
       parts.set(query, { sent: now, session })
       return 'sentPart'
@@ -453,7 +464,7 @@ function collect(records: ExperimentRecords): () => void {
       } else if (took < 95_000) {
         time = '95s'
       }
-      count(total.parts, `${part.session} ${time}`)
+      count(total.parts, mode(`${part.session} ${time}`))
       return 'answeredPart'
     }
     return undefined
@@ -494,7 +505,7 @@ function collect(records: ExperimentRecords): () => void {
     add(total.photos, 'widest', widest)
   }
 
-  traceTelegram((event: TelegramTrace) => {
+  let untrace = traceTelegram((event: TelegramTrace) => {
     let now = Date.now()
     if (event.type === 'queued') {
       let request = event.request
@@ -517,6 +528,9 @@ function collect(records: ExperimentRecords): () => void {
         user: toId(request.user_id)
       }
       pending.set(event.id, asked)
+      if (kind === 'setOption' && request.name === 'online') {
+        online = isObject(request.value) && request.value.value === true
+      }
       for (let media of medias.values()) {
         if (
           (kind === 'getChat' && asked.chat === media.chat) ||
@@ -533,9 +547,13 @@ function collect(records: ExperimentRecords): () => void {
     } else if (event.type === 'answered') {
       let request = pending.get(event.id)
       if (request?.kind === 'downloadFile' && request.file && request.sent) {
-        add(total.downloads, 'whole', now - request.sent)
+        add(total.downloads, mode('whole'), now - request.sent)
         add(total.downloads, 'bytes', Number(event.answer.size))
-        add(total.downloads, `priority${request.priority}`, now - request.sent)
+        add(
+          total.downloads,
+          mode(`priority${request.priority}`),
+          now - request.sent
+        )
       }
       if (event.answer['@type'] === 'message') trackPhoto(event.answer)
       finish(event.id, 'answer')
@@ -586,7 +604,7 @@ function collect(records: ExperimentRecords): () => void {
   })
 
   return () => {
-    traceTelegram(undefined)
+    untrace()
     unbindVisibility()
     unbindNetwork()
     clearTimeout(saving)
