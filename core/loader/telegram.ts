@@ -167,7 +167,10 @@ export type TelegramTrace =
   | { answer: TelegramObject; id: number; type: 'answered' }
   | { debug: TelegramDebug; type: 'debug' }
   | { error: unknown; id: number; type: 'failed' }
+  | { error: unknown; id: number; type: 'mediaFailed' }
   | { id: number; request: TelegramRequest; type: 'queued'; urgency: Urgency }
+  | { id: number; type: 'mediaAsked'; url: string; urgency: Urgency }
+  | { id: number; type: 'mediaLoaded' }
   | { id: number; type: 'sent' }
   | { session: string; type: 'update'; update: TelegramObject }
 
@@ -2258,9 +2261,21 @@ export const telegram: Loader = {
   },
 
   getMedia(url, signal, range, urgency = 'now') {
+    let id = ++traced
+    trace?.({ id, type: 'mediaAsked', url, urgency })
     let avatar = /^telegram:(user\/)?(\d+)\/avatar\/[\w-]*$/.exec(url)
-    if (avatar) return loadAvatar(!!avatar[1], Number(avatar[2]), urgency)
-    return loadMedia(url, signal, range, urgency)
+    let media = avatar
+      ? loadAvatar(!!avatar[1], Number(avatar[2]), urgency)
+      : loadMedia(url, signal, range, urgency)
+    media?.then(
+      () => {
+        trace?.({ id, type: 'mediaLoaded' })
+      },
+      (error: unknown) => {
+        trace?.({ error, id, type: 'mediaFailed' })
+      }
+    )
+    return media
   },
 
   getMineLinksFromText() {

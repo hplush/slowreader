@@ -2450,6 +2450,22 @@ describe('telegram loader', () => {
       'failed',
       'debug'
     ])
+
+    deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
+    let { getMedia } = loaders.telegram
+    events = []
+    await rejects(getMedia!('telegram:5/4')!)
+    equal(events[0], 'mediaAsked')
+    equal(events.at(-1), 'mediaFailed')
+
+    mockHistory(0, {})
+    testTelegram.answers.getMessage = photoPost
+    testTelegram.answers.downloadFile = { '@type': 'file', 'id': 12, 'size': 5 }
+    testTelegram.files = { 12: new Blob(['photo']) }
+    events = []
+    await getMedia!('telegram:5/4')
+    equal(events[0], 'mediaAsked')
+    equal(events.includes('mediaLoaded'), true)
   })
 
   test('saves the file of the page for the media cache', async t => {
