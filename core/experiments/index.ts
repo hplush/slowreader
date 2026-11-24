@@ -96,8 +96,8 @@ onEnvironment(({ persistentStore, restartApp }) => {
                 loadRecords() {
                   return JSON.parse(getExperimentRecords(name)) as unknown[]
                 },
-                setRecord(record) {
-                  saveRecords(experiment, [record])
+                setRecords(records) {
+                  saveRecords(experiment, records)
                 }
               })
             : experiment.onStart()

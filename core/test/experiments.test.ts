@@ -146,7 +146,7 @@ describe('experiments', () => {
     records.addRecord({ two: 2 })
     equal(getExperimentRecords('collector'), '["one",{"two":2}]')
 
-    records.setRecord('three')
+    records.setRecords(['three'])
     equal(getExperimentRecords('collector'), '["three"]')
     deepEqual(records.loadRecords(), ['three'])
 
@@ -157,7 +157,7 @@ describe('experiments', () => {
     equal(getExperimentRecords('collector'), '[]')
 
     records.addRecord('four')
-    records.setRecord('five')
+    records.setRecords(['five'])
     equal(getExperimentRecords('collector'), '[]')
   })
 
