@@ -92,7 +92,10 @@ for (let report of reports) {
   }
 }
 
-let rows = [['', 'Median', 'Runners']]
+let rows = [
+  ['', 'Median', 'Runners'],
+  ['cpu', '', reports.map(i => i.cpu).join(', ')]
+]
 let series: Record<string, number> = {}
 for (let [name, values] of Object.entries(runners)) {
   let value = name.startsWith('failed')
