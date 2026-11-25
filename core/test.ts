@@ -97,6 +97,15 @@ export function sendTelegramUpdate(
   }
 }
 
+let telegramLoggers = new Set<(line: string) => void>()
+
+/**
+ * Print a line of TDLib’s own log from every fake TDLib.
+ */
+export function sendTelegramLog(line: string): void {
+  for (let listener of telegramLoggers) listener(line)
+}
+
 /**
  * Fake TDLib creator. Tests add it to the environment, when they need
  * Telegram: `startClient({ telegramCreator: testTelegramCreator })`.
@@ -115,6 +124,12 @@ export const testTelegramCreator: NonNullable<
       testTelegram.running.delete(name)
       testTelegram.destroyed.push(name)
       return Promise.resolve()
+    },
+    onLog(listener) {
+      telegramLoggers.add(listener)
+      return () => {
+        telegramLoggers.delete(listener)
+      }
     },
     onUpdate(listener) {
       listeners.add(listener)
@@ -270,6 +285,7 @@ export function getTestEnvironment(): Environment {
     running: new Set()
   }
   telegramListeners.clear()
+  telegramLoggers.clear()
   let persistentStore: Record<string, string> = {
     'slowreader:autoRefresh': 'never'
   }

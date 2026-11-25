@@ -152,6 +152,7 @@ interface Session {
    * so a `now` request does not wait for a slow one.
    */
   patient: number
+  premium: boolean
   sent: number
   sponsored: Map<string, TelegramObject>
   state: TelegramObject | undefined
@@ -173,6 +174,52 @@ interface Session {
 }
 
 let sessions = new Map<string, Session>()
+
+export type TelegramTrace =
+  | { answer: TelegramObject; id: number; type: 'answered' }
+  | {
+      bytes: number
+      file: number
+      media: number
+      type: 'joined'
+      window: number
+    }
+  | { error: unknown; id: number; type: 'failed' }
+  | { error: unknown; id: number; type: 'mediaFailed' }
+  | { file: number; step: 'done' | Download['step']; type: 'step' }
+  | { id: number; request: TelegramRequest; type: 'queued'; urgency: Urgency }
+  | { id: number; type: 'mediaAsked'; url: string; urgency: Urgency }
+  | { id: number; type: 'mediaLoaded' }
+  | { id: number; type: 'sent' }
+  | { line: string; type: 'log' }
+  | { session: string; type: 'update'; update: TelegramObject }
+
+let tracers = new Set<(event: TelegramTrace) => void>()
+let traced = 0
+
+function trace(event: TelegramTrace): void {
+  for (let tracer of tracers) tracer(event)
+}
+
+/**
+ * Debug experiments see every request, answer, update, and download of TDLib.
+ */
+export function traceTelegram(
+  listener: (event: TelegramTrace) => void
+): () => void {
+  tracers.add(listener)
+  return () => {
+    tracers.delete(listener)
+  }
+}
+
+/**
+ * Bytes of files, which are downloaded at once. TDLib itself allows 16 MB
+ * to a Premium account, but Telegram asked to slow down at about 12 MB.
+ */
+function getWindow(session: Session): number {
+  return (session.premium ? 8 : 2) * 1024 * 1024
+}
 
 let visible = true
 
@@ -310,6 +357,7 @@ function getSession(name: string): Session {
     loadingChats: undefined,
     missing: new Set(),
     patient: 0,
+    premium: false,
     sent: 0,
     sponsored: new Map(),
     state: undefined,
@@ -317,7 +365,15 @@ function getSession(name: string): Session {
     waiters: new Set(),
     waiting: { later: [], now: [], soon: [] }
   }
+  created.client.onLog?.(line => {
+    trace({ line, type: 'log' })
+  })
   created.client.onUpdate(update => {
+    trace({ session: name, type: 'update', update })
+    if (update['@type'] === 'updateOption' && update.name === 'is_premium') {
+      created.premium = isObject(update.value) && update.value.value === true
+      return
+    }
     if (update['@type'] === 'updateConnectionState') {
       created.connected =
         isObject(update.state) &&
@@ -380,6 +436,8 @@ export async function sendToTelegram(
 ): Promise<TelegramObject> {
   signal?.throwIfAborted()
   let session = getSession(name)
+  let id = ++traced
+  trace({ id, request: body, type: 'queued', urgency })
   // Long download of a video must not hold posts loading
   let limited = body['@type'] !== 'downloadFile'
   let patient = urgency !== 'now'
@@ -389,6 +447,7 @@ export async function sendToTelegram(
         let queue = session.waiting[urgency]
         function leave(): void {
           queue.splice(queue.indexOf(start), 1)
+          trace({ error: signal!.reason, id, type: 'failed' })
           reject(signal!.reason as Error)
         }
         function start(): void {
@@ -405,8 +464,9 @@ export async function sendToTelegram(
   }
   clearTimeout(session.idle)
   session.sent += 1
+  trace({ id, type: 'sent' })
   try {
-    return await session.client.send(body).catch(async (e: unknown) => {
+    let answer = await session.client.send(body).catch(async (e: unknown) => {
       let wait =
         TelegramError.is(e) && e.code === 429
           ? Number(/retry after (\d+)/.exec(e.message)?.[1])
@@ -416,6 +476,11 @@ export async function sendToTelegram(
       await delay(wait * 1000)
       return session.client.send(body)
     })
+    trace({ answer, id, type: 'answered' })
+    return answer
+  } catch (e) {
+    trace({ error: e, id, type: 'failed' })
+    throw e
   } finally {
     session.sent -= 1
     if (limited) {
@@ -1685,27 +1750,29 @@ const DOWNLOAD_PRIORITY: Record<Urgency, number> = {
 
 /**
  * Telegram asks to slow down, when too many parts of files are asked at once.
- * So a file waits, while 2 MB of files with the same or higher urgency are
- * downloaded. TDLib asks a big file by parts, so it counts as 1 MB.
+ * So a file waits, while a window of files with the same or higher urgency
+ * is downloaded. TDLib asks a big file by parts, so it counts as a half of it.
  */
 function startDownloads(session: Session): void {
-  let waiting = [...session.downloads.values()]
-    .filter(download => download.step === 'waiting')
-    .toSorted((a, b) => {
+  let limit = getWindow(session)
+  let waiting = [...session.downloads]
+    .filter(([, download]) => download.step === 'waiting')
+    .toSorted(([, a], [, b]) => {
       return DOWNLOAD_PRIORITY[b.urgency] - DOWNLOAD_PRIORITY[a.urgency]
     })
-  for (let next of waiting) {
+  for (let [file, next] of waiting) {
     let loading = 0
     for (let download of session.downloads.values()) {
       if (
         download.step === 'loading' &&
         DOWNLOAD_PRIORITY[download.urgency] >= DOWNLOAD_PRIORITY[next.urgency]
       ) {
-        loading += Math.min(download.bytes, 1024 * 1024)
+        loading += Math.min(download.bytes, limit / 2)
       }
     }
-    if (loading < 2 * 1024 * 1024) {
+    if (loading < limit) {
       next.step = 'loading'
+      trace({ file, step: 'loading', type: 'step' })
       next.start()
     }
   }
@@ -1735,6 +1802,7 @@ async function moveFileFromTdlib(
     throw e
   }
   download.step = 'moving'
+  trace({ file: id, step: 'moving', type: 'step' })
   startDownloads(session)
   clearTimeout(session.idle)
   try {
@@ -1752,7 +1820,8 @@ async function downloadFile(
   name: string,
   file: MediaFile,
   signal: AbortSignal | undefined,
-  urgency: Urgency
+  urgency: Urgency,
+  media: number
 ): Promise<Response> {
   signal?.throwIfAborted()
   let session = getSession(name)
@@ -1776,11 +1845,13 @@ async function downloadFile(
         if (session.downloads.get(file.id) === created) {
           session.downloads.delete(file.id)
         }
+        trace({ file: file.id, step: 'done', type: 'step' })
         startDownloads(session)
       })
       .catch(() => {})
     session.downloads.set(file.id, created)
     download = created
+    trace({ file: file.id, step: 'waiting', type: 'step' })
     startDownloads(session)
   } else if (DOWNLOAD_PRIORITY[urgency] > DOWNLOAD_PRIORITY[download.urgency]) {
     download.urgency = urgency
@@ -1800,6 +1871,13 @@ async function downloadFile(
   }
   let current = download
   current.readers += 1
+  trace({
+    bytes: current.bytes,
+    file: file.id,
+    media,
+    type: 'joined',
+    window: getWindow(session)
+  })
   let blob = await new Promise<Blob>((resolve, reject) => {
     function stop(): void {
       // A started image is cheaper to finish, than to download it again,
@@ -1925,7 +2003,8 @@ function loadMedia(
   url: string,
   signal: AbortSignal | undefined,
   range: MediaRange | undefined,
-  urgency: Urgency
+  urgency: Urgency,
+  media: number
 ): Promise<Response> | undefined {
   let match =
     /^telegram:(\d+)\/(sponsored\/)?(\d+)(?:\/(\d+))?(?:\/(poster|preview|[a-z]))?$/.exec(
@@ -1959,14 +2038,15 @@ function loadMedia(
     }
     return range
       ? downloadPart(name, file, range, signal)
-      : downloadFile(name, file, signal, urgency)
+      : downloadFile(name, file, signal, urgency, media)
   })
 }
 
 function loadAvatar(
   user: boolean,
   id: number,
-  urgency: Urgency
+  urgency: Urgency,
+  media: number
 ): Promise<Response> {
   return askAnySession(async name => {
     let owner = user
@@ -1983,7 +2063,7 @@ function loadAvatar(
       { height: 160, width: 160 }
     )
     if (!file) throw new Error('No Telegram avatar')
-    return downloadFile(name, file, undefined, urgency)
+    return downloadFile(name, file, undefined, urgency, media)
   })
 }
 
@@ -2379,8 +2459,21 @@ export const telegram: Loader = {
 
   getMedia(url, signal, range, urgency = 'now') {
     let avatar = /^telegram:(user\/)?(\d+)\/avatar\/[\w-]*$/.exec(url)
-    if (avatar) return loadAvatar(!!avatar[1], Number(avatar[2]), urgency)
-    return loadMedia(url, signal, range, urgency)
+    let id = ++traced
+    // The video player asks for parts of the same file again and again
+    if (!range) trace({ id, type: 'mediaAsked', url, urgency })
+    let media = avatar
+      ? loadAvatar(!!avatar[1], Number(avatar[2]), urgency, id)
+      : loadMedia(url, signal, range, urgency, id)
+    media?.then(
+      () => {
+        trace({ id, type: 'mediaLoaded' })
+      },
+      (error: unknown) => {
+        trace({ error, id, type: 'mediaFailed' })
+      }
+    )
+    return media
   },
 
   getMineLinksFromText() {

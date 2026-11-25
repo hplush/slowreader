@@ -52,6 +52,7 @@ export type FromTelegramWorker =
   | { error: string; id: number; type: 'fileError' }
   | { error: string; type: 'crash' }
   | { json: string; type: 'receive' }
+  | { line: string; type: 'log' }
   | { type: 'closed' }
   | { type: 'started' }
 
@@ -61,6 +62,17 @@ function post(
 ): void {
   postMessage(message, { transfer })
 }
+
+// TDLib prints its log only to the console
+/* eslint-disable no-console */
+for (let level of ['debug', 'error', 'info', 'log', 'warn'] as const) {
+  let print = console[level]
+  console[level] = (...lines: unknown[]) => {
+    post({ line: lines.join(' '), type: 'log' })
+    print.call(console, ...lines)
+  }
+}
+/* eslint-enable no-console */
 
 async function load(): Promise<(message: ToTelegramWorker) => void> {
   let { default: createTdlib } = (await import(/* @vite-ignore */ glue)) as {

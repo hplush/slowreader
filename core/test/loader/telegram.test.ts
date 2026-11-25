@@ -22,6 +22,7 @@ import {
   createTextResponse,
   deletePost,
   deviceSessions,
+  getExperimentRecords,
   getLinkPopup,
   getPopupUrl,
   isMediaCached,
@@ -47,6 +48,7 @@ import {
   testAccount,
   testFeed,
   testPost,
+  toggleExperiment,
   UserFacingError,
   waitLoading
 } from '../../index.ts'
@@ -54,7 +56,8 @@ import type { SignInStep } from '../../loader/common.ts'
 import {
   loadTelegramApp,
   sendToTelegram,
-  telegramApp
+  telegramApp,
+  traceTelegram
 } from '../../loader/telegram.ts'
 import {
   checkAndRemoveRequestMock,
@@ -66,6 +69,7 @@ import {
   mockRequest,
   openPage,
   openTestPopup,
+  sendTelegramLog,
   sendTelegramUpdate,
   setTestNetwork,
   setTestVisibility,
@@ -3928,6 +3932,161 @@ describe('telegram loader', () => {
     }
     await rejects(loadMediaBlob('telegram:5/5')!, { name: 'TelegramError' })
     equal(asked, 4)
+  })
+
+  test('shows requests, downloads, and TDLib log to debug experiments', async t => {
+    let events: string[] = []
+    t.after(
+      traceTelegram(event => {
+        events.push(event.type === 'step' ? event.step : event.type)
+      })
+    )
+    deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
+    mockHistory(0, {})
+    testTelegram.answers.getMessage = photoPost
+    testTelegram.answers.downloadFile = { '@type': 'file', 'id': 12, 'size': 5 }
+    testTelegram.answers.deleteFile = { '@type': 'ok' }
+    testTelegram.files = { 12: new Blob(['photo']) }
+
+    await loaders.telegram.getMedia!('telegram:5/4')
+    sendTelegramLog('Log')
+    await setTimeout(10)
+    deepEqual(
+      events.filter(type => !['answered', 'queued', 'sent'].includes(type)),
+      [
+        'mediaAsked',
+        'update',
+        'waiting',
+        'loading',
+        'joined',
+        'moving',
+        'done',
+        'mediaLoaded',
+        'log'
+      ]
+    )
+
+    events = []
+    testTelegram.answers.getMessage = fail('Not found', 404)
+    await rejects(loaders.telegram.getMedia!('telegram:5/5')!)
+    equal(events.at(-1), 'mediaFailed')
+  })
+
+  test('downloads more files at once for Premium account', async () => {
+    let { getMedia } = loaders.telegram
+    deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
+    mockHistory(0, {})
+    testTelegram.answers.getMessage = ({ message_id: id }) => {
+      return message(Number(id) / 1048576, {
+        content: {
+          '@type': 'messagePhoto',
+          'photo': {
+            '@type': 'photo',
+            'sizes': [
+              {
+                height: 500,
+                photo: file(Number(id) / 1048576, 900_000),
+                width: 800
+              }
+            ]
+          }
+        }
+      })
+    }
+    let finish: (() => void)[] = []
+    testTelegram.answers.downloadFile = ({ file_id: id }) => {
+      return new Promise(resolve => {
+        finish.push(() => {
+          resolve({ '@type': 'file', id, 'size': 4 })
+        })
+      })
+    }
+    testTelegram.answers.deleteFile = { '@type': 'ok' }
+    testTelegram.files = Object.fromEntries(
+      Array.from({ length: 17 }, (_, id) => [id + 1, new Blob(['file'])])
+    )
+    async function countStarted(posts: number[]): Promise<number> {
+      let loading = posts.map(post => getMedia!(`telegram:5/${post}`)!)
+      await setTimeout(10)
+      let started = finish.length
+      for (let i = 0; i < posts.length; i++) {
+        for (let end of finish.splice(0)) end()
+        await setTimeout(10)
+      }
+      await Promise.all(loading)
+      return started
+    }
+
+    equal(await countStarted([1, 2, 3, 4, 5]), 3)
+    sendTelegramUpdate({
+      '@type': 'updateOption',
+      'name': 'is_premium',
+      'value': { '@type': 'optionValueBoolean', 'value': true }
+    })
+    equal(await countStarted([6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]), 10)
+  })
+
+  test('saves, where a slow file was waiting', async t => {
+    deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
+    mockHistory(0, {})
+    testTelegram.answers.getMessage = photoPost
+    let finish: (() => void) | undefined
+    testTelegram.answers.downloadFile = ({ file_id: id }) => {
+      return new Promise(resolve => {
+        finish = () => {
+          resolve({ '@type': 'file', id, 'size': 5 })
+        }
+      })
+    }
+    testTelegram.answers.deleteFile = { '@type': 'ok' }
+    testTelegram.files = { 12: new Blob(['photo']) }
+    function wait(): Promise<void> {
+      return new Promise(resolve => {
+        setImmediate(resolve)
+      })
+    }
+
+    t.after(() => {
+      toggleExperiment('telegramStalls', false)
+    })
+    toggleExperiment('telegramStalls', true)
+    t.mock.timers.enable({ apis: ['setTimeout'] })
+    t.after(() => {
+      t.mock.timers.reset()
+    })
+
+    let loading = loaders.telegram.getMedia!('telegram:5/4')!
+    await wait()
+    sendTelegramLog('Delay: [tl:0xbe5335be] [timeout:3] FLOOD_WAIT_3')
+    t.mock.timers.tick(5000)
+    sendTelegramLog('Delay: [tl:0xbe5335be] [timeout:3] FLOOD_WAIT_3')
+    sendTelegramUpdate({
+      '@type': 'updateFile',
+      'file': { id: 12, local: { downloaded_size: 3 } }
+    })
+    finish!()
+    await loading
+    await wait()
+    t.mock.timers.tick(5000)
+
+    let records = JSON.parse(getExperimentRecords('telegramStalls')) as {
+      cause?: string
+      end?: string
+      log?: Record<string, number>
+      progress?: [number, number][]
+      type: string
+      window?: number
+    }[]
+    deepEqual(
+      records.map(record => record.type),
+      ['total', 'stall']
+    )
+    equal(records[1]!.cause, 'loading')
+    equal(records[1]!.end, 'answer')
+    equal(records[1]!.window, 2 * 1024 * 1024)
+    deepEqual(records[1]!.log, { 'flood be5335be': 1 })
+    equal(records[1]!.progress!.at(-1)![1], 3)
+    deepEqual(records[0]!.log, { 'flood be5335be': 2 })
   })
 
   test('keeps loaded files in the memory for other places', async () => {
