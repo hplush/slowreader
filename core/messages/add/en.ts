@@ -17,7 +17,7 @@ export const addMessages = i18n('add', {
   rss1Loader: 'RSS 1.0',
   rssLoader: 'RSS',
   searchGuide:
-    'Currently, Slow Reader supports RSS, Mastodon, and BlueSky.\n\n' +
+    'Currently, Slow Reader supports RSS, Mastodon, and Bluesky.\n\n' +
     'More sources are coming soon.',
   telegramLoader: 'Telegram',
   title: 'Add',
