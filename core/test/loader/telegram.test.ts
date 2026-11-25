@@ -4050,7 +4050,7 @@ describe('telegram loader', () => {
       toggleExperiment('telegramStalls', false)
     })
     toggleExperiment('telegramStalls', true)
-    t.mock.timers.enable({ apis: ['setTimeout'] })
+    t.mock.timers.enable({ apis: ['Date', 'setTimeout'], now: 1_000_000 })
     t.after(() => {
       t.mock.timers.reset()
     })
