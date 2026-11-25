@@ -65,7 +65,10 @@ interface MastodonAccount {
 interface MastodonMedia {
   blurhash?: null | string
   description: null | string
-  meta?: { original?: { height?: number; width?: number } } | null
+  meta?: {
+    original?: { height?: number; width?: number }
+    small?: { width?: number }
+  } | null
   preview_url: null | string
   remote_url: null | string
   type: 'audio' | 'gifv' | 'image' | 'unknown' | 'video'
@@ -312,6 +315,15 @@ function parseMedia(
     if (attachment.description) item.alt = attachment.description
     if (attachment.type !== 'image' && attachment.preview_url) {
       item.poster = attachment.preview_url
+    }
+    if (
+      attachment.type === 'image' &&
+      attachment.preview_url &&
+      attachment.meta?.small?.width
+    ) {
+      item.copies = [
+        { url: attachment.preview_url, width: attachment.meta.small.width }
+      ]
     }
     if (status.sensitive) item.sensitive = true
     let original = attachment.meta?.original

@@ -657,20 +657,26 @@ describe('proxy', () => {
       otherProxy.listen(31601, resolve)
     })
 
-    async function load(): Promise<number> {
+    async function load(): Promise<Response> {
       let response = await fetch(`${getURL(otherProxy)}/${targetUrl}`, {
         headers: { Origin: 'http://test.app' }
       })
       await response.text()
-      return response.status
+      return response
     }
 
-    equal(await load(), 200)
-    equal(await load(), 200)
-    equal(await load(), 429)
+    equal((await load()).status, 200)
+    equal((await load()).status, 200)
+    let limited = await load()
+    equal(limited.status, 429)
+    equal(limited.headers.get('x-slowreader-wait'), '1')
+    match(
+      limited.headers.get('access-control-expose-headers')!,
+      /X-Slowreader-Wait/
+    )
 
     await setTimeout(1100)
-    equal(await load(), 200)
+    equal((await load()).status, 200)
   })
 
   test('takes IP from balancer', async () => {
@@ -854,7 +860,7 @@ describe('proxy', () => {
     equal(
       response.headers.get('Access-Control-Expose-Headers'),
       'Retry-After, RateLimit-Reset, X-Rate-Limit-Reset, ' +
-        'X-Slowreader-Permanent, X-Slowreader-Url, ' +
+        'X-Slowreader-Permanent, X-Slowreader-Url, X-Slowreader-Wait, ' +
         'x-slowreader-request, x-slowreader-response'
     )
     match(response.headers.get('x-slowreader-request')!, /^GET /)

@@ -153,7 +153,7 @@ function allowCors(req: IncomingMessage, res: ServerResponse): void {
     res.setHeader('Access-Control-Allow-Origin', req.headers.origin)
     let exposed =
       'Retry-After, RateLimit-Reset, X-Rate-Limit-Reset, ' +
-      'X-Slowreader-Permanent, X-Slowreader-Url'
+      'X-Slowreader-Permanent, X-Slowreader-Url, X-Slowreader-Wait'
     if (req.headers['x-slowreader-debug']) {
       exposed += ', x-slowreader-request, x-slowreader-response'
     }
@@ -382,6 +382,12 @@ export function createProxy(
 
       // Origin is set by browsers only, so bots still can use us as a relay
       if (countRequest(req) > config.ipLimit) {
+        // `Retry-After` of a site is about one site. Our limit is for all
+        // requests, so the app waits with all of them.
+        res.setHeader(
+          'X-Slowreader-Wait',
+          Math.ceil((windowStarted + config.ipWindow - Date.now()) / 1000)
+        )
         throw new BadRequestError('Too many requests', 429)
       }
 

@@ -11,6 +11,7 @@ import {
   cacheVideos,
   canDetectNetwork,
   changePost,
+  chooseMediaCopy,
   deleteFeed,
   clearMediaCache,
   deletePost,
@@ -30,6 +31,7 @@ import {
   saveDataMode,
   setupEnvironment,
   signOut,
+  stopMediaCache,
   stopRefreshing,
   syncMediaCache,
   testFeed,
@@ -394,6 +396,24 @@ describe('media cache', () => {
     ])
   })
 
+  test('chooses the copy of the image for the page', async () => {
+    let media = {
+      copies: [
+        { url: 'https://img.com/1280.jpg', width: 1280 },
+        { url: 'https://img.com/800.jpg', width: 800 }
+      ],
+      url: 'https://img.com/best.jpg'
+    }
+    equal(await chooseMediaCopy(media, 512), 'https://img.com/800.jpg')
+    equal(await chooseMediaCopy(media, 1024), 'https://img.com/1280.jpg')
+    equal(await chooseMediaCopy(media, 2048), media.url)
+    equal(await chooseMediaCopy({ url: media.url }, 512), media.url)
+
+    expectRequest(media.url).andRespond(200, 'best')
+    await cacheMediaOnRequest(media.url)
+    equal(await chooseMediaCopy(media, 512), media.url)
+  })
+
   test('falls back to always on unknown network', async () => {
     equal(canDetectNetwork(), false)
     cacheImages.set('free')
@@ -568,12 +588,14 @@ describe('media cache', () => {
           { type: 'image', url: 'https://img.com/2.jpg' },
           { type: 'image', url: 'https://img.com/3.jpg' },
           { type: 'image', url: 'https://img.com/4.jpg' },
-          { type: 'image', url: 'https://img.com/5.jpg' }
+          { type: 'image', url: 'https://img.com/5.jpg' },
+          { type: 'image', url: 'https://img.com/6.jpg' },
+          { type: 'image', url: 'https://img.com/7.jpg' }
         ],
         reading: 'slow'
       })
     )
-    let waits = [1, 2, 3, 4].map(i => {
+    let waits = [1, 2, 3, 4, 5, 6].map(i => {
       return expectRequest(`https://img.com/${i}.jpg`).andWait()
     })
     let refreshing = refreshPosts()
@@ -593,26 +615,26 @@ describe('media cache', () => {
 
   test('skips media, which was deleted or saved during the download', async () => {
     let ids: string[] = []
-    for (let i of [1, 2, 3, 4, 5, 6]) {
+    for (let i of [1, 2, 3, 4, 5, 6, 7, 8]) {
       ids.push(
         await addPost(
           testPost({
             media: [{ type: 'image', url: `https://img.com/${i}.jpg` }],
-            sortedAt: 7000 - i * 1000
+            sortedAt: 9000 - i * 1000
           })
         )
       )
     }
-    let waits = [1, 2, 3, 4].map(i => {
+    let waits = [1, 2, 3, 4, 5, 6].map(i => {
       return expectRequest(`https://img.com/${i}.jpg`).andWait()
     })
     mediaStatistics.set({ done: 0, failed: 0, total: 0 })
     let syncing = syncMediaCache()
-    await waitUntil(() => mediaStatistics.get().total === 6)
+    await waitUntil(() => mediaStatistics.get().total === 8)
 
-    await deletePost([ids[0]!, ids[5]!])
-    expectRequest('https://img.com/5.jpg').andRespond(200, '5')
-    await cacheMediaOnRequest('https://img.com/5.jpg')
+    await deletePost([ids[0]!, ids[7]!])
+    expectRequest('https://img.com/7.jpg').andRespond(200, '7')
+    await cacheMediaOnRequest('https://img.com/7.jpg')
     for (let wait of waits) await wait(200, '1')
     await syncing
 
@@ -620,9 +642,11 @@ describe('media cache', () => {
       'https://img.com/2.jpg',
       'https://img.com/3.jpg',
       'https://img.com/4.jpg',
-      'https://img.com/5.jpg'
+      'https://img.com/5.jpg',
+      'https://img.com/6.jpg',
+      'https://img.com/7.jpg'
     ])
-    deepEqual(mediaStatistics.get(), { done: 4, failed: 0, total: 4 })
+    deepEqual(mediaStatistics.get(), { done: 6, failed: 0, total: 6 })
   })
 
   test('downloads only videos without images', async () => {
@@ -657,6 +681,83 @@ describe('media cache', () => {
     deepEqual(mediaStatistics.get(), { done: 1, failed: 0, total: 1 })
   })
 
+  test('downloads images of all posts before videos', async () => {
+    cacheVideos.set('always')
+    await addPost(
+      testPost({
+        media: [
+          { type: 'video', url: 'https://v.com/new.mp4' },
+          { type: 'image', url: 'https://img.com/new.jpg' }
+        ],
+        publishedAt: 2000
+      })
+    )
+    await addPost(
+      testPost({
+        media: [{ type: 'image', url: 'https://img.com/old.jpg' }],
+        publishedAt: 1000
+      })
+    )
+    expectRequest('https://img.com/new.jpg').andRespond(200, '1')
+    expectRequest('https://img.com/old.jpg').andRespond(200, '2')
+    expectRequest('https://v.com/new.mp4').andRespond(200, '3')
+    await syncMediaCache()
+    deepEqual(mediaStatistics.get(), { done: 3, failed: 0, total: 3 })
+  })
+
+  test('waits with all files, when the proxy asks for it', async () => {
+    await addPost(
+      testPost({
+        media: [
+          { type: 'image', url: 'https://img.com/1.jpg' },
+          { type: 'image', url: 'https://img.com/2.jpg' }
+        ]
+      })
+    )
+    let wait = { 'X-Slowreader-Wait': '1' }
+    expectRequest('https://img.com/1.jpg').andRespond(
+      429,
+      '',
+      'text/plain',
+      wait
+    )
+    expectRequest('https://img.com/2.jpg').andRespond(
+      429,
+      '',
+      'text/plain',
+      wait
+    )
+    expectRequest('https://img.com/2.jpg').andRespond(200, '2')
+    expectRequest('https://img.com/1.jpg').andRespond(200, '1')
+    let started = Date.now()
+    // One warning for all files to find the reason of a slow refresh
+    await expectWarning(
+      () => syncMediaCache(),
+      [new HTTPStatusError(429, 'https://img.com/1.jpg', '', new Headers())]
+    )
+    equal(Date.now() - started >= 1000, true)
+    deepEqual(mediaStatistics.get(), { done: 2, failed: 0, total: 2 })
+    deepEqual(mediaErrors.get(), [])
+
+    await addPost(
+      testPost({ media: [{ type: 'image', url: 'https://img.com/3.jpg' }] })
+    )
+    expectRequest('https://img.com/3.jpg').andRespond(429, '', 'text/plain', {
+      'X-Slowreader-Wait': '60'
+    })
+    await expectWarning(async () => {
+      let syncing = syncMediaCache()
+      await waitUntil(() => mediaStatistics.get().total === 1)
+      await setTimeout(50)
+      stopMediaCache()
+      await syncing
+    }, [new HTTPStatusError(429, 'https://img.com/3.jpg', '', new Headers())])
+    deepEqual(await cached(), [
+      'https://img.com/1.jpg',
+      'https://img.com/2.jpg'
+    ])
+  })
+
   test('stops on full storage', async () => {
     setupEnvironment({
       ...getTestEnvironment(),
@@ -669,17 +770,17 @@ describe('media cache', () => {
     })
     await addPost(
       testPost({
-        media: [1, 2, 3, 4, 5, 6].map(i => ({
+        media: [1, 2, 3, 4, 5, 6, 7, 8].map(i => ({
           type: 'image',
           url: `https://img.com/${i}.jpg`
         }))
       })
     )
-    for (let i of [1, 2, 3, 4]) {
+    for (let i of [1, 2, 3, 4, 5, 6]) {
       expectRequest(`https://img.com/${i}.jpg`).andRespond(200, '1')
     }
     await syncMediaCache()
-    deepEqual(mediaStatistics.get(), { done: 0, failed: 4, total: 6 })
+    deepEqual(mediaStatistics.get(), { done: 0, failed: 6, total: 8 })
     deepEqual(
       mediaErrors.get().map(i => i.type),
       ['quota']

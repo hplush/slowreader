@@ -514,7 +514,10 @@ describe('mastodon loader', () => {
             {
               blurhash: '00TI:j',
               description: 'Cat',
-              meta: { original: { height: 10, width: 20 } },
+              meta: {
+                original: { height: 10, width: 20 },
+                small: { width: 5 }
+              },
               preview_url: 'https://mastodon.social/small.png',
               remote_url: null,
               type: 'image',
@@ -613,6 +616,7 @@ describe('mastodon loader', () => {
           media: [
             {
               alt: 'Cat',
+              copies: [{ url: 'https://mastodon.social/small.png', width: 5 }],
               placeholder:
                 'data:image/bmp;base64,Qk2WAAAAAAAAADYAAAAoAAAACAAAAAQAAAABABgA' +
                 'A'.repeat(32) +

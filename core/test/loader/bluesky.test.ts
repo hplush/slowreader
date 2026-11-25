@@ -363,9 +363,15 @@ describe('bluesky loader', () => {
                   {
                     alt: 'Cat',
                     aspectRatio: { height: 1, width: 2 },
-                    fullsize: 'https://cdn.bsky.app/cat.jpg'
+                    fullsize: 'https://cdn.bsky.app/cat.jpg',
+                    thumb: 'https://cdn.bsky.app/small-cat.jpg'
                   },
-                  { alt: '', fullsize: 'https://cdn.bsky.app/dog.jpg' }
+                  {
+                    alt: '',
+                    aspectRatio: { height: 2, width: 1 },
+                    fullsize: 'https://cdn.bsky.app/dog.jpg',
+                    thumb: 'https://cdn.bsky.app/small-dog.jpg'
+                  }
                 ]
               },
               labels: [{ val: 'nudity' }]
@@ -525,17 +531,26 @@ describe('bluesky loader', () => {
           media: [
             {
               alt: 'Cat',
+              copies: [
+                { url: 'https://cdn.bsky.app/small-cat.jpg', width: 1000 }
+              ],
               sensitive: true,
               type: 'image',
               url: 'https://cdn.bsky.app/cat.jpg'
             },
             {
+              copies: [
+                { url: 'https://cdn.bsky.app/small-dog.jpg', width: 500 }
+              ],
               sensitive: true,
               type: 'image',
               url: 'https://cdn.bsky.app/dog.jpg'
             }
           ],
-          mediaSizes: [{ approximate: true, height: 1, width: 2 }, null],
+          mediaSizes: [
+            { approximate: true, height: 1, width: 2 },
+            { approximate: true, height: 2, width: 1 }
+          ],
           originId: uri('jane', '2'),
           publishedAt: 1767225600,
           url: 'https://bsky.app/profile/jane.bsky.social/post/2'

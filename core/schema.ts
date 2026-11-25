@@ -177,8 +177,15 @@ let mediaSourceShape = {
   url: string()
 }
 
+let mediaCopyShape = {
+  url: string(),
+  width: number()
+}
+
 let mediaShape = {
   alt: optional(string()),
+  // Smaller copies of the image for a page, which has no file from `url` yet
+  copies: optional(json([json(mediaCopyShape)])),
   fromText: optional(boolean()),
   name: optional(string()),
   placeholder: optional(string()),

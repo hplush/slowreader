@@ -205,7 +205,7 @@
     class:is-loading={!loaded.has(item.url)}
     class:is-sticker={isSticker(item)}
     {@attach focusClicked(item.url)}
-    {@attach mediaSrc(item.url, { once: !!protect })}
+    {@attach mediaSrc(item.url, { copies: item.copies, once: !!protect })}
     alt={item.alt ?? ''}
     decoding="async"
     height={item.size?.height}

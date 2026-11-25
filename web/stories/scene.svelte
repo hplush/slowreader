@@ -186,7 +186,7 @@
     currentPage.get().destroy()
     setPasskeySupport(passkeys)
     canShare.set(share)
-    setNetworkType({ saveData: false, type: network })
+    setNetworkType({ online: true, saveData: false, type: network })
     if (user) {
       hasCloud.set(true)
     } else if (client.get()) {
@@ -272,7 +272,7 @@
     cacheVideos.set('never')
     saveDataMode.set('auto')
     setMediaCacheSize(0)
-    setNetworkType({ saveData: false, type: 'free' })
+    setNetworkType({ online: true, saveData: false, type: 'free' })
     setPasskeySupport(true)
     // @ts-expect-error Hack for tests
     systemReducedMotion.set(false)

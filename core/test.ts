@@ -191,15 +191,22 @@ let testVisible = atom(true)
 let testExitListeners = new Set<() => void>()
 
 let testNetwork = atom<Network>({
+  online: true,
   saveData: undefined,
   type: undefined
 })
 
 /**
- * Change network, like on enabling Save Data in the system.
+ * Change network, like on enabling Save Data in the system or on moving
+ * from Wi-Fi to cellular. The device is online, if `online` is not set.
  */
-export function setTestNetwork(network: Network): void {
-  testNetwork.set(network)
+export function setTestNetwork(network: Partial<Network>): void {
+  testNetwork.set({
+    online: true,
+    saveData: undefined,
+    type: undefined,
+    ...network
+  })
 }
 
 /**
@@ -248,7 +255,7 @@ export function openRoute(route: TestRoute | undefined, replace = false): void {
 
 export function getTestEnvironment(): Environment {
   testVisible.set(true)
-  testNetwork.set({ saveData: undefined, type: undefined })
+  setTestNetwork({})
   testExitListeners.clear()
   testSession = undefined
   testSignals = []

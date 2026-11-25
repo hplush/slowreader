@@ -24,6 +24,7 @@ interface DatabaseCreator {
 export type NetworkType = 'free' | 'paid' | 'unknown' | undefined
 
 export interface Network {
+  online: boolean
   saveData: boolean | undefined
   type: NetworkType
 }
@@ -231,7 +232,8 @@ export interface Environment {
 
   /**
    * Call the listener with the current network and on every change
-   * to not download images over expensive tariff or with Save Data.
+   * to not download images over expensive tariff or with Save Data,
+   * and to drop connections, which were opened in the previous network.
    */
   onNetwork(listener: (network: Network) => void): () => void
 

@@ -8,6 +8,7 @@ import { onClient } from '../client.ts'
 import { deviceSessions, forgetDeviceSession } from '../device-sessions.ts'
 import {
   getEnvironment,
+  type Network,
   onEnvironment,
   type TelegramClient,
   type TelegramObject,
@@ -81,6 +82,18 @@ export async function loadTelegramApp(): Promise<void> {
   )
 }
 
+interface Download {
+  blob: Promise<Blob>
+  bytes: number
+  /**
+   * Download is cancelled only when all `readers` stopped waiting.
+   */
+  readers: number
+  start(): void
+  step: 'loading' | 'moving' | 'waiting'
+  urgency: Urgency
+}
+
 interface Session {
   /**
    * Requests, which TDLib is processing right now.
@@ -105,9 +118,8 @@ interface Session {
   /**
    * Page and media cache ask for the same file at once. TDLib’s copy
    * is deleted after the reading, so the second reader would find nothing.
-   * Download is cancelled only when all `readers` stopped waiting.
    */
-  downloads: Map<number, { blob: Promise<Blob>; readers: number }>
+  downloads: Map<number, Download>
   /**
    * We asked TDLib to end the session, so it is not user’s sign out
    * in another Telegram app.
@@ -131,6 +143,11 @@ interface Session {
    */
   loadingChats: Promise<void> | undefined
   /**
+   * Chats, which are not in the whole chat list. TDLib restart keeps them,
+   * so the chat list is not loaded again for the same chat.
+   */
+  missing: Set<number>
+  /**
    * Active `soon` and `later` requests. They never take the last free place,
    * so a `now` request does not wait for a slow one.
    */
@@ -148,11 +165,6 @@ interface Session {
     number,
     { loading: number; tail: Promise<unknown>; viewers: Set<AbortSignal> }
   >
-  /**
-   * Urgency of files, which TDLib downloads right now. Somebody with higher
-   * urgency moves the file up, when asks for the same one.
-   */
-  urgencies: Map<number, Urgency>
   waiters: Set<(state: TelegramObject) => void>
   /**
    * Requests, which wait for the end of the active ones.
@@ -161,6 +173,55 @@ interface Session {
 }
 
 let sessions = new Map<string, Session>()
+
+let visible = true
+
+function tellRunning(body: TelegramRequest): void {
+  for (let session of sessions.values()) {
+    if (session.state?.['@type'] === 'authorizationStateReady') {
+      session.client.send(body).catch(() => {})
+    }
+  }
+}
+
+/**
+ * Without `online` TDLib keeps connections in the background mode,
+ * where Telegram answers with a file part only once in 30 seconds.
+ */
+function setOnline(value: boolean): TelegramRequest {
+  return {
+    '@type': 'setOption',
+    'name': 'online',
+    'value': { '@type': 'optionValueBoolean', value }
+  }
+}
+
+onEnvironment(env => {
+  let unbindVisibility = env.onVisibilityChange(value => {
+    visible = value
+    tellRunning(setOnline(visible))
+    for (let session of sessions.values()) closeOnIdle(session)
+  })
+  let previous: Network | undefined
+  let unbindNetwork = env.onNetwork(network => {
+    if (
+      previous &&
+      network.online &&
+      (!previous.online || previous.type !== network.type)
+    ) {
+      // TDLib waits for minutes on connections of the previous network
+      tellRunning({
+        '@type': 'setNetworkType',
+        'type': { '@type': 'networkTypeOther' }
+      })
+    }
+    previous = network
+  })
+  return () => {
+    unbindVisibility()
+    unbindNetwork()
+  }
+})
 
 /**
  * TDLib sorts the chat list by `order`, which has the date of the last
@@ -191,9 +252,17 @@ function trackPositions(
   }
 }
 
+// Channel can change the username, but not the ID
+function toLoaderData(chatId: unknown): string {
+  return JSON.stringify({ id: String(chatId) })
+}
+
+let newsListeners = new Set<(loaderData: string) => void>()
+
 function trackChat(session: Session, update: TelegramObject): void {
   let channel = session.channels.get(Number(update.chat_id))
   if (update['@type'] === 'updateNewChat' && isObject(update.chat)) {
+    session.missing.delete(Number(update.chat.id))
     // Private chats and groups are not kept even in memory
     if (getChannelId(update.chat) !== undefined) {
       session.channels.set(Number(update.chat.id), {
@@ -209,6 +278,14 @@ function trackChat(session: Session, update: TelegramObject): void {
     trackPositions(session, Number(update.chat_id), [update.position])
   } else if (update['@type'] === 'updateChatReadInbox' && channel) {
     channel.last_read_inbox_message_id = update.last_read_inbox_message_id
+  } else if (
+    update['@type'] === 'updateNewMessage' &&
+    isObject(update.message) &&
+    session.channels.has(Number(update.message.chat_id))
+  ) {
+    for (let listener of newsListeners) {
+      listener(toLoaderData(update.message.chat_id))
+    }
   }
 }
 
@@ -231,12 +308,12 @@ function getSession(name: string): Session {
     idle: undefined,
     keep: false,
     loadingChats: undefined,
+    missing: new Set(),
     patient: 0,
     sent: 0,
     sponsored: new Map(),
     state: undefined,
     streams: new Map(),
-    urgencies: new Map(),
     waiters: new Set(),
     waiting: { later: [], now: [], soon: [] }
   }
@@ -263,6 +340,9 @@ function getSession(name: string): Session {
       created.connected = false
       created.depth = Infinity
     }
+    if (state['@type'] === 'authorizationStateReady' && visible) {
+      created.client.send(setOnline(true)).catch(() => {})
+    }
     for (let waiter of created.waiters) waiter(created.state)
     created.waiters.clear()
     if (state['@type'] === 'authorizationStateLoggingOut' && !created.ending) {
@@ -275,11 +355,12 @@ function getSession(name: string): Session {
 }
 
 /**
- * TDLib has no reason to keep the connection with Telegram between refreshes.
+ * TDLib forgets chats on every start and loads the chat list again. So it
+ * runs, while the app is on the screen, and is closed only in the background.
  */
 function closeOnIdle(session: Session): void {
   clearTimeout(session.idle)
-  if (session.keep || session.sent > 0) return
+  if (visible || session.keep || session.sent > 0) return
   session.idle = setTimeout(() => {
     void session.client.close()
   }, 60_000)
@@ -654,8 +735,7 @@ async function toFollows(
       if (id === undefined) return undefined
       return {
         ...getAvatar('channel', id, chat.photo),
-        // Channel can change the username, but not the ID
-        loaderData: JSON.stringify({ id: String(chat.id) }),
+        loaderData: toLoaderData(chat.id),
         title: String(chat.title),
         url: await loadChannelUrl(name, id)
       }
@@ -700,7 +780,12 @@ async function loadChat(
         signal
       )
     } catch (e) {
-      if (!TelegramError.is(e) || getSession(name).depth === 0) throw e
+      let session = getSession(name)
+      if (!TelegramError.is(e) || session.missing.has(chatId)) throw e
+      if (session.depth === 0) {
+        session.missing.add(chatId)
+        throw e
+      }
       await loadMoreChats(name)
     }
   }
@@ -1440,11 +1525,15 @@ async function loadSources(
 /**
  * Telegram sends a photo in a few sizes, we take the biggest one.
  */
-function getLargestSize(photo: unknown): Record<string, unknown> | undefined {
-  if (!isObject(photo) || !Array.isArray(photo.sizes)) return undefined
+function getPhotoSizes(photo: unknown): Record<string, unknown>[] {
+  if (!isObject(photo) || !Array.isArray(photo.sizes)) return []
   return photo.sizes
     .filter(isObject)
-    .toSorted((a, b) => Number(b.width) - Number(a.width))[0]
+    .toSorted((a, b) => Number(b.width) - Number(a.width))
+}
+
+function getLargestSize(photo: unknown): Record<string, unknown> | undefined {
+  return getPhotoSizes(photo)[0]
 }
 
 interface MediaFile {
@@ -1503,7 +1592,9 @@ function getMediaFile(content: unknown, part?: string): MediaFile | undefined {
   }
   let video = content.video ?? content.animation ?? content.video_note
   if (part === 'poster') return getThumbnail(video)
-  let photo = getLargestSize(content.photo)
+  let photo = part
+    ? getPhotoSizes(content.photo).find(size => size.type === part)
+    : getLargestSize(content.photo)
   if (photo) return toMediaFile(photo.photo, 'image/jpeg', photo)
   let sticker = content.sticker
   if (isObject(sticker)) {
@@ -1563,6 +1654,16 @@ function toMedia(
     }
   }
   if (getMediaFile(content, 'poster')) media.poster = `${url}/poster`
+  // Telegram names sizes of a photo by one letter
+  let copies = getPhotoSizes(content.photo)
+    .slice(1)
+    .filter(
+      size => Number(size.width) >= 320 && /^[a-z]$/.test(String(size.type))
+    )
+    .map(size => {
+      return { url: `${url}/${String(size.type)}`, width: Number(size.width) }
+    })
+  if (copies.length > 0) media.copies = copies
   if (content.has_spoiler) media.sensitive = true
   // Telegram puts a tiny blurred copy of the image into the post itself
   let source =
@@ -1582,13 +1683,40 @@ const DOWNLOAD_PRIORITY: Record<Urgency, number> = {
   soon: 8
 }
 
+/**
+ * Telegram asks to slow down, when too many parts of files are asked at once.
+ * So a file waits, while 2 MB of files with the same or higher urgency are
+ * downloaded. TDLib asks a big file by parts, so it counts as 1 MB.
+ */
+function startDownloads(session: Session): void {
+  let waiting = [...session.downloads.values()]
+    .filter(download => download.step === 'waiting')
+    .toSorted((a, b) => {
+      return DOWNLOAD_PRIORITY[b.urgency] - DOWNLOAD_PRIORITY[a.urgency]
+    })
+  for (let next of waiting) {
+    let loading = 0
+    for (let download of session.downloads.values()) {
+      if (
+        download.step === 'loading' &&
+        DOWNLOAD_PRIORITY[download.urgency] >= DOWNLOAD_PRIORITY[next.urgency]
+      ) {
+        loading += Math.min(download.bytes, 1024 * 1024)
+      }
+    }
+    if (loading < 2 * 1024 * 1024) {
+      next.step = 'loading'
+      next.start()
+    }
+  }
+}
+
 async function moveFileFromTdlib(
   name: string,
   id: number,
-  urgency: Urgency
+  download: Download
 ): Promise<Blob> {
   let session = getSession(name)
-  session.urgencies.set(id, urgency)
   let downloaded: TelegramObject
   try {
     downloaded = await sendToTelegram(name, {
@@ -1596,7 +1724,7 @@ async function moveFileFromTdlib(
       'file_id': id,
       'limit': 0,
       'offset': 0,
-      'priority': DOWNLOAD_PRIORITY[urgency],
+      'priority': DOWNLOAD_PRIORITY[download.urgency],
       'synchronous': true
     })
   } catch (e) {
@@ -1605,9 +1733,9 @@ async function moveFileFromTdlib(
       throw new DOMException('', 'AbortError')
     }
     throw e
-  } finally {
-    session.urgencies.delete(id)
   }
+  download.step = 'moving'
+  startDownloads(session)
   clearTimeout(session.idle)
   try {
     return await session.client.readFile(id, 0, Number(downloaded.size))
@@ -1627,49 +1755,66 @@ async function downloadFile(
   urgency: Urgency
 ): Promise<Response> {
   signal?.throwIfAborted()
-  let { downloads, streams, urgencies } = getSession(name)
+  let session = getSession(name)
   // Media cache takes the video on the next refresh to not stop the player
-  if (streams.has(file.id)) throw new DOMException('', 'AbortError')
-  let download = downloads.get(file.id)
+  if (session.streams.has(file.id)) throw new DOMException('', 'AbortError')
+  let download = session.downloads.get(file.id)
   if (!download) {
-    let created = {
-      blob: moveFileFromTdlib(name, file.id, urgency),
-      readers: 0
+    let flight = Promise.withResolvers<void>()
+    let created: Download = {
+      blob: flight.promise.then(() => {
+        return moveFileFromTdlib(name, file.id, created)
+      }),
+      bytes: file.size.bytes ?? 0,
+      readers: 0,
+      start: flight.resolve,
+      step: 'waiting',
+      urgency
     }
     created.blob
       .finally(() => {
-        if (downloads.get(file.id) === created) downloads.delete(file.id)
+        if (session.downloads.get(file.id) === created) {
+          session.downloads.delete(file.id)
+        }
+        startDownloads(session)
       })
       .catch(() => {})
-    downloads.set(file.id, created)
+    session.downloads.set(file.id, created)
     download = created
-  } else if (
-    DOWNLOAD_PRIORITY[urgency] >
-    DOWNLOAD_PRIORITY[urgencies.get(file.id) ?? 'now']
-  ) {
-    urgencies.set(file.id, urgency)
-    // The same request with another priority only moves the running download
-    sendToTelegram(name, {
-      '@type': 'downloadFile',
-      'file_id': file.id,
-      'limit': 0,
-      'offset': 0,
-      'priority': DOWNLOAD_PRIORITY[urgency],
-      'synchronous': false
-    }).catch(() => {})
+    startDownloads(session)
+  } else if (DOWNLOAD_PRIORITY[urgency] > DOWNLOAD_PRIORITY[download.urgency]) {
+    download.urgency = urgency
+    if (download.step === 'waiting') {
+      startDownloads(session)
+    } else if (download.step === 'loading') {
+      // The same request with another priority only moves the running download
+      sendToTelegram(name, {
+        '@type': 'downloadFile',
+        'file_id': file.id,
+        'limit': 0,
+        'offset': 0,
+        'priority': DOWNLOAD_PRIORITY[urgency],
+        'synchronous': false
+      }).catch(() => {})
+    }
   }
   let current = download
   current.readers += 1
   let blob = await new Promise<Blob>((resolve, reject) => {
     function stop(): void {
+      // A started image is cheaper to finish, than to download it again,
+      // when user scrolls back. The caller gets the file after the abort.
+      if (current.step !== 'waiting' && file.type.startsWith('image/')) return
       current.readers -= 1
       if (current.readers === 0) {
-        downloads.delete(file.id)
-        sendToTelegram(name, {
-          '@type': 'cancelDownloadFile',
-          'file_id': file.id,
-          'only_if_pending': false
-        }).catch(() => {})
+        session.downloads.delete(file.id)
+        if (current.step !== 'waiting') {
+          sendToTelegram(name, {
+            '@type': 'cancelDownloadFile',
+            'file_id': file.id,
+            'only_if_pending': false
+          }).catch(() => {})
+        }
       }
       reject(signal!.reason as Error)
     }
@@ -1783,7 +1928,7 @@ function loadMedia(
   urgency: Urgency
 ): Promise<Response> | undefined {
   let match =
-    /^telegram:(\d+)\/(sponsored\/)?(\d+)(?:\/(\d+))?(?:\/(poster|preview))?$/.exec(
+    /^telegram:(\d+)\/(sponsored\/)?(\d+)(?:\/(\d+))?(?:\/(poster|preview|[a-z]))?$/.exec(
       url
     )
   if (!match) return undefined
@@ -2084,6 +2229,13 @@ let telegramAccount: AccountLoader<SignInData> = {
     }
   },
 
+  onNews(listener) {
+    newsListeners.add(listener)
+    return () => {
+      newsListeners.delete(listener)
+    }
+  },
+
   async getFollows(auth) {
     return loadChannels(getDevice(auth))
   },
@@ -2222,7 +2374,7 @@ export const telegram: Loader = {
 
   async getLoaderData(task, url) {
     let { chat } = await findChat(undefined, url)
-    return JSON.stringify({ id: String(chat.id) })
+    return toLoaderData(chat.id)
   },
 
   getMedia(url, signal, range, urgency = 'now') {

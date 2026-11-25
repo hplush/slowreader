@@ -75,7 +75,7 @@ function detectNetwork(): Network {
     }
   }
 
-  return { saveData, type }
+  return { online: navigator.onLine, saveData, type }
 }
 
 effect([mobileMedia, tabletMedia], (mobile, tablet) => {
@@ -120,8 +120,12 @@ setupEnvironment({
       listener(detectNetwork())
     }
     update()
+    window.addEventListener('online', update)
+    window.addEventListener('offline', update)
     navigator.connection?.addEventListener('change', update)
     return () => {
+      window.removeEventListener('online', update)
+      window.removeEventListener('offline', update)
       navigator.connection?.removeEventListener('change', update)
     }
   },

@@ -14,13 +14,17 @@ export const saveDataMode = persistentAtom<SaveDataMode>(
   'auto'
 )
 
-let $network = atom<Network>({ saveData: undefined, type: undefined })
+let $network = atom<Network>({
+  online: true,
+  saveData: undefined,
+  type: undefined
+})
 
 onEnvironment(env => {
   return env.onNetwork(network => {
     if (network.type === 'unknown') {
       // Desktop Chrome has `saveData` without OS setting to change it
-      $network.set({ saveData: undefined, type: 'unknown' })
+      $network.set({ ...network, saveData: undefined })
     } else {
       $network.set(network)
     }

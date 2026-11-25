@@ -7,21 +7,25 @@ import { setTimeout } from 'node:timers/promises'
 import {
   accountsMessages,
   addAccount,
-  addMessages,
   addFeed,
+  addMessages,
   addPost,
+  autoRefresh,
   cacheImages,
   cacheMediaOnRequest,
   cacheMediaReading,
   cacheVideos,
   changeAccount,
+  chooseMediaCopy,
   closeLastPopup,
   createDownloadTask,
   createTextResponse,
+  deletePost,
   deviceSessions,
   getLinkPopup,
   getPopupUrl,
   isMediaCached,
+  lastRefresh,
   loaders,
   loadFeed,
   loadFeeds,
@@ -63,6 +67,8 @@ import {
   openPage,
   openTestPopup,
   sendTelegramUpdate,
+  setTestNetwork,
+  setTestVisibility,
   startClient,
   testTelegram,
   testTelegramCreator,
@@ -196,9 +202,14 @@ describe('telegram loader', () => {
         type: 'done'
       }
     )
-    deepEqual(testTelegram.requests.at(-2), {
+    deepEqual(testTelegram.requests.at(-3), {
       '@type': 'checkAuthenticationPassword',
       'password': 'secret'
+    })
+    deepEqual(testTelegram.requests.at(-2), {
+      '@type': 'setOption',
+      'name': 'online',
+      'value': { '@type': 'optionValueBoolean', 'value': true }
     })
     deepEqual(testTelegram.destroyed, [])
   })
@@ -252,7 +263,7 @@ describe('telegram loader', () => {
         type: 'done'
       }
     )
-    deepEqual(testTelegram.requests.at(-2), {
+    deepEqual(testTelegram.requests.at(-3), {
       '@type': 'checkAuthenticationEmailCode',
       'code': { '@type': 'emailAddressAuthenticationCode', 'code': '123' }
     })
@@ -313,10 +324,12 @@ describe('telegram loader', () => {
     deepEqual(testTelegram.destroyed, [name])
   })
 
-  test('keeps TDLib running only during sign in and requests', async t => {
+  test('keeps TDLib running on the screen, during sign in and requests', async t => {
     testTelegram.answers.setAuthenticationPhoneNumber = moveTo('WaitCode')
     testTelegram.answers.checkAuthenticationCode = moveTo('Ready')
     testTelegram.answers.getMe = USER
+    testTelegram.answers.setOption = { '@type': 'ok' }
+    setTestVisibility(false)
     let name = getName(await account.startSignIn('+34600000000'))
 
     t.mock.timers.enable({ apis: ['setTimeout'] })
@@ -351,10 +364,61 @@ describe('telegram loader', () => {
     equal(testTelegram.running.has(name), false)
 
     await sendToTelegram(name, { '@type': 'getMe' })
+    setTestVisibility(true)
+    t.mock.timers.tick(60_000)
+    equal(testTelegram.running.has(name), true)
+    await sendToTelegram(name, { '@type': 'getMe' })
+    t.mock.timers.tick(60_000)
+    equal(testTelegram.running.has(name), true)
+    setTestVisibility(false)
+    t.mock.timers.tick(60_000)
+    equal(testTelegram.running.has(name), false)
+
+    await sendToTelegram(name, { '@type': 'getMe' })
     equal(testTelegram.running.has(name), true)
     t.mock.timers.reset()
     await cleanClient()
     equal(testTelegram.running.has(name), false)
+  })
+
+  test('is online only on the screen and tells TDLib about another network', async () => {
+    function getOnline(): unknown[] {
+      return testTelegram.requests
+        .filter(i => i['@type'] === 'setOption')
+        .map(i => (i.value as { value: boolean }).value)
+    }
+    testTelegram.answers.getMe = USER
+    await sendToTelegram('name', { '@type': 'getMe' })
+
+    setTestVisibility(false)
+    setTestNetwork({ type: 'free' })
+    sendTelegramUpdate(state('Ready'))
+    deepEqual(getOnline(), [])
+
+    setTestVisibility(true)
+    setTestVisibility(false)
+    deepEqual(getOnline(), [true, false])
+    function countNetworkTypes(): number {
+      return testTelegram.requests.filter(i => i['@type'] === 'setNetworkType')
+        .length
+    }
+    // Browser also tells about every change of the network speed
+    setTestNetwork({ saveData: true, type: 'free' })
+    setTestNetwork({ online: false, type: 'free' })
+    equal(countNetworkTypes(), 0)
+    setTestNetwork({ type: 'free' })
+    deepEqual(testTelegram.requests.at(-1), {
+      '@type': 'setNetworkType',
+      'type': { '@type': 'networkTypeOther' }
+    })
+    setTestNetwork({ type: 'paid' })
+    equal(countNetworkTypes(), 2)
+
+    sendTelegramUpdate(state('Closed'))
+    setTestVisibility(true)
+    setTestNetwork({ type: 'free' })
+    deepEqual(getOnline(), [true, false])
+    equal(countNetworkTypes(), 2)
   })
 
   test('ends device session', async () => {
@@ -1301,6 +1365,59 @@ describe('telegram loader', () => {
     })
   }
 
+  test('gives smaller copies of a photo', async () => {
+    deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
+    let sized = message(4, {
+      content: {
+        '@type': 'messagePhoto',
+        'photo': {
+          '@type': 'photo',
+          'sizes': [
+            { height: 60, photo: file(10, 10), type: 's', width: 100 },
+            { height: 200, photo: file(11, 100), type: 'm', width: 320 },
+            { height: 800, photo: file(13, 2000), type: 'y', width: 1280 },
+            { height: 1600, photo: file(12, 5000), type: 'w', width: 2560 }
+          ]
+        }
+      }
+    })
+    mockHistory(0, { 0: [sized] })
+    let posts = await loadFeedPosts('{"id":"-1000000000005"}')
+    deepEqual(posts[0]!.media, [
+      {
+        copies: [
+          { url: 'telegram:5/4/y', width: 1280 },
+          { url: 'telegram:5/4/m', width: 320 }
+        ],
+        type: 'image',
+        url: 'telegram:5/4'
+      }
+    ])
+
+    testTelegram.answers.getMessage = sized
+    testTelegram.answers.downloadFile = ({ file_id: id }) => {
+      return { '@type': 'file', id, 'size': 5 }
+    }
+    testTelegram.answers.deleteFile = { '@type': 'ok' }
+    testTelegram.files = { 13: new Blob(['small']) }
+    let copy = await loaders.telegram.getMedia!('telegram:5/4/y')!
+    equal(await copy.text(), 'small')
+
+    // A bigger copy from the memory is better than one more download
+    let media = { copies: posts[0]!.media?.[0]?.copies, url: 'telegram:5/4' }
+    equal(await chooseMediaCopy(media, 300), 'telegram:5/4/m')
+    await loadMediaBlob('telegram:5/4/y')
+    equal(await chooseMediaCopy(media, 300), 'telegram:5/4/y')
+
+    // Nobody needs a copy after the best file was loaded
+    testTelegram.files[12] = new Blob(['best'])
+    await loadMediaBlob('telegram:5/4')
+    equal(await chooseMediaCopy(media, 300), 'telegram:5/4')
+    testTelegram.requests = []
+    await loadMediaBlob('telegram:5/4/y')
+    deepEqual(getDownloads(), [[16, true]])
+  })
+
   test('loads posts with rich formatting', async () => {
     mockHistory(0, {
       0: [
@@ -1983,7 +2100,7 @@ describe('telegram loader', () => {
     let { getMedia } = loaders.telegram
     deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
     mockHistory(0, {})
-    testTelegram.answers.getMessage = photoPost
+    testTelegram.answers.getMessage = videoPost
     let finish: (() => void) | undefined
     testTelegram.answers.downloadFile = ({ file_id: id }) => {
       return new Promise(resolve => {
@@ -1997,15 +2114,15 @@ describe('telegram loader', () => {
       return { '@type': 'ok' }
     }
     testTelegram.answers.deleteFile = { '@type': 'ok' }
-    testTelegram.files = { 12: new Blob(['photo']) }
+    testTelegram.files = { 12: new Blob(['photo']), 22: new Blob(['video']) }
     function countRequests(type: string): number {
       return testTelegram.requests.filter(i => i['@type'] === type).length
     }
 
     let feed = new AbortController()
     let popup = new AbortController()
-    let feedLoading = getMedia!('telegram:5/4', feed.signal)!
-    let popupLoading = getMedia!('telegram:5/4', popup.signal)!
+    let feedLoading = getMedia!('telegram:5/3', feed.signal)!
+    let popupLoading = getMedia!('telegram:5/3', popup.signal)!
     await setTimeout(10)
     equal(countRequests('downloadFile'), 1)
 
@@ -2020,7 +2137,7 @@ describe('telegram loader', () => {
       [
         {
           '@type': 'cancelDownloadFile',
-          'file_id': 12,
+          'file_id': 22,
           'only_if_pending': false
         }
       ]
@@ -2028,19 +2145,112 @@ describe('telegram loader', () => {
     await setTimeout(10)
     equal(countRequests('deleteFile'), 1)
 
-    let again = getMedia!('telegram:5/4')!
+    let again = getMedia!('telegram:5/3')!
     await setTimeout(10)
     finish!()
-    equal(await (await again).text(), 'photo')
+    equal(await (await again).text(), 'video')
     equal(countRequests('downloadFile'), 2)
 
     let stopped = new AbortController()
     stopped.abort()
-    await rejects(getMedia!('telegram:5/4', stopped.signal)!, {
+    await rejects(getMedia!('telegram:5/3', stopped.signal)!, {
       name: 'AbortError'
     })
     equal(countRequests('downloadFile'), 2)
     equal(countRequests('getMessage'), 3)
+
+    // A started photo is finished for the user, who scrolls back
+    testTelegram.answers.getMessage = photoPost
+    let scrolled = new AbortController()
+    let passed = getMedia!('telegram:5/4', scrolled.signal)!
+    await setTimeout(10)
+    scrolled.abort()
+    finish!()
+    equal(await (await passed).text(), 'photo')
+    equal(countRequests('cancelDownloadFile'), 1)
+  })
+
+  test('limits bytes of files, which are downloaded at once', async () => {
+    let { getMedia } = loaders.telegram
+    deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
+    mockHistory(0, {})
+    testTelegram.answers.getMessage = ({ message_id: id }) => {
+      let post = Number(id) / 1048576
+      return message(post, {
+        content: {
+          '@type': 'messagePhoto',
+          'photo': {
+            '@type': 'photo',
+            'sizes': [
+              {
+                height: 500,
+                photo: file(post, post === 1 ? 50_000_000 : 900_000),
+                width: 800
+              }
+            ]
+          }
+        }
+      })
+    }
+    let finish = new Map<number, () => void>()
+    testTelegram.answers.downloadFile = ({ file_id: id, synchronous }) => {
+      let downloaded = { '@type': 'file', id, 'size': 4 }
+      if (!synchronous) return downloaded
+      return new Promise(resolve => {
+        finish.set(Number(id), () => {
+          resolve(downloaded)
+        })
+      })
+    }
+    testTelegram.answers.deleteFile = { '@type': 'ok' }
+    testTelegram.files = Object.fromEntries(
+      [1, 2, 3, 4, 5, 6, 7, 8].map(id => [id, new Blob(['file'])])
+    )
+    function getStarted(): unknown[] {
+      return testTelegram.requests
+        .filter(i => i['@type'] === 'downloadFile' && i.synchronous)
+        .map(i => i.file_id)
+    }
+    function load(
+      post: number,
+      urgency: 'later' | 'now' | 'soon',
+      signal?: AbortSignal
+    ): Promise<Response> {
+      return getMedia!(`telegram:5/${post}`, signal, undefined, urgency)!
+    }
+
+    // A big file is asked by parts, so it does not hold all other files
+    let cache = [1, 2, 3, 4, 5].map(post => load(post, 'later'))
+    await setTimeout(10)
+    deepEqual(getStarted(), [1, 2, 3])
+
+    let feed = load(6, 'now')
+    let below = load(7, 'soon')
+    await setTimeout(10)
+    deepEqual(getStarted(), [1, 2, 3, 6, 7])
+
+    finish.get(2)!()
+    await setTimeout(10)
+    deepEqual(getStarted(), [1, 2, 3, 6, 7])
+    finish.get(6)!()
+    finish.get(7)!()
+    await setTimeout(10)
+    deepEqual(getStarted(), [1, 2, 3, 6, 7, 4])
+
+    let shown = load(5, 'now')
+    await setTimeout(10)
+    deepEqual(getStarted(), [1, 2, 3, 6, 7, 4, 5])
+
+    let page = new AbortController()
+    let left = load(8, 'later', page.signal)
+    await setTimeout(10)
+    page.abort()
+    await rejects(left, { name: 'AbortError' })
+    for (let id of [1, 3, 4, 5]) finish.get(id)!()
+    for (let reader of [...cache, feed, below, shown]) {
+      equal(await (await reader).text(), 'file')
+    }
+    deepEqual(getStarted(), [1, 2, 3, 6, 7, 4, 5])
   })
 
   test('does not send waiting requests of the closed page', async () => {
@@ -2665,6 +2875,16 @@ describe('telegram loader', () => {
     testTelegram.answers.getChat = fail('Chat not found')
     deepEqual(await loadFeedPosts(), [])
 
+    // TDLib forgets the chat list on restart, but we remember the lost chat
+    sendTelegramUpdate(state('Closed'))
+    testTelegram.requests = []
+    deepEqual(await loadFeedPosts(), [])
+    equal(getRequestTypes().includes('loadChats'), false)
+
+    sendTelegramUpdate({ '@type': 'updateNewChat', 'chat': news(-1001, 1) })
+    deepEqual(await loadFeedPosts(), [])
+    equal(getRequestTypes().includes('loadChats'), true)
+
     testTelegram.answers.getChat = () => {
       throw new Error('TDLib is broken')
     }
@@ -2759,6 +2979,72 @@ describe('telegram loader', () => {
     })
     await refreshPosts()
     equal((await loadFeed(channel))!.protected, false)
+  })
+
+  test('loads the post, which Telegram pushed', async t => {
+    let accountId = await addAccount(
+      testAccount({
+        credentials: null,
+        followsSyncedAt: Math.round(Date.now() / 1000),
+        service: 'telegram'
+      })
+    )
+    deviceSessions.set({ [accountId]: { device: 'name', service: 'telegram' } })
+    await addFeed(
+      testFeed({
+        accountId,
+        loader: 'telegram',
+        loaderData: '{"id":"-1001"}',
+        url: 'https://t.me/news'
+      })
+    )
+    mockHistory(1, { 0: [message(2)], 2: [message(1)] })
+    mockChatList([news(-1001, 1)])
+    await refreshPosts()
+    equal((await loadPosts()).length, 1)
+    let refreshed = lastRefresh.get()
+    t.after(() => {
+      autoRefresh.set('never')
+    })
+    autoRefresh.set('always')
+
+    function push(id: number, post: number): void {
+      sendTelegramUpdate({
+        '@type': 'updateChatLastMessage',
+        'chat_id': id,
+        'last_message': message(post),
+        'positions': []
+      })
+      sendTelegramUpdate({
+        '@type': 'updateNewMessage',
+        'message': { ...message(post), chat_id: id }
+      })
+    }
+
+    // Chats of people and unknown channels are not tracked
+    push(77, 9)
+    push(-1001, 3)
+    await waitUntil(async () => (await loadPosts()).length === 2)
+    deepEqual(
+      new Set((await loadPosts()).map(post => post.url)),
+      new Set(['https://t.me/news/2', 'https://t.me/news/3'])
+    )
+    equal(lastRefresh.get(), refreshed)
+
+    testTelegram.answers.getChatHistory = fail('Broken', 500)
+    await expectWarning(async () => {
+      push(-1001, 4)
+      await setTimeout(1200)
+    }, [new TelegramError(500, 'Broken')])
+
+    autoRefresh.set('never')
+    testTelegram.answers.getChatHistory = {
+      '@type': 'messages',
+      'messages': []
+    }
+    push(-1001, 5)
+    await setTimeout(1200)
+    equal((await loadPosts()).length, 2)
   })
 
   test('asks Telegram only about channels with news', async () => {
@@ -3336,6 +3622,36 @@ describe('telegram loader', () => {
     equal((await loadPosts()).length, 2)
   })
 
+  test('forgets the file of a deleted post', async t => {
+    t.after(() => {
+      cacheMediaReading.set('all')
+    })
+    cacheMediaReading.set('slow')
+    mockHistory(0, {})
+    testTelegram.answers.getMessage = photoPost
+    testTelegram.answers.downloadFile = { '@type': 'file', 'id': 12, 'size': 5 }
+    testTelegram.answers.deleteFile = { '@type': 'ok' }
+    testTelegram.files = { 12: new Blob(['photo']) }
+    let id = await addPost(
+      testPost({
+        media: [{ type: 'image', url: 'telegram:5/4' }],
+        reading: 'fast'
+      })
+    )
+    await syncMediaCache()
+    deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
+
+    await loadMediaBlob('telegram:5/4')
+    await setTimeout(10)
+    testTelegram.requests = []
+    await loadMediaBlob('telegram:5/4')
+    deepEqual(getDownloads(), [])
+
+    await deletePost(id)
+    await loadMediaBlob('telegram:5/4')
+    deepEqual(getDownloads(), [[16, true]])
+  })
+
   function getDownloads(): unknown[] {
     return testTelegram.requests
       .filter(i => i['@type'] === 'downloadFile')
@@ -3445,23 +3761,31 @@ describe('telegram loader', () => {
     )
 
     let shown = loadPageMedia('telegram:5/4', false, page.signal)!
+    shown.setPlace('far')
     await setTimeout(10)
     deepEqual(testTelegram.requests, [])
-    shown.setVisible(true)
-    shown.setVisible(false)
-    shown.setVisible(true)
+    shown.setPlace('screen')
+    shown.setPlace('near')
+    shown.setPlace('screen')
     await setTimeout(10)
     deepEqual(getDownloads(), [[16, true]])
     finish!()
     equal(await (await shown.blob).text(), 'photo')
 
+    // Another place of the page gets the same file without a new download
+    await setTimeout(10)
     testTelegram.requests = []
-    let below = loadPageMedia('telegram:5/4', false, page.signal)!
-    below.setVisible(false)
-    below.setVisible(false)
+    let popup = loadPageMedia('telegram:5/4', false, page.signal)!
+    popup.setPlace('near')
+    equal(await (await popup.blob).text(), 'photo')
+    deepEqual(testTelegram.requests, [])
+
+    let below = loadPageMedia('telegram:5/5', false, page.signal)!
+    below.setPlace('near')
+    below.setPlace('near')
     await setTimeout(10)
     deepEqual(getDownloads(), [[8, true]])
-    below.setVisible(true)
+    below.setPlace('screen')
     await setTimeout(10)
     deepEqual(getDownloads(), [
       [8, true],
@@ -3471,7 +3795,8 @@ describe('telegram loader', () => {
     equal(await (await below.blob).text(), 'photo')
     await setTimeout(10)
     testTelegram.requests = []
-    below.setVisible(true)
+    below.setPlace('screen')
+    below.setPlace('far')
     await setTimeout(10)
     deepEqual(testTelegram.requests, [])
 
@@ -3483,10 +3808,10 @@ describe('telegram loader', () => {
         })
       })
     }
-    let retried = loadPageMedia('telegram:5/4', false, page.signal)!
-    retried.setVisible(false)
+    let retried = loadPageMedia('telegram:5/6', false, page.signal)!
+    retried.setPlace('near')
     await setTimeout(10)
-    retried.setVisible(true)
+    retried.setPlace('screen')
     await setTimeout(10)
     posts[0]!()
     await setTimeout(10)
@@ -3496,24 +3821,153 @@ describe('telegram loader', () => {
     equal(await (await retried.blob).text(), 'photo')
 
     testTelegram.answers.getMessage = fail('Not found', 404)
-    let broken = loadPageMedia('telegram:5/4', false, page.signal)!
-    broken.setVisible(false)
+    let broken = loadPageMedia('telegram:5/7', false, page.signal)!
+    broken.setPlace('near')
     await rejects(broken.blob, { name: 'TelegramError' })
     testTelegram.requests = []
-    broken.setVisible(true)
+    broken.setPlace('screen')
     await setTimeout(10)
     deepEqual(testTelegram.requests, [])
 
     testTelegram.answers.getMessage = photoPost
-    let left = loadPageMedia('telegram:5/4', false, page.signal)!
-    left.setVisible(true)
+    let left = loadPageMedia('telegram:5/8', false, page.signal)!
+    left.setPlace('screen')
     await setTimeout(10)
     page.abort()
     await rejects(left.blob, { name: 'AbortError' })
     testTelegram.requests = []
-    left.setVisible(true)
+    left.setPlace('screen')
     await setTimeout(10)
     deepEqual(testTelegram.requests, [])
+    await rejects(loadMediaBlob('telegram:5/8', false, page.signal)!, {
+      name: 'AbortError'
+    })
+  })
+
+  test('forgets media, which user scrolled away', async () => {
+    deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
+    mockHistory(0, {})
+    let answer: (() => void) | undefined
+    testTelegram.answers.getMessage = () => {
+      return new Promise(resolve => {
+        answer = () => {
+          resolve(photoPost)
+        }
+      })
+    }
+    let finish: (() => void) | undefined
+    testTelegram.answers.downloadFile = ({ file_id: id, synchronous }) => {
+      let downloaded = { '@type': 'file', id, 'size': 5 }
+      if (!synchronous) return downloaded
+      return new Promise(resolve => {
+        finish = () => {
+          resolve(downloaded)
+        }
+      })
+    }
+    testTelegram.answers.deleteFile = { '@type': 'ok' }
+    testTelegram.files = { 12: new Blob(['photo']) }
+    let page = new AbortController()
+
+    let passed = loadPageMedia('telegram:5/4', false, page.signal)!
+    passed.setPlace('near')
+    passed.setPlace('far')
+    await setTimeout(10)
+    deepEqual(testTelegram.requests, [])
+
+    passed.setPlace('near')
+    await setTimeout(10)
+    passed.setPlace('far')
+    answer!()
+    await setTimeout(10)
+    deepEqual(getDownloads(), [])
+
+    passed.setPlace('near')
+    await setTimeout(10)
+    answer!()
+    await setTimeout(10)
+    deepEqual(getDownloads(), [[8, true]])
+
+    // A started photo is finished for the user, who scrolls back
+    passed.setPlace('far')
+    let popup = loadPageMedia('telegram:5/4', false, page.signal)!
+    popup.setPlace('screen')
+    await setTimeout(10)
+    answer!()
+    await setTimeout(10)
+    deepEqual(getDownloads(), [
+      [8, true],
+      [16, false]
+    ])
+    page.abort()
+    await rejects(popup.blob, { name: 'AbortError' })
+    finish!()
+    await setTimeout(10)
+    testTelegram.requests = []
+    equal(await (await loadMediaBlob('telegram:5/4')!).text(), 'photo')
+    deepEqual(testTelegram.requests, [])
+  })
+
+  test('asks for a failed file once more', async () => {
+    deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
+    mockHistory(0, {})
+    let asked = 0
+    testTelegram.answers.getMessage = () => {
+      asked += 1
+      return asked === 1 ? fail('Timeout', 500) : photoPost
+    }
+    testTelegram.answers.downloadFile = { '@type': 'file', 'id': 12, 'size': 5 }
+    testTelegram.answers.deleteFile = { '@type': 'ok' }
+    testTelegram.files = { 12: new Blob(['photo']) }
+    equal(await (await loadMediaBlob('telegram:5/4')!).text(), 'photo')
+    equal(asked, 2)
+
+    testTelegram.answers.getMessage = () => {
+      asked += 1
+      return fail('Not found', 404)
+    }
+    await rejects(loadMediaBlob('telegram:5/5')!, { name: 'TelegramError' })
+    equal(asked, 4)
+  })
+
+  test('keeps loaded files in the memory for other places', async () => {
+    deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
+    mockHistory(0, {})
+    testTelegram.answers.getMessage = ({ message_id: id }) => {
+      return id === 5 * 1048576 ? previewPost : photoPost
+    }
+    let big = new Blob(['a'.repeat(20 * 1024 * 1024)])
+    testTelegram.answers.downloadFile = ({ file_id: id }) => {
+      return { '@type': 'file', id, 'size': big.size }
+    }
+    testTelegram.answers.deleteFile = { '@type': 'ok' }
+    testTelegram.files = { 12: big, 31: big }
+
+    let feed = new AbortController()
+    let below = loadMediaBlob('telegram:5/4', false, feed.signal, 'soon')!
+    await loadMediaBlob('telegram:5/4')
+    await below
+    deepEqual(getDownloads(), [[16, true]])
+
+    equal(
+      await chooseMediaCopy(
+        {
+          copies: [{ url: 'telegram:5/4/x', width: 800 }],
+          url: 'telegram:5/4'
+        },
+        500
+      ),
+      'telegram:5/4'
+    )
+
+    feed.abort()
+    await loadMediaBlob('telegram:5/4')
+    equal(getDownloads().length, 1)
+
+    // Memory for files, which nobody shows, has a limit
+    await loadMediaBlob('telegram:5/5/preview')
+    await loadMediaBlob('telegram:5/4')
+    equal(getDownloads().length, 3)
   })
 
   test('finds channel by URL and follows it', async () => {

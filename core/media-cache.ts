@@ -382,7 +382,7 @@ async function saveSizes(found: [SizeTarget, CachedMedia][]): Promise<void> {
   )
 }
 
-let queue = createQueue<string>([])
+let queues = [createQueue<string>([])]
 let stopped = false
 let dropped = new Set<string>()
 
@@ -426,74 +426,82 @@ export async function syncMediaCache(): Promise<void> {
         canLoadOnThisDevice(url)
       )
     })
+    // A long video must not stand before images of older posts
+    .toSorted(([, a], [, b]) => Number(a.video) - Number(b.video))
     .map(([url]) => url)
   if (stopped || missing.length === 0) return
   mediaStatistics.set({ ...DEFAULT_MEDIA_STATISTICS, total: missing.length })
   mediaErrors.set([])
 
   let found: [SizeTarget, CachedMedia][] = []
-  queue = createQueue(missing)
+  // Stuck file of a loader must not hold web files, and they have own limits:
+  // the proxy counts requests, the loader counts bytes
+  queues = [
+    createQueue(missing.filter(url => !isLoaderMedia(url))),
+    createQueue(missing.filter(url => isLoaderMedia(url)))
+  ]
   try {
-    await queue.start(
-      4,
-      url => async task => {
-        if (dropped.has(url)) {
-          increaseKey(mediaStatistics, 'total', -1)
-          return
-        }
-        if (await cache.has(url)) {
-          increaseKey(mediaStatistics, 'done')
-          return
-        }
-        let response: Response
-        try {
-          // Proxy loads media without the per-host delay by this header
-          response = await (loadLoaderMedia(
-            url,
-            undefined,
-            undefined,
-            'later'
-          ) ??
-            task.request(url, {
-              headers: {
-                Accept: wanted.get(url)!.video ? 'video/*' : 'image/*'
-              }
-            }))
-        } catch (e) {
-          // Missed file will not appear on retry, unlike a rate limit
-          if (HTTPStatusError.is(e, /^4\d\d$/) && e.status !== 429) {
-            // User can’t fix proxy size limit, so error will be just a noise
-            if (usedRequestMethod.get() === 'proxy' && e.status === 413) {
-              increaseKey(mediaStatistics, 'failed')
-            } else {
-              failMedia({ error: e, type: 'file', url })
+    await Promise.all(
+      queues.map((queue, index) => {
+        return queue.start(
+          index === 0 ? 6 : 8,
+          url => async task => {
+            if (dropped.has(url)) {
+              increaseKey(mediaStatistics, 'total', -1)
+              return
             }
-            return
+            if (await cache.has(url)) {
+              increaseKey(mediaStatistics, 'done')
+              return
+            }
+            let response: Response
+            try {
+              response = isLoaderMedia(url)
+                ? new Response(await readShared(url, 'later', 'cache'))
+                : // Proxy loads media without the per-host delay by this header
+                  await task.request(url, {
+                    headers: {
+                      Accept: wanted.get(url)!.video ? 'video/*' : 'image/*'
+                    }
+                  })
+            } catch (e) {
+              // Missed file will not appear on retry, unlike a rate limit
+              if (HTTPStatusError.is(e, /^4\d\d$/) && e.status !== 429) {
+                // User can’t fix proxy size limit, so error will be just a noise
+                if (usedRequestMethod.get() === 'proxy' && e.status === 413) {
+                  increaseKey(mediaStatistics, 'failed')
+                } else {
+                  failMedia({ error: e, type: 'file', url })
+                }
+                return
+              }
+              throw e
+            }
+            let real = await cache.put(url, response)
+            forgetSaved(url)
+            if (dropped.has(url)) {
+              await cache.delete([url])
+              increaseKey(mediaStatistics, 'total', -1)
+              return
+            }
+            for (let target of wanted.get(url)!.targets) {
+              found.push([target, real])
+            }
+            increaseKey(mediaStatistics, 'done')
+          },
+          {
+            onRequestError() {},
+            onTaskFail(url, error) {
+              if (error.name === 'QuotaExceededError') {
+                stopMediaCache()
+                failMedia({ error, type: 'quota' })
+              } else {
+                failMedia({ error, type: 'file', url })
+              }
+            }
           }
-          throw e
-        }
-        let real = await cache.put(url, response)
-        if (dropped.has(url)) {
-          await cache.delete([url])
-          increaseKey(mediaStatistics, 'total', -1)
-          return
-        }
-        for (let target of wanted.get(url)!.targets) {
-          found.push([target, real])
-        }
-        increaseKey(mediaStatistics, 'done')
-      },
-      {
-        onRequestError() {},
-        onTaskFail(url, error) {
-          if (error.name === 'QuotaExceededError') {
-            queue.stop()
-            failMedia({ error, type: 'quota' })
-          } else {
-            failMedia({ error, type: 'file', url })
-          }
-        }
-      }
+        )
+      })
     )
   } finally {
     await saveSizes(found)
@@ -504,23 +512,8 @@ export function isMediaCached(url: string): Promise<boolean> {
   return getEnvironment().mediaCache.has(url)
 }
 
-/**
- * User already paid for the bytes, so the file is kept for offline even
- * in Save Data mode.
- */
-export async function cacheMediaOnRequest(
-  url: string,
-  video = false
-): Promise<void> {
-  let response = await (loadLoaderMedia(url) ??
-    createDownloadTask({ tries: 1 }).request(url, {
-      headers: { Accept: video ? 'video/*' : 'image/*' }
-    }))
-  await getEnvironment().mediaCache.put(url, response)
-}
-
-async function savePageCopy(url: string, blob: Blob): Promise<void> {
-  if (!mediaCacheEnabled.get()) return
+async function savePageCopy(url: string, blob: Blob): Promise<boolean> {
+  if (!mediaCacheEnabled.get()) return false
   await createMediaTable(getDatabase())
   let places = await getCrdt().select<MediaFileRow>`
     SELECT "mediaFiles".* FROM "mediaFiles"
@@ -534,7 +527,7 @@ async function savePageCopy(url: string, blob: Blob): Promise<void> {
   let wanted = places.filter(file => {
     return (file.video ? cacheVideos.get() : cacheImages.get()) !== 'never'
   })
-  if (wanted.length === 0) return
+  if (wanted.length === 0) return false
   let real = await getEnvironment().mediaCache.put(url, new Response(blob))
   let found: [SizeTarget, CachedMedia][] = []
   for (let file of wanted) {
@@ -546,6 +539,227 @@ async function savePageCopy(url: string, blob: Blob): Promise<void> {
     }
   }
   await saveSizes(found)
+  return true
+}
+
+interface SharedMedia {
+  blob: Blob | undefined
+  file: Promise<Blob>
+  pending: number
+  readers: number
+  reject(error: unknown): void
+  resolve(blob: Blob): void
+  retried: boolean
+  saved: boolean
+  saving: boolean
+  stop: AbortController
+  urgency: Urgency
+}
+
+let shared = new Map<string, SharedMedia>()
+
+let resting = new Map<string, number>()
+
+function forgetUnshown(url: string): void {
+  if (shared.get(url)?.readers === 0) {
+    shared.delete(url)
+    resting.delete(url)
+  }
+}
+
+function forgetSaved(url: string): void {
+  let entry = shared.get(url)
+  if (entry) entry.saved = true
+  forgetUnshown(url)
+}
+
+function askLoader(url: string, entry: SharedMedia, urgency: Urgency): void {
+  entry.pending += 1
+  entry.urgency = urgency
+  let loading = loadLoaderMedia(url, entry.stop.signal, undefined, urgency)
+  if (!loading) {
+    entry.reject(new Error(`No loader for ${url}`))
+    return
+  }
+  loading
+    .then(response => response.blob())
+    .then(entry.resolve, (e: unknown) => {
+      entry.pending -= 1
+      if (entry.pending > 0) return
+      if (entry.retried || (e instanceof Error && e.name === 'AbortError')) {
+        entry.reject(e)
+      } else {
+        entry.retried = true
+        askLoader(url, entry, entry.urgency)
+      }
+    })
+}
+
+function shareMedia(url: string, urgency: Urgency): SharedMedia {
+  let { promise, reject, resolve } = Promise.withResolvers<Blob>()
+  let entry: SharedMedia = {
+    blob: undefined,
+    file: promise,
+    pending: 0,
+    readers: 0,
+    reject,
+    resolve,
+    retried: false,
+    saved: false,
+    saving: false,
+    stop: new AbortController(),
+    urgency
+  }
+  shared.set(url, entry)
+  getEnvironment()
+    .mediaCache.get(url)
+    .then(cached => {
+      if (cached) {
+        entry.saved = true
+        resolve(cached)
+      } else {
+        entry.stop.signal.throwIfAborted()
+        askLoader(url, entry, entry.urgency)
+      }
+    })
+    .catch(reject)
+  promise.then(
+    blob => {
+      entry.blob = blob
+      if (entry.readers === 0) restShared(url, entry, blob)
+    },
+    () => {
+      if (shared.get(url) === entry) shared.delete(url)
+    }
+  )
+  return entry
+}
+
+function restShared(url: string, entry: SharedMedia, blob: Blob): void {
+  if (shared.get(url) !== entry) return
+  if (entry.saved) {
+    shared.delete(url)
+    return
+  }
+  resting.set(url, blob.size)
+  let total = 0
+  for (let bytes of resting.values()) total += bytes
+  for (let [old, bytes] of resting) {
+    if (total <= 32 * 1024 * 1024) break
+    resting.delete(old)
+    shared.delete(old)
+    total -= bytes
+  }
+}
+
+function leaveShared(url: string, entry: SharedMedia): void {
+  entry.readers -= 1
+  if (entry.readers > 0) return
+  if (entry.blob) {
+    restShared(url, entry, entry.blob)
+  } else {
+    // Loader finishes a download, which is cheaper to finish than to repeat.
+    // Its file waits here for the next reader.
+    entry.stop.abort()
+  }
+}
+
+function saveShared(
+  url: string,
+  entry: SharedMedia,
+  keep: boolean,
+  blob: Blob
+): void {
+  if (entry.saved || entry.saving) return
+  entry.saving = true
+  let saving = keep
+    ? getEnvironment()
+        .mediaCache.put(url, new Response(blob))
+        .then(() => true)
+    : savePageCopy(url, blob)
+  saving
+    .then(
+      saved => {
+        if (saved) forgetSaved(url)
+      },
+      (e: unknown) => {
+        getEnvironment().warn(e)
+      }
+    )
+    .finally(() => {
+      entry.saving = false
+    })
+}
+
+/**
+ * File of the loader from the disk, from the memory, or by one download for
+ * everybody, who asked for it. A reader with `signal` keeps the file in
+ * the memory until the abort. The loader is told to stop, when all readers
+ * left.
+ *
+ * `keep` saves the file to the disk with any settings, `page` only for posts,
+ * which settings keep offline, and `cache` leaves the saving to the caller.
+ */
+function readShared(
+  url: string,
+  urgency: Urgency,
+  saver: 'cache' | 'keep' | 'page',
+  signal?: AbortSignal
+): Promise<Blob> {
+  if (signal?.aborted) return Promise.reject(signal.reason as Error)
+  let entry = shared.get(url)
+  if (!entry || (!entry.blob && entry.stop.signal.aborted)) {
+    entry = shareMedia(url, urgency)
+  }
+  if (!entry.blob && isMoreUrgent(urgency, entry.urgency)) {
+    if (entry.pending > 0) {
+      askLoader(url, entry, urgency)
+    } else {
+      entry.urgency = urgency
+    }
+  }
+  resting.delete(url)
+  entry.readers += 1
+  let { promise, reject, resolve } = Promise.withResolvers<Blob>()
+  let reader = entry
+  function stop(): void {
+    leaveShared(url, reader)
+    reject(signal!.reason)
+  }
+  signal?.addEventListener('abort', stop, { once: true })
+  reader.file.then(
+    blob => {
+      if (saver !== 'cache') saveShared(url, reader, saver === 'keep', blob)
+      if (!signal) leaveShared(url, reader)
+      resolve(blob)
+    },
+    (e: unknown) => {
+      signal?.removeEventListener('abort', stop)
+      reject(e)
+    }
+  )
+  return promise
+}
+
+function isMoreUrgent(a: Urgency, b: Urgency): boolean {
+  return a !== b && (a === 'now' || b === 'later')
+}
+
+/**
+ * User already paid for the bytes, so the file is kept for offline even
+ * in Save Data mode.
+ */
+export async function cacheMediaOnRequest(
+  url: string,
+  video = false
+): Promise<void> {
+  let response = isLoaderMedia(url)
+    ? new Response(await readShared(url, 'now', 'cache'))
+    : await createDownloadTask({ tries: 1 }).request(url, {
+        headers: { Accept: video ? 'video/*' : 'image/*' }
+      })
+  await getEnvironment().mediaCache.put(url, response)
+  forgetSaved(url)
 }
 
 /**
@@ -556,45 +770,60 @@ async function savePageCopy(url: string, blob: Blob): Promise<void> {
  * avatars of feeds and accounts, which are on the screen all the time.
  * Other files are saved only for posts, which settings keep offline.
  *
- * Without `urgency` user waits for the file on the screen.
+ * The file stays in the memory until `signal` is aborted, so the same media
+ * in another place of the page gets it at once.
  */
 export function loadMediaBlob(
   url: string,
   keep = false,
   signal?: AbortSignal,
-  urgency?: Urgency
+  urgency: Urgency = 'now'
 ): Promise<Blob> | undefined {
   if (!isLoaderMedia(url)) return undefined
-  let cache = getEnvironment().mediaCache
-  return cache.get(url).then(async cached => {
-    if (cached) return cached
-    let loading = loadLoaderMedia(url, signal, undefined, urgency)
-    if (!loading) throw new Error(`No loader for ${url}`)
-    if (keep) {
-      await cache.put(url, await loading)
-      return (await cache.get(url))!
-    }
-    let blob = await (await loading).blob()
-    savePageCopy(url, blob).catch((e: unknown) => {
-      getEnvironment().warn(e)
-    })
-    return blob
-  })
+  return readShared(url, urgency, keep ? 'keep' : 'page', signal)
 }
+
+/**
+ * URL of the image for an element of this width in device pixels.
+ * It is the smallest copy, which is enough for the element. A bigger file,
+ * which is already on this device, is taken instead to not download a copy,
+ * and smaller ones leave the memory.
+ */
+export async function chooseMediaCopy(
+  media: Pick<PostMedia, 'copies' | 'url'>,
+  width: number
+): Promise<string> {
+  let copies = media.copies ?? []
+  if (shared.get(media.url)?.blob || (await isMediaCached(media.url))) {
+    for (let copy of copies) forgetUnshown(copy.url)
+    return media.url
+  }
+  let enough = copies
+    .filter(copy => copy.width >= width)
+    .toSorted((a, b) => a.width - b.width)
+  return (enough.find(copy => shared.get(copy.url)?.blob) ?? enough[0] ?? media)
+    .url
+}
+
+/**
+ * Where media is: on the screen, within one screen from it, or further.
+ */
+export type MediaPlace = 'far' | 'near' | 'screen'
 
 export interface PageMedia {
   blob: Promise<Blob>
   /**
-   * Page calls it, when media gets on the screen or leaves it.
-   * The first call starts the loading.
+   * Page calls it on every move of media. Nothing is loaded before
+   * the first call.
    */
-  setVisible(visible: boolean): void
+  setPlace(place: MediaPlace): void
 }
 
 /**
  * File for media of the page, like `loadMediaBlob()`. Media on the screen
- * is loaded first, then the rest of the page, and only then files, which
- * nobody opened, like files for offline.
+ * is loaded first, then media near the screen, and only then files, which
+ * nobody opened, like files for offline. Media far from the screen waits
+ * and leaves the queue, when user scrolled it away before the download.
  */
 export function loadPageMedia(
   url: string,
@@ -603,27 +832,36 @@ export function loadPageMedia(
 ): PageMedia | undefined {
   if (!isLoaderMedia(url)) return undefined
   let { promise, reject, resolve } = Promise.withResolvers<Blob>()
-  let done = new AbortController()
-  let stop = AbortSignal.any([signal, done.signal])
-  let loading = 0
-  let urgent: boolean | undefined
+  let finished = false
+  let asked: undefined | Urgency
+  let reading = new AbortController()
+  signal.addEventListener('abort', () => {
+    reading.abort(signal.reason)
+    reject(signal.reason)
+  })
+  promise
+    .catch(() => {})
+    .finally(() => {
+      finished = true
+    })
   return {
     blob: promise,
-    setVisible(visible) {
-      if (stop.aborted || urgent || (urgent === false && !visible)) return
-      urgent = visible
-      loading += 1
-      loadMediaBlob(url, keep, stop, visible ? 'now' : 'soon')!.then(
-        file => {
-          resolve(file)
-          done.abort()
-        },
+    setPlace(place) {
+      if (finished || signal.aborted) return
+      if (place === 'far') {
+        if (asked) reading.abort()
+        asked = undefined
+        return
+      }
+      let urgency: Urgency = place === 'screen' ? 'now' : 'soon'
+      if (asked === 'now' || asked === urgency) return
+      if (!asked) reading = new AbortController()
+      asked = urgency
+      let current = reading
+      loadMediaBlob(url, keep, current.signal, urgency)!.then(
+        resolve,
         (e: unknown) => {
-          loading -= 1
-          if (loading === 0) {
-            reject(e)
-            done.abort()
-          }
+          if (!current.signal.aborted) reject(e)
         }
       )
     }
@@ -632,7 +870,7 @@ export function loadPageMedia(
 
 export function stopMediaCache(): void {
   stopped = true
-  queue.stop()
+  for (let queue of queues) queue.stop()
 }
 
 export async function clearMediaCache(): Promise<void> {
@@ -665,7 +903,10 @@ async function deletePostsMedia(tx: Database, ids: string[]): Promise<void> {
     WHERE "postId" IN (SELECT "value" FROM json_each(${list}))
   `
   if (unused.length > 0) {
-    for (let row of unused) dropped.add(row.url)
+    for (let row of unused) {
+      dropped.add(row.url)
+      forgetUnshown(row.url)
+    }
     void getEnvironment().mediaCache.delete(unused.map(row => row.url))
   }
 }
@@ -705,5 +946,8 @@ effect(openedDatabase, db => {
   ]
   return () => {
     for (let unbind of unbinds) unbind()
+    for (let entry of shared.values()) entry.stop.abort()
+    shared.clear()
+    resting.clear()
   }
 })

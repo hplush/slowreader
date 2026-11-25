@@ -79,7 +79,7 @@ export function setPasskeySupport(support: boolean): void {
 
 let mediaCacheSize = 0
 
-let network = atom<Network>({ saveData: false, type: 'free' })
+let network = atom<Network>({ online: true, saveData: false, type: 'free' })
 
 effect([mobileMedia, tabletMedia], (mobile, tablet) => {
   if (mobile) {

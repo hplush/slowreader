@@ -40,6 +40,8 @@ The app signs in to your whole Telegram account, because Telegram can’t give a
 
 Posts you read here are marked as read in Telegram.
 
+While the app is on the screen, Telegram shows you online to people, who can see your last seen time. Without it Telegram sends photos and videos very slowly.
+
 ## Analytics
 
 We have two separate counters. Neither can link data to you. The only cookie keeps you signed in to the cloud.
@@ -78,4 +80,4 @@ If you email us, we use your email address and message only to answer you. We de
 
 ## Changes
 
-We may change this policy at any time. Check this page for the latest version. Last change: November 23, 2026. See <a href="https://github.com/hplush/slowreader/commits/main/docs/privacy.md" target="_blank">the history of changes</a> of this policy.
+We may change this policy at any time. Check this page for the latest version. Last change: November 25, 2026. See <a href="https://github.com/hplush/slowreader/commits/main/docs/privacy.md" target="_blank">the history of changes</a> of this policy.

@@ -1,5 +1,6 @@
 import { delay } from 'nanodelay'
 
+import { getEnvironment } from '../environment.ts'
 import { HTTPStatusError, NetworkError } from '../errors.ts'
 import { createDownloadTask, type DownloadTask } from './download.ts'
 
@@ -96,13 +97,31 @@ export function createQueue<Data>(initial: Data[]): Queue<Data> {
     return { after: undefined, data, fails: 0 }
   })
   let stopped = false
+  let pause: Promise<void> | undefined
+  let resume = (): void => {}
   let onRequestError: QueueErrorCallback<Data> = () => {}
   let onTaskFail: QueueErrorCallback<Data> = () => {}
 
   function processError(task: QueueTask<Data>, e: Error): void {
     if (e.name === 'AbortError') return
 
-    if (HTTPStatusError.is(e) || NetworkError.is(e)) {
+    let wait = HTTPStatusError.is(e)
+      ? Number(e.headers.get('X-Slowreader-Wait'))
+      : 0
+    if (wait > 0) {
+      tasks.unshift(task)
+      if (!pause) getEnvironment().warn(e)
+      pause ??= new Promise(resolve => {
+        let timer = setTimeout(() => {
+          resume()
+        }, wait * 1000)
+        resume = () => {
+          clearTimeout(timer)
+          pause = undefined
+          resolve()
+        }
+      })
+    } else if (HTTPStatusError.is(e) || NetworkError.is(e)) {
       task.fails += 1
       onRequestError(task.data, e)
       if (task.fails === MAX_ATTEMPTS) {
@@ -123,6 +142,10 @@ export function createQueue<Data>(initial: Data[]): Queue<Data> {
 
   async function worker(processor: QueueProcessor<Data>): Promise<void> {
     if (stopped) return
+    if (pause) {
+      await pause
+      return worker(processor)
+    }
     let [task, wait] = findNext(tasks)
     if (wait) {
       await delay(wait)
@@ -160,6 +183,7 @@ export function createQueue<Data>(initial: Data[]): Queue<Data> {
     },
     stop() {
       stopped = true
+      resume()
       download.destroy()
     }
   }

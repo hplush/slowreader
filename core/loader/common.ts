@@ -241,6 +241,13 @@ export interface AccountLoader<Data = unknown> {
   ): PostsList
 
   /**
+   * Call the listener with `loaderData` of the feed, when the service told
+   * about its new post by itself. The app loads new posts of this feed
+   * at once instead of waiting for the next refresh.
+   */
+  onNews?(listener: (loaderData: string) => void): () => void
+
+  /**
    * Which of these unread posts of the feed user already read in the app
    * of the service. Refresh deletes them here, so user will not get
    * the same post twice.
@@ -315,8 +322,8 @@ export type Loader = {
    * Video player asks only for `range` of the file, which it needs right now,
    * and gets it as `206` response.
    *
-   * Page aborts `signal`, when user stops the video loading or the video
-   * left the page.
+   * `signal` is aborted, when nobody waits for the file anymore. The loader
+   * can still give the file, if it is cheaper to finish the download.
    */
   getMedia?(
     url: string,

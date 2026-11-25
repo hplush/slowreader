@@ -80,6 +80,7 @@ interface BlueskyImage {
   alt: string
   aspectRatio?: { height: number; width: number }
   fullsize: string
+  thumb?: string
 }
 
 interface BlueskyExternal {
@@ -436,6 +437,19 @@ async function parseMedia(
     for (let image of embed.images) {
       let item: PostMedia = { type: 'image', url: image.fullsize }
       if (image.alt) item.alt = image.alt
+      if (image.thumb) {
+        let ratio = image.aspectRatio
+        // Bluesky fits this copy into a square of 1000 pixels
+        item.copies = [
+          {
+            url: image.thumb,
+            width:
+              ratio && ratio.height > ratio.width
+                ? Math.round((1000 * ratio.width) / ratio.height)
+                : 1000
+          }
+        ]
+      }
       media.push(item)
       sizes.push(toApproximateSize(image.aspectRatio))
     }

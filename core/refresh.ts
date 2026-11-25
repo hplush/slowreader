@@ -38,7 +38,7 @@ import { createDownloadTask, type DownloadTask } from './lib/download.ts'
 import { canUseNetwork } from './lib/network.ts'
 import { createQueue, type QueueCallback } from './lib/queue.ts'
 import { increaseKey, waitLoading } from './lib/stores.ts'
-import { getOriginKey, loaders } from './loader/index.ts'
+import { getOriginKey, type Loader, loaders } from './loader/index.ts'
 import { isFromLog } from './log.ts'
 import {
   DEFAULT_MEDIA_STATISTICS,
@@ -591,15 +591,16 @@ function createState(
  */
 export async function loadRecentPosts(
   feedId: string,
-  task = createDownloadTask()
+  task = createDownloadTask(),
+  owner?: AccountValue
 ): Promise<void> {
   let feed = await loadFeed(feedId)
   if (!feed) return
-  let pages = getFeedLatestPosts(feed, task)
+  let pages = getFeedLatestPosts(feed, task, owner && getAccountAuth(owner))
   if (pages.get().isLoading) await pages.loading
   let error = pages.get().error
   if (error) throw error
-  let state = createState({ feed, owner: undefined }, pages, task)
+  let state = createState({ feed, owner }, pages, task)
   sortPage(state.page)
   await collectFeedPage(state, feedId)
   let { newest } = state
@@ -830,11 +831,58 @@ let remotePostsMedia = debounceTask(async () => {
   }
 }, 1000)
 
+let news = new Map<string, { loader: string; loaderData: string }>()
+
+/**
+ * Service can push a new post to the device, like Telegram does, while
+ * its connection is open. Its feed is loaded at once without progress in UI
+ * and without moving the time of the next refresh of all feeds.
+ *
+ * Parts of one album come as separate posts one right after another.
+ */
+let loadingNews = debounceTask(async () => {
+  let pushed = [...news.values()]
+  news.clear()
+  if (
+    isRefreshing.get() ||
+    !canUseNetwork(autoRefresh.get()) ||
+    nightLocked.get()
+  ) {
+    return
+  }
+  for (let { loader, loaderData } of pushed) {
+    let feeds = await getTables().feeds.load`
+      WHERE "loader" = ${loader} AND "loaderData" = ${loaderData}
+    `
+    for (let feed of feeds) {
+      let owner = feed.accountId ? await loadAccount(feed.accountId) : undefined
+      try {
+        await loadRecentPosts(
+          feed.id,
+          undefined,
+          owner && canUseAccount(owner) ? owner : undefined
+        )
+      } catch (e) {
+        getEnvironment().warn(e)
+      }
+    }
+  }
+  remotePostsMedia.call()
+}, 1000)
+
 onClient(logux =>
   effect(openedDatabase, db => {
     if (!db) return
     void refreshPosts({ auto: true })
     let unbinds = [
+      ...Object.entries<Loader>(loaders).flatMap(([loader, { account }]) => {
+        return (
+          account?.onNews?.(loaderData => {
+            news.set(`${loader} ${loaderData}`, { loader, loaderData })
+            loadingNews.call()
+          }) ?? []
+        )
+      }),
       clock.listen(now => {
         if (now.getTime() - lastRefresh.get() >= 15 * 60_000) {
           void refreshPosts({ auto: true })
@@ -855,6 +903,8 @@ onClient(logux =>
     ]
     return () => {
       remotePostsMedia.cancel()
+      loadingNews.cancel()
+      news.clear()
       for (let unbind of unbinds) unbind()
     }
   })

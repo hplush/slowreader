@@ -21,7 +21,7 @@ _See the [full architecture guide](../README.md) first._
 - Sends only the few headers a feed needs, and drops everything else.
 - Sends constant `User-Agent: SlowReader/1.0 (+https://slowreader.app)`.
 - Loads one URL per host at a time, with a delay between requests. Requests with `Accept: image/*` or `video/*` skip it, since media is on CDNs.
-- Limits requests per IP and requests in parallel.
+- Limits requests per IP and requests in parallel. Over the IP limit it tells the app how long to wait by `X-Slowreader-Wait`.
 - Marks answers with `nosniff` and `Content-Security-Policy: sandbox` to avoid reading our cookie by proxy’s content if user will be forced to open proxied URL in the browser.
 - Has timeout to answer, idle timeout while streaming body, and response size limit, counted while streaming.
 

@@ -1,9 +1,12 @@
 import {
+  chooseMediaCopy,
   isLoaderMedia,
   isMediaCached,
   loadLoaderMedia,
   loadMediaBlob,
-  loadPageMedia
+  loadPageMedia,
+  type MediaPlace,
+  type PostMedia
 } from '@slowreader/core'
 import type { Attachment } from 'svelte/attachments'
 
@@ -279,40 +282,94 @@ function openStream(url: string, signal: AbortSignal): StreamPath {
   return `/stream/${token}`
 }
 
+interface View {
+  listeners: Set<(place: MediaPlace) => void>
+  near: boolean | undefined
+  nearby: IntersectionObserver
+  seen: boolean | undefined
+}
+
 let viewer: IntersectionObserver | undefined
-let views = new WeakMap<
-  Element,
-  { listeners: Set<(visible: boolean) => void>; visible: boolean | undefined }
->()
+let nearbies = new WeakMap<Element, IntersectionObserver>()
+let views = new WeakMap<Element, View>()
+
+function getPlace(view: View): MediaPlace {
+  if (view.seen) return 'screen'
+  return view.near ? 'near' : 'far'
+}
+
+function tellPlace(
+  entries: IntersectionObserverEntry[],
+  key: 'near' | 'seen'
+): void {
+  for (let entry of entries) {
+    let view = views.get(entry.target)
+    if (!view) continue
+    view[key] = entry.isIntersecting
+    if (view.near === undefined || view.seen === undefined) continue
+    for (let listener of view.listeners) listener(getPlace(view))
+  }
+}
+
+/**
+ * Margin around the browser’s window does not reach inside of an element
+ * with own scroll, like the page or a popup, so the margin is set on it.
+ */
+function watchNearby(element: Element): IntersectionObserver {
+  let scroller = element.parentElement
+  while (
+    scroller &&
+    !/auto|scroll/.test(getComputedStyle(scroller).overflowY)
+  ) {
+    scroller = scroller.parentElement
+  }
+  let nearby = nearbies.get(scroller ?? document.body)
+  if (!nearby) {
+    nearby = new IntersectionObserver(
+      entries => {
+        tellPlace(entries, 'near')
+      },
+      { root: scroller, rootMargin: '100% 0px' }
+    )
+    nearbies.set(scroller ?? document.body, nearby)
+  }
+  nearby.observe(element)
+  return nearby
+}
 
 /**
  * `<video>` has own listeners for the file and for the poster, and the browser
  * tells the current state only to the first of them.
  */
-function watchVisibility(
+function watchPlace(
   element: Element,
-  listener: (visible: boolean) => void
+  listener: (place: MediaPlace) => void
 ): () => void {
   viewer ??= new IntersectionObserver(entries => {
-    for (let entry of entries) {
-      let changed = views.get(entry.target)
-      if (!changed) continue
-      changed.visible = entry.isIntersecting
-      for (let i of changed.listeners) i(changed.visible)
-    }
+    tellPlace(entries, 'seen')
   })
-  let view = views.get(element) ?? { listeners: new Set(), visible: undefined }
-  views.set(element, view)
-  view.listeners.add(listener)
-  if (view.visible === undefined) {
-    viewer.observe(element)
+  let view = views.get(element)
+  if (view) {
+    view.listeners.add(listener)
+    if (view.near !== undefined && view.seen !== undefined) {
+      listener(getPlace(view))
+    }
   } else {
-    listener(view.visible)
+    view = {
+      listeners: new Set([listener]),
+      near: undefined,
+      nearby: watchNearby(element),
+      seen: undefined
+    }
+    views.set(element, view)
+    viewer.observe(element)
   }
+  let watched = view
   return () => {
-    if (view.listeners.delete(listener) && view.listeners.size === 0) {
+    if (watched.listeners.delete(listener) && watched.listeners.size === 0) {
       views.delete(element)
       viewer!.unobserve(element)
+      watched.nearby.unobserve(element)
     }
   }
 }
@@ -320,7 +377,8 @@ function watchVisibility(
 /**
  * Browser can not load media of some our loaders by URL on its own,
  * like `telegram:` URL. We load its file and show it by a local URL.
- * Media on the screen is loaded before the rest of the page.
+ * Media on the screen is loaded first, then media within one screen from it.
+ * The rest of the page waits for the scroll.
  *
  * `web` is `false`, when `<source>` tags already have the web URL.
  * `keep` saves the file to the cache with any settings, for avatars.
@@ -328,24 +386,31 @@ function watchVisibility(
  * open the file of a protected post in a new tab.
  * `stream` loads only the watched parts of the video, if the file
  * is not in the cache.
+ * `copies` are smaller files of the image. The smallest one, which is enough
+ * for the element, is shown, if the device has no file from `url` yet.
  */
 export function mediaSrc(
-  url: null | string | undefined,
+  best: null | string | undefined,
   {
     attribute = 'src',
+    copies,
     keep = false,
     once = false,
     stream = false,
     web = true
   }: {
     attribute?: 'poster' | 'src'
+    copies?: PostMedia['copies']
     keep?: boolean
     once?: boolean
     stream?: boolean
     web?: boolean
   } = {}
 ): Attachment<HTMLElement> {
-  return element => {
+  function show(
+    element: HTMLElement,
+    url: null | string | undefined
+  ): (() => void) | undefined {
     let controller = new AbortController()
     let loading: Promise<Blob | StreamPath> | undefined
     if (url && stream && isLoaderMedia(url) && canStreamMedia()) {
@@ -359,7 +424,7 @@ export function mediaSrc(
       let media = loadPageMedia(url, keep, controller.signal)
       if (media) {
         loading = media.blob
-        let unwatch = watchVisibility(element, media.setVisible)
+        let unwatch = watchPlace(element, media.setPlace)
         controller.signal.addEventListener('abort', unwatch)
         loading.then(unwatch, unwatch)
       }
@@ -399,6 +464,27 @@ export function mediaSrc(
       removed = true
       controller.abort()
       if (local) URL.revokeObjectURL(local)
+    }
+  }
+
+  return element => {
+    // Element without known size has no width before the file is loaded
+    if (!best || !copies || element.clientWidth === 0) {
+      return show(element, best)
+    }
+    let left = false
+    let hide: (() => void) | undefined
+    void chooseMediaCopy(
+      { copies, url: best },
+      element.clientWidth * devicePixelRatio
+    )
+      .catch(() => best)
+      .then(url => {
+        if (!left) hide = show(element, url)
+      })
+    return () => {
+      left = true
+      hide?.()
     }
   }
 }
