@@ -374,6 +374,19 @@ describe('html', () => {
     )
   })
 
+  test('cuts long paragraph after short title', () => {
+    equal(
+      truncate(
+        '<p><b>Title</b></p>' +
+          '<p>First sentence of the text. Second sentence is long.</p>',
+        20,
+        40
+      ),
+      '<p><b>Title</b></p><p>First sentence of the text. ' +
+        '<post-marker>…</post-marker></p>'
+    )
+  })
+
   test('does not truncate HTML at dot inside domain', () => {
     equal(
       truncate('<p>Visit lamardecitas.net for more information</p>', 10, 25),

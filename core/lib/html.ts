@@ -500,7 +500,13 @@ export function truncateDOM(root: Element, min: number, max: number): boolean {
   let document = root.ownerDocument
   let chars = 0
   let checkpoint: Node | undefined
+  let checkpointChars = 0
   let cut = false
+
+  function setCheckpoint(node: Node): void {
+    checkpoint = node
+    checkpointChars = chars
+  }
 
   function removeAfter(node: Node): void {
     let current: Node | null = node
@@ -541,7 +547,7 @@ export function truncateDOM(root: Element, min: number, max: number): boolean {
     let block = !!checkpoint && inNewBlock(text, checkpoint)
     let code =
       text.parentElement!.closest('pre') ?? text.parentElement!.closest('code')
-    if (checkpoint && (doubleBr || block)) {
+    if (checkpoint && checkpointChars >= min / 2 && (doubleBr || block)) {
       cutToCheckpoint(block)
     } else if (code && chars > 0) {
       removeAfter(code)
@@ -568,7 +574,7 @@ export function truncateDOM(root: Element, min: number, max: number): boolean {
           cut = true
         } else if (text.length <= remaining) {
           chars += text.length
-          if (SENTENCE_END.test(text.trim())) checkpoint = child
+          if (SENTENCE_END.test(text.trim())) setCheckpoint(child)
         } else {
           cutText(child as Text)
           cut = true
@@ -579,10 +585,10 @@ export function truncateDOM(root: Element, min: number, max: number): boolean {
           isTag(element, 'br') &&
           isTag(skipSpaces(element.previousSibling), 'br')
         ) {
-          checkpoint = element
+          setCheckpoint(element)
         }
         walk(element)
-        if (!cut && BLOCK_TAGS.has(element.localName)) checkpoint = element
+        if (!cut && BLOCK_TAGS.has(element.localName)) setCheckpoint(element)
       }
       if (cut) return
     }
