@@ -85,6 +85,8 @@
       flex-direction: column;
       width: var(--popup-size);
       height: auto;
+      padding-top: var(--safe-top);
+      padding-inline-end: var(--safe-side);
 
       @media (--no-mobile) {
         @mixin background var(--main-land-color);
@@ -102,6 +104,7 @@
         inset: 0;
         z-index: 20;
         flex-direction: column-reverse;
+        padding-inline-start: var(--safe-side);
       }
     }
 
@@ -117,7 +120,7 @@
       @media (--mobile) {
         @mixin background var(--main-land-color);
 
-        height: var(--navbar-height);
+        height: var(--bottom-panel-height);
         box-shadow: var(--bottom-panel-shadow);
       }
     }
@@ -150,6 +153,7 @@
       overflow: hidden auto;
 
       @media (--mobile) {
+        height: calc(100% - var(--bottom-panel-height));
         padding: var(--page-padding);
       }
     }
@@ -161,6 +165,7 @@
       flex-direction: column;
       min-height: 100%;
       padding: var(--page-padding) var(--popup-padding);
+      padding-bottom: calc(var(--page-padding) + var(--safe-bottom));
 
       @media (--mobile) {
         padding: 0;

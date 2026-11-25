@@ -75,7 +75,7 @@
         width: calc(
           min(
               var(--thin-content-width) - 2 * var(--control-height) - 0.25rem,
-              100vw - 2rem - 2 * var(--control-height) - 0.25rem
+              var(--safe-width) - 2rem - 2 * var(--control-height) - 0.25rem
             ) -
             2 * var(--navbar-balance-inset)
         );

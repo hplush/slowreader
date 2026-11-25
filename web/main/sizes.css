@@ -9,11 +9,20 @@
   --page-padding: 1rem;
   --navbar-padding: 0.3125rem;
   --navbar-height: calc(var(--control-height) + 2 * var(--navbar-padding));
+  --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
+  --safe-side: max(env(safe-area-inset-left), env(safe-area-inset-right));
+  --safe-width: calc(100vw - 2 * var(--safe-side));
+  --safe-height: calc(100svh - var(--safe-top) - var(--safe-bottom));
+  --bottom-panel-height: calc(
+    var(--control-height) + var(--navbar-padding) +
+      max(var(--navbar-padding), var(--safe-bottom))
+  );
 
   /* To separate scalable sizes from pixel-based */
   --min-size: 1px;
   --navbar-width: 0px;
-  --popup-size: calc((100vw - var(--navbar-width)) / 2);
+  --popup-size: calc((var(--safe-width) - var(--navbar-width)) / 2);
   --popup-padding: max(
     var(--page-padding),
     calc((var(--popup-size) - var(--max-content-width)) / 2)
@@ -32,12 +41,12 @@
   }
 
   @media (--tablet) {
-    --popup-size: 50vw;
+    --popup-size: calc(var(--safe-width) / 2);
   }
 
   @media (--mobile) {
-    --thin-content-width: calc(100vw - 2 * var(--page-padding));
-    --popup-size: 100vw;
+    --thin-content-width: calc(var(--safe-width) - 2 * var(--page-padding));
+    --popup-size: var(--safe-width);
     --popup-padding: var(--page-padding);
     --control-height: 2.25rem;
   }

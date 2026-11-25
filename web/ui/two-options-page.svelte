@@ -52,10 +52,10 @@
       display: flex;
       flex-grow: 0;
       justify-content: center;
-      min-height: 100svh;
+      min-height: var(--safe-height);
 
       @media (--no-desktop) {
-        min-height: calc(100svh - var(--navbar-height));
+        min-height: calc(100svh - var(--safe-top) - var(--bottom-panel-height));
       }
 
       &.is-center {

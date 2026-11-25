@@ -28,8 +28,8 @@
     .popupable-page {
       box-sizing: border-box;
       display: flex;
-      width: calc(100vw - var(--popup-size) - var(--navbar-width));
-      min-height: 100svh;
+      width: calc(var(--safe-width) - var(--popup-size) - var(--navbar-width));
+      min-height: var(--safe-height);
       padding: var(--navbar-padding) var(--page-padding) 1rem
         var(--page-padding);
 
@@ -38,7 +38,7 @@
       }
 
       @media (--no-desktop) {
-        min-height: calc(100svh - var(--navbar-height));
+        min-height: calc(100svh - var(--safe-top) - var(--bottom-panel-height));
       }
 
       @media (--mobile) {

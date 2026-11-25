@@ -166,8 +166,8 @@
 
     .navbar {
       position: fixed;
-      inset-block: 0;
-      inset-inline-start: 0;
+      inset-block: var(--safe-top) var(--safe-bottom);
+      inset-inline-start: var(--safe-side);
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
@@ -179,6 +179,7 @@
       @media (--no-desktop) {
         inset-block: unset;
         bottom: 0;
+        inset-inline-start: 0;
         z-index: 10;
         align-items: center;
         width: 100vw;
@@ -198,8 +199,9 @@
         z-index: 2;
         justify-content: center;
         width: stretch;
-        height: var(--navbar-height);
-        padding-inline: 1rem;
+        height: var(--bottom-panel-height);
+        padding-inline: calc(1rem + var(--safe-side));
+        padding-bottom: max(var(--navbar-padding), var(--safe-bottom));
 
         .navbar:not(.is-opened) & {
           box-shadow: var(--bottom-panel-shadow);
