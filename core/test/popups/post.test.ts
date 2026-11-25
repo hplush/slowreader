@@ -244,6 +244,7 @@ describe('post popup', () => {
     equal(byUrl.calls.length, 0)
     equal(checkLoadedPopup(saved).post.get().title, 'Saved')
     equal(checkLoadedPopup(saved).feed!.get().id, feed)
+    equal(checkLoadedPopup(saved).whole, false)
     checkLoadedPopup(saved).read!.set(true)
     await setTimeout(1)
     equal((await loadPost(id))!.read, true)
@@ -255,6 +256,7 @@ describe('post popup', () => {
     equal(byUrl.calls.length, 1)
     equal(checkLoadedPopup(deleted).post.get().title, 'Network')
     equal(checkLoadedPopup(deleted).read, undefined)
+    equal(checkLoadedPopup(deleted).whole, true)
   })
 
   test('opens candidate post', async () => {

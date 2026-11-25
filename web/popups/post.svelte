@@ -133,7 +133,7 @@
         {/each}
       </Stack>
       <Stack gap="l">
-        {#if url}
+        {#if url && !popup.whole}
           <Button
             href={url}
             icon={mdiOpenInNew}

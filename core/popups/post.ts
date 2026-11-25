@@ -12,7 +12,12 @@ import { type FeedValue, loadFeed } from '../feed.ts'
 import { formatDuration, formatPublishedAt, i18nFormat } from '../format.ts'
 import { createDownloadTask } from '../lib/download.ts'
 import { storeFromQuery } from '../lib/stores.ts'
-import { type Loader, type LoaderName, loaders } from '../loader/index.ts'
+import {
+  isWebFeed,
+  type Loader,
+  type LoaderName,
+  loaders
+} from '../loader/index.ts'
 import { postMessages } from '../messages/index.ts'
 import {
   addHandles,
@@ -264,7 +269,8 @@ export const post = definePopup('post', async loader => {
     reaction: $reaction,
     read,
     thread: $thread,
-    userPostUrl: getUserPostUrls()
+    userPostUrl: getUserPostUrls(),
+    whole: !!service && !isWebFeed(service)
   }
 })
 
