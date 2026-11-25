@@ -343,7 +343,7 @@
     let unbind = page.postsLoading.listen(loading => {
       if (!loading) {
         unbind()
-        void changePost(ids, { read: true })
+        void changePost(ids, { read: 1 })
       }
     })
   }

@@ -282,7 +282,10 @@ export const postsTable = defineCrdtTable(
     preview: optional(json(previewShape)),
     publishedAt: bigint(),
     quoted: optional(json(quotedShape)),
-    read: boolean({ default: false }),
+    // 1 is still on the reader’s page, 2 left it and is only in the history
+    read: number<0 | 1 | 2>({ default: 0 }),
+    // Stays after the return to unread to know that user asked for it
+    readAt: optional(bigint()),
     reading: oneOf(READINGS, { default: 'slow' }),
     replied: optional(json(quotedShape)),
     repostedBy: optional(json(authorShape)),

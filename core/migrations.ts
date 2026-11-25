@@ -31,5 +31,15 @@ export const migrations: ActionMigrations = {
       }
       return { ...fields, sortedAt: fields.publishedAt }
     })
+  },
+  // Added 2026-11-25
+  3: action => {
+    if (action.type !== 'posts/created' && action.type !== 'posts/changed') {
+      return action
+    }
+    return mapCrdtFields(action, fields => {
+      if (typeof fields.read !== 'boolean') return fields
+      return { ...fields, read: fields.read ? 1 : 0 }
+    })
   }
 }

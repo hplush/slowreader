@@ -69,7 +69,7 @@
       'move <code>onMount()</code> calls into <code>effect()</code>.</p>',
     intro: 'Example released a big update.',
     publishedAt: 1600000000,
-    read: true,
+    read: 1,
     reading: 'slow',
     title: 'A big changes for Example',
     url: 'https://example.com/news/1'

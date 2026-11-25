@@ -10,7 +10,7 @@ import {
   unreadFastMenu
 } from '../menu.ts'
 import { type NightLockState, nightLockState } from '../night-lock.ts'
-import { deletePost, fastPostsCount, slowPostsCount } from '../post.ts'
+import { changePost, fastPostsCount, slowPostsCount } from '../post.ts'
 import { getFeedStats } from '../reactions.ts'
 import { isOpenedInReader, pickedReader, shownReader } from '../reader.ts'
 import { loadReadPostIds, type PostFilter } from '../readers/common.ts'
@@ -25,7 +25,7 @@ import {
   welcomeReader
 } from '../readers/index.ts'
 import { navigate } from '../router.ts'
-import { freeDatabasePages, hasDatabase, openedDatabase } from '../schema.ts'
+import { hasDatabase, openedDatabase } from '../schema.ts'
 import { needWelcome } from '../welcome.ts'
 import { createPage, routeParam } from './common.ts'
 
@@ -56,10 +56,10 @@ let pages = (['slow', 'fast'] as const).map(reading => {
     let $locked: ReadableAtom<NightLockState> =
       reading === 'fast' ? nightLockState : atom({ locked: false })
 
-    async function deleteRead(): Promise<void> {
+    async function moveReadToHistory(): Promise<void> {
       if (!lastFilter || !hasDatabase()) return
       let posts = await loadReadPostIds(lastFilter)
-      if (hasDatabase()) await deletePost(posts)
+      if (hasDatabase()) await changePost(posts, { read: 2 })
     }
 
     let prevLoadingUnbind = (): void => {}
@@ -254,7 +254,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
 
         if (JSON.stringify(filter) !== JSON.stringify(lastFilter)) {
           lastFilter = filter
-          void deleteRead()
+          void moveReadToHistory()
         }
 
         let instance: BaseReader | undefined
@@ -279,8 +279,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
         // The next page is created before this one is destroyed
         if (shownReader.get() === prevReading) shownReader.set(undefined)
         prevLoadingUnbind()
-        await deleteRead()
-        await freeDatabasePages()
+        await moveReadToHistory()
       },
       feed: $feed,
       feedStats: computed([$feed, $stats], (feed, stats) => {

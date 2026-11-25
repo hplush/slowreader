@@ -100,7 +100,7 @@ describe('schema', () => {
     setupEnvironment({ ...getTestEnvironment(), databaseCreator: creator })
     setTestUser()
     let media = [{ type: 'image', url: 'https://example.com/a.png' }]
-    let postId = await addPost(testPost({ media, publishedAt: 10, read: true }))
+    let postId = await addPost(testPost({ media, publishedAt: 10, read: 1 }))
     // The first start writes the schema after the post was applied
     await getCrdt().ready
     setTestUser(false)
@@ -138,8 +138,44 @@ describe('schema', () => {
     let post = await loadPost(postId)
     deepEqual([...labels], [commonMessages.get().migratingDatabase])
     deepEqual(post!.media, media)
-    equal(post!.read, true)
+    equal(post!.read, 1)
     equal(post!.sortedAt, 10)
+  })
+
+  test('converts the read flag of the old tables', async () => {
+    await cleanClient()
+    setTestUser(false)
+    let creator = persistentDatabase()
+    setupEnvironment({ ...getTestEnvironment(), databaseCreator: creator })
+    setTestUser()
+    let read = await addPost(testPost({ read: 1 }))
+    let unread = await addPost(testPost())
+    await getCrdt().ready
+    setTestUser(false)
+    await setTimeout(100)
+
+    // Subprotocol 2 kept read as boolean and had no time of the reading
+    let db = creator()
+    let [stored] = await db.select<{ value: string }>`
+      SELECT "value" FROM "logux_crdt" WHERE "key" = 'schema'
+    `
+    let schema = JSON.parse(stored!.value) as {
+      tables: Record<string, { columns: Record<string, object> }>
+    }
+    schema.tables.posts!.columns.read = { type: 'BOOLEAN' }
+    delete schema.tables.posts!.columns.readAt
+    await db.exec`
+      UPDATE "logux_crdt" SET "value" = ${JSON.stringify(schema)}
+      WHERE "key" = 'schema'
+    `
+    await db.exec`
+      UPDATE "logux_crdt" SET "value" = '2' WHERE "key" = 'subprotocol'
+    `
+    await db.close()
+
+    setTestUser()
+    equal((await loadPost(read))!.read, 1)
+    equal((await loadPost(unread))!.read, 0)
   })
 
   test('rebuilds the tables without accounts’ columns', async () => {

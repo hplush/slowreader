@@ -24,6 +24,7 @@
   import ExportPage from '../pages/export.svelte'
   import FatalPage from '../pages/fatal.svelte'
   import FeedsPage from '../pages/feeds/index.svelte'
+  import HistoryPage from '../pages/history.svelte'
   import ImportPage from '../pages/import.svelte'
   import InterfacePage from '../pages/interface.svelte'
   import MenuPage from '../pages/menu.svelte'
@@ -92,6 +93,8 @@
     <AddPage page={$currentPage} />
   {:else if $currentPage.route === 'categories'}
     <CategoriesPage page={$currentPage} />
+  {:else if $currentPage.route === 'history'}
+    <HistoryPage page={$currentPage} />
   {:else if $currentPage.route === 'deadFeeds'}
     <DeadFeedsPage page={$currentPage} />
   {:else if $currentPage.route === 'about'}

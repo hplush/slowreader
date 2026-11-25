@@ -351,7 +351,8 @@ export function loadPostsRange(
       LEFT JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
       LEFT JOIN "accounts"
         ON "accounts"."id" = COALESCE("posts"."accountId", "feeds"."accountId")
-      WHERE "posts"."reading" = ${filter.reading} AND "posts"."merged" = 0
+      WHERE "posts"."reading" = ${filter.reading}
+        AND "posts"."read" IN (0, 1) AND "posts"."merged" = 0
         AND COALESCE("feeds"."categoryId", "accounts"."categoryId")
           = ${filter.categoryId}
         AND ("posts"."sortedAt", "posts"."id")
@@ -383,8 +384,8 @@ export function loadPostsRange(
         CASE WHEN COALESCE("intro", '') = '' THEN "full" END AS "full",
         COALESCE(NULLIF("intro", '') <> "full", 0) AS "more"
       FROM "posts"
-      WHERE "reading" = ${filter.reading} AND "merged" = 0
-        AND "feedId" = ${filter.feedId ?? null}
+      WHERE "reading" = ${filter.reading} AND "read" IN (0, 1)
+        AND "merged" = 0 AND "feedId" = ${filter.feedId ?? null}
         AND ("sortedAt", "id") < (${cursor.sortedAt}, ${cursor.id})
         AND ("sortedAt", "id") >= (${lowest.sortedAt}, ${lowest.id})
       ORDER BY "sortedAt" DESC, "id" DESC
@@ -489,7 +490,7 @@ export function loadPageCursors(
 }
 
 /**
- * Only IDs, since read posts are loaded to be deleted.
+ * Only IDs, since read posts are loaded to be moved to the history.
  */
 export function loadReadPostIds(filter: PostFilter): Promise<string[]> {
   let rows: Promise<{ id: string }[]>
@@ -546,7 +547,7 @@ export function trackReadPosts(
     let read = new Set(rows.value.map(row => row.id))
     let prev = list.get()
     let next = prev.map(post => {
-      let value = read.has(post.id)
+      let value: 0 | 1 = read.has(post.id) ? 1 : 0
       return post.read === value ? post : { ...post, read: value }
     })
     if (next.some((post, index) => post !== prev[index])) list.set(next)

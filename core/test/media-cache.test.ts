@@ -170,7 +170,7 @@ describe('media cache', () => {
     expectRequest('https://img.com/2.jpg').andRespond(200, '2')
     await syncMediaCache()
 
-    await changePost(read, { read: true })
+    await changePost(read, { read: 1 })
     await syncMediaCache()
     deepEqual(await cached(), [
       'https://author.com/a.png',
@@ -187,6 +187,25 @@ describe('media cache', () => {
     cacheImages.set('never')
     await syncMediaCache()
     deepEqual(await cached(), [])
+  })
+
+  test('deletes media of posts in the history', async () => {
+    let post = await addPost(
+      testPost({ media: [{ type: 'image', url: 'https://img.com/1.jpg' }] })
+    )
+    expectRequest('https://img.com/1.jpg').andRespond(200, '1')
+    await syncMediaCache()
+    deepEqual(await cached(), ['https://img.com/1.jpg'])
+
+    await changePost(post, { read: 2 })
+    deepEqual(await cached(), [])
+    await syncMediaCache()
+    deepEqual(await cached(), [])
+
+    await changePost(post, { read: 0 })
+    expectRequest('https://img.com/1.jpg').andRespond(200, '1')
+    await syncMediaCache()
+    deepEqual(await cached(), ['https://img.com/1.jpg'])
   })
 
   test('deletes media of posts deleted on another device', async () => {
@@ -210,7 +229,7 @@ describe('media cache', () => {
         fields: {
           media: [{ type: 'image', url: 'https://img.com/1.jpg' }],
           publishedAt: 1000,
-          read: false,
+          read: 0,
           reading: 'slow',
           sortedAt: 1000
         },
@@ -241,7 +260,7 @@ describe('media cache', () => {
           fields: {
             media: [{ type: 'image', url: 'https://img.com/1.jpg' }],
             publishedAt: 1000,
-            read: false,
+            read: 0,
             reading: 'slow',
             sortedAt: 1000
           },
@@ -265,7 +284,7 @@ describe('media cache', () => {
           fields: {
             media: [{ type: 'image', url: `https://img.com/${id}.jpg` }],
             publishedAt: 1000,
-            read: false,
+            read: 0,
             reading: 'slow',
             sortedAt: 1000
           },

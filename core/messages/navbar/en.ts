@@ -22,6 +22,7 @@ export const navbarMessages = i18n('navbar', {
   export: 'Export',
   fast: 'Fun',
   feeds: 'Manage feeds',
+  history: 'Reading history',
   import: 'Import',
   interface: 'Interface',
   menu: 'Feeds & settings',

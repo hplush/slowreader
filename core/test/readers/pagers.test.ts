@@ -141,7 +141,7 @@ describe('next pager', () => {
     equal(pagination.prevFrom.get(), undefined)
     equal(reader.list.get().length, 20)
     equal(reader.list.get()[0]!.title, '55')
-    equal(reader.list.get()[0]!.read, false)
+    equal(reader.list.get()[0]!.read, 0)
     equal(pagination.page.get(), 0)
 
     await moveTo(page, pagination.nextFrom.get())
@@ -194,7 +194,7 @@ describe('next pager', () => {
     // Another tab or device reads and deletes posts of the current page
     await changePost(
       second.slice(0, 5).map(post => post.id),
-      { read: true }
+      { read: 1 }
     )
     await deletePost(second.slice(5, 10).map(post => post.id))
     let removed = new Set(second.slice(0, 10).map(post => post.title!))
@@ -343,8 +343,8 @@ describe('number pager', () => {
       titles: true
     })
 
-    await changePost(reader.list.get()[0]!.id, { read: true })
-    await changePost(reader.list.get()[5]!.id, { read: true })
+    await changePost(reader.list.get()[0]!.id, { read: 1 })
+    await changePost(reader.list.get()[5]!.id, { read: 1 })
     equal(reader.list.get().length, 50)
     deepEqual(slowMenu.get(), [
       [
@@ -392,7 +392,7 @@ describe('number pager', () => {
     await moveTo(page, '0')
     equal(reader.list.get().length, 50)
     equal(
-      reader.list.get().every(post => post.read),
+      reader.list.get().every(post => post.read === 1),
       true
     )
     await moveTo(page, '1')
@@ -438,7 +438,7 @@ describe('number pager', () => {
     let deleted = ['60', '59']
     await changePost(
       read.map(title => ids.get(title)!),
-      { read: true }
+      { read: 1 }
     )
     await deletePost(deleted.map(title => ids.get(title)!))
     let removed = new Set([...read, ...deleted])
@@ -463,15 +463,42 @@ describe('number pager', () => {
     let reader = ensureReader(page.posts, 'list')
     deepEqual(titles(reader), ['3', '2', '1'])
 
-    await changePost(reader.list.get()[1]!.id, { read: true })
+    await changePost(reader.list.get()[1]!.id, { read: 1 })
     await setTimeout(10)
 
     // The post stays on the page and only changes the style
     deepEqual(titles(reader), ['3', '2', '1'])
     deepEqual(
       reader.list.get().map(post => post.read),
-      [false, true, false]
+      [0, 1, 0]
     )
+  })
+
+  test('hides posts of the history', async () => {
+    let categoryId = await addCategory({ title: 'A' })
+    let feedId = await addFeed(testFeed({ categoryId, reader: 'list' }))
+    for (let i = 1; i <= 3; i++) {
+      await addPost(
+        testPost({
+          feedId,
+          publishedAt: i,
+          read: i === 2 ? 2 : 0,
+          reading: 'slow',
+          title: `${i}`
+        })
+      )
+    }
+
+    let params = createParams()
+    let ofFeed = numberPager({ feedId, reading: 'slow' }, params, 50)
+    await waitLoading(ofFeed.loading)
+    deepEqual(titles(ofFeed), ['3', '1'])
+    ofFeed.exit()
+
+    let ofCategory = numberPager({ categoryId, reading: 'slow' }, params, 50)
+    await waitLoading(ofCategory.loading)
+    deepEqual(titles(ofCategory), ['3', '1'])
+    ofCategory.exit()
   })
 
   test('splits posts of the same time between pages', async () => {

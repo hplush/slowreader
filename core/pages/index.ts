@@ -14,6 +14,7 @@ import { deadFeedsPage } from './dead-feeds.ts'
 import { exportPage } from './export.ts'
 import { fatalPage } from './fatal.ts'
 import { fastPage, slowPage } from './feeds.ts'
+import { historyPage } from './history.ts'
 import { homePage } from './home.ts'
 import { importPage } from './import.ts'
 import { menuPage } from './menu.ts'
@@ -34,6 +35,7 @@ export type { DeadFeeds, DeadFeedsPage } from './dead-feeds.ts'
 export type { ExportPage } from './export.ts'
 export type { FatalPage } from './fatal.ts'
 export type { FeedsPage } from './feeds.ts'
+export type { HistoryPage } from './history.ts'
 export type { HomePage } from './home.ts'
 export type { ImportPage } from './import.ts'
 export type { MenuPage } from './menu.ts'
@@ -56,6 +58,7 @@ export const pages = {
   fast: fastPage,
   fatal: fatalPage,
   feeds: createRedirectPage('feeds', 'add'),
+  history: historyPage,
   home: homePage,
   import: importPage,
   interface: createSimplePage('interface'),

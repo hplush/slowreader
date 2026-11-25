@@ -22,6 +22,7 @@ import type { LoaderName } from './loader/index.ts'
 import {
   lazyDbQuery,
   getCrdt,
+  getDatabase,
   getTables,
   type MediaSize,
   type NewPost,
@@ -401,6 +402,58 @@ export async function deleteFastPostsBefore(time: number): Promise<void> {
   if (rows.length > 0) await deletePost(rows.map(row => row.id))
 }
 
+const HISTORY_SECONDS = 86400
+
+/**
+ * Read posts from old versions have no time and are deleted at once.
+ */
+export async function deleteOldReadPosts(): Promise<void> {
+  let rows = await getCrdt().select<{ id: string }>`
+    SELECT "id" FROM "posts"
+    WHERE "reading" IN ('fast', 'slow') AND "read" IN (1, 2)
+      AND COALESCE("readAt", 0) < ${nowInSeconds() - HISTORY_SECONDS}
+  `
+  if (rows.length > 0) await deletePost(rows.map(row => row.id))
+}
+
+export type HistoryPost = {
+  feedTitle: null | string
+} & Pick<
+  PostValue,
+  | 'feedId'
+  | 'full'
+  | 'id'
+  | 'intro'
+  | 'originId'
+  | 'publishedAt'
+  | 'reading'
+  | 'title'
+  | 'url'
+>
+
+/**
+ * Posts, which user read on any device during the last day, from the last
+ * read one. One more post than the limit tells that there are older posts.
+ */
+export function getHistory(limit: number): SqlStore<HistoryPost[]> {
+  return getDatabase().store<HistoryPost>`
+    SELECT "posts"."id", "posts"."feedId", "posts"."originId",
+      "posts"."publishedAt", "posts"."reading", "posts"."title",
+      "posts"."url", NULLIF("posts"."intro", '') AS "intro",
+      CASE WHEN COALESCE("posts"."title", '') = ''
+        AND COALESCE("posts"."intro", '') = ''
+        THEN "posts"."full" END AS "full",
+      COALESCE("feeds"."title", "posts"."author" ->> 'title') AS "feedTitle"
+    FROM "posts"
+    LEFT JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
+    WHERE "posts"."reading" IN ('fast', 'slow') AND "posts"."read" IN (1, 2)
+      AND "posts"."merged" = 0
+      AND "posts"."readAt" >= ${nowInSeconds() - HISTORY_SECONDS}
+    ORDER BY "posts"."readAt" DESC, "posts"."sortedAt" DESC, "posts"."id" DESC
+    LIMIT ${limit + 1}
+  `
+}
+
 export function changePost(
   postId: string[] | string,
   changes: PostChanges
@@ -440,13 +493,16 @@ export async function changeRead(
   )
   let seen = await getCrdt().select<{ count: number; feedId: string }>`
     SELECT "feedId", COUNT(*) AS "count" FROM "posts"
-    WHERE "feedId" IS NOT NULL AND "read" = ${read ? 0 : 1} AND "id" IN (
+    WHERE "feedId" IS NOT NULL AND ("read" = 0) = ${read ? 1 : 0} AND "id" IN (
       SELECT "value" FROM json_each(${JSON.stringify(postIds)})
     )
     GROUP BY "feedId"
   `
   let ids = [...postIds, ...parts.flat().map(part => part.id)]
-  await changePost(ids, { read })
+  await changePost(
+    ids,
+    read ? { read: 1, readAt: nowInSeconds() } : { read: 0 }
+  )
   for (let { count, feedId } of seen) trackSeen(feedId, read ? count : -count)
   if (read) {
     await raiseMaxSeen(seen.map(i => i.feedId))
@@ -690,7 +746,8 @@ export function testPost(post: Partial<PostValue> = {}): PostValue {
     preview: null,
     publishedAt: 1000,
     quoted: null,
-    read: false,
+    read: 0,
+    readAt: null,
     reading: 'fast',
     replied: null,
     repostedBy: null,
@@ -712,7 +769,7 @@ function countPosts(
   return lazyDbQuery(
     db => db.store<{ total: number }>`
       SELECT COUNT("originId") AS "total" FROM "posts"
-      WHERE "reading" = ${reading}
+      WHERE "reading" = ${reading} AND "read" IN (0, 1)
     `,
     rows => rows[0]!.total
   )

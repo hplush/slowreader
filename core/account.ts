@@ -617,8 +617,8 @@ export async function addRecentFollows(
 }
 
 /**
- * Posts, which user read in Telegram’s app, are deleted here. Read flag
- * is only to keep the post on the screen, while user is reading here.
+ * Posts, which user read in Telegram’s app, are deleted here. Posts returned
+ * to unread here are skipped: Telegram’s read position can not go back.
  */
 export async function deletePostsReadInService(): Promise<void> {
   let accounts = (await loadAccounts()).filter(account => {
@@ -637,7 +637,8 @@ export async function deletePostsReadInService(): Promise<void> {
       "feeds"."accountId"
     FROM "posts"
     JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
-    WHERE "posts"."read" = 0 AND "feeds"."accountId" IN (
+    WHERE "posts"."read" = 0 AND "posts"."readAt" IS NULL
+      AND "feeds"."accountId" IN (
       SELECT "value" FROM json_each(${JSON.stringify(accounts.map(i => i.id))})
     )
   `

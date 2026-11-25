@@ -168,7 +168,7 @@
     oninit()
 
     if (typeof route === 'string') {
-      baseRouter.set({ hash: '', params: {}, route })
+      baseRouter.set({ hash: '', params: {}, route } as BaseRoute)
     } else {
       baseRouter.set(
         route

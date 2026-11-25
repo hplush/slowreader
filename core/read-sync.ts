@@ -80,7 +80,7 @@ async function queueReadPositions(postIds: string[]): Promise<void> {
     if (!loaders[feed.loader].account?.setReadPosition) continue
     let [position] = await getCrdt().select<ReadPosition>`
       SELECT "originId" AS "postOriginId", "sortedAt" FROM "posts"
-      WHERE "feedId" = ${feed.id} AND "read" = 1 AND "sortedAt" < COALESCE(
+      WHERE "feedId" = ${feed.id} AND "read" > 0 AND "sortedAt" < COALESCE(
         (
           SELECT MIN("sortedAt") FROM "posts"
           WHERE "feedId" = ${feed.id} AND "read" = 0

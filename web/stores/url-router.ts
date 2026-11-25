@@ -11,7 +11,8 @@ import {
   removeLastPopup,
   type Route,
   type Routes,
-  stringifyPopups
+  stringifyPopups,
+  toRoute
 } from '@slowreader/core'
 import { computed } from 'nanostores'
 
@@ -28,6 +29,7 @@ export const pathRouter = createRouter({
   fast: '/fast/:category?',
   fatal: '/fatal/:reason?',
   feeds: '/feeds',
+  history: '/feeds/history',
   home: '/app',
   import: '/feeds/import',
   interface: '/settings/ui',
@@ -159,7 +161,7 @@ export function getURL(
 
   let page: Route
   if (typeof to === 'string') {
-    page = { params: {}, popups: [], route: to }
+    page = toRoute(to)
   } else if (!('popups' in to)) {
     page = { ...to, popups: [] } as Route
   } else {

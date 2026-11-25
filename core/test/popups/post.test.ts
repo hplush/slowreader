@@ -199,18 +199,43 @@ describe('post popup', () => {
       getPostPopupParam({ feedId: feed, id: id1 }, true)
     )
     await waitLoading(popup.loading)
-    equal((await loadPost(id1))!.read, false)
-    equal((await loadPost(id2))!.read, false)
+    equal((await loadPost(id1))!.read, 0)
+    equal((await loadPost(id2))!.read, 0)
 
+    let now = Math.round(Date.now() / 1000)
     checkLoadedPopup(popup).read!.set(true)
     await setTimeout(1)
-    equal((await loadPost(id1))!.read, true)
-    equal((await loadPost(id2))!.read, false)
+    equal((await loadPost(id1))!.read, 1)
+    equal((await loadPost(id1))!.readAt! >= now, true)
+    equal((await loadPost(id2))!.read, 0)
 
     checkLoadedPopup(popup).read!.set(false)
     await setTimeout(1)
-    equal((await loadPost(id1))!.read, false)
-    equal((await loadPost(id2))!.read, false)
+    equal((await loadPost(id1))!.read, 0)
+    equal((await loadPost(id1))!.readAt! >= now, true)
+    equal((await loadPost(id2))!.read, 0)
+  })
+
+  test('returns post from the history to unread', async () => {
+    let feed = await addFeed(testFeed({ categoryId: GENERAL_CATEGORY }))
+    let id = await addPost(testPost({ feedId: feed, read: 2, readAt: 1000 }))
+
+    let popup = openTestPopup(
+      'post',
+      getPostPopupParam({ feedId: feed, id }, true)
+    )
+    await waitLoading(popup.loading)
+    equal(checkLoadedPopup(popup).read!.get(), true)
+
+    // The page marks every opened post as read
+    checkLoadedPopup(popup).read!.set(true)
+    await setTimeout(1)
+    equal((await loadPost(id))!.read, 2)
+
+    checkLoadedPopup(popup).read!.set(false)
+    await setTimeout(1)
+    equal((await loadPost(id))!.read, 0)
+    equal((await loadPost(id))!.readAt, 1000)
   })
 
   test('opens saved post by URL', async () => {
@@ -247,7 +272,7 @@ describe('post popup', () => {
     equal(checkLoadedPopup(saved).whole, false)
     checkLoadedPopup(saved).read!.set(true)
     await setTimeout(1)
-    equal((await loadPost(id))!.read, true)
+    equal((await loadPost(id))!.read, 1)
     closeLastPopup()
 
     await deletePost(id)
@@ -329,7 +354,8 @@ describe('post popup', () => {
         feedId: feed,
         originId: 's',
         publishedAt: 3000,
-        read: true,
+        read: 1,
+        readAt: 5,
         threadId: 's'
       })
     )
@@ -365,12 +391,13 @@ describe('post popup', () => {
       (await loadThreadPosts(feed, 's')).map(post => [
         post.originId,
         post.merged,
-        post.read
+        post.read,
+        post.readAt
       ]),
       [
-        ['p', true, false],
-        ['s', false, true],
-        ['n', true, true]
+        ['p', true, 0, null],
+        ['s', false, 1, 5],
+        ['n', true, 1, 5]
       ]
     )
     closeLastPopup()
@@ -565,8 +592,8 @@ describe('post popup', () => {
 
     loaded.read!.set(true)
     await setTimeout(10)
-    equal((await loadPost(repost))?.read, true)
-    equal((loaded.thread.get()[0] as PostValue).read, true)
+    equal((await loadPost(repost))?.read, 1)
+    equal((loaded.thread.get()[0] as PostValue).read, 1)
   })
 
   test('opens thread from the feed preview', async () => {

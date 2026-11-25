@@ -43,7 +43,10 @@ async function reopenPost(
   let post = await loadByOriginId(feedId, originId)
   if (!post) return false
   let changes: Parameters<typeof changePost>[1] = {}
-  if (post.read) changes.read = false
+  if (post.read) {
+    changes.read = 0
+    changes.readAt = null
+  }
   if (post.threadId !== threadId) changes.threadId = threadId
   if (Object.keys(changes).length > 0) await changePost(post.id, changes)
   return true
@@ -88,7 +91,8 @@ async function reopenRepostedPart(
   if (!post) return false
   let changes: Parameters<typeof changePost>[1] = {}
   if (post.read) {
-    changes.read = false
+    changes.read = 0
+    changes.readAt = null
     if (!post.merged) changes.merged = true
   }
   if (post.threadId !== threadId) changes.threadId = threadId
@@ -312,7 +316,8 @@ export async function updateThread(
       delete saved.hasReplies
       return {
         ...processOriginPost(saved, { feedId: feed.id }, start.reading),
-        read: start.read
+        read: start.read,
+        readAt: start.readAt
       }
     })
   )

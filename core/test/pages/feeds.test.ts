@@ -8,6 +8,7 @@ import {
   addPost,
   busy,
   busyUntilMenuLoader,
+  changeRead,
   changeReader,
   clock,
   encryptionKey,
@@ -16,6 +17,7 @@ import {
   GENERAL_CATEGORY,
   isDemo,
   loadFeed,
+  loadPost,
   menuLoading,
   router,
   setLayoutType,
@@ -367,12 +369,40 @@ describe('feeds page', () => {
     let feed = await addFeed(
       testFeed({ categoryId: await addCategory({ title: 'A' }) })
     )
-    await addPost(testPost({ feedId: feed, read: true, reading: 'slow' }))
+    await addPost(testPost({ feedId: feed, read: 1, reading: 'slow' }))
     await setTimeout(10)
 
     let page = openPage({ params: {}, route: 'slow' })
     await waitLoading(page.loading)
     equal(ensureReader(page.posts, 'empty').allRead.get(), true)
+  })
+
+  test('moves read posts to the history on leaving the feed', async () => {
+    busyUntilMenuLoader()
+    await waitLoading(busy)
+    let feed = await addFeed(testFeed({ reader: 'list', reading: 'slow' }))
+    let read = await addPost(testPost({ feedId: feed, reading: 'slow' }))
+    let unread = await addPost(testPost({ feedId: feed, reading: 'slow' }))
+    await setTimeout(10)
+
+    let page = openPage({ params: { feed }, route: 'slow' })
+    await waitLoading(page.loading)
+    await changeRead([read], true)
+    equal((await loadPost(read))!.read, 1)
+
+    openPage({ params: {}, route: 'about' })
+    await setTimeout(10)
+    equal((await loadPost(read))!.read, 2)
+    equal((await loadPost(unread))!.read, 0)
+
+    page = openPage({ params: { feed }, route: 'slow' })
+    await waitLoading(page.loading)
+    deepEqual(
+      ensureReader(page.posts, 'list')
+        .list.get()
+        .map(post => post.id),
+      [unread]
+    )
   })
 
   test('opens slow feeds after the last fast post was read', async () => {

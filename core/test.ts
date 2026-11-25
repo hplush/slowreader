@@ -183,7 +183,7 @@ function toBaseRoute(route: {
     hash: route.hash ?? stringifyPopups(route.popups ?? []),
     params,
     route: route.route
-  }
+  } as BaseRoute
 }
 
 let testVisible = atom(true)

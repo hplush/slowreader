@@ -533,7 +533,7 @@ describe('refresh', () => {
     equal(added.publishedAt, now + 30 * 86400)
     ok(added.sortedAt <= now + 1)
     ok((await loadFeed(feedId))!.lastPublishedAt! <= now + 1)
-    await changePost(added.id, { read: true })
+    await changePost(added.id, { read: 1, readAt: now })
 
     let later = Date.now() + 10_000
     spyOn(Date, 'now', () => later)
@@ -544,7 +544,7 @@ describe('refresh', () => {
     ]
     await refreshPosts()
     deepEqual(await getPostKeys('originId'), ['dec', 'nov'])
-    deepEqual(await getPostKeys('read'), [true, false])
+    deepEqual(await getPostKeys('read'), [1, 0])
   })
 
   test('does not add posts twice after a stopped refresh', async () => {
@@ -1004,6 +1004,35 @@ describe('refresh', () => {
     fastPostsMaxAge.set(2 * day)
     await refreshPosts()
     deepEqual(await getPostKeys('originId'), ['fast1', 'slow10'])
+  })
+
+  test('deletes posts read more than a day ago before refresh', async () => {
+    let now = Math.round(Date.now() / 1000)
+    let day = 24 * 60 * 60
+    await addPost([
+      testPost({ originId: 'unread' }),
+      testPost({ originId: 'returned', readAt: now - 2 * day }),
+      testPost({ originId: 'shown', read: 1, readAt: now - 60 }),
+      testPost({ originId: 'today', read: 2, readAt: now - 3600 }),
+      testPost({ originId: 'yesterday', read: 2, readAt: now - 2 * day }),
+      testPost({
+        merged: true,
+        originId: 'part',
+        read: 2,
+        readAt: now - 2 * day,
+        reading: 'slow'
+      }),
+      // Read in the old version, which had no time of reading
+      testPost({ originId: 'legacy', read: 1 })
+    ])
+
+    await refreshPosts()
+    deepEqual(await getPostKeys('originId'), [
+      'returned',
+      'shown',
+      'today',
+      'unread'
+    ])
   })
 })
 

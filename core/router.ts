@@ -21,6 +21,7 @@ export interface Routes {
   }
   feeds: {}
   fatal: { reason?: Fatal['type'] }
+  history: {}
   home: {}
   import: {}
   interface: {}
@@ -95,8 +96,8 @@ const GUEST = new Set<RouteName>(['start'])
 
 const BOTH = new Set<RouteName>(['fatal', 'signUp'])
 
-function open(route: ParamlessRouteName): Route {
-  return { params: {}, popups: [], route }
+export function toRoute(route: ParamlessRouteName): Route {
+  return { params: {}, popups: [], route } as Route
 }
 
 function notFound(): Route {
@@ -150,9 +151,9 @@ function normalizeRoute(
 ): { replace: boolean; route: Route } {
   if (!user && !GUEST.has(route.route) && !BOTH.has(route.route)) {
     // Keeps URL to return to it after the sign in
-    return { replace: false, route: open('start') }
+    return { replace: false, route: toRoute('start') }
   } else if (user && GUEST.has(route.route)) {
-    return { replace: true, route: open('home') }
+    return { replace: true, route: toRoute('home') }
   }
   let params: Record<string, string> = {}
   for (let key in route.params) {
@@ -169,7 +170,7 @@ function normalizeRoute(
     : []
   return {
     replace: false,
-    route: { params, popups, route: route.route }
+    route: { params, popups, route: route.route } as Route
   }
 }
 

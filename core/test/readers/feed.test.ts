@@ -290,14 +290,14 @@ describe('feed reader', () => {
 
     await changeRead(['a1'], true)
     await setTimeout(10)
-    equal(list.list.get()[0]!.read, true)
+    equal(list.list.get()[0]!.read, 1)
     deepEqual((await loadReadPostIds(filter)).toSorted(), ['a1', 'a2'])
     list.exit()
 
     await reader.readPage()
     await setTimeout(10)
     equal(await hasUnreadPosts('fast', { categoryId }), false)
-    equal((await loadPost('o1'))!.read, false)
+    equal((await loadPost('o1'))!.read, 0)
   })
 
   test('shows posts, which services have only during reading', async t => {

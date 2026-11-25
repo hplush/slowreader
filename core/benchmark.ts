@@ -237,7 +237,7 @@ function createPost(
         : undefined,
     originId: `${feedId}-post-${index}`,
     publishedAt,
-    read: false,
+    read: 0,
     reading,
     sortedAt: publishedAt,
     title: sentence(random, 3, 9),
@@ -325,7 +325,7 @@ async function fillClient(
 /**
  * Fill the reader’s feed back before the `read-page` scenario.
  *
- * The scenario marks a page as read on every run, and read posts are deleted
+ * The scenario marks a page as read on every run, and read posts are hidden
  * on leaving the page. Without filling, the feed ends after a few runs,
  * the reader shows the empty screen and there is no button to click.
  */

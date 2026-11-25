@@ -73,10 +73,52 @@ describe('migrations', () => {
     equal(migrations[2]!(changed, {}), changed)
   })
 
+  test('converts read flag of posts from subprotocol 2', () => {
+    deepEqual(
+      migrations[3]!(
+        {
+          fields: { read: true, title: 'A' },
+          id: 'post',
+          type: 'posts/created'
+        },
+        {}
+      ),
+      { fields: { read: 1, title: 'A' }, id: 'post', type: 'posts/created' }
+    )
+    deepEqual(
+      migrations[3]!(
+        { fields: { read: false }, ids: ['a', 'b'], type: 'posts/changed' },
+        {}
+      ),
+      { fields: { read: 0 }, ids: ['a', 'b'], type: 'posts/changed' }
+    )
+    deepEqual(
+      migrations[3]!(
+        {
+          records: [
+            { id: 'a', read: true },
+            { id: 'b', title: 'B' }
+          ],
+          type: 'posts/created'
+        },
+        {}
+      ),
+      {
+        records: [
+          { id: 'a', read: 1 },
+          { id: 'b', title: 'B' }
+        ],
+        type: 'posts/created'
+      }
+    )
+  })
+
   test('keeps other actions', () => {
     let feed = { fields: { read: 1 }, id: 'feed', type: 'feeds/changed' }
     equal(migrations[1]!(feed, {}), feed)
     let deleted = { id: 'post', type: 'posts/deleted' }
     equal(migrations[1]!(deleted, {}), deleted)
+    let follow = { fields: { read: true }, id: 'feed', type: 'feeds/changed' }
+    equal(migrations[3]!(follow, {}), follow)
   })
 })

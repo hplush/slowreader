@@ -34,6 +34,7 @@ import {
 export const FEED_ROUTES = [
   'add',
   'categories',
+  'history',
   'deadFeeds',
   'import',
   'export'

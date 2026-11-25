@@ -601,7 +601,7 @@ describe('log', () => {
           feedId,
           originId: 'post-1',
           publishedAt: 1000,
-          read: false,
+          read: 0,
           reading: 'slow',
           title: 'Back'
         },
@@ -653,7 +653,7 @@ describe('log', () => {
             feedId,
             originId: 'post-1',
             publishedAt: 1000,
-            read: false,
+            read: 0,
             reading: 'slow',
             title: 'Back'
           },
@@ -720,7 +720,7 @@ describe('log', () => {
           feedId,
           originId: 'post-1',
           publishedAt: 1000,
-          read: false,
+          read: 0,
           reading: 'slow',
           title: 'Theirs'
         },
@@ -755,7 +755,7 @@ describe('log', () => {
           feedId,
           originId: 'post-1',
           publishedAt: 1000,
-          read: false,
+          read: 0,
           reading: 'slow',
           title: 'Back'
         },

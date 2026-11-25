@@ -167,11 +167,11 @@ export const post = definePopup('post', async loader => {
     let id = stored.id
     read = atom(false)
     unbindPost = $post.subscribe(value => {
-      read!.set('read' in value && value.read)
+      read!.set('read' in value && value.read > 0)
     })
     unbindRead = read.listen(async value => {
       let current = $post.get()
-      if ('read' in current && current.read !== value) {
+      if ('read' in current && current.read > 0 !== value) {
         await changeRead([id], value)
       }
     })

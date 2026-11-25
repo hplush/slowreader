@@ -262,6 +262,16 @@ describe('read sync', () => {
     await deletePostsReadInService()
   })
 
+  test('keeps posts, which user returned to unread', async () => {
+    let [returned] = await addPosts(feedId, 2)
+    await changeRead([returned!], true)
+    await changeRead([returned!], false)
+
+    mockReadPosition(2)
+    await deletePostsReadInService()
+    deepEqual(await getSaved(), [`${feedId} 1`])
+  })
+
   test('checks channels without news by daily sync of follows', async () => {
     let now = Math.round(Date.now() / 1000)
     await changeFeed(feedId, { refreshedAt: now })

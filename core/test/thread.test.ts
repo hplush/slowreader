@@ -154,11 +154,16 @@ describe('threads', () => {
   test('continues stored threads', async () => {
     let feed = await prepareFeed()
     await addPost([
-      stored(feed.id, 's', { publishedAt: 1, read: true, threadId: 's' }),
+      stored(feed.id, 's', {
+        publishedAt: 1,
+        read: 2,
+        readAt: 5,
+        threadId: 's'
+      }),
       stored(feed.id, 'p', {
         merged: true,
         publishedAt: 2,
-        read: true,
+        read: 1,
         threadId: 's'
       }),
       stored(feed.id, 'x', { publishedAt: 3 })
@@ -172,7 +177,8 @@ describe('threads', () => {
       ['n2', true, 'x', undefined]
     ])
     let start = await loadPost(getPostId(feed.id, origin('s')))
-    equal(start!.read, false)
+    equal(start!.read, 0)
+    equal(start!.readAt, null)
     equal(start!.merged, false)
     equal(start!.sortedAt, 10)
     let single = await loadPost(getPostId(feed.id, origin('x')))
@@ -206,7 +212,7 @@ describe('threads', () => {
       ['b', true, 'a', undefined]
     ])
 
-    await addPost(stored(feed.id, 'a', { publishedAt: 1, read: true }))
+    await addPost(stored(feed.id, 'a', { publishedAt: 1, read: 1 }))
     ancestors.nextResult(
       Promise.resolve([
         { originId: 'a', publishedAt: 1 },
@@ -221,7 +227,7 @@ describe('threads', () => {
       ['b2', true, 'a', undefined]
     ])
     let start = await loadPost(getPostId(feed.id, origin('a')))
-    equal(start!.read, false)
+    equal(start!.read, 0)
     equal(start!.threadId, 'a')
     equal(start!.sortedAt, 4)
 
@@ -249,7 +255,8 @@ describe('threads', () => {
     await addPost([
       stored(feed.id, 'p2', {
         publishedAt: 2,
-        read: true,
+        read: 1,
+        readAt: 5,
         repostedBy: jane,
         threadId: 'p1'
       }),
@@ -313,12 +320,13 @@ describe('threads', () => {
       (await loadPosts()).map(post => [
         post.originId,
         post.read,
+        post.readAt,
         post.merged,
         post.threadId
       ]),
       [
-        ['p3', false, true, 'p1'],
-        ['p2', false, true, 'p1']
+        ['p3', 0, null, true, 'p1'],
+        ['p2', 0, null, true, 'p1']
       ]
     )
 
@@ -456,7 +464,7 @@ describe('threads', () => {
     equal(await hasUnreadPosts('slow', { feedId: feed.id }), false)
     deepEqual(
       (await loadPosts()).map(post => post.read),
-      [true, true, true]
+      [1, 1, 1]
     )
   })
 })

@@ -176,8 +176,8 @@ async function createMediaTable(db: Database): Promise<void> {
 
 /**
  * Parse only posts, which were not parsed before. Posts without files get
- * a row without URL to not be parsed again. Read posts are not skipped,
- * since they are deleted on leaving the reader.
+ * a row without URL to not be parsed again. Posts in the history are skipped,
+ * since their files were deleted on leaving the reader.
  */
 async function findNewPostsMedia(): Promise<void> {
   let rows: MediaPostRow[]
@@ -188,7 +188,7 @@ async function findNewPostsMedia(): Promise<void> {
         "posts"."replied", "posts"."repostedBy"
       FROM "posts"
       LEFT JOIN "mediaFiles" ON "mediaFiles"."postId" = "posts"."id"
-      WHERE "mediaFiles"."postId" IS NULL
+      WHERE "mediaFiles"."postId" IS NULL AND "posts"."read" < 2
       LIMIT 500
     `
     let inserts: MediaFileInsert[] = []
@@ -897,8 +897,8 @@ export async function clearMediaCache(): Promise<void> {
 }
 
 /**
- * Files are deleted right with the post to free the disk before the next
- * refresh. Other posts and feeds could use the same avatar or image.
+ * Files are deleted with the post or its move to the history to free the disk
+ * before the next refresh. Other posts and feeds could use the same image.
  */
 async function deletePostsMedia(tx: Database, ids: string[]): Promise<void> {
   let list = JSON.stringify(ids)
@@ -945,6 +945,10 @@ effect(openedDatabase, db => {
   let unbinds = [
     posts.on('deleted', deletePostsMedia),
     posts.on('changed', (tx, rows) => {
+      let left = rows
+        .filter(([, fields]) => fields.read === 2)
+        .map(([id]) => id)
+      if (left.length > 0) return deletePostsMedia(tx, left)
       let ids = rows
         .filter(([, fields]) => {
           return [

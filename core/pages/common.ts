@@ -5,7 +5,8 @@ import {
   type ParamlessRouteName,
   router,
   type RouteName,
-  type Routes
+  type Routes,
+  toRoute
 } from '../router.ts'
 
 type Extra = {
@@ -85,7 +86,7 @@ export function createRedirectPage<Name extends ParamlessRouteName>(
   redirectTo: ParamlessRouteName
 ): PageCreator<Name> {
   return createPage(route, () => {
-    navigate({ params: {}, popups: [], route: redirectTo }, true)
+    navigate(toRoute(redirectTo), true)
     return { loading: atom(true), params: {} as ParamStores<Name> }
   })
 }

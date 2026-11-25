@@ -59,6 +59,7 @@ import {
 import { nightLocked } from './night-lock.ts'
 import {
   deleteFastPostsBefore,
+  deleteOldReadPosts,
   getSortedAt,
   loadPostOriginIdsByAccount,
   loadPostOriginIdsByFeed,
@@ -77,7 +78,12 @@ import {
   releaseRefreshLock,
   requestRefreshLock
 } from './refresh-lock.ts'
-import { getCrdt, getTables, openedDatabase } from './schema.ts'
+import {
+  freeDatabasePages,
+  getCrdt,
+  getTables,
+  openedDatabase
+} from './schema.ts'
 import {
   cacheImages,
   cacheMediaReading,
@@ -693,6 +699,8 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
   checkDeadFeeds(feeds)
   let maxAge = fastPostsMaxAge.get()
   if (maxAge > 0) await deleteFastPostsBefore(refreshedAt - maxAge)
+  await deleteOldReadPosts()
+  await freeDatabasePages()
   if (run !== currentRun) return
   let targets: RefreshTarget[] = [
     ...accounts
