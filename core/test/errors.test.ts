@@ -40,7 +40,7 @@ describe('errors', () => {
     let listener = listenErrors().unhandledrejection
 
     openRoute({
-      params: { feed: 'unknown' },
+      params: { open: 'unknown' },
       route: 'categories'
     })
     equal(fatal.get(), undefined)
@@ -56,7 +56,7 @@ describe('errors', () => {
     deepEqual(fatal.get(), { type: 'notFound' })
 
     openRoute({
-      params: { feed: 'another' },
+      params: { open: 'another' },
       route: 'categories'
     })
     equal(fatal.get(), undefined)

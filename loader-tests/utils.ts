@@ -10,6 +10,7 @@ import {
   setRequestMethod,
   setupEnvironment,
   startLocalUser,
+  toRoute,
   tryLoadFeedData,
   waitLoading
 } from '@slowreader/core'
@@ -67,7 +68,7 @@ export async function enableTestClient(
   })
   enableTestTime()
   await startLocalUser(generateCredentials())
-  openRoute({ params: {}, route })
+  openRoute(toRoute(route))
   setNodeRequestMethod()
 }
 
