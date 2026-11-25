@@ -244,30 +244,28 @@ function setOnline(value: boolean): TelegramRequest {
 }
 
 onEnvironment(env => {
-  let unbindVisibility = env.onVisibilityChange(value => {
-    visible = value
-    tellRunning(setOnline(visible))
-    for (let session of sessions.values()) closeOnIdle(session)
-  })
   let previous: Network | undefined
-  let unbindNetwork = env.onNetwork(network => {
-    if (
-      previous &&
-      network.online &&
-      (!previous.online || previous.type !== network.type)
-    ) {
-      // TDLib waits for minutes on connections of the previous network
-      tellRunning({
-        '@type': 'setNetworkType',
-        'type': { '@type': 'networkTypeOther' }
-      })
-    }
-    previous = network
-  })
-  return () => {
-    unbindVisibility()
-    unbindNetwork()
-  }
+  return [
+    env.onVisibilityChange(value => {
+      visible = value
+      tellRunning(setOnline(visible))
+      for (let session of sessions.values()) closeOnIdle(session)
+    }),
+    env.onNetwork(network => {
+      if (
+        previous &&
+        network.online &&
+        (!previous.online || previous.type !== network.type)
+      ) {
+        // TDLib waits for minutes on connections of the previous network
+        tellRunning({
+          '@type': 'setNetworkType',
+          'type': { '@type': 'networkTypeOther' }
+        })
+      }
+      previous = network
+    })
+  ]
 })
 
 /**

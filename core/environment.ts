@@ -46,7 +46,7 @@ type ValidateRouter<Router extends BaseRouter> = ExactType<
 >
 
 interface EnvironmentListener {
-  (env: Environment): (() => void) | void
+  (env: Environment): (() => void) | (() => void)[] | void
 }
 
 interface ErrorEvents {
@@ -352,10 +352,10 @@ export interface Environment {
 let currentEnvironment: Environment | undefined
 
 let listeners: EnvironmentListener[] = []
-let unbinds: ((() => void) | void)[] = []
+let unbinds: (() => void)[] = []
 
 function runEnvListener(listener: EnvironmentListener): void {
-  unbinds.push(listener(currentEnvironment!))
+  unbinds = unbinds.concat(listener(currentEnvironment!) ?? [])
 }
 
 /**
@@ -374,7 +374,7 @@ export function setupEnvironment<Router extends BaseRouter>(
     baseRouter: ValidateRouter<Router>
   } & Environment
 ): void {
-  for (let unbind of unbinds) unbind?.()
+  for (let unbind of unbinds) unbind()
 
   setPersistentEngine(env.persistentStore, env.persistentEvents)
   currentEnvironment = {

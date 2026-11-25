@@ -77,42 +77,31 @@ export function unmarkWelcomeStep(...steps: WelcomeStep[]): void {
 }
 
 onEnvironment(({ forceWelcome = atom(false) }) => {
-  let unbindNeed = effect(
-    [hasSources, isDemo, forceWelcome],
-    (sources, demo, forced) => {
+  return [
+    effect([hasSources, isDemo, forceWelcome], (sources, demo, forced) => {
       if (demo || forced) {
         needWelcome.set(true)
       } else {
         needWelcome.set(typeof sources === 'undefined' ? undefined : !sources)
       }
-    }
-  )
-
-  let unbindSteps = effect(
-    [welcomeSteps, needWelcome, downloadingCloudData, router],
-    (steps, welcome, downloading, { route }) => {
-      // The list stays on the screen, where the user finished the last step
-      if (steps && welcome === false && route !== 'welcome') {
-        welcomeSteps.set(undefined)
-      } else if (!steps && welcome && !downloading) {
-        // The account from another device has no feeds until the download
-        welcomeSteps.set({ demo: isDemo.get(), done: [] })
+    }),
+    effect(
+      [welcomeSteps, needWelcome, downloadingCloudData, router],
+      (steps, welcome, downloading, { route }) => {
+        // The list stays on the screen, where the user finished the last step
+        if (steps && welcome === false && route !== 'welcome') {
+          welcomeSteps.set(undefined)
+        } else if (!steps && welcome && !downloading) {
+          // The account from another device has no feeds until the download
+          welcomeSteps.set({ demo: isDemo.get(), done: [] })
+        }
       }
-    }
-  )
-
-  let unbindVisits = effect([router, welcomeSteps], ({ route }) => {
-    if (route === 'slow' || route === 'fast') markWelcomeStep(route)
-  })
-
-  let unbindExtension = effect([extensionState, welcomeSteps], extension => {
-    if (extension === 'granted') markWelcomeStep('extension')
-  })
-
-  return () => {
-    unbindNeed()
-    unbindSteps()
-    unbindVisits()
-    unbindExtension()
-  }
+    ),
+    effect([router, welcomeSteps], ({ route }) => {
+      if (route === 'slow' || route === 'fast') markWelcomeStep(route)
+    }),
+    effect([extensionState, welcomeSteps], extension => {
+      if (extension === 'granted') markWelcomeStep('extension')
+    })
+  ]
 })
