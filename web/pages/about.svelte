@@ -96,7 +96,7 @@
           loader={$clientUpdate === 'updating'}
           onclick={getEnvironment().updateClient}
           size="wide"
-          variant="attention"
+          variant="main"
         >
           {$t.update}
         </Button>
