@@ -11,6 +11,7 @@ import { $locale } from './i18n.ts'
 import { nowInSeconds } from './lib/date.ts'
 import {
   addMarker,
+  appendMoreMarker,
   isLoaderMedia,
   sanitizeDOM,
   stripHTML,
@@ -632,20 +633,11 @@ export function processOriginPost(
 export function getPostIntro(
   post: Pick<ReaderPost, 'threadPosition' | 'threadSize'> & PostCardText
 ): [Element, boolean] {
-  let intro: Element
-  let more: boolean
-  if (post.intro !== null) {
-    intro = sanitizeDOM(post.intro)
-    more = post.more === 1
-  } else if (post.full !== null) {
-    intro = sanitizeDOM(post.full)
-    more = truncateDOM(intro, INTRO_MIN, INTRO_MAX)
-  } else {
-    intro = sanitizeDOM('')
-    more = false
-  }
+  let intro = sanitizeDOM(post.intro ?? post.full ?? '')
+  let cut = truncateDOM(intro, INTRO_MIN, INTRO_MAX)
+  if (!cut && post.more === 1) appendMoreMarker(intro)
   addThreadMarker(intro, post)
-  return [intro, more]
+  return [intro, cut || post.more === 1]
 }
 
 export function waitsClick(

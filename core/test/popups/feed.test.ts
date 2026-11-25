@@ -2,6 +2,7 @@ import { restoreAll, spyOn } from 'nanospy'
 import { keepMount } from 'nanostores'
 import { deepEqual, equal, match, notEqual } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
+import { setTimeout } from 'node:timers/promises'
 
 import {
   addAccount,
@@ -29,6 +30,7 @@ import {
   NetworkError,
   openedPopups,
   organizeMessages,
+  robotsRecords,
   setPostReaction,
   testAccount,
   testFeed,
@@ -432,6 +434,67 @@ describe('feed popup', () => {
     await popup.remove()
     equal(popup.reader.get(), undefined)
     await popup.changeReader('list')
+  })
+
+  test('downloads full posts only with site’s permission', async t => {
+    t.after(() => {
+      robotsRecords.set({})
+    })
+    let feedId = await addFeed(testFeed({ url: 'https://a.com/atom' }))
+    expectRequest('https://a.com/atom').andRespond(
+      200,
+      '<feed><title>Atom</title></feed>',
+      'text/xml'
+    )
+    let opened = openTestPopup('feed', 'https://a.com/atom')
+    await waitLoading(opened.loading)
+    let popup = checkLoadedPopup(opened)
+    keepMount(popup.extract)
+    keepMount(popup.extractStatus)
+    equal(popup.canExtract, true)
+    equal(popup.extract.get(), false)
+    equal(popup.extractStatus.get(), undefined)
+
+    expectRequest('https://a.com/robots.txt').andRespond(429)
+    popup.extract.set(true)
+    equal(popup.extract.get(), true)
+    equal(popup.extractStatus.get(), 'checking')
+    await waitUntil(() => popup.extractStatus.get() === 'enabled')
+    equal(popup.extract.get(), true)
+    equal((await loadFeed(feedId))?.extract, true)
+
+    popup.extract.set(false)
+    await waitUntil(() => !popup.extract.get())
+    equal(popup.extractStatus.get(), undefined)
+    equal((await loadFeed(feedId))?.extract, null)
+
+    expectRequest('https://a.com/robots.txt').andRespond(
+      200,
+      'User-agent: SlowReader\nDisallow: /\n',
+      'text/plain'
+    )
+    popup.extract.set(true)
+    await waitUntil(() => popup.extractStatus.get() === 'blocked')
+    equal(popup.extract.get(), false)
+    equal((await loadFeed(feedId))?.extract, null)
+
+    robotsRecords.set({})
+    let robots = expectRequest('https://a.com/robots.txt').andWait()
+    popup.extract.set(true)
+    popup.extract.set(false)
+    await robots(404)
+    equal(popup.extract.get(), false)
+    equal(popup.extractStatus.get(), undefined)
+    equal((await loadFeed(feedId))?.extract, null)
+
+    robotsRecords.set({})
+    let closed = expectRequest('https://a.com/robots.txt').andWait()
+    popup.extract.set(true)
+    closeLastPopup()
+    equal(closed.aborted, true)
+    await setTimeout(10)
+    equal((await loadFeed(feedId))?.extract, null)
+    deepEqual(robotsRecords.get(), {})
   })
 
   test('loads feeds by URL popup', async () => {

@@ -126,6 +126,15 @@
   async function openLiked({ canvas, userEvent }: StoryContext): Promise<void> {
     await userEvent.click(await canvas.findByRole('tab', { name: 'Liked' }))
   }
+
+  async function enableExtract({
+    canvas,
+    userEvent
+  }: StoryContext): Promise<void> {
+    await userEvent.click(
+      await canvas.findByRole('checkbox', { name: /Download full posts/ })
+    )
+  }
 </script>
 
 <Story name="New" asChild parameters={{ layout: 'fullscreen' }}>
@@ -173,7 +182,12 @@
   </Scene>
 </Story>
 
-<Story name="Added" asChild parameters={{ layout: 'fullscreen' }}>
+<Story
+  name="Added"
+  asChild
+  parameters={{ layout: 'fullscreen' }}
+  play={enableExtract}
+>
   <Scene
     categories={[
       { id: 'long', title: 'Very long category name for every news site' }
@@ -209,7 +223,10 @@
       { at: NOW, feedId: 'news', id: 'opened2', type: 'link' },
       { at: NOW, feedId: 'news', id: 'opened3', type: 'share' }
     ]}
-    responses={[['https://example.com/news.atom', QUIET_ATOM]]}
+    responses={[
+      ['https://example.com/news.atom', QUIET_ATOM],
+      ['https://example.com/robots.txt', { status: 404 }]
+    ]}
     seen={{ news: 24, popular: 40 }}
   >
     <LoadedPopup popup={popups.feed('https://example.com/news.atom')}>
@@ -290,10 +307,21 @@
   </Scene>
 </Story>
 
-<Story name="Added Loading" asChild parameters={{ layout: 'fullscreen' }}>
+<Story
+  name="Added Loading"
+  asChild
+  parameters={{ layout: 'fullscreen' }}
+  play={enableExtract}
+>
   <Scene
     feeds={[{ url: 'https://example.com/news.atom' }]}
-    responses={[['https://example.com/news.atom', { loading: true }]]}
+    responses={[
+      ['https://example.com/news.atom', { loading: true }],
+      [
+        'https://example.com/robots.txt',
+        { body: 'User-agent: *\nDisallow: /\n', contentType: 'text/plain' }
+      ]
+    ]}
   >
     <LoadedPopup popup={popups.feed('https://example.com/news.atom')}>
       {#snippet loaded(popup)}
@@ -360,10 +388,14 @@
   asChild
   globals={{ viewport: { value: 'mobile2' } }}
   parameters={{ layout: 'fullscreen' }}
+  play={enableExtract}
 >
   <Scene
     feeds={[{ reading: 'fast', url: 'https://example.com/hourly.atom' }]}
-    responses={[['https://example.com/hourly.atom', FREQUENT_ATOM]]}
+    responses={[
+      ['https://example.com/hourly.atom', FREQUENT_ATOM],
+      ['https://example.com/robots.txt', { loading: true }]
+    ]}
   >
     <LoadedPopup popup={popups.feed('https://example.com/hourly.atom')}>
       {#snippet loaded(popup)}

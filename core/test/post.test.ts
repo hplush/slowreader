@@ -407,9 +407,21 @@ describe('post', () => {
       false
     ])
     deepEqual(postIntro({ full: null, intro: 'intro', more: 1, url: null }), [
-      'intro',
+      'intro<p><post-marker>…</post-marker></p>',
       true
     ])
+    deepEqual(
+      postIntro(
+        { full: null, intro: '<p>intro</p>', more: 1, url: null },
+        1,
+        2
+      ),
+      [
+        '<p>intro</p><p><post-marker>…</post-marker> ' +
+          '<post-marker>1/2</post-marker></p>',
+        true
+      ]
+    )
     deepEqual(postIntro({ full: null, intro: 'intro', more: 0, url: null }), [
       'intro',
       false
@@ -418,6 +430,15 @@ describe('post', () => {
       postIntro({
         full: 'a'.repeat(600),
         intro: null,
+        more: 0,
+        url: null
+      }),
+      ['a'.repeat(500) + '<post-marker>…</post-marker>', true]
+    )
+    deepEqual(
+      postIntro({
+        full: null,
+        intro: 'a'.repeat(600),
         more: 0,
         url: null
       }),

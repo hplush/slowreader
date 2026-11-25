@@ -365,6 +365,7 @@ export function testFeed(feed: Partial<FeedValue> = {}): FeedValue {
     accountId: null,
     avatar: null,
     categoryId: GENERAL_CATEGORY,
+    extract: null,
     frequency: null,
     id: `feed-${testFeedId}`,
     lastOriginId: null,

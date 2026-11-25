@@ -129,6 +129,7 @@ export const feedsTable = defineCrdtTable(
     accountId: optional(string()),
     avatar: optional(string()),
     categoryId: optional(string()),
+    extract: optional(boolean()),
     // Posts per day on the last refresh
     frequency: optional(number()),
     lastOriginId: optional(string()),

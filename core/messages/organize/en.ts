@@ -14,6 +14,15 @@ export const organizeMessages = i18n('organize', {
   deleteConform:
     'This will permanently delete the feed, including its statistics and posts. Are you sure?',
   dislikedPosts: 'Disliked',
+  extract: 'Download full posts',
+  extractBlocked:
+    'The site asks robots in robots.txt not to download its pages',
+  extractChecking: 'Checking site rules for robots…',
+  extractDonate:
+    'Many authors dislike it, especially if ads pay for their work. Consider supporting them directly.',
+  extractNoArticle: 'The post’s page has no article',
+  extractStopped:
+    'Full posts turned off: the site now forbids robots in robots.txt',
   editCategory: 'Edit category',
   editFeed: 'Edit feed',
   deleteFinalConform:

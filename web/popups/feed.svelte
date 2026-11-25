@@ -7,10 +7,12 @@
     mdiFire,
     mdiFood,
     mdiFormatListChecks,
+    mdiHandHeartOutline,
     mdiOpenInNew,
     mdiPageLayoutHeaderFooter,
     mdiPlusCircleOutline,
     mdiSleep,
+    mdiTextBoxOutline,
     mdiThumbDown,
     mdiThumbDownOutline,
     mdiThumbUp,
@@ -31,6 +33,7 @@
   } from '@slowreader/core'
 
   import { autoplayOnlyInside } from '../lib/media.ts'
+  import Announce from '../ui/announce.svelte'
   import Button from '../ui/button.svelte'
   import CategorySelect from '../ui/category-select.svelte'
   import FeedAvatar from '../ui/feed-avatar.svelte'
@@ -45,8 +48,10 @@
   import PostReactions from '../ui/post/reactions.svelte'
   import Radio from '../ui/radio.svelte'
   import Select from '../ui/select.svelte'
+  import SpaceLoader from '../ui/space-loader.svelte'
   import Stack from '../ui/stack.svelte'
   import Status from '../ui/status.svelte'
+  import Switch from '../ui/switch.svelte'
   import Tabs from '../ui/tabs.svelte'
 
   let { popup }: { popup: FeedPopup } = $props()
@@ -58,6 +63,8 @@
     categories,
     deleting,
     dislikedPosts,
+    extract,
+    extractStatus,
     feed,
     followedBy,
     likedPosts,
@@ -81,6 +88,13 @@
   let cards = $derived.by(() => {
     if (list === 'liked') return $likedPosts
     if (list === 'disliked') return $dislikedPosts
+  })
+
+  let extractAnnounce = $derived.by(() => {
+    if ($extractStatus === 'checking') return $t.extractChecking
+    if ($extractStatus === 'blocked') return $t.extractBlocked
+    if ($extractStatus === 'enabled') return $t.extractDonate
+    return ''
   })
 </script>
 
@@ -270,6 +284,27 @@
               ['feed', $t.viewFeed, mdiPageLayoutHeaderFooter]
             ]}
           />
+        </Stack>
+      {/if}
+      {#if $feed && popup.canExtract}
+        <Stack gap="xs">
+          <Switch icon={mdiTextBoxOutline} label={$t.extract} store={extract} />
+          {#if $extractStatus === 'checking'}
+            <SpaceLoader label={$t.extractChecking} track="robots-check">
+              <Note icon={mdiHandHeartOutline} variant="warning">
+                {$t.extractDonate}
+              </Note>
+            </SpaceLoader>
+          {:else if $extractStatus === 'blocked'}
+            <Note icon={mdiAlertCircleOutline} variant="dangerous">
+              {$t.extractBlocked}
+            </Note>
+          {:else if $extractStatus === 'enabled'}
+            <Note icon={mdiHandHeartOutline} variant="warning">
+              {$t.extractDonate}
+            </Note>
+          {/if}
+          <Announce text={extractAnnounce} />
         </Stack>
       {/if}
     {/if}

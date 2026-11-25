@@ -322,6 +322,9 @@ importers:
       '@logux/core':
         specifier: 0.12.2
         version: 0.12.2
+      '@mozilla/readability':
+        specifier: 0.6.0
+        version: 0.6.0
       '@nanostores/i18n':
         specifier: 1.3.4
         version: 1.3.4(nanostores@1.5.5)
@@ -1713,6 +1716,10 @@ packages:
 
   '@mdi/js@7.4.47':
     resolution: {integrity: sha512-KPnNOtm5i2pMabqZxpUz7iQf+mfrYZyKCZ8QNz85czgEt7cuHcGorWfdzUMWYA0SD+a6Hn4FmJ+YhzzzjkTZrQ==}
+
+  '@mozilla/readability@0.6.0':
+    resolution: {integrity: sha512-juG5VWh4qAivzTAeMzvY9xs9HY5rAcr2E4I7tiSSCokRFi7XIZCAu92ZkSTsIj1OPceCifL3cpfteP3pDT9/QQ==}
+    engines: {node: '>=14.0.0'}
 
   '@nanostores/i18n@1.3.4':
     resolution: {integrity: sha512-8B5khERYFb2wbfWqxL4xaNRc9+MfJU4HAkjG754Ao4RH8/HlgMXvLt8GtugjwmfHzpF1851BgX7xVO4Mb+mVxA==}
@@ -6360,6 +6367,8 @@ snapshots:
       stylelint-order: 8.1.3(stylelint@18.1.0)
 
   '@mdi/js@7.4.47': {}
+
+  '@mozilla/readability@0.6.0': {}
 
   '@nanostores/i18n@1.3.4(nanostores@1.5.5)':
     dependencies:

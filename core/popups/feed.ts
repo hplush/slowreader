@@ -38,8 +38,13 @@ import {
   humanizeUrl,
   i18nFormat
 } from '../format.ts'
-import { createDownloadTask, type TextResponse } from '../lib/download.ts'
-import { waitSql } from '../lib/stores.ts'
+import { isAllowedByRobots } from '../full-text.ts'
+import {
+  createDownloadTask,
+  ignoreAbortError,
+  type TextResponse
+} from '../lib/download.ts'
+import { viewOf, waitSql } from '../lib/stores.ts'
 import {
   type FeedLoader,
   findFeed,
@@ -400,6 +405,31 @@ export const feed = definePopup('feed', async url => {
     }
   }
 
+  let $robots = atom<'blocked' | 'checking' | 'enabled' | undefined>()
+
+  async function changeExtract(enabled: boolean): Promise<void> {
+    let created = $feed.get()
+    if (!created) return
+    if (!enabled) {
+      $robots.set(undefined)
+      await changeFeed(created.id, { extract: null })
+      return
+    }
+    $robots.set('checking')
+    let urls = posts.get().list.flatMap(post => (post.url ? [post.url] : []))
+    let allowed = await isAllowedByRobots(
+      task,
+      urls.length > 0 ? urls : [created.url]
+    )
+    if ($robots.get() !== 'checking') return
+    if (allowed) {
+      await changeFeed(created.id, { extract: true })
+      $robots.set('enabled')
+    } else {
+      $robots.set('blocked')
+    }
+  }
+
   let $stats = getFeedStats(
     computed($feed, created => (created ? [created.id] : []))
   )
@@ -491,7 +521,18 @@ export const feed = definePopup('feed', async url => {
       let created = $feed.get()
       if (created) await changeReader({ feedId: created.id }, reader)
     },
+    canExtract: isWebFeed(service),
     deleting: $deleting,
+    extract: viewOf(
+      computed([$feed, $robots], (created, robots) => {
+        return !!created?.extract || robots === 'checking'
+      }),
+      value => value,
+      value => {
+        void changeExtract(value).catch(ignoreAbortError)
+      }
+    ),
+    extractStatus: $robots,
     dislikedPosts: getReactedPosts(false),
     destroy() {
       task.destroy()

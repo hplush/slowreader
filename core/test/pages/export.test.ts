@@ -133,6 +133,7 @@ describe('export page', () => {
           accountId: null,
           avatar: null,
           categoryId: category,
+          extract: null,
           frequency: null,
           id: feed,
           lastOriginId: null,

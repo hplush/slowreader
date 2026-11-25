@@ -32,13 +32,19 @@ import {
   type NewFeed
 } from './feed.ts'
 import { type FilterChecker, loadFilterChecker } from './filter.ts'
+import { addFullTexts } from './full-text.ts'
 import { clock, dayDiff, nowInSeconds } from './lib/date.ts'
 import { debounceTask } from './lib/debounce.ts'
 import { createDownloadTask, type DownloadTask } from './lib/download.ts'
 import { canUseNetwork } from './lib/network.ts'
 import { createQueue, type QueueCallback } from './lib/queue.ts'
 import { increaseKey, waitLoading } from './lib/stores.ts'
-import { getOriginKey, type Loader, loaders } from './loader/index.ts'
+import {
+  getOriginKey,
+  isWebFeed,
+  type Loader,
+  loaders
+} from './loader/index.ts'
 import { isFromLog } from './log.ts'
 import {
   DEFAULT_MEDIA_STATISTICS,
@@ -49,7 +55,7 @@ import {
   stopMediaCache,
   syncMediaCache
 } from './media-cache.ts'
-import { accountsMessages } from './messages/index.ts'
+import { accountsMessages, organizeMessages } from './messages/index.ts'
 import {
   forgetFeedError,
   isFailingFeed,
@@ -139,6 +145,12 @@ export type refreshStatusValue =
 
 export const refreshStatus = atom<refreshStatusValue>('no')
 
+function addRefreshError(error: RefreshError): void {
+  refreshErrors.set([...refreshErrors.get(), error])
+  refreshStatus.set('refreshingError')
+  increaseKey(refreshStatistics, 'errorFeeds')
+}
+
 refreshLock.listen(lock => {
   let status = refreshStatus.get()
   if (lock === 'other' && !status.startsWith('refreshing')) {
@@ -219,6 +231,8 @@ interface TargetRefresh {
    */
   feeds: Map<string, FeedByUrl> | undefined
   filters: Map<string, FilterChecker>
+  fullTextBlocked: boolean
+  fullTextErrors: Error[]
   known: Set<string> | undefined
   newest: OriginPost | undefined
   page: OriginPost[]
@@ -302,7 +316,17 @@ async function collectFeedPage(
       readings.set(origin.originId, reading)
     }
   }
-  for (let origin of await linkThreads(state.task, feed, accepted)) {
+  let linked = await linkThreads(state.task, feed, accepted)
+  if (feed.extract && isWebFeed(feed.loader) && linked.length > 0) {
+    let downloaded = await addFullTexts(state.task, linked)
+    if (downloaded.blocked) {
+      state.fullTextBlocked = true
+    } else {
+      linked = downloaded.posts
+      state.fullTextErrors.push(...downloaded.errors)
+    }
+  }
+  for (let origin of linked) {
     let reading = readings.get(origin.originId) ?? feedReading
     state.adding.push(processOriginPost(origin, { feedId: feed.id }, reading))
     state.known?.add(origin.originId)
@@ -449,6 +473,22 @@ async function finishTarget(state: TargetRefresh): Promise<void> {
   let adding = await withoutDeletedPosts(state.adding)
   let { accounts, feeds, posts } = getTables()
   if ('feed' in target) {
+    let [fullTextError] = state.fullTextErrors
+    if (state.fullTextBlocked) {
+      await feeds.update(target.feed.id, { extract: null })
+      addRefreshError({
+        error: new UserFacingError(organizeMessages.get().extractStopped),
+        feed: target.feed
+      })
+    } else if (fullTextError) {
+      increaseKey(
+        refreshStatistics,
+        'errorRequests',
+        state.fullTextErrors.length
+      )
+      getEnvironment().warn(fullTextError)
+      addRefreshError({ error: fullTextError, feed: target.feed })
+    }
     let loaded = state.pages.get().list
     let isProtected = loaded.some(post => post.protected)
     if (loaded.length > 0 && isProtected !== !!target.feed.protected) {
@@ -581,6 +621,8 @@ function createState(
     adding: [],
     feeds: undefined,
     filters: new Map(),
+    fullTextBlocked: false,
+    fullTextErrors: [],
     known: undefined,
     newest: undefined,
     page: pages.get().list,
@@ -766,8 +808,7 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
       onTaskFail(target, error) {
         getEnvironment().warn(error)
         if ('feed' in target) failed.push([target.feed, error])
-        refreshErrors.set([
-          ...refreshErrors.get(),
+        addRefreshError(
           'feed' in target
             ? { error, feed: target.feed }
             : {
@@ -778,9 +819,7 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
                 },
                 error
               }
-        ])
-        refreshStatus.set('refreshingError')
-        increaseKey(refreshStatistics, 'errorFeeds')
+        )
         increaseKey(refreshStatistics, 'processedFeeds')
       }
     }

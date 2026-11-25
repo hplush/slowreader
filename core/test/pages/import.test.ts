@@ -231,6 +231,7 @@ describe('import page', () => {
         ...FEED,
         accountId: null,
         avatar: null,
+        extract: null,
         frequency: null,
         lastOriginId: null,
         lastPublishedAt: null,

@@ -454,6 +454,12 @@ function findTextEnd(root: Element): Element {
 /**
  * Puts the marker after the `…` of the cut or in the end of the last text.
  */
+export function appendMoreMarker(root: Element): void {
+  let paragraph = root.ownerDocument.createElement('p')
+  paragraph.append(createMarker(root.ownerDocument, '…'))
+  root.append(paragraph)
+}
+
 export function addMarker(root: Element, text: string): void {
   let marker = createMarker(root.ownerDocument, text)
   let cut = root.querySelector('post-marker')

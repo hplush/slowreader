@@ -36,6 +36,7 @@ import {
   isRefreshing,
   loaders,
   NetworkError,
+  organizeMessages,
   type FeedValue,
   type ParsedPost,
   type PostsListResult,
@@ -46,6 +47,7 @@ import {
   refreshStatistics,
   refreshStatus,
   refreshTotalProgress,
+  robotsRecords,
   saveDataMode,
   seenBuffer,
   setPostReaction,
@@ -973,6 +975,103 @@ describe('refresh', () => {
     equal(requestCount, 2)
     equal(typeof capturedHeaders[1]!['If-Modified-Since'], 'string')
     equal(refreshStatistics.get().errorRequests, 0)
+  })
+
+  test('downloads full posts until site blocks robots', async t => {
+    t.after(() => {
+      robotsRecords.set({})
+    })
+    let feedId = await addFeed(
+      testFeed({
+        extract: true,
+        lastOriginId: 'old',
+        url: 'https://a.com/'
+      })
+    )
+    let page: ParsedPost[] = [
+      { full: 'Feed', intro: 'Intro', originId: '1', url: 'https://a.com/1' },
+      { full: 'Old', originId: 'old', url: 'https://a.com/old' }
+    ]
+    spyOn(loaders.rss, 'getPosts', () => {
+      return createPostsList(() => Promise.resolve([page, undefined]))
+    })
+    let text = '<p>Long article text, which looks like a real one.</p>'
+    expectRequest('https://a.com/robots.txt').andRespond(404)
+    expectRequest('https://a.com/1').andRespond(
+      200,
+      `<!DOCTYPE html><html><body><article>${text.repeat(20)}</article>` +
+        '<footer>Footer</footer></body></html>'
+    )
+    await refreshPosts()
+    let posts = await loadPosts()
+    ok(posts[0]!.full!.includes('Long article text'))
+    ok(!posts[0]!.full!.includes('Footer'))
+    equal(posts[0]!.intro, 'Intro')
+    deepEqual(refreshErrors.get(), [])
+
+    robotsRecords.set({
+      'https://a.com': { checkedAt: 0, rules: [] }
+    })
+    page = [{ full: 'Feed', originId: '2', url: 'https://a.com/2' }, ...page]
+    expectRequest('https://a.com/robots.txt').andRespond(
+      200,
+      'User-agent: *\nDisallow: /\n',
+      'text/plain'
+    )
+    await refreshPosts()
+    let blocked = (await loadPosts()).find(post => post.originId === '2')
+    equal(blocked?.full, 'Feed')
+    equal(blocked?.intro, null)
+    equal((await loadFeed(feedId))?.extract, null)
+    deepEqual(
+      refreshErrors.get().map(i => ['feed' in i && i.feed.id, i.error.message]),
+      [[feedId, organizeMessages.get().extractStopped]]
+    )
+    equal(refreshStatus.get(), 'error')
+
+    page = [{ full: 'Feed', originId: '3', url: 'https://a.com/3' }, ...page]
+    await refreshPosts()
+    deepEqual(refreshErrors.get(), [])
+  })
+
+  test('reports failed full post downloads', async t => {
+    t.after(() => {
+      robotsRecords.set({})
+    })
+    let feedId = await addFeed(
+      testFeed({ extract: true, lastOriginId: 'old', url: 'https://a.com/' })
+    )
+    spyOn(loaders.rss, 'getPosts', () => {
+      return createPostsList(() =>
+        Promise.resolve([
+          [
+            { full: 'Feed 1', originId: '1', url: 'https://a.com/1' },
+            { full: 'Feed 2', originId: '2', url: 'https://a.com/2' },
+            { full: 'Old', originId: 'old', url: 'https://a.com/old' }
+          ],
+          undefined
+        ])
+      )
+    })
+    expectRequest('https://a.com/robots.txt').andRespond(404)
+    expectRequest('https://a.com/1').andRespond(200, '<html>Short</html>')
+    expectRequest('https://a.com/2').andRespond(404)
+    let noArticle = organizeMessages.get().extractNoArticle
+    await expectWarning(() => refreshPosts(), [`UserFacingError: ${noArticle}`])
+    deepEqual(
+      (await loadPosts())
+        .map(post => post.full)
+        .toSorted((a, b) => String(a).localeCompare(String(b))),
+      ['Feed 1', 'Feed 2']
+    )
+    equal((await loadFeed(feedId))?.extract, true)
+    deepEqual(
+      refreshErrors.get().map(i => ['feed' in i && i.feed.id, i.error.message]),
+      [[feedId, noArticle]]
+    )
+    equal(refreshStatistics.get().errorRequests, 2)
+    equal(refreshStatistics.get().errorFeeds, 1)
+    equal(refreshStatus.get(), 'error')
   })
 
   test('deletes old fast posts before refresh', async () => {
