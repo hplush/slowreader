@@ -2,6 +2,7 @@
   import { mdiCheck, mdiContentCopy, mdiShareVariantOutline } from '@mdi/js'
   import {
     commonMessages,
+    type ReactedPost,
     postMessages as t,
     trackInterest
   } from '@slowreader/core'
@@ -16,7 +17,7 @@
     url,
     variant
   }: {
-    post?: { feedId?: null | string; id: string }
+    post?: ReactedPost
     url: string
     variant?: ButtonVariant
   } = $props()

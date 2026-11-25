@@ -243,6 +243,8 @@ describe('feed popup', () => {
       },
       { at: now, feedId, id: 'c', type: 'like' },
       { at: now, feedId, id: 'd', type: 'open' },
+      { at: now - 30, feedId, id: 'f', type: 'link', url: 'https://a.com/2' },
+      { at: now, feedId, id: 'g', type: 'none', url: 'https://a.com/3' },
       { at: now, feedId: 'other', id: 'e', type: 'like' }
     ])
     trackSeen(feedId, 5)
@@ -251,29 +253,36 @@ describe('feed popup', () => {
     await waitLoading(popup.loading)
     let loaded = checkLoadedPopup(popup)
     let unbind = loaded.stats.listen(() => {})
-    await waitUntil(() => loaded.reactions.get().length === 2)
+    await waitUntil(() => loaded.reactions.get().length === 3)
     deepEqual(
       loaded.reactions.get().map(reaction => ({
         id: reaction.id,
-        liked: reaction.liked,
         popup: reaction.popup,
         title: reaction.title,
+        type: reaction.type,
         url: reaction.url
       })),
       [
         {
           id: 'b',
-          liked: false,
           popup: undefined,
           title: 'a.com/1',
+          type: 'disliked',
           url: 'https://a.com/1'
         },
         {
           id: 'a',
-          liked: true,
           popup: post,
           title: 'mastodon.social/@jane/1',
+          type: 'liked',
           url: post
+        },
+        {
+          id: 'f',
+          popup: undefined,
+          title: 'a.com/2',
+          type: 'opened',
+          url: 'https://a.com/2'
         }
       ]
     )
@@ -286,7 +295,7 @@ describe('feed popup', () => {
       disliked: 1,
       liked: 2,
       max: 5,
-      opened: 1,
+      opened: 2,
       seen: 5
     })
 
@@ -296,7 +305,7 @@ describe('feed popup', () => {
     equal(loaded.stats.get(), undefined)
   })
 
-  test('loads liked posts of social feed by URLs', async t => {
+  test('loads reacted posts of social feed by URLs', async t => {
     let author = 'https://mastodon.social/@jane'
     let feedId = await addFeed(testFeed({ loader: 'mastodon', url: author }))
     let mastodon = loaders.mastodon as Required<typeof loaders.mastodon>
@@ -338,7 +347,13 @@ describe('feed popup', () => {
         url: 'https://a.com/1'
       },
       { at: 1, feedId, id: 'no-url', type: 'like' as const },
-      { at: 1, feedId, id: 'opened', type: 'open' as const }
+      {
+        at: 1,
+        feedId,
+        id: 'opened',
+        type: 'open' as const,
+        url: `${author}/30`
+      }
     ])
 
     let popup = openTestPopup('feed', author)
@@ -369,6 +384,14 @@ describe('feed popup', () => {
     await liked.next()
     equal(liked.get().list.length, 11)
     equal(liked.get().hasNext, false)
+
+    t.after(loaded.openedPosts.listen(() => {}))
+    let opened = loaded.openedPosts.get()!
+    await opened.loading
+    deepEqual(
+      opened.get().list.map(post => post.url),
+      [`${author}/30`]
+    )
 
     offline = true
     await setPostReaction({ feedId, id: 'bad', url: `${author}/20` }, 'dislike')

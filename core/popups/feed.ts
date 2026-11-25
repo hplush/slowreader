@@ -135,6 +135,14 @@ async function findFeedUrl(url: string): Promise<string> {
   return url
 }
 
+type ReactedType = 'disliked' | 'liked' | 'opened'
+
+function getReactedType(reaction: ReactionValue): ReactedType {
+  if (reaction.type === 'like') return 'liked'
+  if (reaction.type === 'dislike') return 'disliked'
+  return 'opened'
+}
+
 export const feed = definePopup('feed', async url => {
   let task = createDownloadTask({ cache: 'read' })
   let feedsStore = getFeedsByUrl(await findFeedUrl(url))
@@ -474,17 +482,17 @@ export const feed = definePopup('feed', async url => {
   }
 
   /**
-   * Liked posts are deleted after reading. Only some services can load
+   * Reacted posts are deleted after reading. Only some services can load
    * them again by URL, 10 posts per page to not hit the rate limits.
    */
   function getReactedPosts(
-    liked: boolean
+    type: ReactedType
   ): ReadableAtom<PostsList | undefined> {
     let loaded: string | undefined
     let list: PostsList | undefined
     return computed($reactions, reactions => {
       let urls = reactions.flatMap(reaction => {
-        return reaction.type === (liked ? 'like' : 'dislike') &&
+        return getReactedType(reaction) === type &&
           reaction.url &&
           canOpenPostUrl(reaction.url)
           ? [reaction.url]
@@ -533,7 +541,7 @@ export const feed = definePopup('feed', async url => {
       }
     ),
     extractStatus: $robots,
-    dislikedPosts: getReactedPosts(false),
+    dislikedPosts: getReactedPosts('disliked'),
     destroy() {
       task.destroy()
       unbindFeeds()
@@ -542,7 +550,7 @@ export const feed = definePopup('feed', async url => {
     feed: $feed,
     finalUnfollow: !!loaders[service].isFinalUnfollow?.(feedUrl),
     followedBy: $followedBy,
-    likedPosts: getReactedPosts(true),
+    likedPosts: getReactedPosts('liked'),
     activity: computed(
       [posts, i18nFormat, organizeMessages],
       (_, format, t) => {
@@ -550,6 +558,7 @@ export const feed = definePopup('feed', async url => {
         return value && formatActivity(t, format, value)
       }
     ),
+    openedPosts: getReactedPosts('opened'),
     owner: $owner,
     loader: service,
     noAnonymous,
@@ -564,11 +573,11 @@ export const feed = definePopup('feed', async url => {
         if (!reaction.url) return []
         return {
           id: reaction.id,
-          liked: reaction.type === 'like',
           // Only some services can load deleted post again
           popup: canOpenPostUrl(reaction.url) ? reaction.url : undefined,
           reactedAt: formatPublishedAt(format, reaction.at),
           title: humanizeUrl(reaction.url, service),
+          type: getReactedType(reaction),
           url: reaction.url
         }
       })

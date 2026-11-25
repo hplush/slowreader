@@ -325,7 +325,7 @@ export const reactionsTable = defineCrdtTable(
     url: optional(string())
   },
   [
-    // Liked and disliked posts in the feed popup
+    // Reacted posts in the feed popup
     ['feedId', 'at DESC']
   ]
 )

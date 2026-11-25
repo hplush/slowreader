@@ -45,6 +45,9 @@ export const organizeMessages = i18n('organize', {
   morePosts: 'More posts',
   noDislikedPosts: 'No dislikes',
   noLikedPosts: 'No likes',
+  noOpenedPosts:
+    'Open a post, share it, or click a link in it, and it will be here for 90 days',
+  openedPosts: 'Opened',
   openWebsite: 'Open website',
   postsList: 'Posts list',
   recentPosts: 'Recent',

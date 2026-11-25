@@ -115,22 +115,28 @@ describe('reactions', () => {
     ])
     equal(getPostReaction((await loadReactions())[0]), 'none')
 
-    await setPostReaction({ feedId: 'feed', id: 'opened' }, 'open')
+    await setPostReaction(
+      { feedId: 'feed', id: 'opened', url: 'https://example.com/2' },
+      'open'
+    )
     deepEqual(withoutTime(await loadReactions())[0], {
       feedId: 'feed',
       id: 'opened',
       type: 'open',
-      url: null
+      url: 'https://example.com/2'
     })
   })
 
   test('tracks interest to posts without a reaction', async () => {
     trackInterest({ feedId: null, id: 'own' }, 'open')
     trackInterest({ id: 'preview' }, 'open')
-    trackInterest({ feedId: 'feed', id: 'post' }, 'share')
+    trackInterest(
+      { feedId: 'feed', id: 'post', url: 'https://a.com/1' },
+      'share'
+    )
     let rows = await waitReactions(list => list.length === 1)
     deepEqual(withoutTime(rows), [
-      { feedId: 'feed', id: 'post', type: 'share', url: null }
+      { feedId: 'feed', id: 'post', type: 'share', url: 'https://a.com/1' }
     ])
     equal(getPostReaction(rows[0]), 'open')
 

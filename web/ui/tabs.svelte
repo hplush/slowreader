@@ -76,6 +76,7 @@
     }
 
     .tabs_list {
+      container-type: inline-size;
       display: grid;
       grid-auto-columns: 1fr;
       grid-auto-flow: column;
@@ -125,7 +126,7 @@
       align-items: center;
       justify-content: center;
       height: 100%;
-      padding: 0.4rem var(--control-padding);
+      padding: 0.4rem min(var(--control-padding), 2cqi);
       overflow-wrap: anywhere;
 
       .tabs_tab:not([aria-selected='true']):active & {

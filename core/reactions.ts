@@ -59,11 +59,11 @@ export function addReaction(reactions: NewReaction[]): Promise<string[]> {
 }
 
 /**
- * Likes and dislikes of the feed, newest first.
+ * Likes, dislikes, and opens of the feed, newest first.
  */
 export function getFeedReactions(feedId: string): SqlStore<ReactionValue[]> {
   return getTables().reactions.select`
-    WHERE "feedId" = ${feedId} AND "type" IN ('like', 'dislike')
+    WHERE "feedId" = ${feedId} AND "type" <> 'none'
     ORDER BY "at" DESC
   `
 }
@@ -90,11 +90,7 @@ export async function setPostReaction(
   type: PostReaction
 ): Promise<void> {
   let reactions = getTables().reactions
-  let fields = {
-    at: nowInSeconds(),
-    type,
-    url: type === 'like' || type === 'dislike' ? post.url : undefined
-  }
+  let fields = { at: nowInSeconds(), type, url: post.url }
   if (await reactions.get(post.id)) {
     await reactions.update(post.id, fields)
   } else if (type !== 'none') {
@@ -108,17 +104,17 @@ export async function setPostReaction(
  * for the database to not delay the action itself.
  */
 export function trackInterest(
-  post: { feedId?: null | string; id: string },
+  post: { feedId?: null | string; id: string; url?: null | string },
   type: PostInterest
 ): void {
-  let { feedId, id } = post
+  let { feedId, id, url } = post
   if (!feedId || !hasDatabase()) return
   let reactions = getTables().reactions
   reactions
     .get(id)
     .then(async reaction => {
       if (!reaction) {
-        await reactions.create({ at: nowInSeconds(), feedId, id, type })
+        await reactions.create({ at: nowInSeconds(), feedId, id, type, url })
       }
     })
     .catch(warnIfOpened)

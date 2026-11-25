@@ -2,7 +2,8 @@
   import {
     mdiNumeric1BoxOutline,
     mdiNumeric2BoxOutline,
-    mdiNumeric3BoxOutline
+    mdiNumeric3BoxOutline,
+    mdiNumeric4BoxOutline
   } from '@mdi/js'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
@@ -16,7 +17,7 @@
 </script>
 
 <script lang="ts">
-  type Value = 'one' | 'three' | 'two'
+  type Value = 'four' | 'one' | 'three' | 'two'
   let current: Value = $state('one')
   let values = [
     ['one', 'First', mdiNumeric1BoxOutline],
@@ -72,6 +73,14 @@
       ['two', 'Second long name', mdiNumeric2BoxOutline],
       ['three', 'Third long name', mdiNumeric3BoxOutline]
     ])}
+    <div style="width: 20rem;">
+      {@render popup('Narrow', 'one', [
+        ['one', 'Recent', mdiNumeric1BoxOutline],
+        ['two', 'Liked', mdiNumeric2BoxOutline],
+        ['three', 'Opened', mdiNumeric3BoxOutline],
+        ['four', 'Disliked', mdiNumeric4BoxOutline]
+      ])}
+    </div>
   </Section>
 </Story>
 

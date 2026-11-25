@@ -4,6 +4,8 @@
     mdiAlertCircleOutline,
     mdiChevronDown,
     mdiClockOutline,
+    mdiCursorDefaultClick,
+    mdiCursorDefaultClickOutline,
     mdiFire,
     mdiFood,
     mdiFormatListChecks,
@@ -68,6 +70,7 @@
     feed,
     followedBy,
     likedPosts,
+    openedPosts,
     owner,
     posts,
     previews,
@@ -81,13 +84,14 @@
 
   let subscribed = $derived($feed ?? $followedBy)
 
-  let chosen = $state<'disliked' | 'liked' | 'recent'>('recent')
+  let chosen = $state<'disliked' | 'liked' | 'opened' | 'recent'>('recent')
   // The switch disappears on unfollow
   let list = $derived($feed ? chosen : 'recent')
   // Posts are loaded from the service only when user opens their tab
   let cards = $derived.by(() => {
     if (list === 'liked') return $likedPosts
     if (list === 'disliked') return $dislikedPosts
+    if (list === 'opened') return $openedPosts
   })
 
   let extractAnnounce = $derived.by(() => {
@@ -326,6 +330,7 @@
         values={[
           ['recent', $t.recentPosts, mdiClockOutline],
           ['liked', $t.likedPosts, mdiThumbUp],
+          ['opened', $t.openedPosts, mdiCursorDefaultClick],
           ['disliked', $t.dislikedPosts, mdiThumbDown]
         ]}
       >
@@ -347,13 +352,19 @@
           <PostReactions
             empty={$t.noLikedPosts}
             icon={mdiThumbUpOutline}
-            list={$reactions.filter(i => i.liked)}
+            list={$reactions.filter(i => i.type === 'liked')}
+          />
+        {:else if list === 'opened'}
+          <PostReactions
+            empty={$t.noOpenedPosts}
+            icon={mdiCursorDefaultClickOutline}
+            list={$reactions.filter(i => i.type === 'opened')}
           />
         {:else}
           <PostReactions
             empty={$t.noDislikedPosts}
             icon={mdiThumbDownOutline}
-            list={$reactions.filter(i => !i.liked)}
+            list={$reactions.filter(i => i.type === 'disliked')}
           />
         {/if}
       </Tabs>
