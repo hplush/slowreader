@@ -17,7 +17,8 @@
 
   let { page }: { page: CategoriesPage } = $props()
 
-  let { expanded, groups, opened, readings, stats, sync } = $derived(page)
+  let { expanded, groups, opened, readings, scrollTarget, stats, sync } =
+    $derived(page)
 </script>
 
 <PopupablePage padding title={[$t.categoriesTitle, $t.feedsTitle]}>
@@ -46,6 +47,11 @@
           {/snippet}
           <Foldable
             id={`${category.id}-feeds`}
+            {@attach category.id === $scrollTarget &&
+              ((element: HTMLDivElement) => {
+                element.scrollIntoView()
+                page.scrolled()
+              })}
             {actions}
             disabled={feeds.length === 0}
             hint={$t.feedsCount(feeds.length)}

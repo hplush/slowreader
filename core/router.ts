@@ -9,7 +9,7 @@ export interface Routes {
   about: {}
   accounts: { service?: AccountService }
   add: { url?: string }
-  categories: {}
+  categories: { open?: string }
   cloud: {}
   coach: {}
   deadFeeds: {}

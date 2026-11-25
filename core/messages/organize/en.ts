@@ -40,6 +40,7 @@ export const organizeMessages = i18n('organize', {
   postsList: 'Posts list',
   recentPosts: 'Recent',
   sameAsAccount: 'Same as account',
+  showFeeds: 'Show feeds',
   slow: 'Useful',
   stats: 'Last 90 days',
   statsDisliked: params('{count} disliked'),

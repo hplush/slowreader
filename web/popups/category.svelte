@@ -1,5 +1,6 @@
 <script lang="ts">
   import {
+    mdiFileTree,
     mdiFormatListChecks,
     mdiPageLayoutHeaderFooter,
     mdiTrashCanOutline
@@ -11,6 +12,7 @@
     organizeMessages as t
   } from '@slowreader/core'
 
+  import { getURL } from '../stores/url-router.ts'
   import Button from '../ui/button.svelte'
   import Input from '../ui/input.svelte'
   import Popup from '../ui/popup.svelte'
@@ -63,5 +65,13 @@
         ]}
       />
     </Stack>
+    <Button
+      aria-controls={`${popup.param}-feeds`}
+      href={getURL({ params: { open: popup.param }, route: 'categories' })}
+      icon={mdiFileTree}
+      size="wide"
+    >
+      {$t.showFeeds}
+    </Button>
   </Stack>
 </Popup>

@@ -8,8 +8,9 @@ import {
 } from '../category.ts'
 import { getFeedReadings, getFeeds } from '../feed.ts'
 import { getFeedStats } from '../reactions.ts'
+import { navigate } from '../router.ts'
 import type { PostValue } from '../schema.ts'
-import { createPage } from './common.ts'
+import { createPage, routeParam } from './common.ts'
 import { injectFollowsSync } from './mixins/follows-sync.ts'
 import { injectOpenedFeed } from './mixins/opened-feed.ts'
 
@@ -21,10 +22,12 @@ export const categoriesPage = createPage('categories', () => {
   let $feeds = getFeeds()
   let followsSyncMixin = injectFollowsSync()
 
+  let $open = routeParam('categories', 'open')
   let $expanded = atom(new Set<string>())
   let $groups = atom<FeedsByCategory>([])
   let $readings = atom<Record<string, PostValue['reading']>>({})
   let $loading = atom(true)
+  let $scrollTarget = atom<string | undefined>()
 
   let unbind = effect(
     [$categories, $feeds, $accounts, followsSyncMixin.sync],
@@ -46,19 +49,34 @@ export const categoriesPage = createPage('categories', () => {
     }
   )
 
+  function expand(categoryId: string): void {
+    $expanded.set(new Set($expanded.get()).add(categoryId))
+  }
+
+  let unbindOpen = $open.subscribe(categoryId => {
+    if (categoryId) {
+      expand(categoryId)
+      $scrollTarget.set(categoryId)
+      navigate(route => ({ ...route, params: {} }), true)
+    }
+  })
+
   return {
     ...openedFeedMixin,
     exit() {
       unbind()
+      unbindOpen()
     },
-    expand(categoryId: string) {
-      $expanded.set(new Set($expanded.get()).add(categoryId))
-    },
+    expand,
     expanded: $expanded,
     groups: $groups,
     loading: $loading,
-    params: {},
+    params: { open: $open },
     readings: $readings,
+    scrolled() {
+      $scrollTarget.set(undefined)
+    },
+    scrollTarget: $scrollTarget,
     // User can have 10K feeds, so only opened categories are counted
     stats: getFeedStats(
       computed([$groups, $expanded], (groups, expanded) => {

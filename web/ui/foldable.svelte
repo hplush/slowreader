@@ -1,6 +1,7 @@
 <script lang="ts">
   import { mdiChevronDown } from '@mdi/js'
   import type { Snippet } from 'svelte'
+  import type { Attachment } from 'svelte/attachments'
 
   import Clickable from './clickable.svelte'
   import Icon from './icon.svelte'
@@ -15,8 +16,10 @@
     ontoggle,
     open,
     short,
-    title
+    title,
+    ...attachments
   }: {
+    [attachment: symbol]: Attachment<HTMLDivElement> | false
     actions: Snippet<[string]>
     children: Snippet
     disabled?: boolean
@@ -30,7 +33,7 @@
   } = $props()
 </script>
 
-<div class="foldable" class:is-open={open}>
+<div class="foldable" class:is-open={open} {...attachments}>
   <div class="foldable_header">
     <Clickable
       class="foldable_button"

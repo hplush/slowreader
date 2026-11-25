@@ -17,6 +17,7 @@ import {
   loadFeed,
   loadPosts,
   loaders,
+  router,
   testAccount,
   testFeed,
   trackSeen,
@@ -61,6 +62,24 @@ describe('categories page', () => {
 
     page.toggle('a')
     deepEqual([...page.expanded.get()], ['b'])
+  })
+
+  test('expands category from URL and removes it from URL', () => {
+    let page = openPage({ params: { open: 'a' }, route: 'categories' })
+    deepEqual(router.get().params, {})
+    deepEqual([...page.expanded.get()], ['a'])
+    equal(page.scrollTarget.get(), 'a')
+    page.scrolled()
+    equal(page.scrollTarget.get(), undefined)
+
+    openPage({ params: { open: 'b' }, route: 'categories' })
+    deepEqual(router.get().params, {})
+    deepEqual([...page.expanded.get()], ['a', 'b'])
+    equal(page.scrollTarget.get(), 'b')
+
+    page.scrolled()
+    openPage({ params: { open: 'b' }, route: 'categories' })
+    equal(page.scrollTarget.get(), 'b')
   })
 
   test('groups feeds by categories', async t => {

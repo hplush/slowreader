@@ -91,6 +91,14 @@ export const urlRouter = computed(pathRouter, path => {
       }),
       route: path.route
     }
+  } else if (path.route === 'categories') {
+    return {
+      hash: path.hash,
+      params: moveFromSearch<Routes['categories']>(path.params, path.search, {
+        open: true
+      }),
+      route: path.route
+    }
   } else if (path.route === 'fast') {
     return {
       hash: path.hash,
@@ -163,6 +171,8 @@ export function getURL(
     url = moveToSearch(page, { category: true, from: true })
   } else if (page.route === 'fast') {
     url = moveToSearch(page, { from: true })
+  } else if (page.route === 'categories') {
+    url = moveToSearch(page, { open: true })
   } else {
     url = getPagePath(pathRouter, page)
   }
