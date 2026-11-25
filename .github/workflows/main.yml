@@ -79,15 +79,17 @@ jobs:
           persist-credentials: false
       - name: Initialize Node.js
         uses: $/.github/actions/init-node
-      - name: Copy landing screenshots from the demo image
+      - name: Copy assets from the demo image
         run: |
           IMAGE=$(grep -oE 'ghcr.io/hplush/slowreader-demo@sha256:[0-9a-f]+' Dockerfile)
           docker create --name demo "$IMAGE" none
           docker cp demo:/screenshots landings/screenshots
+          docker cp demo:/og.jpg "$RUNNER_TEMP/og.jpg"
       - name: Build and check size
         run: node --run test:offline:build
         env:
           FORCE_COLOR: 1
+          OG_IMAGE: ${{ runner.temp }}/og.jpg
   build:
     name: Image Build
     if: github.ref == 'refs/heads/main'
