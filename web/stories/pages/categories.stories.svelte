@@ -69,6 +69,7 @@
     feeds={FEEDS}
     oninit={() => {
       pages.categories().toggle('code')
+      pages.categories().toggle('empty')
     }}
     reactions={[
       { at: NOW, feedId: 'a', id: 'liked', type: 'like' },

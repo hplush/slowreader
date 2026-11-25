@@ -97,7 +97,8 @@
 
     .post-reactions_empty {
       display: flex;
-      justify-content: center;
+      flex-direction: column;
+      align-items: center;
       width: stretch;
       padding-top: 1rem;
     }
