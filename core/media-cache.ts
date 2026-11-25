@@ -3,7 +3,7 @@ import { atom, computed, effect, map } from 'nanostores'
 
 import { deviceSessions } from './device-sessions.ts'
 import { type CachedMedia, getEnvironment } from './environment.ts'
-import { HTTPStatusError } from './errors.ts'
+import { HTTPStatusError, TelegramError } from './errors.ts'
 import { createDownloadTask } from './lib/download.ts'
 import { isLoaderMedia } from './lib/html.ts'
 import { canUseNetwork } from './lib/network.ts'
@@ -465,10 +465,12 @@ export async function syncMediaCache(): Promise<void> {
                     }
                   })
             } catch (e) {
-              // Missed file will not appear on retry, unlike a rate limit
-              if (HTTPStatusError.is(e, /^4\d\d$/) && e.status !== 429) {
+              if (isMissed(e)) {
                 // User can’t fix proxy size limit, so error will be just a noise
-                if (usedRequestMethod.get() === 'proxy' && e.status === 413) {
+                if (
+                  usedRequestMethod.get() === 'proxy' &&
+                  HTTPStatusError.is(e, [413])
+                ) {
                   increaseKey(mediaStatistics, 'failed')
                 } else {
                   failMedia({ error: e, type: 'file', url })
@@ -573,6 +575,16 @@ function forgetSaved(url: string): void {
   forgetUnshown(url)
 }
 
+/**
+ * Missed file will not appear on retry, unlike a rate limit.
+ */
+function isMissed(error: unknown): error is Error {
+  let code = 0
+  if (HTTPStatusError.is(error)) code = error.status
+  if (TelegramError.is(error)) code = error.code
+  return code >= 400 && code < 500 && code !== 429
+}
+
 function askLoader(url: string, entry: SharedMedia, urgency: Urgency): void {
   entry.pending += 1
   entry.urgency = urgency
@@ -586,7 +598,11 @@ function askLoader(url: string, entry: SharedMedia, urgency: Urgency): void {
     .then(entry.resolve, (e: unknown) => {
       entry.pending -= 1
       if (entry.pending > 0) return
-      if (entry.retried || (e instanceof Error && e.name === 'AbortError')) {
+      if (
+        entry.retried ||
+        isMissed(e) ||
+        (e instanceof Error && e.name === 'AbortError')
+      ) {
         entry.reject(e)
       } else {
         entry.retried = true

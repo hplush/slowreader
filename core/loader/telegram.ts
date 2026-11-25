@@ -54,6 +54,20 @@ export const telegramApp = persistentJSON<TelegramApp | undefined>(
   undefined
 )
 
+let missingChats = persistentJSON<Record<string, number[]>>(
+  'slowreader:telegram-missing',
+  {}
+)
+
+function rememberMissing(name: string, missing: Set<number>): void {
+  // Nothing removes channels of old forwarded posts
+  for (let chat of missing) {
+    if (missing.size <= 1000) break
+    missing.delete(chat)
+  }
+  missingChats.set({ ...missingChats.get(), [name]: [...missing] })
+}
+
 /**
  * Telegram needs own library in the client and app ID from the server.
  */
@@ -85,6 +99,8 @@ export async function loadTelegramApp(): Promise<void> {
 interface Download {
   blob: Promise<Blob>
   bytes: number
+  limit: number
+  offset: number
   /**
    * Download is cancelled only when all `readers` stopped waiting.
    */
@@ -143,8 +159,9 @@ interface Session {
    */
   loadingChats: Promise<void> | undefined
   /**
-   * Chats, which are not in the whole chat list. TDLib restart keeps them,
-   * so the chat list is not loaded again for the same chat.
+   * Chats, which are not in the whole chat list. TDLib restart and page reload
+   * keep them, so the chat list is not loaded again for the same chat.
+   * The sync of follows loads the whole list and finds them, if they are back.
    */
   missing: Set<number>
   /**
@@ -266,10 +283,16 @@ function toLoaderData(chatId: unknown): string {
 
 let newsListeners = new Set<(loaderData: string) => void>()
 
-function trackChat(session: Session, update: TelegramObject): void {
+function trackChat(
+  name: string,
+  session: Session,
+  update: TelegramObject
+): void {
   let channel = session.channels.get(Number(update.chat_id))
   if (update['@type'] === 'updateNewChat' && isObject(update.chat)) {
-    session.missing.delete(Number(update.chat.id))
+    if (session.missing.delete(Number(update.chat.id))) {
+      rememberMissing(name, session.missing)
+    }
     // Private chats and groups are not kept even in memory
     if (getChannelId(update.chat) !== undefined) {
       session.channels.set(Number(update.chat.id), {
@@ -315,7 +338,7 @@ function getSession(name: string): Session {
     idle: undefined,
     keep: false,
     loadingChats: undefined,
-    missing: new Set(),
+    missing: new Set(missingChats.get()[name]),
     patient: 0,
     premium: false,
     sent: 0,
@@ -337,7 +360,7 @@ function getSession(name: string): Session {
       return
     }
     if (update['@type'] !== 'updateAuthorizationState') {
-      trackChat(created, update)
+      trackChat(name, created, update)
       return
     }
     let state = update.authorization_state
@@ -483,6 +506,8 @@ async function destroyTelegram(name: string): Promise<void> {
   session.ending = true
   clearTimeout(session.idle)
   sessions.delete(name)
+  let { [name]: forgotten, ...rest } = missingChats.get()
+  if (forgotten) missingChats.set(rest)
   await session.client.destroy()
 }
 
@@ -796,6 +821,7 @@ async function loadChat(
       if (!TelegramError.is(e) || session.missing.has(chatId)) throw e
       if (session.depth === 0) {
         session.missing.add(chatId)
+        rememberMissing(name, session.missing)
         throw e
       }
       await loadMoreChats(name)
@@ -1698,7 +1724,7 @@ const DOWNLOAD_PRIORITY: Record<Urgency, number> = {
 /**
  * Telegram asks to slow down, when too many parts of files are asked at once.
  * So a file waits, while a window of files with the same or higher urgency
- * is downloaded. TDLib asks a big file by parts, so it counts as a half of it.
+ * is downloaded. A big file is asked by pieces of a half of the window.
  */
 function startDownloads(session: Session): void {
   let limit = getWindow(session)
@@ -1730,16 +1756,36 @@ async function moveFileFromTdlib(
   download: Download
 ): Promise<Blob> {
   let session = getSession(name)
+  // Otherwise TDLib asks for parts of a video in the background so fast,
+  // that Telegram slows down images on the screen
+  let piece = getWindow(session) / 2
   let downloaded: TelegramObject
   try {
-    downloaded = await sendToTelegram(name, {
-      '@type': 'downloadFile',
-      'file_id': id,
-      'limit': 0,
-      'offset': 0,
-      'priority': DOWNLOAD_PRIORITY[download.urgency],
-      'synchronous': true
-    })
+    do {
+      // TDLib wraps a piece after the end of the file to its start
+      download.limit =
+        download.bytes > piece
+          ? Math.min(piece, download.bytes - download.offset)
+          : 0
+      downloaded = await sendToTelegram(name, {
+        '@type': 'downloadFile',
+        'file_id': id,
+        'limit': download.limit,
+        'offset': download.offset,
+        'priority': DOWNLOAD_PRIORITY[download.urgency],
+        'synchronous': true
+      })
+      download.offset += download.limit
+      // The next piece would cancel the part, which the video player asked
+      if (session.streams.has(id)) throw new DOMException('', 'AbortError')
+      if (session.downloads.get(id) !== download) {
+        await sendToTelegram(name, {
+          '@type': 'deleteFile',
+          'file_id': id
+        }).catch(() => {})
+        throw new DOMException('', 'AbortError')
+      }
+    } while (download.limit > 0 && download.offset < download.bytes)
   } catch (e) {
     // TDLib has one download per file and the video player took it
     if (TelegramError.is(e) && e.code === 200) {
@@ -1779,6 +1825,8 @@ async function downloadFile(
         return moveFileFromTdlib(name, file.id, created)
       }),
       bytes: file.size.bytes ?? 0,
+      limit: 0,
+      offset: 0,
       readers: 0,
       start: flight.resolve,
       step: 'waiting',
@@ -1800,12 +1848,13 @@ async function downloadFile(
     if (download.step === 'waiting') {
       startDownloads(session)
     } else if (download.step === 'loading') {
-      // The same request with another priority only moves the running download
+      // The same request with another priority only moves the running download.
+      // Another piece would cancel it.
       sendToTelegram(name, {
         '@type': 'downloadFile',
         'file_id': file.id,
-        'limit': 0,
-        'offset': 0,
+        'limit': download.limit,
+        'offset': download.offset,
         'priority': DOWNLOAD_PRIORITY[urgency],
         'synchronous': false
       }).catch(() => {})
