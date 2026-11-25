@@ -62,16 +62,17 @@ For benchmark development you can use `?benchmark=debug` to make it faster.
 
 ## Weekly Run
 
-[Benchmark workflow](../../.github/workflows/benchmark.yml) runs the benchmark script every Monday. It fails only if a scenario run failed.
+[Benchmark workflow](../../.github/workflows/benchmark.yml) runs the benchmark script every Monday. GitHub runners have CPUs of different speed, so it tries 12 runners one by one and runs the benchmark only on the first 3 with the CPU set in the workflow. It fails only if a scenario run failed or no runner had this CPU.
 
 Every Monday the workflow replaces the whole `benchmark` branch with a new commit without parents, which has only the last run, so the repository does not grow.
 
 [Production VictoriaMetrics](../../infra/README.md#metrics) reads the branch and keeps old runs for the chart on `dashboard.hplush.dev`.
 
-[Our Grafana](https://github.com/hplush/cloud) warns in Telegram if a number of the last run is over the median of the 4 weeks before it ([rules](https://github.com/hplush/cloud/blob/main/roles/dashboards/templates/rules.alerting.yml.j2)):
+[Our Grafana](https://github.com/hplush/cloud) warns in Telegram if a number of the last run is over the median of the 4 weeks before it on the same CPU ([rules](https://github.com/hplush/cloud/blob/main/roles/dashboards/templates/rules.alerting.yml.j2)):
 
-- By 10% for DOM size, documents, listeners, storage, and storage growth.
-- By 30% for duration, loaders, start, database filling, JS heap, and renderer memory.
+- By 10% for DOM size, listeners, storage, and storage growth.
+- By 30% and 50 ms for duration, loaders, start, and database filling.
+- By 30% for renderer memory.
 
 ## Methodology
 

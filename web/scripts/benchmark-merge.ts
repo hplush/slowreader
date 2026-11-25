@@ -84,29 +84,38 @@ let reports = process.argv
   .slice(2)
   .map(file => JSON.parse(readFileSync(file, 'utf8')) as Report)
 
-let runners: Record<string, number[]> = {}
+let runners: Record<string, Record<string, number[]>> = {}
 for (let report of reports) {
   for (let [name, value] of Object.entries(toSeries(report))) {
-    runners[name] ??= []
-    runners[name].push(value)
+    runners[name] ??= {}
+    ;(runners[name][report.cpu] ??= []).push(value)
   }
 }
 
-let rows = [
-  ['', 'Median', 'Runners'],
-  ['cpu', '', reports.map(i => i.cpu).join(', ')]
-]
-let series: Record<string, number> = {}
-for (let [name, values] of Object.entries(runners)) {
-  let value = name.startsWith('failed')
-    ? values.reduce((all, i) => all + i, 0)
-    : median(values)
-  series[name] = value
+let cpus = [...new Set(reports.map(i => i.cpu))].toSorted()
+let rows = [['', ...cpus]]
+let info =
+  `info{chromium=${JSON.stringify(reports[0]!.chromium)},` +
+  `commit=${JSON.stringify(reports[0]!.commit)}}`
+let series: Record<string, number> = {
+  [info]: 1,
+  run_timestamp_seconds: Math.round(Date.now() / 1000)
+}
+for (let [name, byCpu] of Object.entries(runners)) {
   rows.push([
     name,
-    format(name, value),
-    values.map(i => format(name, i)).join(' ')
+    ...cpus.map(cpu => {
+      return (byCpu[cpu] ?? []).map(i => format(name, i)).join(' ')
+    })
   ])
+  for (let [cpu, values] of Object.entries(byCpu)) {
+    let label = `{cpu=${JSON.stringify(cpu)}`
+    series[
+      name.includes('{') ? name.replace('{', `${label},`) : `${name}${label}}`
+    ] = name.startsWith('failed')
+      ? values.reduce((all, i) => all + i, 0)
+      : median(values)
+  }
 }
 
 let widths = rows[0]!.map((_, column) => {
@@ -117,17 +126,9 @@ for (let row of rows) {
   process.stdout.write(`${line.join('  ').trimEnd()}\n`)
 }
 
-let info =
-  `info{chromium=${JSON.stringify(reports[0]!.chromium)},` +
-  `commit=${JSON.stringify(reports[0]!.commit)},` +
-  `cpu=${JSON.stringify([...new Set(reports.map(i => i.cpu))].toSorted().join(', '))}}`
 writeFileSync(
   'metrics.prom',
-  Object.entries({
-    ...series,
-    [info]: 1,
-    run_timestamp_seconds: Math.round(Date.now() / 1000)
-  })
+  Object.entries(series)
     .map(([name, value]) => `slowreader_benchmark_${name} ${value}\n`)
     .join('')
 )

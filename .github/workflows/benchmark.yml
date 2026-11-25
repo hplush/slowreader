@@ -9,11 +9,15 @@ jobs:
   run:
     name: Run
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
-        # The same code is faster or slower on different runners
-        runner: [1, 2, 3]
+        # GitHub gives a random CPU, so most runners only check it and stop
+        runner: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     steps:
       - name: Harden the runner
         uses: step-security/harden-runner@aebdcf6156ab6691adf63218240e476564a1ed4c # v2.23.0
@@ -28,22 +32,45 @@ jobs:
             registry.npmjs.org:443
             release-assets.githubusercontent.com:443
             tuf-repo-cdn.sigstore.dev:443
+      - name: Check CPU and results of previous runners
+        id: cpu
+        env:
+          WANTED: AMD EPYC 7763 64-Core Processor
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          MODEL=$(grep -m 1 'model name' /proc/cpuinfo | sed 's/.*: //; s/ *$//')
+          echo "::notice title=CPU::$MODEL"
+          if [ "$MODEL" != "$WANTED" ]; then
+            exit 0
+          fi
+          # The step name is from this job
+          RESULTS=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/attempts/$GITHUB_RUN_ATTEMPT/jobs?per_page=100" \
+            --jq '[.jobs[].steps[]? | select(.name == "Run benchmark" and .conclusion == "success")] | length')
+          # 3 results are enough for a median
+          if [ "$RESULTS" -lt 3 ]; then
+            echo "wanted=true" >> "$GITHUB_OUTPUT"
+          fi
       - name: Checkout the repository
+        if: steps.cpu.outputs.wanted == 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Initialize Node.js
+        if: steps.cpu.outputs.wanted == 'true'
         uses: $/.github/actions/init-node
       - name: Run benchmark
+        if: steps.cpu.outputs.wanted == 'true'
         run: node web/scripts/benchmark.ts --json > result.json
         env:
           CHROMIUM_PATH: /opt/google/chrome/chrome
       - name: Save result for merge
+        if: steps.cpu.outputs.wanted == 'true'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: result-${{ matrix.runner }}
           path: result.json
       - name: Check that all scenario runs passed
+        if: steps.cpu.outputs.wanted == 'true'
         run: jq --exit-status '.total.failed == 0' result.json
   save:
     name: Save
@@ -79,7 +106,12 @@ jobs:
           pattern: result-*
           path: results
       - name: Merge results of runners
-        run: node web/scripts/benchmark-merge.ts results/*/result.json
+        run: |
+          if ! ls results/*/result.json > /dev/null 2>&1; then
+            echo "::error::No runner had the wanted CPU. Re-run the workflow."
+            exit 1
+          fi
+          node web/scripts/benchmark-merge.ts results/*/result.json
       - name: Save the run to benchmark branch
         if: github.event_name == 'schedule'
         env:
