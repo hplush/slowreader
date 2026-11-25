@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mdiChevronDown, mdiHistory } from '@mdi/js'
+  import { mdiChevronDown, mdiHistory, mdiTrashCanOutline } from '@mdi/js'
   import {
     getPopupId,
     getPostPopupParam,
@@ -19,7 +19,7 @@
   import Stack from '../ui/stack.svelte'
 
   let { page }: { page: HistoryPage } = $props()
-  let { hasMore, posts } = $derived(page)
+  let { clearing, hasMore, posts } = $derived(page)
 
   let links = $derived(
     $posts.map(post => {
@@ -57,6 +57,17 @@
           {$organizeMessages.morePosts}
         </Button>
       {/if}
+      <Stack align="center">
+        <Button
+          color="dangerous"
+          icon={mdiTrashCanOutline}
+          loader={$clearing}
+          onclick={page.clear}
+          variant="plain"
+        >
+          {$t.clear}
+        </Button>
+      </Stack>
     </Stack>
   {/if}
 </PopupablePage>

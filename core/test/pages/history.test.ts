@@ -7,6 +7,7 @@ import {
   addFeed,
   addPost,
   changeRead,
+  loadPosts,
   testAccount,
   testFeed,
   testPost,
@@ -133,5 +134,29 @@ describe('history page', () => {
     equal(page.posts.get().length, 60)
     equal(page.posts.get()[59]!.title, '59')
     equal(page.hasMore.get(), false)
+  })
+
+  test('clears history', async () => {
+    let now = Math.round(Date.now() / 1000)
+    let feedId = await addFeed(testFeed())
+    await addPost([
+      testPost({ feedId, id: 'left', read: 2, readAt: now - 60 }),
+      testPost({ feedId, id: 'shown', read: 1, readAt: now }),
+      testPost({ feedId, id: 'unread', readAt: now })
+    ])
+    let page = openPage({ params: {}, route: 'history' })
+    await waitLoading(page.loading)
+    equal(page.posts.get().length, 2)
+
+    let clearing = page.clear()
+    equal(page.clearing.get(), true)
+    await clearing
+    equal(page.clearing.get(), false)
+    await setTimeout(10)
+    deepEqual(page.posts.get(), [])
+    deepEqual(
+      (await loadPosts()).map(post => post.id),
+      ['unread']
+    )
   })
 })

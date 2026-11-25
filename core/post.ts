@@ -404,16 +404,24 @@ export async function deleteFastPostsBefore(time: number): Promise<void> {
 
 const HISTORY_SECONDS = 86400
 
-/**
- * Read posts from old versions have no time and are deleted at once.
- */
-export async function deleteOldReadPosts(): Promise<void> {
+async function deleteReadPostsBefore(time: number): Promise<void> {
   let rows = await getCrdt().select<{ id: string }>`
     SELECT "id" FROM "posts"
     WHERE "reading" IN ('fast', 'slow') AND "read" IN (1, 2)
-      AND COALESCE("readAt", 0) < ${nowInSeconds() - HISTORY_SECONDS}
+      AND COALESCE("readAt", 0) < ${time}
   `
   if (rows.length > 0) await deletePost(rows.map(row => row.id))
+}
+
+/**
+ * Read posts from old versions have no time and are deleted at once.
+ */
+export function deleteOldReadPosts(): Promise<void> {
+  return deleteReadPostsBefore(nowInSeconds() - HISTORY_SECONDS)
+}
+
+export function clearHistory(): Promise<void> {
+  return deleteReadPostsBefore(nowInSeconds() + 1)
 }
 
 export type HistoryPost = {

@@ -1,6 +1,6 @@
 import { atom, effect } from 'nanostores'
 
-import { getHistory, type HistoryPost } from '../post.ts'
+import { clearHistory, getHistory, type HistoryPost } from '../post.ts'
 import { openedDatabase } from '../schema.ts'
 import { createPage } from './common.ts'
 
@@ -9,6 +9,7 @@ export const historyPage = createPage('history', () => {
   let $posts = atom<HistoryPost[]>([])
   let $hasMore = atom(false)
   let $loading = atom(true)
+  let $clearing = atom(false)
 
   let unbind = effect([openedDatabase, $limit], (db, limit) => {
     if (!db) return
@@ -21,6 +22,15 @@ export const historyPage = createPage('history', () => {
   })
 
   return {
+    async clear() {
+      $clearing.set(true)
+      try {
+        await clearHistory()
+      } finally {
+        $clearing.set(false)
+      }
+    },
+    clearing: $clearing,
     exit() {
       unbind()
     },
