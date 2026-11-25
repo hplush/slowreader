@@ -33,7 +33,7 @@
   } = $props()
 </script>
 
-<div class="foldable" class:is-open={open} {...attachments}>
+<div class="foldable" class:is-open={open && !disabled} {...attachments}>
   <div class="foldable_header">
     <Clickable
       class="foldable_button"
