@@ -1,4 +1,4 @@
-import { persistentAtom } from '@nanostores/persistent'
+import { persistentJSON } from '@nanostores/persistent'
 
 import { type FeedValue, moveFeed } from './feed.ts'
 import type { DownloadTask } from './lib/download.ts'
@@ -10,10 +10,9 @@ type FeedRedirect = [url: string, since: number]
  * Per device, since redirects could depend on the network, and records
  * must not create sync actions.
  */
-export const feedRedirects = persistentAtom<Record<string, FeedRedirect>>(
+export const feedRedirects = persistentJSON<Record<string, FeedRedirect>>(
   'slowreader:feedRedirects',
-  {},
-  { decode: JSON.parse, encode: JSON.stringify }
+  {}
 )
 
 function setRecord(feedId: string, record: FeedRedirect | undefined): void {
