@@ -199,9 +199,9 @@
         z-index: 2;
         justify-content: center;
         width: stretch;
-        height: calc(var(--navbar-height) + var(--safe-bottom));
+        height: var(--bottom-panel-height);
         padding-inline: calc(1rem + var(--safe-side));
-        padding-bottom: calc(var(--navbar-padding) + var(--safe-bottom));
+        padding-bottom: max(var(--navbar-padding), var(--safe-bottom));
 
         .navbar:not(.is-opened) & {
           box-shadow: var(--bottom-panel-shadow);

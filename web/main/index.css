@@ -101,7 +101,7 @@ ol[role='list'] {
   }
 
   @media (--no-desktop) {
-    padding-bottom: calc(var(--navbar-height) + var(--safe-bottom));
+    padding-bottom: var(--bottom-panel-height);
   }
 
   /* Prevent double scroll on mobile */

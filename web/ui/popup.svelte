@@ -120,8 +120,7 @@
       @media (--mobile) {
         @mixin background var(--main-land-color);
 
-        height: var(--navbar-height);
-        padding-bottom: var(--safe-bottom);
+        height: var(--bottom-panel-height);
         box-shadow: var(--bottom-panel-shadow);
       }
     }
@@ -154,7 +153,7 @@
       overflow: hidden auto;
 
       @media (--mobile) {
-        height: calc(100% - var(--navbar-height) - var(--safe-bottom));
+        height: calc(100% - var(--bottom-panel-height));
         padding: var(--page-padding);
       }
     }
