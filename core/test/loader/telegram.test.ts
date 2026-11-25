@@ -1,4 +1,8 @@
-import { encodeTelegramApp } from '@slowreader/api'
+import {
+  encodeTelegramApp,
+  refreshLocked,
+  refreshUnlocked
+} from '@slowreader/api'
 import { keepMount } from 'nanostores'
 import { deepEqual, equal, rejects } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
@@ -22,6 +26,7 @@ import {
   createTextResponse,
   deletePost,
   deviceSessions,
+  getClient,
   getExperimentRecords,
   getLinkPopup,
   getPopupUrl,
@@ -3035,9 +3040,19 @@ describe('telegram loader', () => {
     )
     equal(lastRefresh.get(), refreshed)
 
+    // Another device with the same account loads posts right now
+    await getClient().log.add(refreshLocked({ nodeId: 'other' }))
+    equal(refreshStatus.get(), 'other')
+    push(-1001, 4)
+    await setTimeout(1200)
+    equal((await loadPosts()).length, 2)
+    // It could ask the feed before the post, so we check after it
+    await getClient().log.add(refreshUnlocked({}))
+    await waitUntil(async () => (await loadPosts()).length === 3)
+
     testTelegram.answers.getChatHistory = fail('Broken', 500)
     await expectWarning(async () => {
-      push(-1001, 4)
+      push(-1001, 5)
       await setTimeout(1200)
     }, [new TelegramError(500, 'Broken')])
 
@@ -3046,9 +3061,9 @@ describe('telegram loader', () => {
       '@type': 'messages',
       'messages': []
     }
-    push(-1001, 5)
+    push(-1001, 6)
     await setTimeout(1200)
-    equal((await loadPosts()).length, 2)
+    equal((await loadPosts()).length, 3)
   })
 
   test('asks Telegram only about channels with news', async () => {

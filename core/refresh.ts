@@ -642,6 +642,8 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
 
   // Other device could already load these posts and move feed markers
   await waitSyncOrOffline()
+  // The lock can be asked only by one of them
+  await loadingNews.wait()
   if (run !== currentRun) return
   refreshStatistics.setKey('initializing', 'lock')
   if (!(await requestRefreshLock(stopRefreshing))) {
@@ -838,36 +840,47 @@ let news = new Map<string, { loader: string; loaderData: string }>()
  * its connection is open. Its feed is loaded at once without progress in UI
  * and without moving the time of the next refresh of all feeds.
  *
+ * Every device with this account gets the same push, so only the device
+ * with the lock loads the post. News wait for the end of a refresh here
+ * or on another device, which could be asked before the post was published.
+ *
  * Parts of one album come as separate posts one right after another.
  */
 let loadingNews = debounceTask(async () => {
-  let pushed = [...news.values()]
-  news.clear()
-  if (
-    isRefreshing.get() ||
-    !canUseNetwork(autoRefresh.get()) ||
-    nightLocked.get()
-  ) {
+  if (isRefreshing.get()) return
+  if (!canUseNetwork(autoRefresh.get()) || nightLocked.get()) {
+    news.clear()
     return
   }
-  for (let { loader, loaderData } of pushed) {
-    let feeds = await getTables().feeds.load`
-      WHERE "loader" = ${loader} AND "loaderData" = ${loaderData}
-    `
-    for (let feed of feeds) {
-      let owner = feed.accountId ? await loadAccount(feed.accountId) : undefined
-      try {
-        await loadRecentPosts(
-          feed.id,
-          undefined,
-          owner && canUseAccount(owner) ? owner : undefined
-        )
-      } catch (e) {
-        getEnvironment().warn(e)
+  await waitSyncOrOffline()
+  if (await requestRefreshLock(() => {})) {
+    let pushed = [...news.values()]
+    news.clear()
+    try {
+      for (let { loader, loaderData } of pushed) {
+        let feeds = await getTables().feeds.load`
+          WHERE "loader" = ${loader} AND "loaderData" = ${loaderData}
+        `
+        for (let feed of feeds) {
+          let owner = feed.accountId
+            ? await loadAccount(feed.accountId)
+            : undefined
+          try {
+            await loadRecentPosts(
+              feed.id,
+              undefined,
+              owner && canUseAccount(owner) ? owner : undefined
+            )
+          } catch (e) {
+            getEnvironment().warn(e)
+          }
+        }
       }
+    } finally {
+      releaseRefreshLock()
     }
+    remotePostsMedia.call()
   }
-  remotePostsMedia.call()
 }, 1000)
 
 onClient(logux =>
@@ -882,6 +895,9 @@ onClient(logux =>
             loadingNews.call()
           }) ?? []
         )
+      }),
+      isRefreshing.listen(refreshing => {
+        if (!refreshing && news.size > 0) loadingNews.call()
       }),
       clock.listen(now => {
         if (now.getTime() - lastRefresh.get() >= 15 * 60_000) {

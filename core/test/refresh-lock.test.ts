@@ -182,6 +182,54 @@ describe('refresh lock', () => {
     equal(refreshLock.get(), 'free')
   })
 
+  test('takes lock to load a post, which a service pushed', async t => {
+    let push: ((loaderData: string) => void) | undefined
+    let account = loaders.telegram.account!
+    let original = account.onNews
+    t.after(() => {
+      account.onNews = original
+    })
+    account.onNews = listener => {
+      push = listener
+      return () => {}
+    }
+    let credentials = await signUp()
+    let other = await connectOther(credentials)
+    let nodeId = getClient().nodeId
+    t.after(() => {
+      autoRefresh.set('never')
+    })
+    autoRefresh.set('always')
+
+    deepEqual(
+      await collect(other, async () => {
+        push!('{"id":"1"}')
+        await setTimeout(1100)
+      }),
+      [refreshLocked({ nodeId }), refreshUnlocked({})]
+    )
+    equal(refreshLock.get(), 'free')
+
+    await other.process(lockAction({}))
+    await waitUntil(() => refreshLock.get() === 'other')
+    deepEqual(
+      await collect(other, async () => {
+        push!('{"id":"1"}')
+        await setTimeout(1100)
+      }),
+      []
+    )
+
+    // Another device could ask the feed before the post was published
+    deepEqual(
+      await collect(other, async () => {
+        await other.process(refreshUnlock({}))
+        await setTimeout(1200)
+      }),
+      [refreshUnlocked({}), refreshLocked({ nodeId }), refreshUnlocked({})]
+    )
+  })
+
   test('keeps refresh on connection loss and asks for lock again', async () => {
     let credentials = await signUp()
     let other = await connectOther(credentials)
