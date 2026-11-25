@@ -134,11 +134,6 @@ export interface TelegramClient {
    */
   destroy(): Promise<void>
 
-  /**
-   * Lines of TDLib’s own log. Only debug experiments listen to it.
-   */
-  onLog?(listener: (line: string) => void): () => void
-
   onUpdate(listener: (update: TelegramObject) => void): () => void
 
   /**

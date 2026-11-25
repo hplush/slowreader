@@ -34,7 +34,6 @@ function isObject(value: unknown): value is Record<string, unknown> {
 function runTdlib(
   database: string,
   onUpdate: (update: TelegramObject) => void,
-  onLog: (line: string) => void,
   onStop: () => void
 ): Promise<Tdlib> {
   let worker = new Worker(new URL('./telegram-worker.ts', import.meta.url), {
@@ -139,8 +138,6 @@ function runTdlib(
             .get(data.id)
             ?.reject(new Error(`Telegram file was not read: ${data.error}`))
           files.delete(data.id)
-        } else if (data.type === 'log') {
-          onLog(data.line)
         } else if (data.type === 'closed') {
           finish(new TelegramError(500, 'Request aborted'))
         } else {
@@ -179,7 +176,6 @@ export async function deleteTelegramDatabases(): Promise<void> {
 export function createTelegram(options: TelegramOptions): TelegramClient {
   let database = DATABASE_PREFIX + options.name
   let listeners = new Set<(update: TelegramObject) => void>()
-  let loggers = new Set<(line: string) => void>()
   let running: Promise<Tdlib> | undefined
   let wanted = false
   let idle: ReturnType<typeof setTimeout> | undefined
@@ -244,9 +240,6 @@ export function createTelegram(options: TelegramOptions): TelegramClient {
             update => {
               for (let listener of listeners) listener(update)
             },
-            line => {
-              for (let listener of loggers) listener(line)
-            },
             () => {
               // TDLib also stops by itself, like after the sign out
               if (running === starting) running = undefined
@@ -280,12 +273,6 @@ export function createTelegram(options: TelegramOptions): TelegramClient {
       await stop()
       tabs.postMessage('wait')
       await navigator.locks.request(database, () => deleteDatabase(database))
-    },
-    onLog(listener) {
-      loggers.add(listener)
-      return () => {
-        loggers.delete(listener)
-      }
     },
     onUpdate(listener) {
       listeners.add(listener)

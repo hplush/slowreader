@@ -77,7 +77,6 @@ export {
   getTestEnvironment,
   mockRequest,
   openRoute,
-  sendTelegramLog,
   sendTelegramUpdate,
   setTestNetwork,
   setTestVisibility,
