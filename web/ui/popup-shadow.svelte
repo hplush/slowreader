@@ -15,7 +15,10 @@
         inset-inline-end: 0;
         z-index: 8;
         display: block;
-        width: calc(var(--popup-size) + 0.375rem * var(--popup-shadow-index));
+        width: calc(
+          var(--popup-size) + var(--safe-side) + 0.375rem *
+            var(--popup-shadow-index)
+        );
         box-shadow: var(--popup-shadow);
 
         @mixin background var(--land-color);

@@ -43,6 +43,9 @@ body {
 }
 
 body {
+  box-sizing: border-box;
+  padding-top: var(--safe-top);
+  padding-inline: var(--safe-side);
   color: var(--text-color);
   -webkit-tap-highlight-color: transparent;
 }
@@ -88,7 +91,8 @@ ol[role='list'] {
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 100svh;
+  min-height: calc(100svh - var(--safe-top));
+  padding-bottom: var(--safe-bottom);
   overflow: hidden auto;
   -webkit-overflow-scrolling: touch;
 
@@ -97,7 +101,7 @@ ol[role='list'] {
   }
 
   @media (--no-desktop) {
-    padding-bottom: var(--navbar-height);
+    padding-bottom: calc(var(--navbar-height) + var(--safe-bottom));
   }
 
   /* Prevent double scroll on mobile */

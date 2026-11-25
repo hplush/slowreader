@@ -80,8 +80,10 @@
         @mixin background var(--land-color);
 
         position: fixed;
-        top: 0.5rem;
-        inset-inline-end: calc(var(--page-padding) + 0.125rem);
+        top: calc(0.5rem + var(--safe-top));
+        inset-inline-end: calc(
+          var(--page-padding) + 0.125rem + var(--safe-side)
+        );
         z-index: 3;
         padding: 0;
         border-radius: 0.75rem;
