@@ -152,13 +152,28 @@ function pad(value: number): string {
   return String(value).padStart(2, '0')
 }
 
+function formatFileDate(date: Date): string {
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+}
+
 /**
  * Time for file names: sortable and the same in every locale.
  */
 export function formatCurrentTime(): string {
   let now = new Date()
   return (
-    `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}-` +
+    `${formatFileDate(now)}-` +
     `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`
   )
+}
+
+/**
+ * Name of loader’s media file, which browser uses on saving it. Images
+ * of one post have the same date, so the random number separates them.
+ */
+export function getMediaFileName(published?: null | number): string {
+  let random = String(Math.floor(Math.random() * 1e8))
+  return published
+    ? `${formatFileDate(new Date(published * 1000))}-${random}`
+    : random
 }

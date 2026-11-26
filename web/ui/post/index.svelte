@@ -79,7 +79,12 @@
   <PostWarning lang={post.lang} warning={post.warning}>
     {#snippet children(warningClicked)}
       {#if post.full || post.intro}
-        <FormattedText html={text} lang={post.lang} {loader} />
+        <FormattedText
+          html={text}
+          lang={post.lang}
+          {loader}
+          published={post.publishedAt}
+        />
       {/if}
       {#if post.poll}
         <PostPoll lang={post.lang} poll={post.poll} {post} {userPostUrl} />
@@ -93,6 +98,7 @@
         )}
         postUrl={userPostUrl(post)}
         {protect}
+        published={post.publishedAt}
         {warningClicked}
       />
 
@@ -100,7 +106,12 @@
         <PostQuote full linked {loader} quoted={post.quoted} {userPostUrl} />
       {/if}
       {#if post.preview}
-        <PostPreview {loader} preview={post.preview} {protect} />
+        <PostPreview
+          {loader}
+          preview={post.preview}
+          {protect}
+          published={post.publishedAt}
+        />
       {/if}
     {/snippet}
   </PostWarning>

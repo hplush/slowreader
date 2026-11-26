@@ -16,11 +16,13 @@
   let {
     loader,
     preview,
-    protect = false
+    protect = false,
+    published
   }: {
     loader: LoaderName | null | undefined
     preview: PostPreview
     protect?: boolean | null
+    published?: null | number
   } = $props()
 
   let broken = $state<null | string>()
@@ -49,7 +51,7 @@
     <img
       class="post-preview_image"
       class:is-loading={loaded !== image}
-      {@attach mediaSrc(image, { once: !!protect })}
+      {@attach mediaSrc(image, { once: !!protect, published })}
       alt=""
       decoding="async"
       draggable={protect ? 'false' : undefined}

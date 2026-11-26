@@ -177,6 +177,7 @@
         html={intro}
         lang={post.lang}
         loader={post.loader}
+        published={post.publishedAt}
         simple
       />
       {#if post.poll}
@@ -186,6 +187,7 @@
         media={getMediaOutsideText(post.media, intro, post.intro === null)}
         postUrl={url}
         protect={post.protected}
+        published={post.publishedAt}
       />
       {#if post.quoted}
         <PostQuote loader={post.loader} quoted={post.quoted} {userPostUrl} />
@@ -195,6 +197,7 @@
           loader={post.loader}
           preview={post.preview}
           protect={post.protected}
+          published={post.publishedAt}
         />
       {/if}
     </PostWarning>

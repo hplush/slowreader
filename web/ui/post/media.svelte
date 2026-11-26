@@ -42,11 +42,13 @@
     media,
     postUrl,
     protect = false,
+    published,
     warningClicked = false
   }: {
     media: ReaderMedia[]
     postUrl?: string
     protect?: boolean | null
+    published?: null | number
     warningClicked?: boolean
   } = $props()
 
@@ -205,7 +207,11 @@
     class:is-loading={!loaded.has(item.url)}
     class:is-sticker={isSticker(item)}
     {@attach focusClicked(item.url)}
-    {@attach mediaSrc(item.url, { copies: item.copies, once: !!protect })}
+    {@attach mediaSrc(item.url, {
+      copies: item.copies,
+      once: !!protect,
+      published
+    })}
     alt={item.alt ?? ''}
     decoding="async"
     height={item.size?.height}
@@ -304,7 +310,7 @@
     class="post-media_item"
     class:is-round={isRound(item)}
     {@attach focusClicked(item.url)}
-    {@attach mediaSrc(item.url, { stream: true, web: false })}
+    {@attach mediaSrc(item.url, { published, stream: true, web: false })}
     {@attach mediaSrc(shownPoster(item), { attribute: 'poster' })}
     {@attach () => () => {
       autoplayed.delete(item.url)
@@ -419,7 +425,7 @@
           <video
             class="post-media_item"
             {@attach focusClicked(item.url)}
-            {@attach mediaSrc(item.url, { web: false })}
+            {@attach mediaSrc(item.url, { published, web: false })}
             {@attach mediaSrc(item.poster, { attribute: 'poster' })}
             aria-label={item.alt}
             autoplay

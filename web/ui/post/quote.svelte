@@ -83,6 +83,7 @@
             html={text}
             lang={quoted.lang}
             {loader}
+            published={quoted.publishedAt}
             simple={!full}
           />
           {#if quoted.poll}
@@ -100,10 +101,15 @@
               !full
             )}
             postUrl={userPostUrl(quoted)}
+            published={quoted.publishedAt}
             {warningClicked}
           />
           {#if quoted.preview}
-            <PostPreview {loader} preview={quoted.preview} />
+            <PostPreview
+              {loader}
+              preview={quoted.preview}
+              published={quoted.publishedAt}
+            />
           {/if}
           {#if quoted.quotedUrl}
             {@render nested(quoted.quotedUrl)}

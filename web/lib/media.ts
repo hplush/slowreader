@@ -1,5 +1,6 @@
 import {
   chooseMediaCopy,
+  getMediaFileName,
   isLoaderMedia,
   isMediaCached,
   loadLoaderMedia,
@@ -388,6 +389,7 @@ function watchPlace(
  * is not in the cache.
  * `copies` are smaller files of the image. The smallest one, which is enough
  * for the element, is shown, if the device has no file from `url` yet.
+ * `published` is the post’s date for the file name on saving.
  */
 export function mediaSrc(
   best: null | string | undefined,
@@ -396,6 +398,7 @@ export function mediaSrc(
     copies,
     keep = false,
     once = false,
+    published,
     stream = false,
     web = true
   }: {
@@ -403,6 +406,7 @@ export function mediaSrc(
     copies?: PostMedia['copies']
     keep?: boolean
     once?: boolean
+    published?: null | number
     stream?: boolean
     web?: boolean
   } = {}
@@ -442,7 +446,15 @@ export function mediaSrc(
     loading.then(
       file => {
         if (removed) return
-        local = typeof file === 'string' ? file : URL.createObjectURL(file)
+        if (typeof file === 'string') {
+          local = file
+        } else {
+          // Firefox saves an image from a Blob without a name as “No name”
+          let named = new File([file], getMediaFileName(published), {
+            type: file.type
+          })
+          local = URL.createObjectURL(named)
+        }
         if (once) {
           element.addEventListener(
             'load',

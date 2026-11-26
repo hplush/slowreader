@@ -27,12 +27,14 @@
     html,
     lang,
     loader,
+    published,
     scroll = true,
     simple = false
   }: {
     html: Element | string | undefined
     lang?: null | string
     loader?: LoaderName | null
+    published?: null | number
     scroll?: boolean
     simple?: boolean
   } = $props()
@@ -97,7 +99,7 @@
         let width = image.getAttribute('width')
         let height = image.getAttribute('height')
         if (width && height) image.style.aspectRatio = `${width} / ${height}`
-        let stop = mediaSrc(loaderUrl)(image)
+        let stop = mediaSrc(loaderUrl, { published })(image)
         if (stop) cleanups.add(stop)
       }
     }

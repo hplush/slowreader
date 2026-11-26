@@ -13,6 +13,7 @@ import {
   formatSize,
   formatTime,
   formatTimeShort,
+  getMediaFileName,
   humanizeUrl
 } from '../format.ts'
 import { organizeMessages } from '../messages/index.ts'
@@ -198,5 +199,11 @@ describe('format', () => {
       }),
       { hint: 'Last post -2 year', silence: 'twoYears', warning: t.abandoned }
     )
+  })
+
+  test('names media files by post date', () => {
+    let published = new Date(2026, 10, 26, 15, 7, 8).getTime() / 1000
+    match(getMediaFileName(published), /^2026-11-26-\d+$/)
+    match(getMediaFileName(null), /^\d+$/)
   })
 })
