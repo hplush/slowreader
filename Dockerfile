@@ -88,7 +88,7 @@ WORKDIR /app
 # Run `pnpm update-docker` to take the latest one.
 # Only files are copied from the demo image, so its x64 platform is fine on ARM.
 # ghcr.io/hplush/slowreader-demo:latest
-FROM --platform=linux/amd64 ghcr.io/hplush/slowreader-demo@sha256:de669842f7d372d76c49598260a9465a5ee0ed0cab988a57d8e842df79dc214a AS demo
+FROM --platform=linux/amd64 ghcr.io/hplush/slowreader-demo@sha256:2fea3ba9803ddf92e0965a9d739c11c904b7a09f24fe77853f166021e01a2d0d AS demo
 
 FROM native AS client
 COPY api/package.json api/
