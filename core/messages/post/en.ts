@@ -9,6 +9,8 @@ export const postMessages = i18n('post', {
   dislike: 'Dislike',
   downloadImage: 'Download image',
   downloadSensitive: 'Download & show',
+  extract: 'Download full post',
+  extracted: 'Full post downloaded',
   file: 'File',
   sensitiveMedia: 'Sensitive media',
   hideSpoiler: 'Hide text',

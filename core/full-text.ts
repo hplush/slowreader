@@ -153,6 +153,28 @@ export async function downloadFullText(
   return content
 }
 
+export function isFullTextDownloaded(post: { full?: null | string }): boolean {
+  return !!post.full?.startsWith('<div id="readability-page-1"')
+}
+
+type TextPost = {
+  full?: null | string
+  intro?: null | string
+  media?: null | PostMedia[]
+  url?: null | string
+}
+
+export function toFullTextChanges(
+  post: TextPost,
+  full: string
+): { full: string; intro: string | undefined; media: PostMedia[] } {
+  return {
+    full,
+    intro: post.intro || post.full || undefined,
+    media: post.media?.length ? post.media : findMediaInText(full)
+  }
+}
+
 type FullTextsResult<Post> =
   | { blocked: false; errors: Error[]; posts: Post[] }
   | { blocked: true }
@@ -163,14 +185,7 @@ type FullTextsResult<Post> =
  * media, if the feed has no media. Post keeps the feed’s text, when the page
  * can’t be loaded.
  */
-export async function addFullTexts<
-  Post extends {
-    full?: null | string
-    intro?: null | string
-    media?: null | PostMedia[]
-    url?: null | string
-  }
->(
+export async function addFullTexts<Post extends TextPost>(
   task: DownloadTask,
   posts: Post[],
   onProcessed?: () => void
@@ -187,12 +202,7 @@ export async function addFullTexts<
       if (!post.url) continue
       try {
         let full = await downloadFullText(task, post.url)
-        result[index] = {
-          ...post,
-          full,
-          intro: post.intro || post.full,
-          media: post.media?.length ? post.media : findMediaInText(full)
-        }
+        result[index] = { ...post, ...toFullTextChanges(post, full) }
       } catch (e) {
         if (!(e instanceof Error) || e.name === 'AbortError') throw e
         errors[index] = e
@@ -209,10 +219,11 @@ export async function addFullTextsToUnread(
   task: DownloadTask,
   onProgress: (value: number) => void
 ): Promise<void> {
-  let unread = await getTables().posts.load`
+  let rows = await getTables().posts.load`
     WHERE "feedId" = ${feedId} AND "read" = 0 AND "url" IS NOT NULL
     ORDER BY "sortedAt" DESC, "id" DESC
   `
+  let unread = rows.filter(post => !isFullTextDownloaded(post))
   let processed = 0
   let result = await addFullTexts(task, unread, () => {
     processed += 1

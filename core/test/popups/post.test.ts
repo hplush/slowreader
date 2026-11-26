@@ -21,6 +21,7 @@ import {
   loadThreadPosts,
   moveToLater,
   openedPopups,
+  organizeMessages,
   type OriginPost,
   postMessages,
   type PostValue,
@@ -30,7 +31,11 @@ import {
   toPreviewPost,
   waitLoading
 } from '../../index.ts'
-import { canOpenPostUrl, getPostPopupParam } from '../../popups/post.ts'
+import {
+  canOpenPostUrl,
+  getPostPopupParam,
+  type PostPopup
+} from '../../popups/post.ts'
 import {
   checkAndRemoveRequestMock,
   checkLoadedPopup,
@@ -42,8 +47,11 @@ import {
   mockRequest,
   openTestPopup,
   openRoute,
+  setupNodeDom,
   waitUntil
 } from '../utils.ts'
+
+setupNodeDom()
 
 describe('post popup', () => {
   beforeEach(() => {
@@ -940,5 +948,87 @@ describe('post popup', () => {
       ),
       ['Preview']
     )
+  })
+
+  test('downloads full text of one post', async t => {
+    mockRequest()
+    t.after(() => {
+      checkAndRemoveRequestMock()
+    })
+    let feedId = await addFeed(testFeed({ url: 'https://a.com/atom' }))
+    let extractingId = await addFeed(
+      testFeed({ extract: true, url: 'https://b.com/atom' })
+    )
+    let socialId = await addFeed(
+      testFeed({ loader: 'mastodon', url: 'https://mastodon.social/@a' })
+    )
+    await addPost([
+      testPost({
+        feedId,
+        full: 'Feed',
+        id: 'web',
+        intro: null,
+        url: 'https://a.com/1'
+      }),
+      testPost({ feedId: extractingId, id: 'extracting' }),
+      testPost({ feedId: socialId, id: 'social' }),
+      testPost({
+        author: { loader: 'page', title: 'Site', url: 'https://site.com/' },
+        feedId: null,
+        id: 'page',
+        later: 1
+      }),
+      testPost({ feedId, id: 'noUrl', url: null })
+    ])
+    async function openPost(id: string): Promise<PostPopup> {
+      let opened = openTestPopup('post', getPostPopupParam({ feedId, id }))
+      await waitLoading(opened.loading)
+      let popup = checkLoadedPopup(opened)
+      keepMount(popup.extractStatus)
+      keepMount(popup.post)
+      return popup
+    }
+    for (let hidden of ['extracting', 'social', 'page', 'noUrl']) {
+      equal((await openPost(hidden)).extractStatus.get(), undefined)
+    }
+
+    let popup = await openPost('web')
+    deepEqual(popup.extractStatus.get(), { status: 'ready' })
+    expectRequest('https://a.com/1').andRespond(
+      200,
+      '<html><body></body></html>'
+    )
+    equal(await popup.extract(), false)
+    deepEqual(popup.extractStatus.get(), {
+      error: organizeMessages.get().extractNoArticle,
+      status: 'failed'
+    })
+
+    let closing = await openPost('web')
+    let request = expectRequest('https://a.com/1').andWait()
+    let aborted = closing.extract()
+    closeLastPopup()
+    equal(request.aborted, true)
+    equal(await aborted, false)
+
+    let text = 'Long paragraph of the article. '.repeat(40)
+    expectRequest('https://a.com/1').andRespond(
+      200,
+      `<html><body><article><p>${text}</p>` +
+        '<p><img src="/a.png"></p></article></body></html>'
+    )
+    let extracting = popup.extract()
+    deepEqual(popup.extractStatus.get(), { status: 'downloading' })
+    equal(await extracting, true)
+    deepEqual(popup.extractStatus.get(), { status: 'done' })
+    await waitUntil(() => !!popup.post.get().full?.includes('Long paragraph'))
+    let saved = await loadPost('web')
+    equal(saved!.intro, 'Feed')
+    deepEqual(saved!.media, [
+      { fromText: true, type: 'image', url: 'https://a.com/a.png' }
+    ])
+
+    closeLastPopup()
+    equal((await openPost('web')).extractStatus.get(), undefined)
   })
 })

@@ -7,9 +7,20 @@ import {
 } from 'nanostores'
 
 import { getUserPostUrls, loadAccount } from '../account.ts'
-import { NotFoundError } from '../errors.ts'
+import { getEnvironment } from '../environment.ts'
+import {
+  errorToMessage,
+  isRemoteError,
+  NotFoundError,
+  UserFacingError
+} from '../errors.ts'
 import { type FeedValue, loadFeed } from '../feed.ts'
 import { formatDuration, formatPublishedAt, i18nFormat } from '../format.ts'
+import {
+  downloadFullText,
+  isFullTextDownloaded,
+  toFullTextChanges
+} from '../full-text.ts'
 import {
   canReturnFromLater,
   deleteFromLater,
@@ -32,6 +43,7 @@ import {
 import { postMessages } from '../messages/index.ts'
 import {
   addHandles,
+  changePost,
   changeRead,
   getPost,
   loadPost,
@@ -90,6 +102,12 @@ export function loadPopupPost(param: string): Promise<PostValue | undefined> {
     return Promise.resolve(undefined)
   }
 }
+
+export type PostExtractStatus =
+  | { error: string; status: 'failed' }
+  | { status: 'done' }
+  | { status: 'downloading' }
+  | { status: 'ready' }
 
 /**
  * Reposts from old versions have the repost’s date in `publishedAt`,
@@ -244,6 +262,16 @@ export const post = definePopup('post', async loader => {
       )
     }
   }
+  let $extractStatus = atom<PostExtractStatus | undefined>(
+    stored?.url &&
+      service &&
+      isWebFeed(service) &&
+      !$feed?.get().extract &&
+      !isFullTextDownloaded(stored)
+      ? { status: 'ready' }
+      : undefined
+  )
+
   updating
     ?.then(parts => {
       $parts.set(parts)
@@ -297,6 +325,24 @@ export const post = definePopup('post', async loader => {
       unbindPost()
       unbindRead()
     },
+    async extract(): Promise<boolean> {
+      let current = $post.get() as PostValue
+      $extractStatus.set({ status: 'downloading' })
+      try {
+        let full = await downloadFullText(task, current.url!)
+        await changePost(current.id, toFullTextChanges(current, full))
+        $extractStatus.set({ status: 'done' })
+        return true
+      } catch (e) {
+        if (e instanceof Error && e.name === 'AbortError') return false
+        if (!(e instanceof UserFacingError) && !isRemoteError(e)) {
+          getEnvironment().warn(e)
+        }
+        $extractStatus.set({ error: errorToMessage(e), status: 'failed' })
+        return false
+      }
+    },
+    extractStatus: $extractStatus,
     feed: $feed,
     later,
     laterLocked: $laterLocked,

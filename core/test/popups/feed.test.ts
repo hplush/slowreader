@@ -537,7 +537,13 @@ describe('feed popup', () => {
       }),
       testPost({ feedId, id: 'read', read: 1, url: 'https://a.com/2' }),
       testPost({ feedId, id: 'failed', url: 'https://a.com/3' }),
-      testPost({ id: 'other', url: 'https://a.com/4' })
+      testPost({ id: 'other', url: 'https://a.com/4' }),
+      testPost({
+        feedId,
+        full: '<div id="readability-page-1" class="page"><p>Done</p></div>',
+        id: 'downloaded',
+        url: 'https://a.com/5'
+      })
     ])
     expectRequest('https://a.com/atom').andRespond(
       200,

@@ -1,5 +1,6 @@
 <script lang="ts">
   import {
+    mdiAlertCircleOutline,
     mdiBookmarkCheck,
     mdiBookmarkPlusOutline,
     mdiCircleOutline,
@@ -7,6 +8,7 @@
     mdiEyeCheck,
     mdiEyeCheckOutline,
     mdiOpenInNew,
+    mdiTextBoxOutline,
     mdiThumbDown,
     mdiThumbUp,
     mdiTrashCanOutline
@@ -27,8 +29,10 @@
   import { trackPostLinks } from '../lib/post-links.ts'
   import { onNextVisibility } from '../lib/visitibility.ts'
   import { getPopupHash } from '../stores/url-router.ts'
+  import Announce from '../ui/announce.svelte'
   import Button from '../ui/button.svelte'
   import FeedLink from '../ui/feed-link.svelte'
+  import Note from '../ui/note.svelte'
   import Popup from '../ui/popup.svelte'
   import Post from '../ui/post/index.svelte'
   import PostLikes from '../ui/post/likes.svelte'
@@ -43,6 +47,7 @@
   let { popup }: { popup: PostPopup } = $props()
 
   let {
+    extractStatus,
     feed,
     later,
     laterLocked,
@@ -58,6 +63,20 @@
   } = $derived(popup)
 
   let url = $derived($userPostUrl($post))
+  let openLink: HTMLElement | undefined
+
+  async function extract(event: MouseEvent): Promise<void> {
+    let focused = document.activeElement === event.currentTarget
+    if ((await popup.extract()) && focused) {
+      openLink?.focus({ preventScroll: true })
+    }
+  }
+
+  let extractAnnounce = $derived.by(() => {
+    if ($extractStatus?.status === 'done') return $t.extracted
+    if ($extractStatus?.status === 'failed') return $extractStatus.error
+    return ''
+  })
   // Post in Read later keeps its feed in the author
   let dateInByline = $derived(
     !!$post.repostedBy || (!!$post.later && !!$post.author)
@@ -182,15 +201,36 @@
       </Stack>
       <Stack gap="l">
         {#if url && !popup.whole}
-          <Button
-            href={url}
-            icon={mdiOpenInNew}
-            size="wide"
-            target="_blank"
-            variant="attention"
-          >
-            {$t.url}
-          </Button>
+          <Stack align="center">
+            <Button
+              {@attach link => {
+                openLink = link
+              }}
+              href={url}
+              icon={mdiOpenInNew}
+              size="wide"
+              target="_blank"
+              variant="attention"
+            >
+              {$t.url}
+            </Button>
+            {#if $extractStatus && $extractStatus.status !== 'done'}
+              <Button
+                icon={mdiTextBoxOutline}
+                loader={$extractStatus.status === 'downloading'}
+                onclick={extract}
+                size="pill"
+              >
+                {$t.extract}
+              </Button>
+            {/if}
+            {#if $extractStatus?.status === 'failed'}
+              <Note icon={mdiAlertCircleOutline} variant="dangerous">
+                {$extractStatus.error}
+              </Note>
+            {/if}
+            <Announce text={extractAnnounce} />
+          </Stack>
         {/if}
         {#if reacted || popup.read}
           <Stack>
@@ -225,7 +265,7 @@
               color="dangerous"
               icon={mdiTrashCanOutline}
               onclick={popup.remove}
-              variant="plain"
+              size="pill"
             >
               {$laterMessages.delete}
             </Button>

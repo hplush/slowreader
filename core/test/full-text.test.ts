@@ -7,6 +7,7 @@ import {
   downloadFullText,
   HTTPStatusError,
   isAllowedByRobots,
+  isFullTextDownloaded,
   organizeMessages,
   robotsRecords
 } from '../index.ts'
@@ -119,6 +120,8 @@ describe('full text', () => {
       'https://a.com/blog/1'
     )
     ok(full)
+    ok(isFullTextDownloaded({ full }))
+    ok(!isFullTextDownloaded({ full: TEXT }))
     ok(full.includes(TEXT))
     ok(!full.includes('Footer'))
     ok(full.includes('href="https://a.com/blog/2"'))
@@ -200,12 +203,12 @@ describe('full text', () => {
       }
     ])
     if (result.blocked) throw new Error('Blocked')
-    ok(result.posts[0]!.full!.includes(TEXT))
+    ok(result.posts[0]!.full.includes(TEXT))
     equal(result.posts[0]!.intro, 'Intro')
     equal(result.posts[1]!.full, 'Feed 2')
     equal(result.posts[1]!.intro, undefined)
     equal(result.posts[2]!.full, 'Feed 3')
-    ok(result.posts[3]!.full!.includes(TEXT))
+    ok(result.posts[3]!.full.includes(TEXT))
     equal(result.posts[3]!.intro, 'Feed 4')
     deepEqual(result.posts[3]!.media, [
       { alt: 'A', fromText: true, type: 'image', url: 'https://a.com/a.png' }

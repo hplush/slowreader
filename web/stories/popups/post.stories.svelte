@@ -234,6 +234,15 @@
     await userEvent.setup({}).click(buttons.at(-1)!)
   }
 
+  async function downloadFull({
+    canvas,
+    userEvent
+  }: StoryContext): Promise<void> {
+    await userEvent.click(
+      await canvas.findByRole('button', { name: 'Download full post' })
+    )
+  }
+
   function open(autoread = false, feedId = 'feed'): () => void {
     return () => {
       popup = popups.post(getPostPopupParam({ feedId, id: 'post-1' }, autoread))
@@ -258,7 +267,12 @@
   </Scene>
 </Story>
 
-<Story name="Saved" asChild parameters={{ layout: 'fullscreen' }}>
+<Story
+  name="Saved"
+  asChild
+  parameters={{ layout: 'fullscreen' }}
+  play={downloadFull}
+>
   <Scene
     feeds={[FEED]}
     oninit={open(false, '')}
@@ -275,6 +289,7 @@
         later: 1600000000
       }
     ]}
+    responses={[['https://example.com/news/1', '<html><body></body></html>']]}
   >
     {#if popup}
       <LoadedPopup {popup}>
@@ -326,11 +341,13 @@
   asChild
   globals={{ viewport: { value: 'mobile2' } }}
   parameters={{ layout: 'fullscreen' }}
+  play={downloadFull}
 >
   <Scene
     feeds={[FEED]}
     oninit={open()}
     posts={[{ ...POST, media: [{ type: 'image', url: imgExample }] }]}
+    responses={[['https://example.com/news/1', { loading: true }]]}
   >
     {#if popup}
       <LoadedPopup {popup}>
