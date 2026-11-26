@@ -536,6 +536,7 @@ describe('media cache', () => {
   test('is a part of refresh', async () => {
     await addPost(
       testPost({
+        feedId: null,
         media: [{ type: 'image', url: 'https://img.com/1.jpg' }],
         reading: 'slow'
       })
@@ -570,6 +571,7 @@ describe('media cache', () => {
     })
     await addPost(
       testPost({
+        feedId: null,
         media: [{ type: 'image', url: 'https://img.com/1.jpg' }],
         reading: 'slow'
       })
@@ -602,6 +604,7 @@ describe('media cache', () => {
   test('stops with refresh', async () => {
     await addPost(
       testPost({
+        feedId: null,
         media: [
           { type: 'image', url: 'https://img.com/1.jpg' },
           { type: 'image', url: 'https://img.com/2.jpg' },
@@ -687,6 +690,29 @@ describe('media cache', () => {
     expectRequest('https://v.com/1.mp4').andRespond(200, 'v')
     await syncMediaCache()
     deepEqual(await cached(), ['https://v.com/1.mp4'])
+  })
+
+  test('skips files bigger than 100 MB', async () => {
+    cacheVideos.set('always')
+    await addPost(
+      testPost({
+        media: [
+          { type: 'video', url: 'https://v.com/big.mp4' },
+          { type: 'video', url: 'https://v.com/small.mp4' }
+        ],
+        mediaSizes: [{ bytes: 3_998_140_151 }, { bytes: 100 * 1024 * 1024 }],
+        quoted: {
+          media: [{ type: 'image', url: 'https://img.com/big.jpg' }],
+          mediaSizes: [{ bytes: 200 * 1024 * 1024 }],
+          missing: false
+        }
+      })
+    )
+    expectRequest('https://v.com/small.mp4').andRespond(200, 's')
+    await syncMediaCache()
+    deepEqual(await cached(), ['https://v.com/small.mp4'])
+    deepEqual(mediaStatistics.get(), { done: 1, failed: 0, total: 1 })
+    deepEqual(mediaErrors.get(), [])
   })
 
   test('retries server errors', async () => {

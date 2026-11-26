@@ -1102,10 +1102,15 @@ describe('refresh', () => {
     let now = Math.round(Date.now() / 1000)
     let day = 24 * 60 * 60
     await addPost([
-      testPost({ originId: 'fast1', publishedAt: now - day }),
-      testPost({ originId: 'fast3', publishedAt: now - 3 * day }),
-      testPost({ originId: 'fast10', publishedAt: now - 10 * day }),
+      testPost({ feedId: null, originId: 'fast1', publishedAt: now - day }),
+      testPost({ feedId: null, originId: 'fast3', publishedAt: now - 3 * day }),
       testPost({
+        feedId: null,
+        originId: 'fast10',
+        publishedAt: now - 10 * day
+      }),
+      testPost({
+        feedId: null,
         originId: 'slow10',
         publishedAt: now - 10 * day,
         reading: 'slow'
@@ -1129,16 +1134,42 @@ describe('refresh', () => {
     deepEqual(await getPostKeys('originId'), ['fast1', 'slow10'])
   })
 
+  test('deletes posts of deleted feeds', async () => {
+    let feedId = await addFeed(testFeed({ loader: 'rss' }))
+    spyOn(loaders.rss, 'getPosts', () => {
+      return createPostsList(() => Promise.resolve([[], undefined]))
+    })
+    await addPost([
+      testPost({ feedId, originId: 'feed' }),
+      testPost({ feedId: 'deleted', originId: 'orphan' }),
+      testPost({ feedId: null, later: 1000, originId: 'later' }),
+      testPost({ accountId: 'account', feedId: null, originId: 'account' })
+    ])
+    await refreshPosts()
+    deepEqual(await getPostKeys('originId'), ['account', 'feed', 'later'])
+  })
+
   test('deletes posts read more than a day ago before refresh', async () => {
     let now = Math.round(Date.now() / 1000)
     let day = 24 * 60 * 60
     await addPost([
-      testPost({ originId: 'unread' }),
-      testPost({ originId: 'returned', readAt: now - 2 * day }),
-      testPost({ originId: 'shown', read: 1, readAt: now - 60 }),
-      testPost({ originId: 'today', read: 2, readAt: now - 3600 }),
-      testPost({ originId: 'yesterday', read: 2, readAt: now - 2 * day }),
+      testPost({ feedId: null, originId: 'unread' }),
+      testPost({ feedId: null, originId: 'returned', readAt: now - 2 * day }),
+      testPost({ feedId: null, originId: 'shown', read: 1, readAt: now - 60 }),
       testPost({
+        feedId: null,
+        originId: 'today',
+        read: 2,
+        readAt: now - 3600
+      }),
+      testPost({
+        feedId: null,
+        originId: 'yesterday',
+        read: 2,
+        readAt: now - 2 * day
+      }),
+      testPost({
+        feedId: null,
         merged: true,
         originId: 'part',
         read: 2,
@@ -1146,7 +1177,7 @@ describe('refresh', () => {
         reading: 'slow'
       }),
       // Read in the old version, which had no time of reading
-      testPost({ originId: 'legacy', read: 1 })
+      testPost({ feedId: null, originId: 'legacy', read: 1 })
     ])
 
     await refreshPosts()

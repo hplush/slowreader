@@ -848,6 +848,9 @@ export async function refreshPosts({ auto = false } = {}): Promise<void> {
   if (untouchedAccounts.length > 0) {
     await getTables().accounts.update(untouchedAccounts, { refreshedAt })
   }
+  await getTables().posts.deleteWhere`
+    "feedId" IS NOT NULL AND "feedId" NOT IN (SELECT "id" FROM "feeds")
+  `
   if (run !== currentRun) return
   // Every device caches own media
   releaseRefreshLock()

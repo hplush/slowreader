@@ -1079,7 +1079,7 @@ describe('telegram loader', () => {
           repostedBy: channel
         },
         {
-          author: { title: 'Group', url: undefined },
+          author: { title: 'Group' },
           full: '<p>Post 4</p>',
           poll: undefined,
           preview: undefined,
@@ -4456,6 +4456,59 @@ describe('telegram loader', () => {
     await rejects(telegram.getMedia!('telegram:5/avatar/b_2')!, {
       message: 'No Telegram avatar'
     })
+  })
+
+  test('saves no avatar of blocked forward source', async t => {
+    t.after(() => account.cancelSignIn!({ name: 'name' }))
+    deviceSessions.set({ own: { device: 'name', service: 'telegram' } })
+    let blocked =
+      'This channel can’t be displayed because it violated local laws (Spain).'
+    async function loadAuthor(): Promise<OriginPost['author']> {
+      mockHistory(0, {
+        0: [
+          message(1, {
+            forward_info: {
+              '@type': 'messageForwardInfo',
+              'origin': {
+                '@type': 'messageOriginChannel',
+                'chat_id': -1000000000009
+              }
+            }
+          })
+        ]
+      })
+      testTelegram.answers.getChat = ({ chat_id: id }) => ({
+        ...news(id, 0),
+        photo: {
+          small: { '@type': 'file', 'id': 72, 'remote': { unique_id: 'b' } }
+        }
+      })
+      let [post] = await loadFeedPosts('{"id":"-1000000000005"}')
+      return post?.author
+    }
+    testTelegram.answers.getSupergroup = ({ supergroup_id: id }) => ({
+      '@type': 'supergroup',
+      'restriction_info': {
+        '@type': 'restrictionInfo',
+        'restriction_reason': id === 9 ? blocked : ''
+      }
+    })
+    deepEqual(await loadAuthor(), { title: 'News', url: 'https://t.me/c/9' })
+
+    testTelegram.answers.getChat = fail('Chat not found')
+    testTelegram.requests = []
+    await rejects(loaders.telegram.getMedia!('telegram:9/avatar/b')!, {
+      code: 451,
+      message: blocked
+    })
+    equal(getRequestTypes().includes('loadChats'), false)
+
+    blocked = ''
+    equal((await loadAuthor())?.avatar, 'telegram:9/avatar/b')
+    let saved = 'slowreader:telegram-blocked'
+    equal(getEnvironment().persistentStore[saved], '{"name":{}}')
+    await account.cancelSignIn!({ name: 'name' })
+    equal(getEnvironment().persistentStore[saved], '{}')
   })
 
   test('finds channel on Add page by link and by handle', async () => {

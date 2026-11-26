@@ -290,6 +290,14 @@ async function loadWantedMedia(
     JOIN "posts" ON "posts"."id" = "mediaFiles"."postId"
     WHERE "mediaFiles"."url" IS NOT NULL
       AND (${onlySlow ? 1 : 0} = 0 OR "posts"."reading" = 'slow')
+      AND COALESCE(json_extract(
+        CASE "mediaFiles"."field"
+          WHEN 'media' THEN "posts"."mediaSizes"
+          WHEN 'quoted' THEN json_extract("posts"."quoted", '$.mediaSizes')
+          WHEN 'replied' THEN json_extract("posts"."replied", '$.mediaSizes')
+        END,
+        '$[' || "mediaFiles"."position" || '].bytes'
+      ), 0) <= ${100 * 1024 * 1024}
     ORDER BY "posts"."sortedAt" DESC
   `
   for (let file of files) {

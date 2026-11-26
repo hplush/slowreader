@@ -11,7 +11,7 @@ export const networkMessages = i18n('network', {
   cacheMediaReadingAll: 'All',
   cacheMediaReadingNone: 'None',
   cacheMediaReadingSlow: 'Useful',
-  cacheVideos: 'Save videos for offline',
+  cacheVideos: 'Save small videos for offline',
   extension: 'Extension',
   extensionDesc:
     'The browser makes the requests itself. It is the fastest way, ' +

@@ -59,6 +59,24 @@ let missingChats = persistentJSON<Record<string, number[]>>(
   {}
 )
 
+let blockedChats = persistentJSON<Record<string, Record<string, string>>>(
+  'slowreader:telegram-blocked',
+  {}
+)
+
+function rememberBlocked(
+  name: string,
+  chatId: number,
+  reason: string | undefined
+): void {
+  let { [chatId]: known, ...rest } = blockedChats.get()[name] ?? {}
+  if (known === reason) return
+  blockedChats.set({
+    ...blockedChats.get(),
+    [name]: reason ? { ...rest, [chatId]: reason } : rest
+  })
+}
+
 function rememberMissing(name: string, missing: Set<number>): void {
   // Nothing removes channels of old forwarded posts
   for (let chat of missing) {
@@ -508,6 +526,8 @@ async function destroyTelegram(name: string): Promise<void> {
   sessions.delete(name)
   let { [name]: forgotten, ...rest } = missingChats.get()
   if (forgotten) missingChats.set(rest)
+  let { [name]: blocked, ...unblocked } = blockedChats.get()
+  if (blocked) blockedChats.set(unblocked)
   await session.client.destroy()
 }
 
@@ -741,21 +761,29 @@ async function loadChatsSince(name: string, date: number): Promise<void> {
   closeOnIdle(getSession(name))
 }
 
+function toChannelUrl(
+  supergroupId: unknown,
+  supergroup: TelegramObject
+): string {
+  let username = getUsername(supergroup)
+  return username
+    ? `https://t.me/${username}`
+    : `https://t.me/c/${String(supergroupId)}`
+}
+
 async function loadChannelUrl(
   name: string,
   supergroupId: unknown,
   urgency: Urgency = 'now'
 ): Promise<string> {
-  let username = getUsername(
+  return toChannelUrl(
+    supergroupId,
     await sendToTelegram(
       name,
       { '@type': 'getSupergroup', 'supergroup_id': supergroupId },
       urgency
     )
   )
-  return username
-    ? `https://t.me/${username}`
-    : `https://t.me/c/${String(supergroupId)}`
 }
 
 /**
@@ -818,7 +846,10 @@ async function loadChat(
       )
     } catch (e) {
       let session = getSession(name)
-      if (!TelegramError.is(e) || session.missing.has(chatId)) throw e
+      if (!TelegramError.is(e)) throw e
+      let blocked = blockedChats.get()[name]?.[chatId]
+      if (blocked) throw new TelegramError(451, blocked)
+      if (session.missing.has(chatId)) throw e
       if (session.depth === 0) {
         session.missing.add(chatId)
         rememberMissing(name, session.missing)
@@ -1477,10 +1508,23 @@ async function loadForwardAuthor(
       urgency
     )
     let id = isObject(chat.type) ? chat.type.supergroup_id : undefined
+    if (!id) return { title: String(chat.title) }
+    let supergroup = await sendToTelegram(
+      name,
+      { '@type': 'getSupergroup', 'supergroup_id': id },
+      urgency
+    )
+    let restriction = supergroup.restriction_info
+    let blocked =
+      (isObject(restriction) &&
+        typeof restriction.restriction_reason === 'string' &&
+        restriction.restriction_reason) ||
+      undefined
+    rememberBlocked(name, Number(chat.id), blocked)
     return {
-      ...(id ? getAvatar('channel', id, chat.photo) : undefined),
+      ...(!blocked && getAvatar('channel', id, chat.photo)),
       title: String(chat.title),
-      url: id ? await loadChannelUrl(name, id, urgency) : undefined
+      url: toChannelUrl(id, supergroup)
     }
   } catch (e) {
     if (!TelegramError.is(e)) throw e
