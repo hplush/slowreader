@@ -73,12 +73,7 @@
         <PageIcon path={mdiBookmarkOutline}>{$t.empty}</PageIcon>
       </Stack>
     {:else}
-      <Feed
-        authors={$authors}
-        autoread
-        posts={$posts}
-        userPostUrl={$userPostUrl}
-      />
+      <Feed authors={$authors} posts={$posts} userPostUrl={$userPostUrl} />
     {/if}
   </Stack>
 </PopupablePage>

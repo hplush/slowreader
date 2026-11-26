@@ -7,7 +7,7 @@ import {
   addPost,
   busy,
   busyUntilMenuLoader,
-  changeRead,
+  deleteFromLater,
   laterMessages,
   loadPost,
   moveToLater,
@@ -63,14 +63,10 @@ describe('later page', () => {
     )
 
     await moveToLater((await loadPost('feed'))!)
-    await changeRead(['old'], true)
     await setTimeout(10)
     deepEqual(
-      page.posts.get().map(post => [post.id, post.read]),
-      [
-        ['feed', 0],
-        ['old', 1]
-      ]
+      page.posts.get().map(post => post.id),
+      ['feed', 'old']
     )
     let saved = page.posts.get()[0]!
     equal(saved.author, null)
@@ -94,9 +90,12 @@ describe('later page', () => {
       url: 'https://site.com/'
     })
 
-    openPage({ params: {}, route: 'about' })
+    await deleteFromLater((await loadPost('old'))!)
     await setTimeout(10)
-    equal((await loadPost('old'))!.read, 2)
+    deepEqual(
+      page.posts.get().map(post => post.id),
+      ['feed']
+    )
   })
 
   test('adds link from clipboard', async () => {

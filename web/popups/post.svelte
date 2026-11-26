@@ -8,7 +8,8 @@
     mdiEyeCheckOutline,
     mdiOpenInNew,
     mdiThumbDown,
-    mdiThumbUp
+    mdiThumbUp,
+    mdiTrashCanOutline
   } from '@mdi/js'
   import {
     getPopupId,
@@ -59,7 +60,7 @@
   let url = $derived($userPostUrl($post))
   // Post in Read later keeps its feed in the author
   let dateInByline = $derived(
-    !!$post.repostedBy || ('later' in $post && !!$post.later && !!$post.author)
+    !!$post.repostedBy || (!!$post.later && !!$post.author)
   )
   let liked = $derived(
     { dislike: false, like: true, none: undefined, open: undefined }[$reaction]
@@ -89,7 +90,16 @@
     {#if reacted}
       <PostLikes {liked} post={reacted} />
     {/if}
-    {#if popup.read}
+    {#if $post.later}
+      <Button
+        color="dangerous"
+        icon={mdiTrashCanOutline}
+        onclick={popup.remove}
+        size="icon"
+      >
+        {$laterMessages.delete}
+      </Button>
+    {:else if popup.read}
       <Toggle
         icon={$read ? mdiEyeCheck : mdiEyeCheckOutline}
         label={$read ? $t.unread : $t.read}
@@ -194,13 +204,25 @@
                 ]}
               />
             {/if}
-            {#if popup.read}
+            {#if popup.read && !$post.later}
               <Switch
                 icon={mdiEyeCheckOutline}
                 label={$t.readCheckbox}
                 store={popup.read}
               />
             {/if}
+          </Stack>
+        {/if}
+        {#if $post.later}
+          <Stack align="center">
+            <Button
+              color="dangerous"
+              icon={mdiTrashCanOutline}
+              onclick={popup.remove}
+              variant="plain"
+            >
+              {$laterMessages.delete}
+            </Button>
           </Stack>
         {/if}
       </Stack>

@@ -7,9 +7,9 @@ import { humanizeUrl } from '../format.ts'
 import { createLaterAdding, loadLaterPosts } from '../later.ts'
 import { hasPersonAvatar } from '../loader/index.ts'
 import { laterMessages } from '../messages/index.ts'
-import { changePost, type ReaderPost } from '../post.ts'
+import type { ReaderPost } from '../post.ts'
 import type { FeedAuthor } from '../readers/common.ts'
-import { getCrdt, hasDatabase, openedDatabase } from '../schema.ts'
+import { openedDatabase } from '../schema.ts'
 import { createPage } from './common.ts'
 
 function toFeedAuthor(post: ReaderPost): FeedAuthor | undefined {
@@ -27,19 +27,6 @@ function toFeedAuthor(post: ReaderPost): FeedAuthor | undefined {
   }
 }
 
-async function moveReadToHistory(): Promise<void> {
-  if (!hasDatabase()) return
-  let read = await getCrdt().select<{ id: string }>`
-    SELECT "id" FROM "posts" WHERE "later" IS NOT NULL AND "read" = 1
-  `
-  if (read.length > 0) {
-    await changePost(
-      read.map(i => i.id),
-      { read: 2 }
-    )
-  }
-}
-
 async function readClipboard(): Promise<string> {
   let text = await getEnvironment().clipboard.read()
   if (text === undefined) {
@@ -50,7 +37,7 @@ async function readClipboard(): Promise<string> {
 
 /**
  * Post, which keeps its feed or site in the author, shows it like
- * the category reader. Read posts stay until the user leaves the page.
+ * the category reader.
  */
 export const laterPage = createPage('later', () => {
   let $loading = atom(true)
@@ -88,10 +75,9 @@ export const laterPage = createPage('later', () => {
     adding: adding.adding,
     already: adding.already,
     authors: $authors,
-    async exit() {
+    exit() {
       unbind()
       adding.destroy()
-      await moveReadToHistory()
     },
     failure: adding.failure,
     loading: $loading,

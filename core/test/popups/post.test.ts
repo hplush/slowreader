@@ -880,7 +880,7 @@ describe('post popup', () => {
     equal(added?.author?.feedId, feed)
   })
 
-  test('locks Read later for post added by link', async () => {
+  test('deletes post added by link from Read later', async () => {
     let id = await addPost(
       testPost({
         author: { loader: 'page', title: 'Site', url: 'https://site.com/' },
@@ -899,6 +899,18 @@ describe('post popup', () => {
     keepMount(popup.post)
     equal(popup.page.get()?.title, 'Site')
     equal(popup.post.get().author, null)
+
+    let autoread = openTestPopup(
+      'post',
+      getPostPopupParam({ feedId: null, id }, true)
+    )
+    await waitLoading(autoread.loading)
+    let reading = checkLoadedPopup(autoread)
+    equal(reading.read, undefined)
+
+    await reading.remove()
+    deepEqual(openedPopups.get(), [opened])
+    equal(await loadPost(id), undefined)
   })
 
   test('saves preview to Read later', async () => {

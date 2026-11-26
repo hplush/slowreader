@@ -10,10 +10,10 @@ import {
   addPost,
   canReturnFromLater,
   changeFeed,
-  changeRead,
   changePost,
   createDownloadTask,
   deleteFeed,
+  deleteFromLater,
   getTables,
   laterMessages,
   type Loader,
@@ -168,22 +168,16 @@ describe('read later', () => {
     await moveToLater(await load(`${first}-1`))
     await moveToLater(await load(`${second}-1`))
 
-    await changeRead([`${first}-1`], true)
-    deepEqual(
-      (await laterPosts())
-        .toSorted((a, b) => a.id.localeCompare(b.id))
-        .map(post => [post.id, post.read]),
-      [
-        [`${first}-1`, 1],
-        [`${first}-2`, 1],
-        [`${second}-1`, 0],
-        [`${second}-2`, 0]
-      ]
-    )
-
     await returnFromLater(await load(`${first}-1`))
     equal((await load(`${first}-2`)).feedId, first)
     equal((await load(`${second}-2`)).feedId, null)
+
+    await moveToLater(await load(`${first}-1`))
+    await deleteFromLater(await load(`${first}-1`))
+    deepEqual((await laterPosts()).map(post => post.id).toSorted(), [
+      `${second}-1`,
+      `${second}-2`
+    ])
   })
 
   test('moves account’s post back to the account', async () => {
@@ -239,6 +233,12 @@ describe('read later', () => {
     await returnFromLater(await load('saved'))
     equal((await load('saved')).feedId, null)
     ok((await load('saved')).later)
+
+    await deleteFromLater(link)
+    deepEqual(
+      (await laterPosts()).map(post => post.id),
+      ['saved']
+    )
   })
 
   test('saves post, which is not in the database', async () => {

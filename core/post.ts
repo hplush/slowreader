@@ -106,6 +106,7 @@ export type ParsedPost = {
 
 export type OriginPost = {
   id: string
+  later?: undefined
   threadParts?: OriginPost[]
 } & ParsedPost
 
@@ -505,8 +506,6 @@ export async function changeRead(
         JOIN "posts" AS "shown" ON "shown"."threadId" = "part"."threadId"
           AND "shown"."feedId" IS "part"."feedId"
           AND "shown"."accountId" IS "part"."accountId"
-          AND "shown"."author" ->> 'feedId' IS "part"."author" ->> 'feedId'
-          AND "shown"."author" ->> 'accountId' IS "part"."author" ->> 'accountId'
         WHERE "shown"."id" = ${id} AND "part"."id" <> ${id}
       `
     })

@@ -13,6 +13,7 @@ import { findPostLoader, loaders } from './loader/index.ts'
 import { laterMessages } from './messages/index.ts'
 import {
   addPost,
+  deletePost,
   loadPostByUrl,
   loadThreadPosts,
   type NewPost,
@@ -70,7 +71,7 @@ export function loadLaterPosts(): ReadableAtom<ReaderPost[] | undefined> {
         CASE WHEN COALESCE("intro", '') = '' THEN "full" END AS "full",
         COALESCE(NULLIF("intro", '') <> "full", 0) AS "more"
       FROM "posts"
-      WHERE "later" IS NOT NULL AND "read" IN (0, 1) AND "merged" = 0
+      WHERE "later" IS NOT NULL AND "read" = 0 AND "merged" = 0
       ORDER BY "later" DESC, "id" DESC
     `
   return computed(store, rows => {
@@ -166,7 +167,7 @@ export async function moveToLater(post: PostValue): Promise<void> {
 }
 
 function hasFeedAuthor(post: OriginPost | PostValue): post is PostValue {
-  return 'later' in post && !!post.author?.loader
+  return !!post.later && !!post.author?.loader
 }
 
 /**
@@ -175,9 +176,7 @@ function hasFeedAuthor(post: OriginPost | PostValue): post is PostValue {
 export function getPageAuthor(
   post: OriginPost | PostValue
 ): PostAuthor | undefined {
-  return 'later' in post && post.author?.loader === 'page'
-    ? post.author
-    : undefined
+  return post.later && post.author?.loader === 'page' ? post.author : undefined
 }
 
 /**
@@ -228,6 +227,15 @@ export async function returnFromLater(post: PostValue): Promise<void> {
     }
   )
   emitMoved(parts.map(part => part.id))
+}
+
+export async function deleteFromLater(post: PostValue): Promise<void> {
+  let sourceId = post.author?.feedId ?? post.author?.accountId
+  let parts =
+    post.threadId && sourceId
+      ? await loadThreadPosts(sourceId, post.threadId)
+      : [post]
+  await deletePost(parts.map(part => part.id))
 }
 
 function toLaterPost(

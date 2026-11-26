@@ -12,6 +12,7 @@ import { type FeedValue, loadFeed } from '../feed.ts'
 import { formatDuration, formatPublishedAt, i18nFormat } from '../format.ts'
 import {
   canReturnFromLater,
+  deleteFromLater,
   getPageAuthor,
   moveToLater,
   returnFromLater,
@@ -48,6 +49,7 @@ import {
   type ReactedPost,
   trackInterest
 } from '../reactions.ts'
+import { closeLastPopup } from '../router.ts'
 import { loadPreviewThread, loadThreadByUrl, updateThread } from '../thread.ts'
 import { type CreatedLoadedPopup, definePopup } from './common.ts'
 
@@ -158,7 +160,7 @@ export const post = definePopup('post', async loader => {
 
   let unbindPost = (): void => {}
   let unbindRead = (): void => {}
-  if (stored && loader.startsWith('read:')) {
+  if (stored && !stored.later && loader.startsWith('read:')) {
     let id = stored.id
     read = atom(false)
     unbindPost = $post.subscribe(value => {
@@ -309,6 +311,11 @@ export const post = definePopup('post', async loader => {
     reacted,
     reaction: $reaction,
     read,
+    async remove() {
+      let current = $post.get() as PostValue
+      closeLastPopup()
+      await deleteFromLater(current)
+    },
     thread: $thread,
     userPostUrl: getUserPostUrls(),
     whole: !!service && !isWebFeed(service)
