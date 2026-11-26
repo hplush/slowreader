@@ -1012,11 +1012,20 @@ describe('post popup', () => {
     equal(await aborted, false)
 
     let text = 'Long paragraph of the article. '.repeat(40)
-    expectRequest('https://a.com/1').andRespond(
-      200,
+    let article =
       `<html><body><article><p>${text}</p>` +
-        '<p><img src="/a.png"></p></article></body></html>'
-    )
+      '<p><img src="/a.png"></p></article></body></html>'
+    let update = spyOn(getTables().posts, 'update', () => {
+      return Promise.reject(new Error('Bug'))
+    })
+    expectRequest('https://a.com/1').andRespond(200, article)
+    await expectWarning(async () => {
+      equal(await popup.extract(), false)
+    }, ['Error: Bug'])
+    deepEqual(popup.extractStatus.get(), { error: 'Bug', status: 'failed' })
+    update.restore()
+
+    expectRequest('https://a.com/1').andRespond(200, article)
     let extracting = popup.extract()
     deepEqual(popup.extractStatus.get(), { status: 'downloading' })
     equal(await extracting, true)
