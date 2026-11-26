@@ -168,6 +168,11 @@ export const filtersTable = defineCrdtTable(
 )
 
 let authorShape = {
+  // The source of the post in Read later to move it back
+  accountId: optional(string()),
+  feedId: optional(string()),
+  // 'page' is for direct link added for Read later without feed
+  loader: optional(string<'page' | LoaderName>()),
   avatar: optional(string()),
   title: string(),
   url: optional(string())
@@ -272,6 +277,7 @@ export const postsTable = defineCrdtTable(
     full: optional(string()),
     intro: optional(string()),
     lang: optional(string()),
+    later: optional(bigint()),
     media: optional(json([json(mediaShape)])),
     // Separated from media to fill it after the first image loading
     mediaSizes: optional(json([optional(json(mediaSizeShape))])),
@@ -308,6 +314,8 @@ export const postsTable = defineCrdtTable(
     ['reading', 'read', 'merged', 'sortedAt DESC', 'id DESC'],
     // The same for posts of the account without a feed
     ['accountId', 'reading', 'read', 'merged', 'sortedAt DESC', 'id DESC'],
+    // Read later page
+    ['later DESC', 'id DESC'],
     // Parts of the thread
     ['feedId', 'threadId'],
     ['accountId', 'threadId'],

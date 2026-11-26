@@ -167,6 +167,7 @@ describe('export page', () => {
           id: post,
           intro: 'Post 1',
           lang: null,
+          later: null,
           media: null,
           mediaSizes: null,
           merged: false,

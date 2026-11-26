@@ -1,0 +1,84 @@
+import { atom, effect } from 'nanostores'
+
+import { getUserPostUrls } from '../account.ts'
+import { humanizeUrl } from '../format.ts'
+import { loadLaterPosts } from '../later.ts'
+import { hasPersonAvatar } from '../loader/index.ts'
+import { changePost, type ReaderPost } from '../post.ts'
+import type { FeedAuthor } from '../readers/common.ts'
+import { getCrdt, hasDatabase, openedDatabase } from '../schema.ts'
+import { createPage } from './common.ts'
+
+function toFeedAuthor(post: ReaderPost): FeedAuthor | undefined {
+  let author = post.author
+  if (!author?.loader) return undefined
+  let loader = author.loader === 'page' ? undefined : author.loader
+  return {
+    avatar: author.avatar ?? null,
+    feedId: author.feedId ?? post.id,
+    handle: humanizeUrl(author.url ?? '', loader),
+    page: author.loader === 'page',
+    round: hasPersonAvatar(loader),
+    title: author.title,
+    url: author.url ?? ''
+  }
+}
+
+async function moveReadToHistory(): Promise<void> {
+  if (!hasDatabase()) return
+  let read = await getCrdt().select<{ id: string }>`
+    SELECT "id" FROM "posts" WHERE "later" IS NOT NULL AND "read" = 1
+  `
+  if (read.length > 0) {
+    await changePost(
+      read.map(i => i.id),
+      { read: 2 }
+    )
+  }
+}
+
+/**
+ * Post, which keeps its feed or site in the author, shows it like
+ * the category reader. Read posts stay until the user leaves the page.
+ */
+export const laterPage = createPage('later', () => {
+  let $loading = atom(true)
+  let $authors = atom<ReadonlyMap<string, FeedAuthor>>(new Map())
+  let $posts = atom<ReaderPost[]>([])
+
+  let unbind = effect(openedDatabase, db => {
+    if (!db) return
+    return loadLaterPosts().subscribe(posts => {
+      if (!posts) return
+      let authors = new Map<string, FeedAuthor>()
+      $posts.set(
+        posts.map(post => {
+          let feedAuthor = toFeedAuthor(post)
+          if (!feedAuthor) return post
+          authors.set(feedAuthor.feedId, feedAuthor)
+          return {
+            ...post,
+            author: null,
+            feedId: feedAuthor.page ? null : feedAuthor.feedId
+          }
+        })
+      )
+      $authors.set(authors)
+      $loading.set(false)
+    })
+  })
+
+  return {
+    authors: $authors,
+    async exit() {
+      unbind()
+      await moveReadToHistory()
+    },
+    loading: $loading,
+    params: {},
+    posts: $posts,
+    userPostUrl: getUserPostUrls()
+  }
+})
+
+export type LaterPage = ReturnType<typeof laterPage>

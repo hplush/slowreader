@@ -46,6 +46,19 @@ export const loaders = {
 
 export type LoaderName = keyof typeof loaders
 
+export function isLoaderName(name: string): name is LoaderName {
+  return Object.hasOwn(loaders, name)
+}
+
+export function findPostLoader(url: string): LoaderName | undefined {
+  let parsed = URL.parse(url)
+  if (!parsed) return undefined
+  return (Object.keys(loaders) as LoaderName[]).find(name => {
+    let current: Loader = loaders[name]
+    return current.isPostUrl?.(parsed)
+  })
+}
+
 /**
  * Feed is a file on a site, not a profile in a social network.
  */

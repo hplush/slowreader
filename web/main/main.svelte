@@ -27,6 +27,7 @@
   import HistoryPage from '../pages/history.svelte'
   import ImportPage from '../pages/import.svelte'
   import InterfacePage from '../pages/interface.svelte'
+  import LaterPage from '../pages/later.svelte'
   import MenuPage from '../pages/menu.svelte'
   import NetworkPage from '../pages/network.svelte'
   import PostsPage from '../pages/posts.svelte'
@@ -41,6 +42,7 @@
   import ExperimentPopup from '../popups/experiment.svelte'
   import ExperimentsPopup from '../popups/experiments.svelte'
   import FeedPopup from '../popups/feed.svelte'
+  import LaterPopup from '../popups/later.svelte'
   import LoadingPopup from '../popups/loading.svelte'
   import PasskeyPopup from '../popups/passkey.svelte'
   import PostPopup from '../popups/post.svelte'
@@ -93,6 +95,8 @@
     <AddPage page={$currentPage} />
   {:else if $currentPage.route === 'categories'}
     <CategoriesPage page={$currentPage} />
+  {:else if $currentPage.route === 'later'}
+    <LaterPage page={$currentPage} />
   {:else if $currentPage.route === 'history'}
     <HistoryPage page={$currentPage} />
   {:else if $currentPage.route === 'deadFeeds'}
@@ -148,6 +152,8 @@
       <ErrorPopup {popup} />
     {:else if isPopup(popup, 'post')}
       <PostPopup {popup} />
+    {:else if isPopup(popup, 'later')}
+      <LaterPopup {popup} />
     {:else if isPopup(popup, 'feed')}
       <FeedPopup {popup} />
     {:else if isPopup(popup, 'refresh')}

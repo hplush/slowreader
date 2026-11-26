@@ -17,6 +17,7 @@ import { fastPage, slowPage } from './feeds.ts'
 import { historyPage } from './history.ts'
 import { homePage } from './home.ts'
 import { importPage } from './import.ts'
+import { laterPage } from './later.ts'
 import { menuPage } from './menu.ts'
 import { reloginPage } from './relogin.ts'
 import { signUpPage } from './sign-up.ts'
@@ -38,6 +39,7 @@ export type { FeedsPage } from './feeds.ts'
 export type { HistoryPage } from './history.ts'
 export type { HomePage } from './home.ts'
 export type { ImportPage } from './import.ts'
+export type { LaterPage } from './later.ts'
 export type { MenuPage } from './menu.ts'
 export type { ReloginPage } from './relogin.ts'
 export type { SignUpPage } from './sign-up.ts'
@@ -62,6 +64,7 @@ export const pages = {
   home: homePage,
   import: importPage,
   interface: createSimplePage('interface'),
+  later: laterPage,
   menu: menuPage,
   posts: createSimplePage('posts'),
   relogin: reloginPage,

@@ -13,7 +13,7 @@ export {
 export * from './empty.ts'
 export * from './feed.ts'
 export * from './list.ts'
-export { type NumberPager, type NextPager } from './pagers.ts'
+export { type NextPager, type NumberPager } from './pagers.ts'
 export * from './welcome.ts'
 
 export type Reader = EmptyReader | FeedReader | ListReader | WelcomeReader

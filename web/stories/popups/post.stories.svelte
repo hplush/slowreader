@@ -258,6 +258,34 @@
   </Scene>
 </Story>
 
+<Story name="Saved" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    feeds={[FEED]}
+    oninit={open(false, '')}
+    posts={[
+      {
+        ...POST,
+        author: {
+          feedId: 'feed',
+          loader: 'atom',
+          title: FEED.title,
+          url: FEED.url
+        },
+        feedId: null,
+        later: 1600000000
+      }
+    ]}
+  >
+    {#if popup}
+      <LoadedPopup {popup}>
+        {#snippet loaded(loadedPopup)}
+          <PostPopupComponent popup={loadedPopup} />
+        {/snippet}
+      </LoadedPopup>
+    {/if}
+  </Scene>
+</Story>
+
 <Story name="Origin" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene>
     <LoadedPopup popup={popups.post(ORIGIN)}>

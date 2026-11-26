@@ -1,5 +1,6 @@
 import { atom, type ReadableAtom, type WritableAtom } from 'nanostores'
 
+import { onPostsMoved } from '../later.ts'
 import {
   createPagination,
   moveToPage,
@@ -21,6 +22,37 @@ import {
   topCursor,
   trackReadPosts
 } from './common.ts'
+
+/**
+ * Post moved to Read later leaves the page at once and comes back
+ * on the undo. Both moves make the post unread.
+ */
+function trackMoved(list: WritableAtom<ReaderPost[]>): () => void {
+  let removed = new Map<string, [index: number, post: ReaderPost]>()
+  return onPostsMoved(ids => {
+    let current = list.get()
+    let leaving = current.filter(post => ids.includes(post.id))
+    if (leaving.length > 0) {
+      for (let post of leaving) {
+        removed.set(post.id, [current.indexOf(post), post])
+      }
+      list.set(current.filter(post => !ids.includes(post.id)))
+    } else {
+      let next = [...current]
+      let back = ids
+        .flatMap(id => {
+          let saved = removed.get(id)
+          return saved ? [saved] : []
+        })
+        .toSorted((a, b) => a[0] - b[0])
+      for (let [index, post] of back) {
+        next.splice(index, 0, { ...post, read: 0 })
+        removed.delete(post.id)
+      }
+      if (back.length > 0) list.set(next)
+    }
+  })
+}
 
 type Pager<Pagination> = {
   exit(): void
@@ -116,12 +148,14 @@ export function nextPager(
     void loadPage(value)
   })
   let unbindRead = trackReadPosts(filter, $list)
+  let unbindMoved = trackMoved($list)
 
   return {
     exit() {
       exited = true
       unbindFrom()
       unbindRead()
+      unbindMoved()
     },
     list: $list,
     loading: $loading,
@@ -172,6 +206,7 @@ export function numberPager(
 
   let unbindFrom = (): void => {}
   let unbindRead = trackReadPosts(filter, $list)
+  let unbindMoved = trackMoved($list)
   async function start(): Promise<void> {
     cursors = await loadPageCursors(filter, size)
     if (exited) return
@@ -188,6 +223,7 @@ export function numberPager(
       exited = true
       unbindFrom()
       unbindRead()
+      unbindMoved()
     },
     list: $list,
     loading: $loading,

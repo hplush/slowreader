@@ -46,7 +46,7 @@ import {
   testPost,
   startLocalUser,
   userId,
-  withoutDeletedPosts
+  onlyNewPosts
 } from '../index.ts'
 import { splitPassword, toEncryptionKey } from '../lib/keys.ts'
 import { getTestEnvironment, openRoute } from '../test.ts'
@@ -621,15 +621,17 @@ describe('log', () => {
     ok(tombstones.length >= 2)
   })
 
-  test('skips deleted posts before adding them again', async () => {
+  test('skips deleted and existing posts before adding them again', async () => {
     await signUpCloudUser()
     let feedId = await addFeed(testFeed())
     let read = await addPost(testPost({ feedId, originId: 'read' }))
+    let later = await addPost(testPost({ originId: 'later' }))
     await deletePost(read)
-    deepEqual(await withoutDeletedPosts([]), [])
-    deepEqual(await withoutDeletedPosts([{ id: read }, { id: 'new' }]), [
-      { id: 'new' }
-    ])
+    deepEqual(await onlyNewPosts([]), [])
+    deepEqual(
+      await onlyNewPosts([{ id: read }, { id: later }, { id: 'new' }]),
+      [{ id: 'new' }]
+    )
   })
 
   test('finishes the interrupted download on the next start', async () => {

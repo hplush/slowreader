@@ -178,8 +178,7 @@ export type ReaderPostWith<Media> = {
   | 'title'
   | 'unsupported'
   | 'warning'
-> &
-  PostCardText
+> & { later?: null | number } & PostCardText
 
 export type CardAuthor = { handle: string | undefined } & PostAuthor
 
@@ -309,8 +308,12 @@ export function loadThreadPosts(
   threadId: string
 ): Promise<PostValue[]> {
   return getTables().posts.load`
-    WHERE ("feedId" = ${sourceId} OR "accountId" = ${sourceId})
-      AND "threadId" = ${threadId}
+    WHERE "threadId" = ${threadId} AND (
+      "feedId" = ${sourceId} OR "accountId" = ${sourceId} OR (
+        "later" IS NOT NULL
+        AND ${sourceId} IN ("author" ->> 'feedId', "author" ->> 'accountId')
+      )
+    )
     ORDER BY "publishedAt" ASC, "id" ASC
   `
 }
@@ -331,17 +334,23 @@ export function loadPostOriginIdsByFeed(feedId: string): Promise<string[]> {
  * Read posts are deleted, but the source still has them. The log deletes
  * a post with the same ID again by the tombstone, but user will see it.
  */
-export async function withoutDeletedPosts<Post extends { id: string }>(
+export async function onlyNewPosts<Post extends { id: string }>(
   posts: Post[]
 ): Promise<Post[]> {
   if (posts.length === 0) return posts
-  let deleted = new Set<string>()
+  let skip = new Set<string>()
   await getClient().log.each({ index: 'tombstone' }, action => {
     if (action.type === 'posts/deleted') {
-      for (let [id] of parseCrdtRows(action)) deleted.add(id)
+      for (let [id] of parseCrdtRows(action)) skip.add(id)
     }
   })
-  return posts.filter(post => !deleted.has(post.id))
+  let existing = await getCrdt().select<{ id: string }>`
+    SELECT "id" FROM "posts" WHERE "id" IN (
+      SELECT "value" FROM json_each(${JSON.stringify(posts.map(i => i.id))})
+    )
+  `
+  for (let { id } of existing) skip.add(id)
+  return posts.filter(post => !skip.has(post.id))
 }
 
 /**
@@ -496,6 +505,8 @@ export async function changeRead(
         JOIN "posts" AS "shown" ON "shown"."threadId" = "part"."threadId"
           AND "shown"."feedId" IS "part"."feedId"
           AND "shown"."accountId" IS "part"."accountId"
+          AND "shown"."author" ->> 'feedId' IS "part"."author" ->> 'feedId'
+          AND "shown"."author" ->> 'accountId' IS "part"."author" ->> 'accountId'
         WHERE "shown"."id" = ${id} AND "part"."id" <> ${id}
       `
     })
@@ -560,6 +571,17 @@ export function collapseThreads(posts: readonly OriginPost[]): OriginPost[] {
     }
   }
   return result
+}
+
+export type ReaderPostRow = Pick<PostValue, 'mediaSizes'> &
+  ReaderPostWith<PostValue['media']>
+
+export function toReaderPost(row: ReaderPostRow): ReaderPost {
+  let { mediaSizes, ...post } = getTables().posts.parseRow(row)
+  return addHandles(
+    { ...post, media: addMediaSizes(post.media, mediaSizes) },
+    post.loader
+  )
 }
 
 export function toPreviewPost(
@@ -737,6 +759,7 @@ export function testPost(post: Partial<PostValue> = {}): PostValue {
     id: `post-${testPostId}`,
     intro: `Post ${testPostId}`,
     lang: null,
+    later: null,
     media: null,
     mediaSizes: null,
     merged: false,

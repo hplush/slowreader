@@ -28,9 +28,9 @@ We keep this data until you delete it. The _Delete your data from the cloud_ but
 
 ## Loading Feeds
 
-Without the Slow Reader browser extension, the web app downloads feeds through our proxy, because browsers block direct requests to other websites. The proxy doesn’t record which feeds you read.
+Without the Slow Reader browser extension, the web app downloads feeds, full posts, and links you add to Read later through our proxy, because browsers block direct requests to other websites. The proxy doesn’t record which feeds or pages you read.
 
-With the extension, the app downloads feeds directly, so feed websites see your IP address.
+With the extension, the app downloads them directly, so these websites see your IP address.
 
 ## Telegram
 
@@ -80,4 +80,4 @@ If you email us, we use your email address and message only to answer you. We de
 
 ## Changes
 
-We may change this policy at any time. Check this page for the latest version. Last change: November 25, 2026. See <a href="https://github.com/hplush/slowreader/commits/main/docs/privacy.md" target="_blank">the history of changes</a> of this policy.
+We may change this policy at any time. Check this page for the latest version. Last change: November 26, 2026. See <a href="https://github.com/hplush/slowreader/commits/main/docs/privacy.md" target="_blank">the history of changes</a> of this policy.

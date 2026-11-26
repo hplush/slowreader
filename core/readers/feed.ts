@@ -24,6 +24,7 @@ export const feedReader = createReader('feed', (filter, params) => {
           avatar: post.authorAvatar ?? null,
           feedId: post.feedId,
           handle: humanizeUrl(post.authorUrl!, post.loader),
+          page: false,
           round: hasPersonAvatar(post.loader),
           title: post.authorTitle!,
           url: post.authorUrl!

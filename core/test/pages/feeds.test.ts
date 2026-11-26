@@ -19,6 +19,10 @@ import {
   loadFeed,
   loadPost,
   menuLoading,
+  moveToLater,
+  nextUnreadRoute,
+  openableMenu,
+  returnFromLater,
   router,
   setLayoutType,
   solveNightTask,
@@ -363,7 +367,6 @@ describe('feeds page', () => {
   })
 
   test('says all read while read posts wait for deletion', async () => {
-    setLayoutType('mobile')
     busyUntilMenuLoader()
     await waitLoading(busy)
     let feed = await addFeed(
@@ -375,6 +378,69 @@ describe('feeds page', () => {
     let page = openPage({ params: {}, route: 'slow' })
     await waitLoading(page.loading)
     equal(ensureReader(page.posts, 'empty').allRead.get(), true)
+  })
+
+  test('opens Read later first and after the feeds', async () => {
+    busyUntilMenuLoader()
+    await waitLoading(busy)
+    let feed = await addFeed(testFeed({ reading: 'slow' }))
+    await addPost([
+      testPost({ feedId: null, id: 'later', later: 10, reading: 'slow' }),
+      testPost({ feedId: feed, id: 'feed', reading: 'slow' })
+    ])
+    await setTimeout(10)
+
+    openRoute({ params: {}, route: 'slow' })
+    await setTimeout(10)
+    equal(router.get().route, 'later')
+    await changeRead(['feed'], true)
+    await setTimeout(10)
+    deepEqual(nextUnreadRoute('slow', { feedId: feed }), {
+      params: {},
+      route: 'later'
+    })
+  })
+
+  test('moves post from the page to Read later and back', async () => {
+    busyUntilMenuLoader()
+    await waitLoading(busy)
+    let feed = await addFeed(testFeed({ reader: 'feed', reading: 'slow' }))
+    await addPost([
+      testPost({ feedId: feed, id: 'saved', reading: 'slow' }),
+      testPost({ feedId: feed, id: 'other', reading: 'slow' })
+    ])
+    await setTimeout(10)
+    let page = openPage({ params: { feed }, route: 'slow' })
+    await waitLoading(page.loading)
+    let reader = ensureReader(page.posts, 'feed')
+    await waitLoading(reader.loading)
+    equal(reader.list.get().length, 2)
+
+    let order = reader.list.get().map(post => post.id)
+    await changeRead(['saved'], true)
+    await moveToLater((await loadPost('saved'))!)
+    deepEqual(
+      reader.list.get().map(post => post.id),
+      ['other']
+    )
+
+    await returnFromLater((await loadPost('saved'))!)
+    deepEqual(
+      reader.list.get().map(post => [post.id, post.read]),
+      order.map(id => [id, 0])
+    )
+  })
+
+  test('shows Useful menu on phone even when all is read', async () => {
+    setLayoutType('mobile')
+    busyUntilMenuLoader()
+    await waitLoading(busy)
+    await addFeed(testFeed({ reading: 'slow' }))
+    await setTimeout(10)
+    let page = openPage({ params: {}, route: 'slow' })
+    await waitLoading(page.loading)
+    equal(page.menu.get(), true)
+    equal(openableMenu.get().slow, false)
   })
 
   test('moves read posts to the history on leaving the feed', async () => {

@@ -16,7 +16,7 @@ import {
   type ParsedPost,
   processOriginPost,
   type PostValue,
-  withoutDeletedPosts
+  onlyNewPosts
 } from './post.ts'
 import type {
   PostsList,
@@ -304,7 +304,7 @@ export async function updateThread(
   if (added.length === 0) return posts
   // Feed had no parts of the reposted thread on refresh
   if (!start.threadId) await changePost(start.id, { threadId })
-  let adding = await withoutDeletedPosts(
+  let adding = await onlyNewPosts(
     added.map(post => {
       let saved = {
         ...post,
@@ -314,11 +314,21 @@ export async function updateThread(
       }
       delete saved.selfReplyTo
       delete saved.hasReplies
-      return {
+      let part = {
         ...processOriginPost(saved, { feedId: feed.id }, start.reading),
         read: start.read,
         readAt: start.readAt
       }
+      return start.later
+        ? {
+            ...part,
+            author: part.author
+              ? { ...part.author, feedId: feed.id }
+              : start.author,
+            feedId: null,
+            later: start.later
+          }
+        : part
     })
   )
   if (adding.length > 0) await addPost(adding)

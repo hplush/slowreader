@@ -251,6 +251,7 @@ describe('import page', () => {
         full: null,
         intro: null,
         lang: null,
+        later: null,
         media: null,
         mediaSizes: null,
         merged: false,

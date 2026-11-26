@@ -41,10 +41,9 @@
     }
   })
 
+  let useful = $derived($router.route === 'slow' || $router.route === 'later')
   let nothingCurrent = $derived(
-    !isOtherRoute($router) &&
-      $router.route !== 'slow' &&
-      $router.route !== 'fast'
+    !isOtherRoute($router) && !useful && $router.route !== 'fast'
   )
 </script>
 
@@ -101,8 +100,8 @@
       <div class="navbar_slider"></div>
       <NavbarButton
         name={$t.slow}
-        current={$router.route === 'slow'}
-        focusable={nothingCurrent || $router.route === 'slow'}
+        current={useful}
+        focusable={nothingCurrent || useful}
         hasSubmenu="navbar_submenu"
         href={getURL('slow')}
       >

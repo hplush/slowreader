@@ -819,6 +819,7 @@
       syncStatus.set('disconnected')
     }}
     posts={[
+      { feedId: null, later: NOW, reading: 'slow' },
       { feedId: 'mozilla', reading: 'slow' },
       { feedId: 'mastadon', reading: 'slow' },
       ...Array.from({ length: 24 }, (_, i) => ({
@@ -854,6 +855,18 @@
     route="fast"
   >
     <FeedsPage page={pages.fast()} />
+    <Navbar />
+  </Scene>
+</Story>
+
+<Story
+  name="Mobile Slow Empty"
+  asChild
+  globals={{ viewport: { value: 'mobile2' } }}
+  parameters={{ layout: 'fullscreen' }}
+>
+  <Scene feeds={[{}]} route="slow">
+    <FeedsPage page={pages.slow()} />
     <Navbar />
   </Scene>
 </Story>

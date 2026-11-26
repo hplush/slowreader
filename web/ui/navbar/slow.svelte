@@ -10,7 +10,10 @@
   import FeedAvatar from '../feed-avatar.svelte'
   import NavbarCategory from './category.svelte'
   import NavbarItem from './item.svelte'
+  import NavbarLater from './later.svelte'
 </script>
+
+<NavbarLater />
 
 {#each $slowMenu as [category, feeds] (category.id)}
   <NavbarCategory

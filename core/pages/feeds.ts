@@ -4,7 +4,7 @@ import { type CategoryValue, getCategory } from '../category.ts'
 import { layoutType } from '../environment.ts'
 import { type FeedValue, getFeed } from '../feed.ts'
 import {
-  firstUnreadSlowFeedId,
+  firstUnreadSlowRoute,
   menuLoading,
   openableMenu,
   unreadFastMenu
@@ -110,12 +110,22 @@ let pages = (['slow', 'fast'] as const).map(reading => {
     )
 
     let $menu = computed(
-      [layoutType, $categoryId, $feedId, menuLoading, openableMenu],
-      (layout, categoryId, feedId, loadingMenu, openable) => {
+      [
+        layoutType,
+        $categoryId,
+        $feedId,
+        menuLoading,
+        openableMenu,
+        needWelcome
+      ],
+      (layout, categoryId, feedId, loadingMenu, openable, welcome) => {
         if (layout === 'desktop' || categoryId || feedId || loadingMenu) {
           return false
+        } else if (reading === 'slow') {
+          // Useful menu always has Read later
+          return welcome === false
         } else {
-          return openable[reading]
+          return openable.fast
         }
       }
     )
@@ -142,16 +152,9 @@ let pages = (['slow', 'fast'] as const).map(reading => {
             )
           }
         } else {
-          let id = firstUnreadSlowFeedId()
-          if (id) {
-            navigate(
-              route => ({
-                params: { feed: id },
-                popups: route.popups,
-                route: 'slow'
-              }),
-              true
-            )
+          let first = firstUnreadSlowRoute()
+          if (first) {
+            navigate(route => ({ ...first, popups: route.popups }), true)
           }
         }
       }

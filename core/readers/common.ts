@@ -11,15 +11,14 @@ import { nextValue } from '../lib/stores.ts'
 import { loaders } from '../loader/index.ts'
 import { nextUnreadRoute, slowMenu, unreadFastMenu } from '../menu.ts'
 import {
-  addHandles,
-  addMediaSizes,
   changeRead,
   hasUnreadPosts,
   type PostValue,
   type PreviewPost,
   type ReaderPost,
-  type ReaderPostWith,
-  toPreviewPost
+  type ReaderPostRow,
+  toPreviewPost,
+  toReaderPost
 } from '../post.ts'
 import { navigate, router, type Routes } from '../router.ts'
 import { getCrdt, getTables } from '../schema.ts'
@@ -83,6 +82,7 @@ export type FeedAuthor = {
   avatar: null | string
   feedId: string
   handle: string
+  page: boolean
   round: boolean
   title: string
   url: string
@@ -95,8 +95,7 @@ export function getFeedAuthor(
   post: PreviewPost | ReaderPost,
   authors: ReadonlyMap<string, FeedAuthor> | undefined
 ): FeedAuthor | undefined {
-  if ('feedId' in post && post.feedId) return authors?.get(post.feedId)
-  return undefined
+  return authors?.get(('feedId' in post && post.feedId) || post.id)
 }
 
 function menuHasUnread(filter: PostFilter): boolean {
@@ -208,17 +207,6 @@ export function parseCursor(from: string | undefined): PostCursor | undefined {
 
 export function stringifyCursor(cursor: PostCursor): string {
   return `${cursor.sortedAt}:${cursor.id}`
-}
-
-type ReaderPostRow = Pick<PostValue, 'mediaSizes'> &
-  ReaderPostWith<PostValue['media']>
-
-function toReaderPost(row: ReaderPostRow): ReaderPost {
-  let { mediaSizes, ...post } = getTables().posts.parseRow(row)
-  return addHandles(
-    { ...post, media: addMediaSizes(post.media, mediaSizes) },
-    post.loader
-  )
 }
 
 /**

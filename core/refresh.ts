@@ -74,7 +74,7 @@ import {
   type OriginPost,
   type PostAuthor,
   processOriginPost,
-  withoutDeletedPosts
+  onlyNewPosts
 } from './post.ts'
 import { getPostsFrequency, type PostsList } from './posts-list.ts'
 import { deleteOrphanStats } from './reactions.ts'
@@ -470,7 +470,7 @@ let untouchedAccounts: string[] = []
 
 async function finishTarget(state: TargetRefresh): Promise<void> {
   let { newest, target } = state
-  let adding = await withoutDeletedPosts(state.adding)
+  let adding = await onlyNewPosts(state.adding)
   let { accounts, feeds, posts } = getTables()
   if ('feed' in target) {
     let [fullTextError] = state.fullTextErrors
@@ -653,7 +653,7 @@ export async function loadRecentPosts(
   await collectFeedPage(state, feedId)
   let { newest } = state
   if (!newest) return
-  let adding = await withoutDeletedPosts(state.adding)
+  let adding = await onlyNewPosts(state.adding)
   let { feeds, posts } = getTables()
   await getCrdt().batch(() => {
     if (adding.length > 0) void posts.create(adding)

@@ -19,6 +19,7 @@ import {
   generateCredentials,
   getCrdt,
   getDatabase,
+  getTables,
   type ImportPage,
   isDemo,
   isRemoteError,
@@ -26,6 +27,7 @@ import {
   loadFeedByUrl,
   loadFeedsByCategory,
   moveLastSyncedToPast,
+  moveToLater,
   type NewReaction,
   type NewView,
   refreshErrors,
@@ -365,6 +367,14 @@ for (let feed of followed) {
       type: next() < 0.7 ? 'open' : 'link'
     })
   }
+}
+let saving = await getTables().posts.load`
+  WHERE "read" = 0 AND "merged" = 0 AND "feedId" IS NOT NULL
+`
+let nextSaved = seededRandom(2)
+for (let i = 0; i < 2 && saving.length > 0; i++) {
+  let index = Math.floor(nextSaved() * saving.length)
+  await moveToLater(saving.splice(index, 1)[0]!)
 }
 await addView(views)
 await addReaction(reactions)

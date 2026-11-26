@@ -11,6 +11,7 @@ import {
   addFilter,
   addPost,
   clock,
+  changeFeed,
   changePost,
   autoRefresh,
   createPostsList,
@@ -29,6 +30,7 @@ import {
   loadFeed,
   loadFeeds,
   loadPosts,
+  moveToLater,
   loadRecentPosts,
   type OriginPost,
   ParseError,
@@ -1032,6 +1034,28 @@ describe('refresh', () => {
     page = [{ full: 'Feed', originId: '3', url: 'https://a.com/3' }, ...page]
     await refreshPosts()
     deepEqual(refreshErrors.get(), [])
+  })
+
+  test('keeps post in Read later when feed lists it again', async () => {
+    let feedId = await addFeed(testFeed({ url: 'https://a.com/' }))
+    spyOn(loaders.rss, 'getPosts', () => {
+      return createPostsList(() =>
+        Promise.resolve([
+          [{ full: 'Text', originId: '1', url: 'https://a.com/1' }],
+          undefined
+        ])
+      )
+    })
+    await refreshPosts()
+    let [saved] = await loadPosts()
+    await moveToLater(saved!)
+
+    await changeFeed(feedId, { lastOriginId: 'deleted' })
+    await refreshPosts()
+    let posts = await loadPosts()
+    equal(posts.length, 1)
+    equal(posts[0]!.feedId, null)
+    ok(posts[0]!.later)
   })
 
   test('reports failed full post downloads', async t => {

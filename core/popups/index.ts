@@ -5,6 +5,7 @@ import type { PopupCreator } from './common.ts'
 import { experiment } from './experiment.ts'
 import { experiments } from './experiments.ts'
 import { feed } from './feed.ts'
+import { later } from './later.ts'
 import { passkey } from './passkey.ts'
 import { post } from './post.ts'
 import { refresh } from './refresh.ts'
@@ -21,6 +22,7 @@ export {
 export type { ExperimentPopup } from './experiment.ts'
 export type { ExperimentsPopup } from './experiments.ts'
 export { type FeedPopup, getLinkPopup } from './feed.ts'
+export type { LaterPopup } from './later.ts'
 export type { PasskeyPopup } from './passkey.ts'
 export type { PostPopup } from './post.ts'
 export { canOpenPostUrl, getPostPopupParam } from './post.ts'
@@ -33,6 +35,7 @@ export const popups = {
   experiment,
   experiments,
   feed,
+  later,
   passkey,
   post,
   refresh,

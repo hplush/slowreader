@@ -11,6 +11,7 @@ import { busyDuring } from './busy.ts'
 import { client, onClient } from './client.ts'
 import { getEnvironment, layoutType } from './environment.ts'
 import type { FilterValue } from './filter.ts'
+import { laterCount } from './later.ts'
 import { waitLoading } from './lib/stores.ts'
 import { hasPersonAvatar } from './loader/index.ts'
 import { commonMessages } from './messages/index.ts'
@@ -18,6 +19,7 @@ import {
   type ParamlessRouteName,
   type Route,
   type RouteName,
+  type Routes,
   router
 } from './router.ts'
 import {
@@ -68,7 +70,7 @@ export function isOtherRoute(route: Route): boolean {
 }
 
 export const menuSlider = computed(router, route => {
-  if (route.route === 'slow') {
+  if (route.route === 'slow' || route.route === 'later') {
     return 'slow'
   } else if (route.route === 'fast') {
     return 'fast'
@@ -572,12 +574,16 @@ export const slowMenu = computed([$tree, $unread], (tree, unread) => {
   return unread ? buildSlowMenu(tree, unread.slow) : []
 })
 
-export function firstUnreadSlowFeedId(): string | undefined {
+export function firstUnreadSlowRoute():
+  | { params: { feed: string }; route: 'slow' }
+  | { params: Routes['later']; route: 'later' }
+  | undefined {
+  if (laterCount.get()) return { params: {}, route: 'later' }
   let [firstCategory] = slowMenu.get()
   if (!firstCategory) return undefined
   let [, feeds] = firstCategory
   let [firstFeed] = feeds
-  return firstFeed?.[0].id
+  return firstFeed && { params: { feed: firstFeed[0].id }, route: 'slow' }
 }
 
 /**
@@ -597,6 +603,7 @@ export function nextUnreadRoute(
 ):
   | { params: { category: string }; route: 'fast' }
   | { params: { feed: string }; route: 'slow' }
+  | { params: Routes['later']; route: 'later' }
   | undefined {
   let tree = $tree.get()
   if (reading === 'fast') {
@@ -620,14 +627,19 @@ export function nextUnreadRoute(
       ...feeds.slice(0, position + 1),
       ...tree.slow.slice(index + 1).flatMap(i => i[1])
     ].find(i => unread.includes(i.id))
-    return next && { params: { feed: next.id }, route: 'slow' }
+    if (next) return { params: { feed: next.id }, route: 'slow' }
+    if (laterCount.get()) return { params: {}, route: 'later' }
+    return undefined
   }
 }
 
-export const openableMenu = computed([fastMenu, slowMenu], (fast, slow) => ({
-  fast: fast.length > 1,
-  slow: slow.length > 0
-}))
+export const openableMenu = computed(
+  [fastMenu, slowMenu, laterCount],
+  (fast, slow, later) => ({
+    fast: fast.length > 1,
+    slow: slow.length > 0 || !!later
+  })
+)
 
 export const backRoute = computed(
   [layoutType, router, openableMenu],
@@ -635,9 +647,8 @@ export const backRoute = computed(
     if (layout === 'desktop') return undefined
     if (SETTINGS.has(route.route) || FEEDS.has(route.route)) return 'menu'
     if (
-      route.route === 'slow' &&
-      (route.params.feed || route.params.category) &&
-      openable.slow
+      route.route === 'later' ||
+      (route.route === 'slow' && (route.params.feed || route.params.category))
     ) {
       return 'slow'
     }
@@ -665,9 +676,12 @@ export const openedCategoryId = computed(
   }
 )
 
-export const menuLoading = computed([$reduced, $unread], (reduced, unread) => {
-  return !reduced || !unread
-})
+export const menuLoading = computed(
+  [$reduced, $unread, laterCount],
+  (reduced, unread, later) => {
+    return !reduced || !unread || later === undefined
+  }
+)
 
 export const closedCategories = persistentAtom(
   'slowreader:closed',

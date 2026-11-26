@@ -99,26 +99,53 @@ function avoidInnerHtml(document: Document): void {
   })
 }
 
+export interface Article {
+  content: string | undefined
+  siteName: string | undefined
+  title: string | undefined
+}
+
+export async function downloadArticle(
+  task: DownloadTask,
+  url: string
+): Promise<Article> {
+  let response = await task.text(url)
+  let document = response.tryParseHTML()
+  if (!document) {
+    return { content: undefined, siteName: undefined, title: undefined }
+  }
+  let title = document.title.trim() || undefined
+  let siteName =
+    document
+      .querySelector('meta[property="og:site_name"]')
+      ?.getAttribute('content')
+      ?.trim() || undefined
+  let { isProbablyReaderable, Readability } =
+    await import('@mozilla/readability')
+  if (!isProbablyReaderable(document)) {
+    return { content: undefined, siteName, title }
+  }
+  let base =
+    document.querySelector('base') ??
+    document.head.appendChild(document.createElement('base'))
+  base.setAttribute(
+    'href',
+    new URL(base.getAttribute('href') ?? '', response.url).href
+  )
+  avoidInnerHtml(document)
+  let article = new Readability(document).parse()
+  return {
+    content: article?.content || undefined,
+    siteName: article?.siteName || siteName,
+    title: article?.title || title
+  }
+}
+
 export async function downloadFullText(
   task: DownloadTask,
   url: string
 ): Promise<string> {
-  let response = await task.text(url)
-  let document = response.tryParseHTML()
-  let { isProbablyReaderable, Readability } =
-    await import('@mozilla/readability')
-  let content: null | string | undefined
-  if (document && isProbablyReaderable(document)) {
-    let base =
-      document.querySelector('base') ??
-      document.head.appendChild(document.createElement('base'))
-    base.setAttribute(
-      'href',
-      new URL(base.getAttribute('href') ?? '', response.url).href
-    )
-    avoidInnerHtml(document)
-    content = new Readability(document).parse()?.content
-  }
+  let { content } = await downloadArticle(task, url)
   if (!content) {
     throw new UserFacingError(organizeMessages.get().extractNoArticle)
   }

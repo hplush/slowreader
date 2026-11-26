@@ -139,9 +139,11 @@
               avatar={author.avatar}
               avatarRound={author.round}
               avatarSize="medium"
-              feedId={author.feedId}
+              feedId={author.page ? undefined : author.feedId}
               handle={author.handle}
-              href={getPopupHash($router, 'feed', author.url)}
+              href={author.page
+                ? undefined
+                : getPopupHash($router, 'feed', author.url)}
               title={author.title}
               variant="secondary"
             />

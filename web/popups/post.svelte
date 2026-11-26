@@ -1,5 +1,7 @@
 <script lang="ts">
   import {
+    mdiBookmarkCheck,
+    mdiBookmarkPlusOutline,
     mdiCircleOutline,
     mdiCursorDefaultClick,
     mdiEyeCheck,
@@ -11,6 +13,8 @@
   import {
     getPopupId,
     hasPersonAvatar,
+    humanizeUrl,
+    laterMessages,
     type PostPopup,
     router,
     setPostReaction,
@@ -39,6 +43,10 @@
 
   let {
     feed,
+    later,
+    laterLocked,
+    laterSaving,
+    page,
     post,
     publishedAt,
     reacted,
@@ -49,6 +57,10 @@
   } = $derived(popup)
 
   let url = $derived($userPostUrl($post))
+  // Post in Read later keeps its feed in the author
+  let dateInByline = $derived(
+    !!$post.repostedBy || ('later' in $post && !!$post.later && !!$post.author)
+  )
   let liked = $derived(
     { dislike: false, like: true, none: undefined, open: undefined }[$reaction]
   )
@@ -85,6 +97,14 @@
         store={popup.read}
       />
     {/if}
+    <Toggle
+      disabled={$laterLocked}
+      icon={$later ? mdiBookmarkCheck : mdiBookmarkPlusOutline}
+      label={$later ? $laterMessages.saved : $laterMessages.save}
+      loader={$laterSaving}
+      size="icon"
+      store={later}
+    />
     {#if url}
       <PostShare post={reacted} {url} />
     {/if}
@@ -95,15 +115,26 @@
     {/if}
   {/snippet}
   <Stack>
-    {#if !$post.repostedBy}
+    {#if !dateInByline}
       <Stack justify="space-between" row width="stretch">
         {#if feed}
           <FeedLink
             avatar={$feed!.avatar}
             avatarRound={hasPersonAvatar($feed!.loader)}
+            avatarSize="medium"
             feedId={$feed!.id}
+            handle={humanizeUrl($feed!.url, $feed!.loader)}
             href={getPopupHash($router, 'feed', $feed!.url)}
             title={$feed!.title}
+            variant="secondary"
+          />
+        {:else if $page}
+          <FeedLink
+            avatar={$page.avatar ?? null}
+            avatarRound={false}
+            avatarSize="medium"
+            handle={$page.url ? humanizeUrl($page.url, undefined) : undefined}
+            title={$page.title}
             variant="secondary"
           />
         {:else}
@@ -115,7 +146,7 @@
     <Stack gap="xxl">
       <Stack gap="s">
         <Post
-          aside={$post.repostedBy ? date : undefined}
+          aside={dateInByline ? date : undefined}
           loader={popup.loader}
           post={$post}
           protect={(feed && $feed!.protected) ||

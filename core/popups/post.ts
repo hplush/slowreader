@@ -10,9 +10,19 @@ import { getUserPostUrls, loadAccount } from '../account.ts'
 import { NotFoundError } from '../errors.ts'
 import { type FeedValue, loadFeed } from '../feed.ts'
 import { formatDuration, formatPublishedAt, i18nFormat } from '../format.ts'
-import { createDownloadTask } from '../lib/download.ts'
-import { storeFromQuery } from '../lib/stores.ts'
 import {
+  canReturnFromLater,
+  getPageAuthor,
+  moveToLater,
+  returnFromLater,
+  saveOriginForLater,
+  withoutFeedAuthor
+} from '../later.ts'
+import { createDownloadTask } from '../lib/download.ts'
+import { storeFromQuery, viewOf } from '../lib/stores.ts'
+import {
+  findPostLoader,
+  isLoaderName,
   isWebFeed,
   type Loader,
   type LoaderName,
@@ -62,21 +72,6 @@ export function getPostPopupParam(
       return url ?? `id:${post.id}`
     }
   }
-}
-
-function isLoaderName(name: string): name is LoaderName {
-  return Object.hasOwn(loaders, name)
-}
-
-function findPostLoader(url: string): LoaderName | undefined {
-  let parsed = URL.parse(url)
-  if (!parsed) return undefined
-  return Object.keys(loaders)
-    .filter(isLoaderName)
-    .find(name => {
-      let current: Loader = loaders[name]
-      return current.isPostUrl?.(parsed)
-    })
 }
 
 export function canOpenPostUrl(url: string): boolean {
@@ -177,23 +172,62 @@ export const post = definePopup('post', async loader => {
     })
   }
 
+  let later: WritableAtom<boolean>
+  let $laterLocked: ReadableAtom<boolean>
+  let $laterSaving = atom(false)
+  function saveLater(job: () => Promise<void>): void {
+    $laterSaving.set(true)
+    void job().finally(() => {
+      $laterSaving.set(false)
+    })
+  }
+  if (stored) {
+    let $stored = $post as ReadableAtom<PostValue>
+    later = viewOf(
+      $stored,
+      value => !!value.later,
+      value => {
+        let current = $stored.get()
+        if ($laterSaving.get() || value === !!current.later) return
+        saveLater(() => {
+          return value ? moveToLater(current) : returnFromLater(current)
+        })
+      }
+    )
+    // Post, which was added by a link, has no feed to move back
+    $laterLocked = computed($stored, value => {
+      return !!value.later && !canReturnFromLater(value)
+    })
+  } else {
+    let $saved = atom(false)
+    later = viewOf(
+      $saved,
+      saved => saved,
+      value => {
+        if (!value || $saved.get()) return
+        $saved.set(true)
+        saveLater(() => saveOriginForLater($post.get() as OriginPost))
+      }
+    )
+    $laterLocked = $saved
+  }
+
   let $reaction: ReadableAtom<PostReaction> = reacted
     ? storeFromQuery(getReaction(reacted.id), 'none', getPostReaction)
     : atom('none')
 
   let postValue = $post.get()
   if ('feedId' in postValue) {
-    let feedValue = postValue.feedId
-      ? await loadFeed(postValue.feedId)
-      : undefined
+    // Post in Read later keeps its source in the author
+    let feedId = postValue.feedId ?? postValue.author?.feedId
+    let accountId = postValue.accountId ?? postValue.author?.accountId
+    let feedValue = feedId ? await loadFeed(feedId) : undefined
     if (feedValue) $feed = atom(feedValue)
-    let account = postValue.accountId
-      ? await loadAccount(postValue.accountId)
-      : undefined
+    let account = accountId ? await loadAccount(accountId) : undefined
     service = feedValue?.loader ?? account?.service
     let threadId = postValue.threadId ?? postValue.originId
-    if (postValue.threadId) {
-      let sourceId = postValue.feedId ?? postValue.accountId!
+    let sourceId = feedId ?? accountId
+    if (postValue.threadId && sourceId) {
       $parts.set(
         startFirst(await loadThreadPosts(sourceId, threadId), threadId)
       )
@@ -262,8 +296,15 @@ export const post = definePopup('post', async loader => {
       unbindRead()
     },
     feed: $feed,
+    later,
+    laterLocked: $laterLocked,
+    laterSaving: $laterSaving,
     loader: service,
-    post: computed($start, value => addHandles(value, service)),
+    page: computed($post, getPageAuthor),
+    post: computed($start, value => {
+      let feedRow = $feed || getPageAuthor(value)
+      return addHandles(feedRow ? withoutFeedAuthor(value) : value, service)
+    }),
     publishedAt: $publishedAt,
     reacted,
     reaction: $reaction,

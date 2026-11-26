@@ -1,4 +1,5 @@
 import { restoreAll, spyOn } from 'nanospy'
+import { keepMount } from 'nanostores'
 import { deepEqual, equal, match } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
@@ -18,6 +19,7 @@ import {
   loaders,
   loadPost,
   loadThreadPosts,
+  moveToLater,
   openedPopups,
   type OriginPost,
   postMessages,
@@ -25,6 +27,7 @@ import {
   setPostReaction,
   testFeed,
   testPost,
+  toPreviewPost,
   waitLoading
 } from '../../index.ts'
 import { canOpenPostUrl, getPostPopupParam } from '../../popups/post.ts'
@@ -800,5 +803,130 @@ describe('post popup', () => {
       )
     ])
     checkAndRemoveRequestMock()
+  })
+
+  test('moves post to Read later and back', async () => {
+    let feed = await addFeed(testFeed())
+    let id = await addPost(testPost({ feedId: feed, reading: 'slow' }))
+    let opened = openTestPopup('post', getPostPopupParam({ feedId: feed, id }))
+    await waitLoading(opened.loading)
+    let popup = checkLoadedPopup(opened)
+    keepMount(popup.later)
+    keepMount(popup.laterLocked)
+    equal(popup.later.get(), false)
+    equal(popup.laterLocked.get(), false)
+
+    popup.later.set(true)
+    equal(popup.laterSaving.get(), true)
+    popup.later.set(false)
+    await waitUntil(() => !popup.laterSaving.get())
+    equal(popup.later.get(), true)
+    equal((await loadPost(id))?.feedId, null)
+    keepMount(popup.post)
+    equal(popup.post.get().author, null)
+    equal(popup.feed?.get().id, feed)
+    equal(popup.laterLocked.get(), false)
+    popup.later.set(true)
+    equal(popup.laterSaving.get(), false)
+
+    popup.later.set(false)
+    await waitUntil(() => !popup.laterSaving.get())
+    equal(popup.later.get(), false)
+    equal((await loadPost(id))?.feedId, feed)
+
+    await moveToLater((await loadPost(id))!)
+    let saved = openTestPopup('post', getPostPopupParam({ feedId: null, id }))
+    await waitLoading(saved.loading)
+    let loaded = checkLoadedPopup(saved)
+    equal(loaded.feed?.get().id, feed)
+    equal(loaded.post.get().author, null)
+  })
+
+  test('loads parts of saved thread', async () => {
+    let bluesky = loaders.bluesky as Required<typeof loaders.bluesky>
+    let feed = await addFeed(testFeed({ loader: 'bluesky', reading: 'slow' }))
+    let start = await addPost(
+      testPost({ feedId: feed, originId: 's', publishedAt: 1, threadId: 's' })
+    )
+    await addPost(
+      testPost({
+        feedId: feed,
+        merged: true,
+        originId: 'p',
+        publishedAt: 2,
+        threadId: 's'
+      })
+    )
+    await moveToLater((await loadPost(start))!)
+    spyOn(bluesky, 'getThreadDescendants', () =>
+      Promise.resolve([
+        { originId: 'p', publishedAt: 2 },
+        { originId: 'n', publishedAt: 3, selfReplyTo: 'p' }
+      ])
+    )
+    let popup = openTestPopup('post', `id:${start}`)
+    await waitLoading(popup.loading)
+    let thread = checkLoadedPopup(popup).thread
+    deepEqual(
+      thread.get().map(post => post.originId),
+      ['p']
+    )
+    await waitUntil(() => thread.get().length === 2)
+    let added = (await loadThreadPosts(feed, 's')).find(
+      post => post.originId === 'n'
+    )
+    equal(added?.feedId, null)
+    equal(added?.later, (await loadPost(start))?.later)
+    equal(added?.author?.feedId, feed)
+  })
+
+  test('locks Read later for post added by link', async () => {
+    let id = await addPost(
+      testPost({
+        author: { loader: 'page', title: 'Site', url: 'https://site.com/' },
+        feedId: null,
+        later: 1
+      })
+    )
+    let opened = openTestPopup('post', getPostPopupParam({ feedId: null, id }))
+    await waitLoading(opened.loading)
+    let popup = checkLoadedPopup(opened)
+    keepMount(popup.later)
+    keepMount(popup.laterLocked)
+    equal(popup.later.get(), true)
+    equal(popup.laterLocked.get(), true)
+    keepMount(popup.page)
+    keepMount(popup.post)
+    equal(popup.page.get()?.title, 'Site')
+    equal(popup.post.get().author, null)
+  })
+
+  test('saves preview to Read later', async () => {
+    let preview = toPreviewPost(
+      { full: 'Preview', id: '1', originId: '1' },
+      'rss'
+    )
+    let opened = openTestPopup('post', getPostPopupParam(preview))
+    await waitLoading(opened.loading)
+    let popup = checkLoadedPopup(opened)
+    keepMount(popup.later)
+    keepMount(popup.laterLocked)
+    equal(popup.laterLocked.get(), false)
+    popup.later.set(false)
+    equal(popup.later.get(), false)
+
+    popup.later.set(true)
+    equal(popup.later.get(), true)
+    equal(popup.laterLocked.get(), true)
+    equal(popup.laterSaving.get(), true)
+    popup.later.set(false)
+    equal(popup.later.get(), true)
+    await waitUntil(() => !popup.laterSaving.get())
+    deepEqual(
+      (await getTables().posts.load`WHERE "later" IS NOT NULL`).map(
+        post => post.full
+      ),
+      ['Preview']
+    )
   })
 })

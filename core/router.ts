@@ -25,6 +25,7 @@ export interface Routes {
   home: {}
   import: {}
   interface: {}
+  later: {}
   menu: {}
   posts: {}
   relogin: {}
@@ -47,6 +48,7 @@ export const popupNames = {
   experiment: true,
   experiments: true,
   feed: true,
+  later: true,
   passkey: true,
   post: true,
   refresh: true,

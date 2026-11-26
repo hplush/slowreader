@@ -3,21 +3,31 @@
 </script>
 
 <script lang="ts">
-  import { mdiCheckboxMultipleMarkedOutline } from '@mdi/js'
+  import {
+    mdiBookmarkOutline,
+    mdiCheckboxMultipleMarkedOutline,
+    mdiReload,
+    mdiThumbUp
+  } from '@mdi/js'
   import {
     type FeedsPage,
     hasPersonAvatar,
+    isRefreshing,
+    laterMessages as later,
     navbarMessages as navbar,
     needUsefulReminder,
     openableMenu,
     organizeMessages as organize,
+    refreshPosts,
+    refreshProgress,
     router,
-    feedsMessages as t
+    feedsMessages as t,
+    welcomeMessages as welcome
   } from '@slowreader/core'
   import type { Attachment } from 'svelte/attachments'
   import { on } from 'svelte/events'
 
-  import { getPopupHash } from '../../stores/url-router.ts'
+  import { getPopupHash, getURL } from '../../stores/url-router.ts'
   import Button from '../../ui/button.svelte'
   import FeedLink from '../../ui/feed-link.svelte'
   import FeedStats from '../../ui/feed-stats.svelte'
@@ -28,6 +38,7 @@
   import NavbarSync from '../../ui/navbar/sync.svelte'
   import NextPagination from '../../ui/next-pagination.svelte'
   import NumberPagination from '../../ui/number-pagination.svelte'
+  import PageIcon from '../../ui/page-icon.svelte'
   import PopupablePage from '../../ui/popupable-page.svelte'
   import Stack from '../../ui/stack.svelte'
   import ThinPage from '../../ui/thin-page.svelte'
@@ -77,13 +88,37 @@
 
 {#if $menu}
   <ThinPage title={page.reading === 'slow' ? $navbar.slow : $navbar.fast}>
-    <div {@attach keepMenuScroll(page.reading)}>
-      {#if page.reading === 'slow'}
-        <NavbarSlow />
-      {:else}
+    {#if page.reading === 'fast'}
+      <div {@attach keepMenuScroll(page.reading)}>
         <NavbarFast />
-      {/if}
-    </div>
+      </div>
+    {:else if $openableMenu.slow}
+      <div {@attach keepMenuScroll(page.reading)}>
+        <NavbarSlow />
+      </div>
+    {:else}
+      <PageIcon path={mdiThumbUp}>
+        <Stack align="center" gap="l">
+          {$welcome.slowEmpty}
+          <Stack align="center" reading="slow">
+            <Button
+              icon={mdiReload}
+              loader={$isRefreshing ? $refreshProgress || true : undefined}
+              onclick={() => refreshPosts()}
+            >
+              {$welcome.refresh}
+            </Button>
+            <Button
+              href={getURL('later')}
+              icon={mdiBookmarkOutline}
+              variant="plain"
+            >
+              {$later.title}
+            </Button>
+          </Stack>
+        </Stack>
+      </PageIcon>
+    {/if}
     <NavbarSync />
   </ThinPage>
 {:else if $locked.locked}

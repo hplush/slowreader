@@ -20,11 +20,11 @@
     avatarSize?: 'medium' | 'small'
     edit?: string
     handle?: string
-    href: string
+    href?: string
     title: string
     variant?: 'main' | 'secondary'
   } & (
-    | { avatar: null | string; avatarRound: boolean; feedId: string }
+    | { avatar: null | string; avatarRound: boolean; feedId?: string }
     | { avatar?: undefined; avatarRound?: undefined; feedId?: undefined }
   ) = $props()
 </script>
@@ -34,8 +34,8 @@
   class:is-editable={!!edit}
   class:is-secondary={variant === 'secondary'}
 >
-  <a class="feed-link_link" data-anchor={anchor ?? null} {href}>
-    {#if feedId !== undefined}
+  {#snippet content()}
+    {#if avatar !== undefined}
       <FeedAvatar {avatar} {feedId} round={avatarRound} size={avatarSize} />
     {/if}
     {#if handle}
@@ -52,7 +52,14 @@
       </span>
       <span class="sr-only">{edit}</span>
     {/if}
-  </a>
+  {/snippet}
+  {#if href}
+    <a class="feed-link_link" data-anchor={anchor ?? null} {href}>
+      {@render content()}
+    </a>
+  {:else}
+    <span class="feed-link_link">{@render content()}</span>
+  {/if}
 </div>
 
 <style lang="postcss">
@@ -82,13 +89,13 @@
         color: var(--secondary-text-color);
       }
 
-      &:hover,
-      &:active,
-      &:focus-visible {
+      &[href]:hover,
+      &[href]:active,
+      &[href]:focus-visible {
         text-decoration: underline;
       }
 
-      &:active {
+      &[href]:active {
         translate: 0 1px;
       }
 

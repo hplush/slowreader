@@ -33,6 +33,7 @@ export const pathRouter = createRouter({
   home: '/app',
   import: '/feeds/import',
   interface: '/settings/ui',
+  later: '/later',
   menu: '/menu',
   posts: '/settings/posts',
   relogin: '/relogin',
