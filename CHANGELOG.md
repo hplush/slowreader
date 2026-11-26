@@ -1,5 +1,117 @@
 # Change Log
 
+## 0.20261126.0
+
+_2026-11-26 · +15391 −1859_
+
+### Category Popup and Feed View
+
+Title in the header of opened feed or category opens its popup. Category got own popup to rename or delete it, or to show its feeds on Categories page.
+
+Switch between post titles and post cards moved from the header to these popups as “Feed view”. Feed or category now has one view for both Fun and Useful. The previous choice is reset to cards.
+
+### Full Posts From the Site
+
+Web feed with only a part of the post can download the full text from the post’s page. Turn on “Download full posts” in the feed popup for unread and new posts.
+
+Slow Reader follows the site’s `robots.txt`: it does not turn on for a site, which asks robots not to download its pages, and turns off, if the site starts to ask it later.
+
+To download only one post, use “Download full post” in the post popup.
+
+### Experiments
+
+About page has an Experiments list with feature previews and debug data collectors, which you turn on or off for this device only. “Send error counts” switch moved there from the Cloud page.
+
+### Media Loading Reworked
+
+Telegram photos and videos load in seconds instead of minutes. For this, Telegram shows you online while the app is on the screen. Premium accounts download more files at once.
+
+When you scroll a feed, images load from the place you look at. Telegram, Bluesky, and Mastodon photos show a smaller copy until the full one is saved for offline. When you open the post, its image is not downloaded again. A failed image is tried once more.
+
+After refresh, saving for offline takes images first and videos after them. It skips posts you read during the download, Telegram media you already saw on the page, and files bigger than 100 MB. Instead of failing with “Too many requests”, it waits.
+
+### Sync Status on Phones
+
+Phones and tablets show sync status in the top corner of the Useful and Fun feeds list and of the menu.
+
+### Files in Posts
+
+Music, voice messages, and documents from Telegram channels are shown by name and size with a link to the post in Telegram instead of “Unsupported”. Files attached to posts of RSS, Atom, and JSON Feed are shown as links too.
+
+### Likes and Feed Statistics
+
+Posts of your feeds have like and dislike buttons in the feed reader and in the post popup.
+
+Feed popup, feeds list, and the page of a feed show how many posts of the feed you saw during the last 90 days and how many of them you liked, opened, or disliked, compared with your most read feed. Feed popup also lists all liked and disliked posts of the feed and posts you opened during the last 90 days.
+
+Likes and statistics are synced between your devices with the same encryption as other data and are saved to the backup file.
+
+### Read Later
+
+Keep a post or any article from the web for the time you can read it carefully. Read later sits at the top of Useful.
+
+The post stays there until you delete it, even after you open it, so you can return to a long read many times. A post from a feed can go back to its feed if you change your mind.
+
+Add a link to any page, and you read its article like other posts, without the site’s menus and ads around it. In Chrome-based browsers “Paste” adds a copied link in one tap.
+
+### Reading History
+
+Manage feeds → Reading history shows posts you read in the last day. To get a post back, open it and switch on “Mark post as unread”. “Clear history” deletes all read posts at once.
+
+Read posts are now deleted a day after reading. Their images and videos are still deleted when you leave the feed.
+
+### Reading Time by Category
+
+Coach page shows the average reading time per day for each category during the last 7 days. For this, the app now keeps reading sessions with their categories for 7 days instead of 24 hours.
+
+Time on a page opened by a link from a post is counted as reading, if you return to the app in less than 5 minutes. Reading sessions from 3 seconds are counted too.
+
+### Telegram Posts Without Waiting
+
+While the app is on the screen, it stays connected to Telegram, and a new post of your channel appears in seconds instead of waiting for the next refresh. It works only when auto-refresh is allowed right now. With auto-refresh off, on a network you excluded from it, or during the night lock the post comes with the next refresh.
+
+### Telegram Stickers
+
+Stickers and posts of one emoji from Telegram channels are shown instead of “Unsupported”. Animated stickers are shown as a static picture.
+
+### Update Follows Button
+
+Account popup got “Update follows” button. It loads the list of authors or channels, which the account follows on Mastodon, Bluesky, or Telegram, right now instead of waiting for the daily check. Use it after following somebody or moving a Telegram channel out of the Archive.
+
+### Security & Privacy
+
+- Updated `nginx-mainline` to 1.31.10-r1 to fix CVE-2026-132779.
+
+### Fixes
+
+- Fixed empty feeds for up to 15 minutes after adding Mastodon, Bluesky, or Telegram account.
+- Fixed app updates in a browser tab, which is open all day, like a pinned tab: the hidden tab now checks for a new version every 15 minutes and reloads itself.
+- Buttons hide the icon on a narrow screen to keep the text in one line.
+- Post preview in the feed is no longer cut in the middle of a code block.
+- Fixed working feeds shown as errors on Dead feeds page.
+- Fixed posts of a feed deleted during refresh staying in the app and failing image downloads.
+- Fixed “This User ID is already taken” error on creating a cloud account after the demo.
+- Fixed useless page scroll while posts are loading.
+- Long post summary in the feed is now cut too, and summary of a longer post ends with “…”.
+- Fixed on-screen keyboard hiding forms on phones: page content now moves above the keyboard.
+- “Mark as read” on the last page opens the next unread feed of the current category instead of the first feed in the menu, and moves to the next category only after the current one is read.
+- Fixed keyboard access to the buttons in the post popup header.
+- Posts older than yesterday show the date instead of “12 days ago”.
+- Post popup has no big “Open post link” button for Mastodon, Bluesky, and Telegram, where the whole post is already shown; the link stays in the popup header.
+- Link preview in posts now has a pressed state.
+- Reading statistics does not count the time when the device was asleep with Useful or Fun on the screen.
+- Fixed Home indicator covering the bottom menu in the app installed on iPhone and iPad.
+- Self-repost from account’s timeline now shows the author’s avatar.
+- Useful posts have the same big “Mark read” button as Fun posts.
+- Spoilers now have the same color as the thread part marker.
+- Forwards from Telegram channels blocked in your country no longer try to load the channel’s avatar.
+- Saved Telegram images are named by the post date in Firefox instead of “No name”.
+- Fixed Telegram channels missing in the app after joining them or moving them out of the Archive.
+- Video menu no longer shows Download for Telegram videos, because it could not work.
+- Post preview in the feed no longer shows only the title and `…` when the first paragraph is long.
+- Disabled browser’s Translate popup, which appeared over the app on posts in another language.
+- Reading statistics counts Useful time only when posts are on the screen, not on the menu or the empty page after all posts were read.
+
 ## 0.20261119.1
 
 _2026-11-20 · +12 −1_

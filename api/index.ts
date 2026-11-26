@@ -6,7 +6,7 @@ export const SUBPROTOCOL = 3
 /**
  * Project’s version to use in UI.
  */
-export const VERSION = '0.20261119.1'
+export const VERSION = '0.20261126.0'
 
 export * from './events.ts'
 export * from './http/common.ts'
