@@ -159,7 +159,13 @@
         align-self: stretch;
       }
 
+      &:is(.is-joined-middle, .is-joined-end) {
+        /* Covers the border of the previous button to not have a double one */
+        margin-inline-start: calc(-1 * var(--min-size));
+      }
+
       &.is-joined-start {
+        z-index: 1;
         border-start-end-radius: 0;
         border-end-end-radius: 0;
       }

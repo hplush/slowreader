@@ -18,7 +18,7 @@
     align?: 'baseline' | 'center' | 'end' | 'start' | 'stretch'
     children: Snippet
     controls?: string
-    gap?: 'l' | 'm' | 's' | 'xl' | 'xs' | 'xxl'
+    gap?: 'l' | 'm' | 'none' | 's' | 'xl' | 'xs' | 'xxl'
     height?: 'auto' | 'stretch'
     justify?: 'center' | 'end' | 'space-between' | 'start'
     padding?: 'xl'

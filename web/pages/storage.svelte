@@ -42,7 +42,7 @@
           ? $t.sizeLoading
           : formatSize($i18nFormat, $size)}
       />
-      <Stack gap="xs" row>
+      <Stack gap="s" row>
         <Button
           icon={mdiBroom}
           joined={dumpDatabase ? 'start' : undefined}

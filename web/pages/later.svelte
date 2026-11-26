@@ -40,7 +40,7 @@
   <Stack height="stretch">
     <Stack align="center" justify="space-between" row>
       <Title>{$t.title}</Title>
-      <Stack gap="xs" row width="auto">
+      <Stack gap="none" row width="auto">
         <Button
           href={getPopupHash($router, 'later', '1')}
           icon={mdiPlusCircleOutline}

@@ -37,7 +37,7 @@
       more meaningful and deep content.
       <Button size="wide">Button</Button>
       {#snippet footer()}
-        <Stack gap="xs" row>
+        <Stack gap="none" row>
           <Button joined="start" size="wide">Footer</Button>
           <Button joined="end" size="wide">Footer</Button>
         </Stack>
@@ -69,7 +69,7 @@
       more meaningful and deep content.
       <Button size="wide">Button</Button>
       {#snippet footer()}
-        <Stack gap="xs" row>
+        <Stack gap="none" row>
           <Button joined="start" size="wide">Footer</Button>
           <Button joined="end" size="wide">Footer</Button>
         </Stack>

@@ -15,7 +15,7 @@
 
 <Note icon={mdiBinoculars} title={$t.demoTitle} variant="warning">
   {$t[`${type}Desc`]}
-  <Stack gap="xs" row>
+  <Stack gap="none" row>
     <Button
       color="dangerous"
       joined="start"

@@ -27,7 +27,7 @@
     <Button icon={mdiCheck} size="wide">Button to compare</Button>
   </Section>
   <Section width={300}>
-    <Stack gap="xs" row>
+    <Stack gap="none" row>
       <Status icon={mdiCheck} joined="start">Joined</Status>
       <Button joined="end" size="wide">Button</Button>
     </Stack>

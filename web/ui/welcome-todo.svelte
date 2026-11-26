@@ -98,7 +98,7 @@
     <li class="welcome-todo_step">
       {@render checkbox(['clean'], $t.clean)}
       {#if !todo.done.has('clean')}
-        <Stack gap="xs" row>
+        <Stack gap="none" row>
           <Button color="dangerous" joined="start" onclick={deleteDemoWithBusy}>
             {$t.drop}
           </Button>

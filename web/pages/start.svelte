@@ -40,7 +40,7 @@
         <Stack align="center">
           <Stack align="center" gap="s">
             {$t.createEmpty}
-            <Stack gap="xs" row>
+            <Stack gap="s" row>
               <Button
                 icon={mdiHome}
                 joined="start"

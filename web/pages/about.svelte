@@ -125,7 +125,7 @@
     <Note icon={mdiShieldSearch} variant="good">
       <RichText text={$t.opensource} />
       {#snippet footer()}
-        <Stack gap="xs" row>
+        <Stack gap="s" row>
           <Button
             href="https://github.com/hplush/slowreader"
             icon={mdiEye}

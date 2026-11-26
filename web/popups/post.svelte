@@ -116,12 +116,18 @@
       store={later}
     />
     {#if url}
-      <PostShare post={reacted} {url} />
-    {/if}
-    {#if url}
-      <Button href={url} icon={mdiOpenInNew} size="icon" target="_blank">
-        {$t.url}
-      </Button>
+      <Stack gap="none" row width="auto">
+        <PostShare joined="start" post={reacted} {url} />
+        <Button
+          href={url}
+          icon={mdiOpenInNew}
+          joined="end"
+          size="icon"
+          target="_blank"
+        >
+          {$t.url}
+        </Button>
+      </Stack>
     {/if}
   {/snippet}
   <Stack>

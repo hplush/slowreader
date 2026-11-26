@@ -13,10 +13,12 @@
   import Button, { type ButtonVariant } from '../button.svelte'
 
   let {
+    joined,
     post,
     url,
     variant
   }: {
+    joined?: 'end' | 'middle' | 'start'
     post?: ReactedPost
     url: string
     variant?: ButtonVariant
@@ -28,6 +30,7 @@
 {#if $canShare}
   <Button
     icon={mdiShareVariantOutline}
+    {joined}
     onclick={() => {
       if (post) trackInterest(post, 'share')
       shareUrl(url)
@@ -42,6 +45,7 @@
     <Button
       color={$copied ? 'success' : undefined}
       icon={$copied ? mdiCheck : mdiContentCopy}
+      {joined}
       onclick={() => {
         if (post) trackInterest(post, 'share')
         copy(url)
