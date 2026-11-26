@@ -6,6 +6,7 @@
     type FeedValue,
     getPopupId,
     hasPersonAvatar,
+    humanizeUrl,
     router
   } from '@slowreader/core'
 
@@ -19,6 +20,7 @@
   let {
     avatars,
     current,
+    handles,
     hints,
     id,
     list,
@@ -28,6 +30,7 @@
   }: {
     avatars?: Record<string, string>
     current: string | undefined
+    handles?: boolean
     hints?: Record<string, string>
     id?: string
     list: readonly FeedLike[]
@@ -65,7 +68,14 @@
           round={hasPersonAvatar(feed.name)}
         />
       {/if}
-      {feed.title}
+      {#if handles && 'id' in feed}
+        <span class="feeds_names">
+          <span>{feed.title}</span>
+          <span class="feeds_handle">{humanizeUrl(feed.url, feed.loader)}</span>
+        </span>
+      {:else}
+        {feed.title}
+      {/if}
     </span>
     {#if 'id' in feed && stats?.has(feed.id)}
       <span class="feeds_stats">
@@ -84,6 +94,27 @@
       flex-shrink: 1;
       align-items: center;
       min-width: 0;
+    }
+
+    .feeds_names {
+      display: flex;
+      flex: 1 1 0;
+      flex-direction: column;
+      gap: 0.125rem;
+      min-width: 0;
+
+      /* Second line must not make the row taller than with only the title */
+      margin-block: -0.5rem;
+      contain: inline-size;
+    }
+
+    .feeds_handle {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font: var(--tertiary-font);
+      line-height: 1.4;
+      color: var(--secondary-text-color);
+      white-space: nowrap;
     }
 
     .feeds_stats {

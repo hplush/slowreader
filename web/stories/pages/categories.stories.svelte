@@ -32,13 +32,24 @@
       id: 'long',
       title:
         'Pneumonoultramicroscopicsilicovolcanoconiosis' +
-        'Pneumonoultramicroscopicsilicovolcanoconiosis'
+        'Pneumonoultramicroscopicsilicovolcanoconiosis',
+      url:
+        'https://subdomain.very-long-domain-name-of-the-blog.example.com/' +
+        'category/pneumonoultramicroscopicsilicovolcanoconiosis/feed.xml'
     },
     { categoryId: 'long', title: 'Long category' },
     {
+      avatar:
+        'data:image/svg+xml,' +
+        encodeURIComponent(
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">' +
+            '<circle cx="8" cy="8" r="8" fill="#d33a2c"/></svg>'
+        ),
       categoryId: 'design',
       id: 'popular',
-      title: 'Smashing Magazine — For Web Designers And Developers'
+      loader: 'mastodon',
+      title: 'Smashing Magazine — For Web Designers And Developers',
+      url: 'https://mastodon.social/@smashingmagazine'
     },
     { categoryId: 'unknown', title: 'Broken category' },
     { reading: 'slow', title: 'My friend' }
@@ -70,6 +81,7 @@
     oninit={() => {
       pages.categories().toggle('code')
       pages.categories().toggle('empty')
+      pages.categories().toggle('design')
     }}
     reactions={[
       { at: NOW, feedId: 'a', id: 'liked', type: 'like' },

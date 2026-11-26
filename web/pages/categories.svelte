@@ -67,6 +67,7 @@
           >
             <Feeds
               current={$opened}
+              handles
               list={feeds}
               readings={$readings}
               stats={$stats}
