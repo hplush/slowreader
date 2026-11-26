@@ -2,6 +2,7 @@
   import {
     mdiCircleOutline,
     mdiCursorDefaultClick,
+    mdiEyeCheck,
     mdiEyeCheckOutline,
     mdiOpenInNew,
     mdiThumbDown,
@@ -78,7 +79,7 @@
     {/if}
     {#if popup.read}
       <Toggle
-        icon={mdiEyeCheckOutline}
+        icon={$read ? mdiEyeCheck : mdiEyeCheckOutline}
         label={$read ? $t.unread : $t.read}
         size="icon"
         store={popup.read}

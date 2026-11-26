@@ -193,6 +193,7 @@
       <Button href="/disabled" {icon} loader variant="secondary">
         Secondary
       </Button>
+      <Button {icon} loader {onclick} size="icon">Icon</Button>
       <Button {icon} loader {onclick} pseudostate="active" variant="secondary">
         Pressed
       </Button>
@@ -357,6 +358,7 @@
       <Button href="/disabled" {icon} loader variant="secondary">
         Secondary
       </Button>
+      <Button {icon} loader {onclick} size="icon">Icon</Button>
     </Section>
     <Section>
       <div style="display: flex; width: fit-content;">
@@ -514,6 +516,7 @@
       <Button href="/disabled" {icon} loader variant="secondary">
         Secondary
       </Button>
+      <Button {icon} loader {onclick} size="icon">Icon</Button>
     </Section>
     <Section>
       <div style="display: flex; width: fit-content;">
@@ -671,6 +674,7 @@
       <Button href="/disabled" {icon} loader variant="secondary">
         Secondary
       </Button>
+      <Button {icon} loader {onclick} size="icon">Icon</Button>
     </Section>
     <Section>
       <div style="display: flex; width: fit-content;">

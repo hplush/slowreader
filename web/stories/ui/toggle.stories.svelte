@@ -27,6 +27,8 @@
     <Toggle {icon} label="Off" store={storeOff} />
     <Toggle {icon} label="Icon" size="icon" store={storeOn} />
     <Toggle {icon} label="Icon Off" size="icon" store={storeOff} />
+    <Toggle disabled {icon} label="Disabled" size="icon" store={storeOn} />
+    <Toggle {icon} label="Loading" loader size="icon" store={storeOn} />
     <Toggle
       {icon}
       label="Very-very long label with longlonglongwordthat couldbreakcontainer"
@@ -64,6 +66,8 @@
     <Toggle {icon} label="Off" store={storeOff} />
     <Toggle {icon} label="Icon" size="icon" store={storeOn} />
     <Toggle {icon} label="Icon Off" size="icon" store={storeOff} />
+    <Toggle disabled {icon} label="Disabled" size="icon" store={storeOn} />
+    <Toggle {icon} label="Loading" loader size="icon" store={storeOn} />
   </Section>
   <Section
     active="label:nth-child(2)"

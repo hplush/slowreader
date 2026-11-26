@@ -2,27 +2,51 @@
   import type { ReadableAtom } from 'nanostores'
 
   import Icon from './icon.svelte'
+  import Loader from './loader.svelte'
 
   let {
+    disabled,
     icon,
     label,
+    loader = false,
     size = 'inline',
     store
   }: {
+    disabled?: boolean
     icon?: string
     label: string
+    loader?: boolean
     size?: 'icon' | 'inline'
     store: ReadableAtom<boolean>
   } = $props()
+
+  // Native disabled input loses the focus, so both states only ignore clicks
+  let blocked = $derived(!!disabled || loader)
 </script>
 
 <label
   class="toggle is-secondary"
   class:is-icon={size === 'icon'}
+  class:is-loader={loader}
+  aria-disabled={blocked || null}
   title={size === 'icon' ? label : null}
 >
-  <input class="toggle_input" type="checkbox" bind:checked={$store} />
-  <div class="toggle_cap">
+  <input
+    class="toggle_input"
+    aria-busy={loader || null}
+    aria-disabled={blocked || null}
+    onclick={e => {
+      if (blocked) e.preventDefault()
+    }}
+    type="checkbox"
+    bind:checked={$store}
+  />
+  {#if loader}
+    <span class="toggle_loader">
+      <Loader track="toggle" />
+    </span>
+  {/if}
+  <div class="toggle_cap" aria-hidden={loader || null}>
     {#if icon}
       <Icon path={icon} />
     {/if}
@@ -56,12 +80,16 @@
         @mixin focus;
       }
 
-      &&:active {
+      &&:active:not([aria-disabled='true']) {
         box-shadow: var(--pressed-shadow);
       }
 
-      html:not(.is-quiet-cursor) &:not(:has(:disabled)) {
+      html:not(.is-quiet-cursor) &:not([aria-disabled='true']) {
         cursor: pointer;
+      }
+
+      &[aria-disabled='true']:not(.is-loader) {
+        opacity: 60%;
       }
 
       &.is-secondary {
@@ -80,7 +108,19 @@
     }
 
     .toggle_input {
-      display: none;
+      position: absolute;
+      width: var(--min-size);
+      height: var(--min-size);
+      pointer-events: none;
+      opacity: 0%;
+    }
+
+    .toggle_loader {
+      position: absolute;
+      inset: 0 0.375rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .toggle_cap {
@@ -92,7 +132,7 @@
       min-height: var(--control-height);
       padding: 0.4rem var(--control-padding);
 
-      .toggle:active & {
+      .toggle:active:not([aria-disabled='true']) & {
         translate: 0 1px;
       }
 
@@ -100,6 +140,10 @@
         width: var(--control-height);
         padding: 0;
         text-align: center;
+      }
+
+      .toggle.is-loader & {
+        opacity: 0%;
       }
     }
 
