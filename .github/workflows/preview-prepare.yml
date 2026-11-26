@@ -43,6 +43,7 @@ jobs:
             registry-1.docker.io:443
             production.cloudflare.docker.com:443
             production.cloudfront.docker.com:443
+            docker-images-prod.s3.dualstack.us-east-1.amazonaws.com:443
             ghcr.io:443
             pkg-containers.githubusercontent.com:443
             cgr.dev:443
