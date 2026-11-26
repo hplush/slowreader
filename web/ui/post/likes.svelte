@@ -12,6 +12,7 @@
   } from '@slowreader/core'
 
   import Button, { type ButtonVariant } from '../button.svelte'
+  import Stack from '../stack.svelte'
 
   let {
     liked,
@@ -24,7 +25,7 @@
   } = $props()
 </script>
 
-<div class="post-likes">
+<Stack gap="none" row width="auto">
   <Button
     aria-pressed={liked === true}
     color="success"
@@ -51,12 +52,4 @@
   >
     {$t.dislike}
   </Button>
-</div>
-
-<style lang="postcss">
-  :global {
-    .post-likes {
-      display: flex;
-    }
-  }
-</style>
+</Stack>
