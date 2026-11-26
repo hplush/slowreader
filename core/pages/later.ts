@@ -1,9 +1,12 @@
 import { atom, effect } from 'nanostores'
 
 import { getUserPostUrls } from '../account.ts'
+import { getEnvironment } from '../environment.ts'
+import { UserFacingError } from '../errors.ts'
 import { humanizeUrl } from '../format.ts'
-import { loadLaterPosts } from '../later.ts'
+import { createLaterAdding, loadLaterPosts } from '../later.ts'
 import { hasPersonAvatar } from '../loader/index.ts'
+import { laterMessages } from '../messages/index.ts'
 import { changePost, type ReaderPost } from '../post.ts'
 import type { FeedAuthor } from '../readers/common.ts'
 import { getCrdt, hasDatabase, openedDatabase } from '../schema.ts'
@@ -37,6 +40,14 @@ async function moveReadToHistory(): Promise<void> {
   }
 }
 
+async function readClipboard(): Promise<string> {
+  let text = await getEnvironment().clipboard.read()
+  if (text === undefined) {
+    throw new UserFacingError(laterMessages.get().noClipboard)
+  }
+  return text
+}
+
 /**
  * Post, which keeps its feed or site in the author, shows it like
  * the category reader. Read posts stay until the user leaves the page.
@@ -45,6 +56,7 @@ export const laterPage = createPage('later', () => {
   let $loading = atom(true)
   let $authors = atom<ReadonlyMap<string, FeedAuthor>>(new Map())
   let $posts = atom<ReaderPost[]>([])
+  let adding = createLaterAdding()
 
   let unbind = effect(openedDatabase, db => {
     if (!db) return
@@ -69,13 +81,22 @@ export const laterPage = createPage('later', () => {
   })
 
   return {
+    async addFromClipboard() {
+      await adding.add(readClipboard())
+    },
+    added: adding.added,
+    adding: adding.adding,
+    already: adding.already,
     authors: $authors,
     async exit() {
       unbind()
+      adding.destroy()
       await moveReadToHistory()
     },
+    failure: adding.failure,
     loading: $loading,
     params: {},
+    pasteable: getEnvironment().clipboard.readable,
     posts: $posts,
     userPostUrl: getUserPostUrls()
   }

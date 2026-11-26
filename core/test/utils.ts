@@ -78,6 +78,7 @@ export {
   mockRequest,
   openRoute,
   sendTelegramUpdate,
+  setTestClipboard,
   setTestNetwork,
   setTestVisibility,
   testHistory,

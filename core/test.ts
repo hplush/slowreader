@@ -216,6 +216,15 @@ export function setTestVisibility(visible: boolean): void {
   testVisible.set(visible)
 }
 
+let testClipboard: string | undefined
+
+/**
+ * Copy text to the clipboard. `undefined` denies access to it.
+ */
+export function setTestClipboard(text: string | undefined): void {
+  testClipboard = text
+}
+
 /**
  * Close the app, like on closing the browser tab.
  */
@@ -258,6 +267,7 @@ export function getTestEnvironment(): Environment {
   setTestNetwork({})
   testExitListeners.clear()
   testSession = undefined
+  testClipboard = undefined
   testSignals = []
   testHistory = []
   testOAuthPages = []
@@ -283,6 +293,12 @@ export function getTestEnvironment(): Environment {
         delete persistentStore[key]
       }
       savedKey = undefined
+    },
+    clipboard: {
+      read() {
+        return Promise.resolve(testClipboard)
+      },
+      readable: atom(true)
     },
     createPasskey() {
       return Promise.resolve(undefined)

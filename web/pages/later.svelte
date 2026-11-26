@@ -1,5 +1,9 @@
 <script lang="ts">
-  import { mdiBookmarkOutline, mdiPlusCircleOutline } from '@mdi/js'
+  import {
+    mdiBookmarkOutline,
+    mdiContentPaste,
+    mdiPlusCircleOutline
+  } from '@mdi/js'
   import {
     type LaterPage,
     navbarMessages as navbar,
@@ -8,7 +12,9 @@
   } from '@slowreader/core'
 
   import { getPopupHash } from '../stores/url-router.ts'
+  import Announce from '../ui/announce.svelte'
   import Button from '../ui/button.svelte'
+  import Error from '../ui/error.svelte'
   import Feed from '../ui/feed/index.svelte'
   import Loader from '../ui/loader.svelte'
   import PageIcon from '../ui/page-icon.svelte'
@@ -17,20 +23,47 @@
   import Title from '../ui/title.svelte'
 
   let { page }: { page: LaterPage } = $props()
-  let { authors, loading, posts, userPostUrl } = $derived(page)
+  let {
+    added,
+    adding,
+    already,
+    authors,
+    failure,
+    loading,
+    pasteable,
+    posts,
+    userPostUrl
+  } = $derived(page)
 </script>
 
 <PopupablePage title={[$t.title, $navbar.slow]}>
   <Stack height="stretch">
     <Stack align="center" justify="space-between" row>
       <Title>{$t.title}</Title>
-      <Button
-        href={getPopupHash($router, 'later', '1')}
-        icon={mdiPlusCircleOutline}
-      >
-        {$t.add}
-      </Button>
+      <Stack gap="xs" row width="auto">
+        <Button
+          href={getPopupHash($router, 'later', '1')}
+          icon={mdiPlusCircleOutline}
+          joined={$pasteable ? 'start' : undefined}
+        >
+          {$t.add}
+        </Button>
+        {#if $pasteable}
+          <Button
+            icon={mdiContentPaste}
+            joined="end"
+            loader={$adding}
+            onclick={page.addFromClipboard}
+          >
+            {$t.paste}
+          </Button>
+        {/if}
+      </Stack>
     </Stack>
+    {#if $failure || $already}
+      <Error align="end">{$failure ?? $t.already}</Error>
+    {/if}
+    <Announce text={$added ? $t.saved : ''} />
     {#if $loading}
       <Stack height="stretch" justify="center">
         <Loader track="later" />

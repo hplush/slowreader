@@ -8,21 +8,32 @@ import {
   busy,
   busyUntilMenuLoader,
   changeRead,
+  laterMessages,
   loadPost,
   moveToLater,
   testFeed,
   testPost,
   waitLoading
 } from '../../index.ts'
-import { cleanClient, openPage, startClient } from '../utils.ts'
+import {
+  checkAndRemoveRequestMock,
+  cleanClient,
+  expectRequest,
+  mockRequest,
+  openPage,
+  setTestClipboard,
+  startClient
+} from '../utils.ts'
 
 describe('later page', () => {
   beforeEach(() => {
     startClient()
+    mockRequest()
   })
 
   afterEach(async () => {
     await cleanClient()
+    checkAndRemoveRequestMock()
   })
 
   test('shows live Read later posts', async () => {
@@ -86,5 +97,35 @@ describe('later page', () => {
     openPage({ params: {}, route: 'about' })
     await setTimeout(10)
     equal((await loadPost('old'))!.read, 2)
+  })
+
+  test('adds link from clipboard', async () => {
+    let page = openPage({ params: {}, route: 'later' })
+    await waitLoading(page.loading)
+    equal(page.pasteable.get(), true)
+
+    await page.addFromClipboard()
+    equal(page.failure.get(), laterMessages.get().noClipboard)
+
+    setTestClipboard('a.com/1')
+    let response = expectRequest('https://a.com/1').andWait()
+    let adding = page.addFromClipboard()
+    equal(page.adding.get(), true)
+    equal(page.failure.get(), undefined)
+    expectRequest('https://a.com/').andRespond(404)
+    expectRequest('https://a.com/favicon.ico').andRespond(404)
+    await response(200, '<html><head><title>One</title></head></html>')
+    await adding
+    equal(page.adding.get(), false)
+    equal(page.added.get(), true)
+    await setTimeout(10)
+    deepEqual(
+      page.posts.get().map(post => post.url),
+      ['https://a.com/1']
+    )
+
+    await page.addFromClipboard()
+    equal(page.added.get(), false)
+    equal(page.already.get(), true)
   })
 })

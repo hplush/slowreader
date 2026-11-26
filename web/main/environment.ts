@@ -13,6 +13,7 @@ import {
 } from '@slowreader/core'
 import { effect } from 'nanostores'
 
+import { clipboardReadable, readClipboard } from '../lib/clipboard.ts'
 import {
   loadEncryptionKey,
   saveEncryptionKey,
@@ -95,6 +96,7 @@ setupEnvironment({
     localStorage.setItem('slowreader:wipe', 'yes')
     void saveEncryptionKey(undefined)
   },
+  clipboard: { read: readClipboard, readable: clipboardReadable },
   createPasskey,
   databaseCreator: createDatabase,
   errorEvents: window,

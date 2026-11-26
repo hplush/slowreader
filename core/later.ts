@@ -1,12 +1,13 @@
 import { nanoid } from 'nanoid'
-import { computed, type ReadableAtom } from 'nanostores'
+import { atom, computed, type ReadableAtom } from 'nanostores'
 
 import { loadAccount } from './account.ts'
-import { UserFacingError } from './errors.ts'
+import { getEnvironment } from './environment.ts'
+import { errorToMessage, isRemoteError, UserFacingError } from './errors.ts'
 import { type FeedValue, getFeedReading, loadFeed } from './feed.ts'
 import { downloadArticle } from './full-text.ts'
 import { nowInSeconds } from './lib/date.ts'
-import type { DownloadTask } from './lib/download.ts'
+import { createDownloadTask, type DownloadTask } from './lib/download.ts'
 import { findMediaInText, findSiteIcon } from './loader/common.ts'
 import { findPostLoader, loaders } from './loader/index.ts'
 import { laterMessages } from './messages/index.ts'
@@ -334,4 +335,50 @@ export async function addLaterPost(
     )
   }
   return 'added'
+}
+
+export interface LaterAdding {
+  add(url: Promise<string> | string): Promise<boolean>
+  added: ReadableAtom<boolean>
+  adding: ReadableAtom<boolean>
+  already: ReadableAtom<boolean>
+  destroy(): void
+  failure: ReadableAtom<string | undefined>
+}
+
+export function createLaterAdding(): LaterAdding {
+  let task = createDownloadTask()
+  let $added = atom(false)
+  let $adding = atom(false)
+  let $already = atom(false)
+  let $failure = atom<string | undefined>()
+  return {
+    async add(url) {
+      $added.set(false)
+      $adding.set(true)
+      $already.set(false)
+      $failure.set(undefined)
+      try {
+        let result = await addLaterPost(task, await url)
+        $added.set(result === 'added')
+        $already.set(result === 'already')
+      } catch (e) {
+        if (e instanceof Error && e.name === 'AbortError') return false
+        if (!(e instanceof UserFacingError) && !isRemoteError(e)) {
+          getEnvironment().warn(e)
+        }
+        $failure.set(errorToMessage(e))
+      } finally {
+        $adding.set(false)
+      }
+      return $added.get()
+    },
+    added: $added,
+    adding: $adding,
+    already: $already,
+    destroy() {
+      task.destroy()
+    },
+    failure: $failure
+  }
 }

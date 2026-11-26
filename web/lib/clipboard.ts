@@ -26,3 +26,39 @@ export function createClipboard(): {
     }
   }
 }
+
+export async function readClipboard(): Promise<string | undefined> {
+  try {
+    return await navigator.clipboard.readText()
+  } catch (e) {
+    if (e instanceof DOMException && e.name === 'NotAllowedError') {
+      return undefined
+    }
+    throw e
+  }
+}
+
+export const clipboardReadable = atom(false)
+
+onMount(clipboardReadable, () => {
+  let unbind: (() => void) | undefined
+  let mounted = true
+  navigator.permissions
+    .query({ name: 'clipboard-read' as PermissionName })
+    .then(status => {
+      if (!mounted) return
+      function update(): void {
+        clipboardReadable.set(status.state !== 'denied')
+      }
+      update()
+      status.addEventListener('change', update)
+      unbind = () => {
+        status.removeEventListener('change', update)
+      }
+    })
+    .catch(() => {})
+  return () => {
+    mounted = false
+    unbind?.()
+  }
+})

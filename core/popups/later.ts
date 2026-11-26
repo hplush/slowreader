@@ -1,49 +1,21 @@
 import { atom } from 'nanostores'
 
-import { getEnvironment } from '../environment.ts'
-import { errorToMessage, isRemoteError, UserFacingError } from '../errors.ts'
-import { addLaterPost } from '../later.ts'
-import { createDownloadTask } from '../lib/download.ts'
+import { createLaterAdding } from '../later.ts'
 import { closeLastPopup } from '../router.ts'
 import { type CreatedLoadedPopup, definePopup } from './common.ts'
 
 export const later = definePopup('later', () => {
-  let task = createDownloadTask()
+  let adding = createLaterAdding()
   let $url = atom('')
-  let $adding = atom(false)
-  let $already = atom(false)
-  let $error = atom<string | undefined>()
-
-  async function add(): Promise<void> {
-    $adding.set(true)
-    $already.set(false)
-    $error.set(undefined)
-    try {
-      let result = await addLaterPost(task, $url.get())
-      if (result === 'already') {
-        $already.set(true)
-      } else {
-        closeLastPopup()
-      }
-    } catch (e) {
-      if (e instanceof Error && e.name === 'AbortError') return
-      if (!(e instanceof UserFacingError) && !isRemoteError(e)) {
-        getEnvironment().warn(e)
-      }
-      $error.set(errorToMessage(e))
-    } finally {
-      $adding.set(false)
-    }
-  }
 
   return Promise.resolve({
-    add,
-    adding: $adding,
-    already: $already,
-    destroy() {
-      task.destroy()
+    async add() {
+      if (await adding.add($url.get())) closeLastPopup()
     },
-    failure: $error,
+    adding: adding.adding,
+    already: adding.already,
+    destroy: adding.destroy,
+    failure: adding.failure,
     url: $url
   })
 })

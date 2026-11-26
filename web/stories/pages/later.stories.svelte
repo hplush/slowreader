@@ -13,6 +13,16 @@
   const NOW = Math.round(Date.now() / 1000)
 </script>
 
+<script lang="ts">
+  import type { StoryContext } from 'storybook/internal/types'
+
+  async function paste({ canvas, userEvent }: StoryContext): Promise<void> {
+    await userEvent.click(
+      await canvas.findByRole('button', { name: 'Paste' }, { timeout: 5000 })
+    )
+  }
+</script>
+
 <Story name="List" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     feeds={[{ id: 'feed', reading: 'slow', title: 'The Mozilla Blog' }]}
@@ -50,7 +60,7 @@
   </Scene>
 </Story>
 
-<Story name="Empty" asChild parameters={{ layout: 'fullscreen' }}>
+<Story name="Empty" asChild parameters={{ layout: 'fullscreen' }} play={paste}>
   <Scene feeds={[{}]} route="later">
     <LaterPage page={pages.later()} />
   </Scene>

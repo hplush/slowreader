@@ -103,6 +103,20 @@ export interface CachedMedia {
   width?: number
 }
 
+export interface ClipboardReader {
+  /**
+   * Call it right in the click handler, since browsers allow it only
+   * on user action. Returns `undefined` if user or browser denied access.
+   */
+  read(): Promise<string | undefined>
+
+  /**
+   * `false` if user blocked access or the client asks user on every read,
+   * like Firefox and Safari. Then paste to the input is faster.
+   */
+  readable: ReadableAtom<boolean>
+}
+
 export interface MediaCache {
   clear(): Promise<void>
   delete(urls: string[]): Promise<void>
@@ -172,6 +186,11 @@ export interface Environment {
    * or profile deletion.
    */
   cleanStorage(): void
+
+  /**
+   * Text from the clipboard to add a link by one click.
+   */
+  clipboard: ClipboardReader
 
   /**
    * Create passkey by WebAuthn. Returns `undefined` if user cancelled it.
@@ -375,6 +394,7 @@ export function setupEnvironment<Router extends BaseRouter>(
   currentEnvironment = {
     baseRouter: env.baseRouter,
     cleanStorage: env.cleanStorage,
+    clipboard: env.clipboard,
     createPasskey: env.createPasskey,
     databaseCreator: env.databaseCreator,
     dumpDatabase: env.dumpDatabase,
