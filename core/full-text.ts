@@ -10,7 +10,8 @@ import {
 } from './lib/robotstxt.ts'
 import { findMediaInText } from './loader/common.ts'
 import { organizeMessages } from './messages/index.ts'
-import type { OriginPost } from './post.ts'
+import type { PostMedia } from './post.ts'
+import { getCrdt, getTables } from './schema.ts'
 
 interface RobotsRecord {
   checkedAt: number
@@ -152,8 +153,8 @@ export async function downloadFullText(
   return content
 }
 
-type FullTextsResult =
-  | { blocked: false; errors: Error[]; posts: OriginPost[] }
+type FullTextsResult<Post> =
+  | { blocked: false; errors: Error[]; posts: Post[] }
   | { blocked: true }
 
 /**
@@ -162,10 +163,18 @@ type FullTextsResult =
  * media, if the feed has no media. Post keeps the feed’s text, when the page
  * can’t be loaded.
  */
-export async function addFullTexts(
+export async function addFullTexts<
+  Post extends {
+    full?: null | string
+    intro?: null | string
+    media?: null | PostMedia[]
+    url?: null | string
+  }
+>(
   task: DownloadTask,
-  posts: OriginPost[]
-): Promise<FullTextsResult> {
+  posts: Post[],
+  onProcessed?: () => void
+): Promise<FullTextsResult<Post>> {
   let urls = posts.flatMap(post => (post.url ? [post.url] : []))
   if (!(await isAllowedByRobots(task, urls))) return { blocked: true }
   let result = [...posts]
@@ -188,8 +197,37 @@ export async function addFullTexts(
         if (!(e instanceof Error) || e.name === 'AbortError') throw e
         errors[index] = e
       }
+      onProcessed?.()
     }
   }
   await Promise.all([downloadNext(), downloadNext()])
   return { blocked: false, errors: errors.filter(e => e), posts: result }
+}
+
+export async function addFullTextsToUnread(
+  feedId: string,
+  task: DownloadTask,
+  onProgress: (value: number) => void
+): Promise<void> {
+  let unread = await getTables().posts.load`
+    WHERE "feedId" = ${feedId} AND "read" = 0 AND "url" IS NOT NULL
+    ORDER BY "sortedAt" DESC, "id" DESC
+  `
+  let processed = 0
+  let result = await addFullTexts(task, unread, () => {
+    processed += 1
+    onProgress(processed / unread.length)
+  })
+  if (result.blocked) return
+  await getCrdt().batch(() => {
+    result.posts.forEach((post, index) => {
+      if (post.full !== unread[index]!.full) {
+        void getTables().posts.update(post.id, {
+          full: post.full,
+          intro: post.intro,
+          media: post.media
+        })
+      }
+    })
+  })
 }

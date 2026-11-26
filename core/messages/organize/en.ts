@@ -20,6 +20,7 @@ export const organizeMessages = i18n('organize', {
   extractChecking: 'Checking site rules for robots…',
   extractDonate:
     'Many authors dislike it, especially if ads pay for their work. Consider supporting them directly.',
+  extractDownloading: 'Downloading unread posts…',
   extractNoArticle: 'The post’s page has no article',
   extractStopped:
     'Full posts turned off: the site now forbids robots in robots.txt',

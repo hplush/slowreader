@@ -38,9 +38,10 @@ import {
   humanizeUrl,
   i18nFormat
 } from '../format.ts'
-import { isAllowedByRobots } from '../full-text.ts'
+import { addFullTextsToUnread, isAllowedByRobots } from '../full-text.ts'
 import {
   createDownloadTask,
+  type DownloadTask,
   ignoreAbortError,
   type TextResponse
 } from '../lib/download.ts'
@@ -413,28 +414,39 @@ export const feed = definePopup('feed', async url => {
     }
   }
 
-  let $robots = atom<'blocked' | 'checking' | 'enabled' | undefined>()
+  let $extractStatus = atom<
+    'blocked' | 'checking' | 'downloading' | 'enabled' | undefined
+  >()
+  let $extractProgress = atom(0)
+  let extracting: DownloadTask | undefined
 
   async function changeExtract(enabled: boolean): Promise<void> {
     let created = $feed.get()
     if (!created) return
     if (!enabled) {
-      $robots.set(undefined)
+      extracting?.destroy()
+      $extractStatus.set(undefined)
       await changeFeed(created.id, { extract: null })
       return
     }
-    $robots.set('checking')
+    $extractStatus.set('checking')
     let urls = posts.get().list.flatMap(post => (post.url ? [post.url] : []))
     let allowed = await isAllowedByRobots(
       task,
       urls.length > 0 ? urls : [created.url]
     )
-    if ($robots.get() !== 'checking') return
+    if ($extractStatus.get() !== 'checking') return
     if (allowed) {
       await changeFeed(created.id, { extract: true })
-      $robots.set('enabled')
+      $extractProgress.set(0)
+      $extractStatus.set('downloading')
+      extracting = createDownloadTask()
+      await addFullTextsToUnread(created.id, extracting, value => {
+        $extractProgress.set(value)
+      })
+      if ($extractStatus.get() === 'downloading') $extractStatus.set('enabled')
     } else {
-      $robots.set('blocked')
+      $extractStatus.set('blocked')
     }
   }
 
@@ -532,15 +544,16 @@ export const feed = definePopup('feed', async url => {
     canExtract: isWebFeed(service),
     deleting: $deleting,
     extract: viewOf(
-      computed([$feed, $robots], (created, robots) => {
-        return !!created?.extract || robots === 'checking'
+      computed([$feed, $extractStatus], (created, status) => {
+        return !!created?.extract || status === 'checking'
       }),
       value => value,
       value => {
         void changeExtract(value).catch(ignoreAbortError)
       }
     ),
-    extractStatus: $robots,
+    extractProgress: $extractProgress,
+    extractStatus: $extractStatus,
     dislikedPosts: getReactedPosts('disliked'),
     destroy() {
       task.destroy()

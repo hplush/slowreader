@@ -25,6 +25,7 @@ import {
   loaders,
   loadFeed,
   loadFeeds,
+  loadPost,
   loadPosts,
   loadPostsByFeed,
   NetworkError,
@@ -518,6 +519,75 @@ describe('feed popup', () => {
     await setTimeout(10)
     equal((await loadFeed(feedId))?.extract, null)
     deepEqual(robotsRecords.get(), {})
+  })
+
+  test('downloads full text of unread posts on turning on', async t => {
+    t.after(() => {
+      robotsRecords.set({})
+    })
+    let feedId = await addFeed(testFeed({ url: 'https://a.com/atom' }))
+    await addPost([
+      testPost({
+        feedId,
+        full: 'Feed 1',
+        id: 'unread',
+        intro: null,
+        publishedAt: 2000,
+        url: 'https://a.com/1'
+      }),
+      testPost({ feedId, id: 'read', read: 1, url: 'https://a.com/2' }),
+      testPost({ feedId, id: 'failed', url: 'https://a.com/3' }),
+      testPost({ id: 'other', url: 'https://a.com/4' })
+    ])
+    expectRequest('https://a.com/atom').andRespond(
+      200,
+      '<feed><title>Atom</title></feed>',
+      'text/xml'
+    )
+    let opened = openTestPopup('feed', 'https://a.com/atom')
+    await waitLoading(opened.loading)
+    let popup = checkLoadedPopup(opened)
+    keepMount(popup.extract)
+    keepMount(popup.extractProgress)
+    keepMount(popup.extractStatus)
+
+    expectRequest('https://a.com/robots.txt').andRespond(404)
+    let stopped = expectRequest('https://a.com/1').andWait()
+    expectRequest('https://a.com/3').andWait()
+    popup.extract.set(true)
+    await waitUntil(() => popup.extractStatus.get() === 'downloading')
+    equal(popup.extractProgress.get(), 0)
+    popup.extract.set(false)
+    await waitUntil(() => !popup.extract.get())
+    equal(stopped.aborted, true)
+    equal(popup.extractStatus.get(), undefined)
+    equal((await loadPost('unread'))!.full, 'Feed 1')
+
+    let text = 'Long paragraph of the article. '.repeat(40)
+    expectRequest('https://a.com/1').andRespond(
+      200,
+      `<html><body><article><p>${text}</p>` +
+        '<p><img src="/a.png"></p></article></body></html>',
+      'text/html'
+    )
+    let failed = expectRequest('https://a.com/3').andWait()
+    popup.extract.set(true)
+    await waitUntil(() => popup.extractProgress.get() === 0.5)
+    equal(popup.extractStatus.get(), 'downloading')
+    closeLastPopup()
+    await failed(404)
+    await waitUntil(async () => (await loadPost('unread'))?.full !== 'Feed 1')
+
+    let unread = await loadPost('unread')
+    match(unread!.full!, /Long paragraph/)
+    equal(unread!.intro, 'Feed 1')
+    deepEqual(unread!.media, [
+      { fromText: true, type: 'image', url: 'https://a.com/a.png' }
+    ])
+    let read = await loadPost('read')
+    equal(read!.full, null)
+    let failedPost = await loadPost('failed')
+    equal(failedPost!.full, null)
   })
 
   test('loads feeds by URL popup', async () => {

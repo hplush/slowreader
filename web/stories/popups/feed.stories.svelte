@@ -391,10 +391,18 @@
   play={enableExtract}
 >
   <Scene
-    feeds={[{ reading: 'fast', url: 'https://example.com/hourly.atom' }]}
+    feeds={[
+      { id: 'hourly', reading: 'fast', url: 'https://example.com/hourly.atom' }
+    ]}
+    posts={[
+      { feedId: 'hourly', url: 'https://example.com/hourly/1' },
+      { feedId: 'hourly', url: 'https://example.com/hourly/2' }
+    ]}
     responses={[
       ['https://example.com/hourly.atom', FREQUENT_ATOM],
-      ['https://example.com/robots.txt', { loading: true }]
+      ['https://example.com/robots.txt', { status: 404 }],
+      ['https://example.com/hourly/1', { status: 404 }],
+      ['https://example.com/hourly/2', { loading: true }]
     ]}
   >
     <LoadedPopup popup={popups.feed('https://example.com/hourly.atom')}>

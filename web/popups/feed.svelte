@@ -66,6 +66,7 @@
     deleting,
     dislikedPosts,
     extract,
+    extractProgress,
     extractStatus,
     feed,
     followedBy,
@@ -96,6 +97,7 @@
 
   let extractAnnounce = $derived.by(() => {
     if ($extractStatus === 'checking') return $t.extractChecking
+    if ($extractStatus === 'downloading') return $t.extractDownloading
     if ($extractStatus === 'blocked') return $t.extractBlocked
     if ($extractStatus === 'enabled') return $t.extractDonate
     return ''
@@ -295,6 +297,16 @@
           <Switch icon={mdiTextBoxOutline} label={$t.extract} store={extract} />
           {#if $extractStatus === 'checking'}
             <SpaceLoader label={$t.extractChecking} track="robots-check">
+              <Note icon={mdiHandHeartOutline} variant="warning">
+                {$t.extractDonate}
+              </Note>
+            </SpaceLoader>
+          {:else if $extractStatus === 'downloading'}
+            <SpaceLoader
+              label={$t.extractDownloading}
+              track="extract-unread"
+              value={$extractProgress}
+            >
               <Note icon={mdiHandHeartOutline} variant="warning">
                 {$t.extractDonate}
               </Note>

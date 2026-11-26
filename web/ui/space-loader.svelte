@@ -6,11 +6,13 @@
   let {
     children,
     label,
-    track
+    track,
+    value
   }: {
     children: Snippet
     label: string
     track: string
+    value?: number
   } = $props()
 </script>
 
@@ -19,7 +21,7 @@
     {@render children()}
   </div>
   <div class="space-loader_loader">
-    <Loader {label} {track} />
+    <Loader {label} {track} {value} />
     <span class="space-loader_label" aria-hidden="true">{label}</span>
   </div>
 </div>
