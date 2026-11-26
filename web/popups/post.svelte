@@ -1,6 +1,5 @@
 <script lang="ts">
   import {
-    mdiAlertCircleOutline,
     mdiBookmarkCheck,
     mdiBookmarkPlusOutline,
     mdiCircleOutline,
@@ -31,8 +30,8 @@
   import { getPopupHash } from '../stores/url-router.ts'
   import Announce from '../ui/announce.svelte'
   import Button from '../ui/button.svelte'
+  import Error from '../ui/error.svelte'
   import FeedLink from '../ui/feed-link.svelte'
-  import Note from '../ui/note.svelte'
   import Popup from '../ui/popup.svelte'
   import Post from '../ui/post/index.svelte'
   import PostLikes from '../ui/post/likes.svelte'
@@ -225,9 +224,7 @@
               </Button>
             {/if}
             {#if $extractStatus?.status === 'failed'}
-              <Note icon={mdiAlertCircleOutline} variant="dangerous">
-                {$extractStatus.error}
-              </Note>
+              <Error>{$extractStatus.error}</Error>
             {/if}
             <Announce text={extractAnnounce} />
           </Stack>
