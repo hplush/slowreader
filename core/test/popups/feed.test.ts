@@ -289,7 +289,7 @@ describe('feed popup', () => {
     )
     equal(
       loaded.reactions.get()[0]!.reactedAt,
-      formatPublishedAt(i18nFormat.get(), now - 10)
+      formatPublishedAt(commonMessages.get(), i18nFormat.get(), now - 10)
     )
     await waitUntil(() => loaded.stats.get()?.liked === 2)
     deepEqual(loaded.stats.get(), {

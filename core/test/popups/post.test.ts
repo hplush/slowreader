@@ -79,7 +79,7 @@ describe('post popup', () => {
 
     await waitLoading(popup1.loading)
     equal((checkLoadedPopup(popup1).post.get() as PostValue).id, id1)
-    match(checkLoadedPopup(popup1).publishedAt.get()!, /1\/1\/70/)
+    match(checkLoadedPopup(popup1).publishedAt.get()!, /Jan 1, 1970/)
     equal(checkLoadedPopup(popup1).feed!.get().id, feed)
     equal(checkLoadedPopup(popup1).read, undefined)
 
@@ -345,7 +345,7 @@ describe('post popup', () => {
       [
         [
           'p',
-          formatPublishedAt(i18nFormat.get(), 2000),
+          formatPublishedAt(commonMessages.get(), i18nFormat.get(), 2000),
           postMessages.get().afterFirst({
             time: formatDuration(i18nFormat.get(), 1000)
           })
@@ -577,7 +577,10 @@ describe('post popup', () => {
     await setTimeout(10)
     let loaded = checkLoadedPopup(popup)
     equal(loaded.post.get().originId, 'p1')
-    equal(loaded.publishedAt.get(), formatPublishedAt(i18nFormat.get(), 1000))
+    equal(
+      loaded.publishedAt.get(),
+      formatPublishedAt(commonMessages.get(), i18nFormat.get(), 1000)
+    )
     let format = i18nFormat.get()
     deepEqual(
       loaded.thread
@@ -628,7 +631,7 @@ describe('post popup', () => {
         .thread.get()
         .map(post => [post.originId, post.publishedAtText]),
       [
-        ['2', formatPublishedAt(i18nFormat.get(), 2000)],
+        ['2', formatPublishedAt(commonMessages.get(), i18nFormat.get(), 2000)],
         ['3', undefined]
       ]
     )

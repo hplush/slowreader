@@ -40,7 +40,7 @@ import {
   type LoaderName,
   loaders
 } from '../loader/index.ts'
-import { postMessages } from '../messages/index.ts'
+import { commonMessages, postMessages } from '../messages/index.ts'
 import {
   addHandles,
   changePost,
@@ -290,15 +290,18 @@ export const post = definePopup('post', async loader => {
     return withShown(parts[0] ?? shown, shown)
   })
 
-  let $publishedAt = computed([$start, i18nFormat], (value, format) => {
-    return value.publishedAt
-      ? formatPublishedAt(format, value.publishedAt)
-      : undefined
-  })
+  let $publishedAt = computed(
+    [$start, commonMessages, i18nFormat],
+    (value, common, format) => {
+      return value.publishedAt
+        ? formatPublishedAt(common, format, value.publishedAt)
+        : undefined
+    }
+  )
 
   let $thread = computed(
-    [$parts, $post, $start, i18nFormat, postMessages],
-    (parts, shown, first, format, t) => {
+    [$parts, $post, $start, i18nFormat, postMessages, commonMessages],
+    (parts, shown, first, format, t, common) => {
       function formatAfterFirst(
         part: OriginPost | PostValue
       ): string | undefined {
@@ -313,7 +316,7 @@ export const post = definePopup('post', async loader => {
         ...addHandles(withShown(part, shown), service),
         afterFirstText: formatAfterFirst(part),
         publishedAtText: part.publishedAt
-          ? formatPublishedAt(format, part.publishedAt)
+          ? formatPublishedAt(common, format, part.publishedAt)
           : undefined
       }))
     }

@@ -1,4 +1,5 @@
-import type { Formatter } from '@nanostores/i18n'
+import { formatter, type Formatter } from '@nanostores/i18n'
+import { atom } from 'nanostores'
 import { deepEqual, equal, match } from 'node:assert/strict'
 import { describe, test } from 'node:test'
 
@@ -8,6 +9,7 @@ import {
   formatFrequency,
   formatHour,
   formatPublishedAt,
+  formatPublishedDay,
   formatRelativeTime,
   formatShortHour,
   formatSize,
@@ -16,7 +18,7 @@ import {
   getMediaFileName,
   humanizeUrl
 } from '../format.ts'
-import { organizeMessages } from '../messages/index.ts'
+import { commonMessages, organizeMessages } from '../messages/index.ts'
 
 describe('format', () => {
   function createMockFormatter(): Formatter {
@@ -53,39 +55,25 @@ describe('format', () => {
     equal(formatDuration(format, 2 * 86400), '2 day')
   })
 
-  test('formats time as minutes ago when less than hour', () => {
-    let format = createMockFormatter()
-    let thirtyMinutesAgo = Math.floor((Date.now() - 30 * 60 * 1000) / 1000)
+  test('formats publish time relative only for today and yesterday', t => {
+    t.mock.timers.enable({
+      apis: ['Date'],
+      now: new Date(2026, 10, 26, 15, 0)
+    })
+    let format = formatter(atom('en')).get()
+    let common = commonMessages.get()
+    function check(date: Date, day: string, full: string): void {
+      let time = date.getTime() / 1000
+      equal(formatPublishedDay(format, time), day)
+      equal(formatPublishedAt(common, format, time), full)
+    }
 
-    let result = formatPublishedAt(format, thirtyMinutesAgo)
-
-    equal(result, '-30 minute')
-  })
-
-  test('formats time as hours ago when less than day', () => {
-    let format = createMockFormatter()
-    let threeHoursAgo = Math.floor((Date.now() - 3 * 60 * 60 * 1000) / 1000)
-
-    let result = formatPublishedAt(format, threeHoursAgo)
-
-    equal(result, '-3 hour')
-  })
-
-  test('formats time as full date when more than day', () => {
-    let format = createMockFormatter()
-    let twoDaysAgo = Math.floor((Date.now() - 2 * 24 * 60 * 60 * 1000) / 1000)
-
-    let result = formatPublishedAt(format, twoDaysAgo)
-
-    match(result, /^\d{4}-\d{2}-\d{2}T/)
-  })
-
-  test('formats future time', () => {
-    let format = createMockFormatter()
-    let now = Math.floor(Date.now() / 1000)
-    equal(formatPublishedAt(format, now + 30 * 60), '30 minute')
-    equal(formatPublishedAt(format, now + 3 * 3600), '3 hour')
-    match(formatPublishedAt(format, now + 2 * 86400), /^\d{4}-\d{2}-\d{2}T/)
+    check(new Date(2026, 10, 26, 14, 30), '30 minutes ago', '30 minutes ago')
+    check(new Date(2026, 10, 26, 15, 30), 'in 30 minutes', 'in 30 minutes')
+    check(new Date(2026, 10, 26, 0, 30), '14 hours ago', '14 hours ago')
+    check(new Date(2026, 10, 25, 23, 10), 'yesterday', 'yesterday, 11:10 PM')
+    check(new Date(2026, 10, 14, 10, 0), 'Nov 14', 'Nov 14, 10:00 AM')
+    check(new Date(2025, 11, 20, 8, 0), 'Dec 20, 2025', 'Dec 20, 2025, 8:00 AM')
   })
 
   test('humanizes URL without protocol and www or as handle', () => {

@@ -48,5 +48,6 @@ export const commonMessages = i18n('common', {
   unknownPasskey:
     'This passkey was deleted from your account. Sign in with password.',
   uploadingData: 'Uploading your data to the cloud',
-  waitingConnection: 'Waiting for connection to download'
+  waitingConnection: 'Waiting for connection to download',
+  yesterdayAt: params('yesterday, {time}')
 })

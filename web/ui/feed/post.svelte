@@ -7,7 +7,7 @@
   } from '@mdi/js'
   import {
     type FeedAuthor,
-    formatRelativeTime,
+    formatPublishedDay,
     getMediaOutsideText,
     getPopupId,
     getPostIntro,
@@ -92,7 +92,7 @@
         timeStyle: 'short'
       })}
     >
-      {formatRelativeTime($i18nFormat, post.publishedAt)}
+      {formatPublishedDay($i18nFormat, post.publishedAt)}
     </time>
   {/if}
 {/snippet}

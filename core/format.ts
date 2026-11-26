@@ -3,7 +3,7 @@ import type { StoreValue } from 'nanostores'
 
 import { $locale } from './i18n.ts'
 import { type Loader, type LoaderName, loaders } from './loader/index.ts'
-import type { organizeMessages } from './messages/index.ts'
+import type { commonMessages, organizeMessages } from './messages/index.ts'
 import { isTooFrequent, type PostsActivity } from './posts-list.ts'
 
 export const i18nFormat = formatter($locale)
@@ -31,16 +31,53 @@ const DAY = 24 * HOUR
 const MONTH = 30 * DAY
 const YEAR = 365 * DAY
 
-export function formatPublishedAt(format: Formatter, time: number): string {
-  let date = new Date(time * 1000)
+function getDayStart(date: Date): number {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime()
+}
+
+function getDaysFromToday(date: Date): number {
+  return Math.round((getDayStart(date) - getDayStart(new Date())) / DAY)
+}
+
+function formatToday(format: Formatter, date: Date): string {
   let diff = date.getTime() - Date.now()
-  let distance = Math.abs(diff)
-  if (distance < HOUR) {
+  if (Math.abs(diff) < HOUR) {
     return format.relativeTime(Math.round(diff / MINUTE), 'minute')
-  } else if (distance < DAY) {
-    return format.relativeTime(Math.round(diff / HOUR), 'hour')
   }
-  return format.time(date, { dateStyle: 'short', timeStyle: 'short' })
+  return format.relativeTime(Math.round(diff / HOUR), 'hour')
+}
+
+function getDayOptions(date: Date): Intl.DateTimeFormatOptions {
+  if (date.getFullYear() === new Date().getFullYear()) {
+    return { day: 'numeric', month: 'short' }
+  }
+  return { day: 'numeric', month: 'short', year: 'numeric' }
+}
+
+export function formatPublishedDay(format: Formatter, time: number): string {
+  let date = new Date(time * 1000)
+  let days = getDaysFromToday(date)
+  if (days === 0) return formatToday(format, date)
+  if (days === -1) return format.relativeTime(-1, 'day', { numeric: 'auto' })
+  return format.time(date, getDayOptions(date))
+}
+
+export function formatPublishedAt(
+  t: StoreValue<typeof commonMessages>,
+  format: Formatter,
+  time: number
+): string {
+  let date = new Date(time * 1000)
+  let days = getDaysFromToday(date)
+  if (days === 0) return formatToday(format, date)
+  if (days === -1) {
+    return t.yesterdayAt({ time: format.time(date, { timeStyle: 'short' }) })
+  }
+  return format.time(date, {
+    ...getDayOptions(date),
+    hour: 'numeric',
+    minute: '2-digit'
+  })
 }
 
 export function formatRelativeTime(format: Formatter, time: number): string {

@@ -55,7 +55,11 @@ import {
   loaders,
   tryLoadFeedData
 } from '../loader/index.ts'
-import { accountsMessages, organizeMessages } from '../messages/index.ts'
+import {
+  accountsMessages,
+  commonMessages,
+  organizeMessages
+} from '../messages/index.ts'
 import { collapseThreads, type OriginPost, toPreviewPost } from '../post.ts'
 import {
   createPostsList,
@@ -580,21 +584,22 @@ export const feed = definePopup('feed', async url => {
       collapseThreads(value.list).map(i => toPreviewPost(i, service))
     ),
     remove,
-    reactions: computed([$reactions, i18nFormat], (reactions, format) => {
-      // Deleted post without URL has nothing to show
-      return reactions.flatMap(reaction => {
-        if (!reaction.url) return []
-        return {
-          id: reaction.id,
-          // Only some services can load deleted post again
-          popup: canOpenPostUrl(reaction.url) ? reaction.url : undefined,
-          reactedAt: formatPublishedAt(format, reaction.at),
-          title: humanizeUrl(reaction.url, service),
-          type: getReactedType(reaction),
-          url: reaction.url
-        }
-      })
-    }),
+    reactions: computed(
+      [$reactions, commonMessages, i18nFormat],
+      (reactions, common, format) => {
+        return reactions.flatMap(reaction => {
+          if (!reaction.url) return []
+          return {
+            id: reaction.id,
+            popup: canOpenPostUrl(reaction.url) ? reaction.url : undefined,
+            reactedAt: formatPublishedAt(common, format, reaction.at),
+            title: humanizeUrl(reaction.url, service),
+            type: getReactedType(reaction),
+            url: reaction.url
+          }
+        })
+      }
+    ),
     reader: computed($feed, created => created && (created.reader ?? 'feed')),
     reading: computed([$feed, $owner], (created, owner) =>
       getFeedReading(created ?? { reading: null }, owner)
