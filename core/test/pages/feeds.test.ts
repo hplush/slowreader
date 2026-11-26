@@ -682,6 +682,11 @@ describe('feeds page', () => {
     await setTimeout(10)
     equal(page.posts.get()!.name, 'list')
     equal(ensureReader(page.posts, 'list').list.get().length, 1)
+
+    setLayoutType('mobile')
+    page = openPage({ params: {}, route: 'slow' })
+    await waitLoading(page.loading)
+    equal(page.menu.get(), true)
   })
 
   test('loads readers', async () => {

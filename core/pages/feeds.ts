@@ -123,7 +123,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
           return false
         } else if (reading === 'slow') {
           // Useful menu always has Read later
-          return welcome === false
+          return welcome === false || openable.slow
         } else {
           return openable.fast
         }
