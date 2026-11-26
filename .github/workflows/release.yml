@@ -67,7 +67,7 @@ jobs:
           docker buildx build --target production --metadata-file meta.json \
             --platform linux/amd64,linux/arm64 \
             --provenance=mode=max,version=v1 \
-            --sbom=generator=docker/buildkit-syft-scanner:latest@sha256:873a7458c3c8ac8e32c7b796c10e1600b07b963d2aa000a72a2d97aaaa2d6315 \
+            --sbom=generator=docker/buildkit-syft-scanner:latest@sha256:a190379321cf51fba8c284a1834555b55e7bf58d577d574db23370461defc430 \
             --build-arg SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)" \
             --build-arg COMMIT="$GITHUB_SHA" \
             --tag "ghcr.io/hplush/slowreader:$TAG" \
