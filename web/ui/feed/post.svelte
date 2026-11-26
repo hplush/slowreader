@@ -229,32 +229,36 @@
           </div>
         {/if}
         <div class="feed-post_fill"></div>
-        {#if url}
-          <div class="feed-post_action">
-            <PostShare post={reacted} {url} variant="plain" />
-          </div>
-        {/if}
-        {#if url}
-          <Button
-            href={url}
-            icon={mdiOpenInNew}
-            size="icon"
-            target="_blank"
-            variant="plain"
-          >
-            {$t.openPostLink}
-          </Button>
-        {/if}
-        {#if more}
-          <Button
-            href={getPopupHash(highlight ? undefined : $router, 'post', param)}
-            icon={mdiChevronRight}
-            size="icon"
-            variant="plain"
-          >
-            {$t.more}
-          </Button>
-        {/if}
+        <div class="feed-post_action">
+          {#if url}
+            <PostShare joined="start" post={reacted} {url} variant="plain" />
+            <Button
+              href={url}
+              icon={mdiOpenInNew}
+              joined={more ? 'middle' : 'end'}
+              size="icon"
+              target="_blank"
+              variant="plain"
+            >
+              {$t.openPostLink}
+            </Button>
+          {/if}
+          {#if more}
+            <Button
+              href={getPopupHash(
+                highlight ? undefined : $router,
+                'post',
+                param
+              )}
+              icon={mdiChevronRight}
+              joined={url ? 'end' : undefined}
+              size="icon"
+              variant="plain"
+            >
+              {$t.more}
+            </Button>
+          {/if}
+        </div>
       </footer>
     {/if}
   </article>
