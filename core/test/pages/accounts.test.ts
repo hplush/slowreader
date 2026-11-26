@@ -11,6 +11,7 @@ import {
   addCategory,
   busy,
   commonMessages,
+  createPostsList,
   currentPage,
   deleteCategory,
   deviceSessions,
@@ -19,6 +20,7 @@ import {
   getEnvironment,
   getTables,
   HTTPStatusError,
+  isRefreshing,
   loaders,
   NetworkError,
   openedPopups,
@@ -31,6 +33,7 @@ import {
 } from '../../index.ts'
 import { sha256 } from '../../lib/oauth.ts'
 import { getBlueskyClientId } from '../../loader/bluesky.ts'
+import type { AccountLoader } from '../../loader/common.ts'
 import { telegramApp } from '../../loader/telegram.ts'
 import {
   checkAndRemoveRequestMock,
@@ -250,6 +253,7 @@ function startBluesky(input: string): AccountsPage {
 
 describe('accounts page', () => {
   let follows: ReturnType<typeof spyOn>
+  let timeline: ReturnType<typeof spyOn>
 
   beforeEach(() => {
     startClient()
@@ -261,9 +265,23 @@ describe('accounts page', () => {
     }
     follows = spyOn(loaders.mastodon.account!, 'getFollows', offline)
     spyOn(loaders.bluesky.account!, 'getFollows', offline)
+    let empty = (): ReturnType<typeof createPostsList> => {
+      return createPostsList(() => [[], undefined])
+    }
+    timeline = spyOn(
+      loaders.mastodon.account! as Required<AccountLoader>,
+      'getTimeline',
+      empty
+    )
+    spyOn(
+      loaders.bluesky.account! as Required<AccountLoader>,
+      'getTimeline',
+      empty
+    )
   })
 
   afterEach(async () => {
+    await waitFor(isRefreshing, value => !value)
     restoreAll()
     await cleanClient()
     checkAndRemoveRequestMock()
@@ -406,6 +424,8 @@ describe('accounts page', () => {
       popups: [{ param: account!.id, popup: 'account' }],
       route: 'accounts'
     })
+    await waitUntil(() => timeline.callCount === 1)
+    await waitFor(isRefreshing, value => !value)
 
     let categoryId = await addCategory({ title: 'Social' })
     await getTables().accounts.update(account!.id, { categoryId })
@@ -424,7 +444,8 @@ describe('accounts page', () => {
     let [first] = await loadAccounts()
     equal(first!.title, 'user')
     equal(first!.avatar, null)
-    await waitUntil(() => follows.callCount === 1)
+    await waitUntil(() => follows.callCount === 2)
+    await waitFor(isRefreshing, value => !value)
 
     await startMastodon('social.example.com', false)
     await returnFromMastodon({
@@ -438,7 +459,7 @@ describe('accounts page', () => {
     equal(updated[0]!.id, first!.id)
     equal(updated[0]!.title, 'New Name')
     await setTimeout(10)
-    equal(follows.callCount, 1)
+    equal(follows.callCount, 2)
 
     await startMastodon('social.example.com', false)
     await returnFromMastodon({
@@ -690,7 +711,9 @@ describe('accounts page', () => {
       redirect_uri: 'http://127.0.0.1:2553/settings/accounts'
     })
 
+    await waitFor(isRefreshing, value => !value)
     let [account] = await loadAccounts()
+    ok(account!.refreshedAt)
     let proofKey = decodeJwt(
       new Headers(token.sent().headers).get('DPoP')!.split('.')[0]!
     ) as { jwk: JsonWebKey }
@@ -721,7 +744,7 @@ describe('accounts page', () => {
         lastOriginId: null,
         lastPublishedAt: null,
         reading: 'fast',
-        refreshedAt: null,
+        refreshedAt: account!.refreshedAt,
         server: 'https://pds.example.com',
         service: 'bluesky',
         title: 'user.bsky.social',
@@ -1037,6 +1060,7 @@ describe('accounts page with Telegram', () => {
   })
 
   afterEach(async () => {
+    await waitFor(isRefreshing, value => !value)
     await cleanClient()
     telegramApp.set(undefined)
     deviceSessions.set({})

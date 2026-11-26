@@ -20,6 +20,7 @@ import { loaders } from '../loader/index.ts'
 import { POPULAR_MASTODON_SERVERS } from '../loader/mastodon.ts'
 import { hasTelegram, loadTelegramApp } from '../loader/telegram.ts'
 import { organizeMessages, accountsMessages as t } from '../messages/index.ts'
+import { refreshPosts } from '../refresh.ts'
 import { navigate, router } from '../router.ts'
 import type { AccountService } from '../schema.ts'
 import { createPage, routeParam } from './common.ts'
@@ -73,6 +74,7 @@ export const accountsPage = createPage('accounts', () => {
       await busyDuring(organizeMessages.get().syncingFollows, () => {
         return syncFollows(service)
       })
+      void refreshPosts()
       if (router.get().route !== 'accounts') return
     }
     navigate(
