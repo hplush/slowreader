@@ -3,6 +3,8 @@
 // vulnerabilities with a released fix and nginx has no security release
 // after it.
 
+import { execFileSync } from 'node:child_process'
+import { join } from 'node:path'
 import { styleText } from 'node:util'
 
 interface Component {
@@ -20,6 +22,23 @@ interface Vulnerability {
 function error(msg: string): never {
   process.stderr.write(styleText('red', `${msg}\n`))
   process.exit(1)
+}
+
+let changed = execFileSync(
+  'git',
+  ['status', '--porcelain', '--', ':(glob)**/Dockerfile'],
+  { cwd: join(import.meta.dirname, '..') }
+)
+  .toString()
+  .trim()
+if (changed) {
+  process.stderr.write(
+    styleText(
+      'yellow',
+      'The script checks staging,  not the current folder. ' +
+        'Deploy to see results.\n\n'
+    )
+  )
 }
 
 let packages = (
