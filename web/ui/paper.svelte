@@ -1,5 +1,14 @@
 <script lang="ts">
+  import { mdiCheck, mdiContentCopy } from '@mdi/js'
+  import { commonMessages as t } from '@slowreader/core'
+
+  import { createClipboard } from '../lib/clipboard.ts'
+  import Announce from './announce.svelte'
+  import Button from './button.svelte'
+
   let { lines }: { lines: { label: string; value: string }[] } = $props()
+
+  let { copied, copy } = createClipboard()
 </script>
 
 <div class="paper">
@@ -21,17 +30,37 @@
         </div>
       </div>
     {/each}
+    <div class="paper_copy">
+      <Button
+        color={$copied ? 'success' : undefined}
+        icon={$copied ? mdiCheck : mdiContentCopy}
+        onclick={() => {
+          void copy(lines.map(i => `${i.label}: ${i.value}`).join('\n'))
+        }}
+        variant="plain"
+      >
+        {$copied ? $t.copied : $t.copy}
+      </Button>
+    </div>
   </div>
+  <Announce text={$copied ? $t.copied : ''} />
 </div>
 
 <style>
   :global {
     .paper {
+      position: relative;
       margin: 0.25rem 0 0.5rem 0;
       padding: 0.5rem 0;
       background: var(--paper-background);
       border-radius: 2px;
       box-shadow: var(--float-box-shadow);
+    }
+
+    .paper_copy {
+      position: absolute;
+      inset-block-end: 0.8rem;
+      inset-inline-start: 0.25rem;
     }
 
     .paper_line {

@@ -163,7 +163,7 @@
 
     if (reactions?.length) await getTables().reactions.create(reactions)
     for (let [feedId, count] of Object.entries(seen)) trackSeen(feedId, count)
-    await updateMaxSeen()
+    if (user) await updateMaxSeen()
 
     oninit()
 

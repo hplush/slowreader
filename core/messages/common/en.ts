@@ -8,6 +8,7 @@ export const commonMessages = i18n('common', {
   categoryName: 'Category name',
   closePopup: 'Close popup',
   copied: 'Copied',
+  copy: 'Copy',
   copyToClipboard: 'Copy to clipboard',
   creatingDatabase: 'Creating local database',
   domainError: 'The domain of this site does not exist anymore',
