@@ -7,6 +7,7 @@
     mdiFire,
     mdiFood,
     mdiPuzzle,
+    mdiRestart,
     mdiRss,
     mdiSend
   } from '@mdi/js'
@@ -98,11 +99,11 @@
     <li class="welcome-todo_step">
       {@render checkbox(['clean'], $t.clean)}
       {#if !todo.done.has('clean')}
-        <Stack gap="none" row>
-          <Button color="dangerous" joined="start" onclick={deleteDemoWithBusy}>
+        <Stack gap="s" row>
+          <Button icon={mdiRestart} onclick={deleteDemoWithBusy}>
             {$t.drop}
           </Button>
-          <Button joined="end" onclick={keepDemo}>{$t.keep}</Button>
+          <Button onclick={keepDemo} variant="plain">{$t.keep}</Button>
         </Stack>
       {/if}
     </li>
