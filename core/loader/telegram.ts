@@ -165,11 +165,6 @@ interface Session {
    */
   files: Map<string, MediaFile>
   followed: Set<number>
-  idle: ReturnType<typeof setTimeout> | undefined
-  /**
-   * Sign in form waits for user’s answer longer, than TDLib’s idle time.
-   */
-  keep: boolean
   /**
    * Parallel refreshes of channels share one loading of the next part
    * of the chat list. The page can wait for it too, so it is always sent
@@ -188,7 +183,6 @@ interface Session {
    */
   patient: number
   premium: boolean
-  sent: number
   sponsored: Map<string, TelegramObject>
   state: TelegramObject | undefined
   /**
@@ -246,7 +240,6 @@ onEnvironment(env => {
     env.onVisibilityChange(value => {
       visible = value
       tellRunning(setOnline(visible))
-      for (let session of sessions.values()) closeOnIdle(session)
     }),
     env.onNetwork(network => {
       if (
@@ -353,13 +346,10 @@ function getSession(name: string): Session {
     ending: false,
     files: new Map(),
     followed: new Set(),
-    idle: undefined,
-    keep: false,
     loadingChats: undefined,
     missing: new Set(missingChats.get()[name]),
     patient: 0,
     premium: false,
-    sent: 0,
     sponsored: new Map(),
     state: undefined,
     streams: new Map(),
@@ -408,18 +398,6 @@ function getSession(name: string): Session {
 }
 
 /**
- * TDLib forgets chats on every start and loads the chat list again. So it
- * runs, while the app is on the screen, and is closed only in the background.
- */
-function closeOnIdle(session: Session): void {
-  clearTimeout(session.idle)
-  if (visible || session.keep || session.sent > 0) return
-  session.idle = setTimeout(() => {
-    void session.client.close()
-  }, 60_000)
-}
-
-/**
  * Telegram blocks the account for minutes after too many requests at once,
  * so only 3 requests are sent at the same time.
  *
@@ -456,8 +434,6 @@ export async function sendToTelegram(
       if (patient) session.patient += 1
     }
   }
-  clearTimeout(session.idle)
-  session.sent += 1
   try {
     return await session.client.send(body).catch(async (e: unknown) => {
       let wait =
@@ -470,7 +446,6 @@ export async function sendToTelegram(
       return session.client.send(body)
     })
   } finally {
-    session.sent -= 1
     if (limited) {
       session.active -= 1
       if (patient) session.patient -= 1
@@ -484,7 +459,6 @@ export async function sendToTelegram(
         next()
       }
     }
-    closeOnIdle(session)
   }
 }
 
@@ -509,12 +483,6 @@ function waitTelegramAuthState(
   })
 }
 
-function keepTelegramRunning(name: string, keep: boolean): void {
-  let session = getSession(name)
-  session.keep = keep
-  closeOnIdle(session)
-}
-
 /**
  * Delete session key and other TDLib’s data of this account from the device.
  */
@@ -522,7 +490,6 @@ async function destroyTelegram(name: string): Promise<void> {
   let session = sessions.get(name)
   if (!session) return
   session.ending = true
-  clearTimeout(session.idle)
   sessions.delete(name)
   let { [name]: forgotten, ...rest } = missingChats.get()
   if (forgotten) missingChats.set(rest)
@@ -552,12 +519,7 @@ async function signOutFromTelegram(name: string): Promise<void> {
 async function closeTelegram(): Promise<void> {
   let closing = [...sessions.values()]
   sessions.clear()
-  await Promise.all(
-    closing.map(session => {
-      clearTimeout(session.idle)
-      return session.client.close()
-    })
-  )
+  await Promise.all(closing.map(session => session.client.close()))
 }
 
 onClient(() => () => {
@@ -689,9 +651,7 @@ async function toStep(
       }
     }
   } else if (state['@type'] === 'authorizationStateReady') {
-    let done = await loadAccount(name)
-    keepTelegramRunning(name, false)
-    return done
+    return await loadAccount(name)
   } else {
     // Sign up, forced email setup, or another step, which we do not support
     await destroyTelegram(name)
@@ -716,7 +676,6 @@ async function startSession(
   body: TelegramRequest
 ): Promise<SignInStep<SignInData>> {
   let name = nanoid()
-  keepTelegramRunning(name, true)
   try {
     return await sendAnswer(name, body)
   } catch (e) {
@@ -757,8 +716,6 @@ function loadMoreChats(name: string): Promise<void> {
 async function loadChatsSince(name: string, date: number): Promise<void> {
   // Sign out during the loading replaces the session
   while (getSession(name).depth > Math.max(date, 0)) await loadMoreChats(name)
-  // Channels without news send no requests, but need chats in TDLib’s memory
-  closeOnIdle(getSession(name))
 }
 
 function toChannelUrl(
@@ -1841,11 +1798,9 @@ async function moveFileFromTdlib(
   }
   download.step = 'moving'
   startDownloads(session)
-  clearTimeout(session.idle)
   try {
     return await session.client.readFile(id, 0, Number(downloaded.size))
   } finally {
-    closeOnIdle(session)
     // TDLib keeps downloaded and cancelled files in memory
     await sendToTelegram(name, { '@type': 'deleteFile', 'file_id': id }).catch(
       () => {}
@@ -2009,12 +1964,7 @@ async function downloadPart(
         'priority': 32,
         'synchronous': true
       })
-      clearTimeout(session.idle)
-      try {
-        return await session.client.readFile(file.id, range.start, count)
-      } finally {
-        closeOnIdle(session)
-      }
+      return session.client.readFile(file.id, range.start, count)
     })
     .finally(() => {
       stream.loading -= 1

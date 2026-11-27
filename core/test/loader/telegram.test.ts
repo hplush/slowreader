@@ -332,61 +332,18 @@ describe('telegram loader', () => {
     deepEqual(testTelegram.destroyed, [name])
   })
 
-  test('keeps TDLib running on the screen, during sign in and requests', async t => {
+  test('keeps TDLib running in the background', async t => {
     testTelegram.answers.setAuthenticationPhoneNumber = moveTo('WaitCode')
     testTelegram.answers.checkAuthenticationCode = moveTo('Ready')
     testTelegram.answers.getMe = USER
     testTelegram.answers.setOption = { '@type': 'ok' }
-    setTestVisibility(false)
     let name = getName(await account.startSignIn('+34600000000'))
+    await account.continueSignIn({ name }, { type: 'input', value: '1' })
 
     t.mock.timers.enable({ apis: ['setTimeout'] })
-    t.mock.timers.tick(60_000)
-    equal(testTelegram.running.has(name), true)
-
-    await account.continueSignIn({ name }, { type: 'input', value: '1' })
-    t.mock.timers.tick(59_000)
-    equal(testTelegram.running.has(name), true)
-    await sendToTelegram(name, { '@type': 'getMe' })
-    t.mock.timers.tick(59_000)
-    equal(testTelegram.running.has(name), true)
-    t.mock.timers.tick(1000)
-    equal(testTelegram.running.has(name), false)
-
-    let answer: (() => void) | undefined
-    testTelegram.answers.getUser = () => {
-      return new Promise(resolve => {
-        answer = () => {
-          resolve(USER)
-        }
-      })
-    }
-    let slow = sendToTelegram(name, { '@type': 'getUser' })
-    await sendToTelegram(name, { '@type': 'getMe' })
-    t.mock.timers.tick(60_000)
-    let keptForSlow = testTelegram.running.has(name)
-    answer!()
-    await slow
-    equal(keptForSlow, true)
-    t.mock.timers.tick(60_000)
-    equal(testTelegram.running.has(name), false)
-
-    await sendToTelegram(name, { '@type': 'getMe' })
-    setTestVisibility(true)
-    t.mock.timers.tick(60_000)
-    equal(testTelegram.running.has(name), true)
-    await sendToTelegram(name, { '@type': 'getMe' })
-    t.mock.timers.tick(60_000)
-    equal(testTelegram.running.has(name), true)
     setTestVisibility(false)
-    t.mock.timers.tick(60_000)
-    equal(testTelegram.running.has(name), false)
-
-    await sendToTelegram(name, { '@type': 'getMe' })
+    t.mock.timers.tick(60 * 60_000)
     equal(testTelegram.running.has(name), true)
-    t.mock.timers.reset()
-    await cleanClient()
-    equal(testTelegram.running.has(name), false)
   })
 
   test('is online only on the screen and tells TDLib about another network', async () => {
