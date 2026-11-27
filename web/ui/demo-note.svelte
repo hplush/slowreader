@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mdiBinoculars } from '@mdi/js'
+  import { mdiBinoculars, mdiRestart } from '@mdi/js'
   import {
     deleteDemoWithBusy,
     keepDemo,
@@ -17,6 +17,7 @@
   {$t[`${type}Desc`]}
   <Stack gap="s" row>
     <Button
+      icon={mdiRestart}
       joined="start"
       onclick={deleteDemoWithBusy}
       size="wide"
