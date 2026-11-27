@@ -11,6 +11,7 @@ import {
   closeDb,
   getServerLogIds
 } from '@slowreader/server/test'
+import { spyOn } from 'nanospy'
 import { deepEqual, equal, notEqual, ok } from 'node:assert/strict'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -32,6 +33,7 @@ import {
   deleteFeed,
   generateCredentials,
   getClient,
+  getEnvironment,
   getPostId,
   getTables,
   lastReset,
@@ -43,6 +45,7 @@ import {
   setupEnvironment,
   signUpByPassword,
   syncStatus,
+  uploadingLocalData,
   testFeed,
   testPost,
   startLocalUser,
@@ -983,6 +986,7 @@ describe('log', () => {
       await addPost(posts)
     }
     await changePost('0-0', { read: 1 })
+    let stamps = await getTables().posts.meta('0-0')
 
     transactions = 0
     await signUpByPassword(credentials)
@@ -992,5 +996,74 @@ describe('log', () => {
     equal((await getServerLogIds()).length, 5)
     equal((await loadPosts()).length, 300)
     equal((await loadPost('0-0'))!.read, 1)
+    deepEqual(await getTables().posts.meta('0-0'), stamps)
+    let owners = (await logEntries()).filter(([, meta]) => {
+      return meta.reasons.includes('posts/0-0/read')
+    })
+    deepEqual(
+      owners.map(([, meta]) => meta.reasons),
+      [['posts/0-0/read']]
+    )
+  })
+
+  test('restarts the upload without duplicates on the server', async t => {
+    // Browser keeps the client ID in localStorage between starts
+    let original = Object.getOwnPropertyDescriptor(globalThis, 'localStorage')
+    let saved = new Map<string, string>()
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      value: {
+        getItem: (key: string) => saved.get(key) ?? null,
+        removeItem: (key: string) => saved.delete(key),
+        setItem: (key: string, value: string) => saved.set(key, value)
+      }
+    })
+    t.after(() => {
+      if (original) Object.defineProperty(globalThis, 'localStorage', original)
+    })
+    let credentials = generateCredentials()
+    await startLocalUser(credentials)
+    await addFeed(testFeed({ title: 'A' }))
+    await signUpByPassword(credentials)
+    await waitSync()
+    let uploaded = await getServerLogIds()
+
+    await restartClient(() => {
+      uploadingLocalData.set(true)
+      return Promise.resolve()
+    })
+
+    deepEqual(await getServerLogIds(), uploaded)
+    equal(uploadingLocalData.get(), false)
+  })
+
+  test('waits for the upload of another tab and reloads', async t => {
+    let credentials = generateCredentials()
+    await startLocalUser(credentials)
+    await addFeed(testFeed({ title: 'A' }))
+    await signUpByPassword(credentials)
+    await waitSync()
+    let uploaded = await getServerLogIds()
+    let restarts = spyOn(getEnvironment(), 'restartApp')
+    t.after(() => {
+      restarts.restore()
+    })
+
+    let finish!: () => void
+    await restartClient(() => {
+      void navigator.locks.request('slowreader:upload', () => {
+        return new Promise<void>(resolve => {
+          finish = resolve
+        })
+      })
+      uploadingLocalData.set(true)
+      return Promise.resolve()
+    })
+    equal((busy.get() || undefined)?.label, commonMessages.get().uploadingData)
+
+    uploadingLocalData.set(false)
+    finish()
+    await waitUntil(() => restarts.callCount === 1)
+    deepEqual(await getServerLogIds(), uploaded)
   })
 })

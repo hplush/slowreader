@@ -20,6 +20,7 @@ import { deletePost } from './post.ts'
 export interface LogTracker {
   destroy(): void
   finish(): Promise<void>
+  trackRestored(entries: [Action, MetaTime][]): void
 }
 
 function toReasons(cells: CrdtCell[]): string[] {
@@ -230,6 +231,8 @@ export function trackLog(logux: Client, crdt: CrdtDatabase): LogTracker {
     await expireTombstones()
   }
 
+  let restoredCells = new Map<string, Set<string>>()
+
   let unbinds = [
     logux.on('preadd', (action, meta) => {
       if (!isTableAction(action)) return
@@ -250,9 +253,12 @@ export function trackLog(logux: Client, crdt: CrdtDatabase): LogTracker {
           meta.reasons.push('tombstone')
         }
       } else {
+        let owned = restoredCells.get(meta.id)
+        restoredCells.delete(meta.id)
         for (let [id, fields] of rows) {
           for (let cell of cellsOf(fields)) {
-            meta.reasons.push(`${plural}/${id}/${cell}`)
+            let reason = `${plural}/${id}/${cell}`
+            if (!owned || owned.has(reason)) meta.reasons.push(reason)
           }
           if (verb === 'created') meta.reasons.push(`${plural}/${id}`)
         }
@@ -338,6 +344,21 @@ export function trackLog(logux: Client, crdt: CrdtDatabase): LogTracker {
     },
     finish() {
       return tasks.finish()
+    },
+    trackRestored(entries) {
+      let later = new Set<string>()
+      for (let [action, meta] of entries.toReversed()) {
+        let plural = action.type.split('/')[0]
+        let owned = new Set<string>()
+        for (let [id, fields] of parseCrdtRows(action)) {
+          for (let cell of cellsOf(fields)) {
+            let reason = `${plural}/${id}/${cell}`
+            if (!later.has(reason)) owned.add(reason)
+            later.add(reason)
+          }
+        }
+        restoredCells.set(meta.id, owned)
+      }
     }
   }
 }

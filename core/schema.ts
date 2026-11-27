@@ -20,7 +20,7 @@ import {
   optional,
   string
 } from '@logux/client/db'
-import type { Action, AnyAction, MetaTime } from '@logux/core'
+import type { Action, MetaTime } from '@logux/core'
 import type { Database, SqlStoreValue } from '@nanostores/sql'
 import { atom, effect, onMount, type ReadableAtom } from 'nanostores'
 
@@ -584,47 +584,94 @@ export function reportDatabaseError(error: unknown): void {
   }
 }
 
+const UPLOAD_LOCK = 'slowreader:upload'
+
+let releaseOwnUpload: (() => void) | undefined
+
 /**
- * Send the data of the local user to the server on the sign-up. The local
- * log is empty, so the actions are generated from the tables with fresh meta.
- *
- * The account is new, so no other device can conflict with the fresh meta.
+ * Other tabs see the upload mark too, so the sign-up tab takes the lock
+ * before setting the mark.
  */
-async function uploadLocalData(logux: CrossTabClient): Promise<void> {
+export function startUpload(): void {
+  let uploaded = new Promise<void>(resolve => {
+    releaseOwnUpload = resolve
+  })
+  void navigator.locks.request(UPLOAD_LOCK, () => uploaded)
   uploadingLocalData.set(true)
+}
+
+async function uploadLocalData(
+  logux: CrossTabClient,
+  crdt: CrdtDatabase,
+  tracker: LogTracker | undefined
+): Promise<void> {
   let tables = getTables()
-  let actions = await crdtTableToActions([
-    tables.accounts,
-    tables.categories,
-    tables.feeds,
-    tables.filters,
-    tables.posts,
-    tables.reactions,
-    tables.settings,
-    tables.usages,
-    tables.views
-  ])
-  if (actions.length > 0) {
+  let entries = await crdtTableToActions(
+    [
+      tables.accounts,
+      tables.categories,
+      tables.feeds,
+      tables.filters,
+      tables.posts,
+      tables.reactions,
+      tables.settings,
+      tables.usages,
+      tables.views
+    ],
+    { nodeId: logux.clientId }
+  )
+  tracker?.trackRestored(entries)
+  let tab = logux.role === 'leader' ? { tab: logux.tabId } : {}
+  if (entries.length > 0) {
     await busyDuring(
       commonMessages.get().uploadingData,
       async setProgress => {
-        for (let i = 0; i < actions.length; i += 100) {
+        for (let i = 0; i < entries.length; i += 100) {
           if (!hasDatabase()) return
-          let chunk = actions.slice(i, i + 100)
-          let entries = chunk.map(
-            ([action]): [AnyAction, Partial<ClientMeta>] => [
-              action as AnyAction,
-              { sync: true }
+          let chunk = entries.slice(i, i + 100)
+          let metas = chunk.map(
+            ([action, meta]): [Action, Partial<ClientMeta>] => [
+              action,
+              { ...meta, ...tab }
             ]
           )
-          await logux.log.add(entries)
-          setProgress((i + chunk.length) / actions.length)
+          await crdt.addApplied(metas)
+          setProgress((i + chunk.length) / entries.length)
         }
       },
       true
     )
   }
   uploadingLocalData.set(false)
+}
+
+async function finishUpload(
+  logux: CrossTabClient,
+  crdt: CrdtDatabase,
+  tracker: LogTracker | undefined
+): Promise<void> {
+  let release = releaseOwnUpload
+  releaseOwnUpload = undefined
+  if (release) {
+    try {
+      await uploadLocalData(logux, crdt, tracker)
+    } finally {
+      release()
+    }
+    return
+  }
+  let uploadedByOther = await busyDuring(
+    commonMessages.get().uploadingData,
+    () => {
+      return navigator.locks.request(UPLOAD_LOCK, async () => {
+        if (!uploadingLocalData.get()) return true
+        await uploadLocalData(logux, crdt, tracker)
+        return false
+      })
+    },
+    true
+  )
+  if (uploadedByOther) getEnvironment().restartApp()
 }
 
 function getDownloadingLabel(logux: CrossTabClient): string {
@@ -696,9 +743,9 @@ function openDatabase(logux: CrossTabClient, db: Database): void {
 
   // The upload of the previous start was not finished, so it must be restarted.
   // Remove in the next release: the mark was `slowreader:migrating` before
-  let unfinished = uploadingLocalData.get() || !!store['slowreader:migrating']
+  if (store['slowreader:migrating']) uploadingLocalData.set(true)
   delete store['slowreader:migrating']
-  uploadingLocalData.set(false)
+  let unfinished = uploadingLocalData.get()
 
   // The client is re-created on every `hasCloud` change, so the mode
   // can not change during the database’s life
@@ -732,7 +779,8 @@ function openDatabase(logux: CrossTabClient, db: Database): void {
     views: crdt.table(viewsTable)
   }
   // The tracker parses actions by the tables, so it is installed after them
-  if (cloud) currentTracker = trackLog(logux, crdt)
+  let tracker = cloud ? trackLog(logux, crdt) : undefined
+  currentTracker = tracker
   openedDatabase.set(db)
 
   void crdt.checked.then(() =>
@@ -752,7 +800,7 @@ function openDatabase(logux: CrossTabClient, db: Database): void {
       let feeds = await getTables().feeds.load`LIMIT 1`
       if (feeds.length > 0) downloadingCloudData.set(false)
     }
-    if (unfinished) return uploadLocalData(logux)
+    if (unfinished) await finishUpload(logux, crdt, tracker)
   })
 }
 

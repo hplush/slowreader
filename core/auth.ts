@@ -43,14 +43,13 @@ import {
 } from './lib/webauthn.ts'
 import { commonMessages } from './messages/index.ts'
 import { navigate } from './router.ts'
-import { markDatabaseDownloading } from './schema.ts'
+import { markDatabaseDownloading, startUpload } from './schema.ts'
 import {
   benchmarkStatistics,
   encryptionKey,
   encryptionKeyLost,
   hasCloud,
   passkeyOnly,
-  uploadingLocalData,
   userId
 } from './settings.ts'
 import { getServerUrl, syncServer } from './sync-server.ts'
@@ -234,7 +233,7 @@ async function createUser(
   // so it will not send local data encrypted by the previous key
   encryptionKey.set(undefined)
   getEnvironment().saveSession(response.session)
-  uploadingLocalData.set(true)
+  startUpload()
   hasCloud.set(true)
   userId.set(credentials.userId)
   passkeyOnly.set(!!passkey?.synced)
