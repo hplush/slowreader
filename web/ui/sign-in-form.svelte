@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { mdiFormTextboxPassword, mdiKeyVariant, mdiLogin } from '@mdi/js'
+  import {
+    mdiFormTextboxPassword,
+    mdiKeyVariant,
+    mdiLockQuestion,
+    mdiLogin
+  } from '@mdi/js'
   import {
     commonMessages,
     type ReloginPage,
@@ -10,6 +15,7 @@
   } from '@slowreader/core'
   import { onMount, tick } from 'svelte'
 
+  import { getURL } from '../stores/url-router.ts'
   import Button from './button.svelte'
   import Error from './error.svelte'
   import Form from './form.svelte'
@@ -110,6 +116,14 @@
         variant="main"
       >
         {submit}
+      </Button>
+      <Button
+        href={getURL('forgotPassword')}
+        icon={mdiLockQuestion}
+        size="wide"
+        variant="plain"
+      >
+        {$t.forgotPassword}
       </Button>
     {:else}
       <Button

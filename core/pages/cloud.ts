@@ -1,7 +1,7 @@
 import { deleteUser } from '@slowreader/api'
 import { atom, computed } from 'nanostores'
 
-import { generateNewPassword, signOut } from '../auth.ts'
+import { generateNewPassword, RECOVERY_SUBJECT, signOut } from '../auth.ts'
 import { getClient, syncStatus } from '../client.ts'
 import { getEnvironment } from '../environment.ts'
 import { authMessages } from '../messages/index.ts'
@@ -105,7 +105,7 @@ export const cloudPage = createPage('cloud', () => {
     newPasswordMailTo: computed([userId, $newPassword], (user, password) => {
       return (
         `mailto:?` +
-        `subject=Slow Reader Recovery Pack&` +
+        `subject=${RECOVERY_SUBJECT}&` +
         `body=${encodeURIComponent(
           authMessages
             .get()

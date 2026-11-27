@@ -54,6 +54,9 @@ describe('router', () => {
     openRoute({ params: {}, route: 'signUp' })
     deepEqual(router.get(), { params: {}, popups: [], route: 'signUp' })
 
+    openRoute({ params: {}, route: 'forgotPassword' })
+    deepEqual(router.get(), { params: {}, popups: [], route: 'forgotPassword' })
+
     openRoute(undefined)
     deepEqual(router.get(), {
       params: { reason: 'notFound' },

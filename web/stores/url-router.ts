@@ -29,6 +29,7 @@ export const pathRouter = createRouter({
   fast: '/fast/:category?',
   fatal: '/fatal/:reason?',
   feeds: '/feeds',
+  forgotPassword: '/forgot-password',
   history: '/feeds/history',
   home: '/app',
   import: '/feeds/import',

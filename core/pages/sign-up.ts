@@ -3,6 +3,7 @@ import { atom, computed } from 'nanostores'
 
 import {
   generateCredentials,
+  RECOVERY_SUBJECT,
   signUpByPasskey,
   signUpByPassword
 } from '../auth.ts'
@@ -42,7 +43,7 @@ export const signUpPage = createPage('signUp', () => {
   let $mailTo = computed([$userId, $password], (user, password) => {
     return (
       `mailto:?` +
-      `subject=Slow Reader Recovery Pack&` +
+      `subject=${RECOVERY_SUBJECT}&` +
       `body=${encodeURIComponent(t.get().email({ password, user }))}`
     )
   })

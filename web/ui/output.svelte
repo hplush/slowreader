@@ -12,6 +12,7 @@
   let {
     children,
     font = 'mono',
+    hiddenLabel = false,
     hint,
     label,
     multiline = false,
@@ -22,6 +23,7 @@
   }: {
     children?: Snippet
     font?: 'mono' | 'normal'
+    hiddenLabel?: boolean
     hint?: string
     label: string
     multiline?: boolean
@@ -71,7 +73,9 @@
         {value}></textarea>
     </div>
   {:else}
-    <Label {id} {hint}>{label}</Label>
+    <div class:sr-only={hiddenLabel}>
+      <Label {id} {hint}>{label}</Label>
+    </div>
     <div class="output_control">
       {#if children}
         <output

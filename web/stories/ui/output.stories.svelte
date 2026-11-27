@@ -22,7 +22,7 @@
       return args[1] && args[1] >= 1000 ? 0 : timeout(...args)
     }) as typeof window.setTimeout
 
-    await userEvent.setup({}).click(canvas.getAllByRole('button')[2]!)
+    await userEvent.setup({}).click(canvas.getAllByRole('button')[3]!)
     await canvas.findByRole('button', { name: 'Copied' })
     window.setTimeout = timeout
   }
@@ -32,6 +32,7 @@
   <Section stack width={200}>
     <Output label="Base" value="test" />
     <Output font="normal" label="Normal" value="Feed title" />
+    <Output hiddenLabel label="Hidden label" value="test" />
     <Output hint="Atom" label="Hinted" value="https://example.com/" />
     <Output label="Copied" value="test" />
     <Output label="Formatted" value="0.20261027.1">
@@ -60,6 +61,7 @@
   <Section stack width={200}>
     <Output label="Base" value="test" />
     <Output font="normal" label="Normal" value="Feed title" />
+    <Output hiddenLabel label="Hidden label" value="test" />
     <Output hint="Atom" label="Hinted" value="https://example.com/" />
     <Output label="Copied" value="test" />
     <Output label="Formatted" value="0.20261027.1">

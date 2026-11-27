@@ -57,6 +57,8 @@ import { isDemo, welcomeSteps } from './welcome.ts'
 
 let generateUserId = customAlphabet('0123456789', 16)
 
+export const RECOVERY_SUBJECT = 'Slow Reader Recovery Pack'
+
 export interface Credentials {
   /**
    * Random data key. It never changes, so a new password doesn’t need

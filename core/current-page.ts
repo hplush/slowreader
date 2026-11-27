@@ -14,7 +14,10 @@ export const currentPage: ReadableAtom<Page<RouteName>> = computed(
     let override: RouteName | undefined
     if (fatalError) {
       override = 'fatal'
-    } else if (sync === 'wrongCredentials' || keyLost) {
+    } else if (
+      (sync === 'wrongCredentials' || keyLost) &&
+      route.route !== 'forgotPassword'
+    ) {
       override = 'relogin'
     }
     let startRoute = override ?? route.route

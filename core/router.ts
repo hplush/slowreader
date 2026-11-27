@@ -21,6 +21,7 @@ export interface Routes {
   }
   feeds: {}
   fatal: { reason?: Fatal['type'] }
+  forgotPassword: {}
   history: {}
   home: {}
   import: {}
@@ -96,7 +97,7 @@ export type BaseRouter = ReadableAtom<BaseRoute | undefined>
 
 const GUEST = new Set<RouteName>(['start'])
 
-const BOTH = new Set<RouteName>(['fatal', 'signUp'])
+const BOTH = new Set<RouteName>(['fatal', 'forgotPassword', 'signUp'])
 
 export function toRoute(route: ParamlessRouteName): Route {
   return { params: {}, popups: [], route } as Route

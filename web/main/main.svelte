@@ -24,6 +24,7 @@
   import ExportPage from '../pages/export.svelte'
   import FatalPage from '../pages/fatal.svelte'
   import FeedsPage from '../pages/feeds/index.svelte'
+  import ForgotPasswordPage from '../pages/forgot-password.svelte'
   import HistoryPage from '../pages/history.svelte'
   import ImportPage from '../pages/import.svelte'
   import InterfacePage from '../pages/interface.svelte'
@@ -113,6 +114,8 @@
     <StartPage page={$currentPage} />
   {:else if $currentPage.route === 'signUp'}
     <SignupPage page={$currentPage} />
+  {:else if $currentPage.route === 'forgotPassword'}
+    <ForgotPasswordPage page={$currentPage} />
   {:else if $currentPage.route === 'interface'}
     <InterfacePage />
   {:else if $currentPage.route === 'posts'}

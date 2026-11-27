@@ -90,6 +90,16 @@ describe('relogin page', () => {
     await waitFor(router, route => route.route === 'start')
   })
 
+  test('opens forgot password page', async () => {
+    await triggerRelogin()
+    openRoute({ params: {}, route: 'forgotPassword' })
+    equal(currentPage.get().route, 'forgotPassword')
+    equal(currentPage.get().hideMenu.get(), true)
+
+    openRoute({ params: {}, route: 'start' })
+    equal(currentPage.get().route, 'relogin')
+  })
+
   test('signs in', async () => {
     let { credentials, page } = await triggerRelogin()
     equal(syncStatus.get(), 'wrongCredentials')

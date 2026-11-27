@@ -10,6 +10,17 @@ export const authMessages = i18n('auth', {
     '// Send this email to yourself\n// If you forget your password, you can search for it later here\n\nUser ID: {user}\nPassword: {password}'
   ),
   exit: 'Log out',
+  forgotPassword: 'Forgot password?',
+  forgotTitle: 'Forgot password',
+  forgotNoRecovery: 'We can’t restore a lost password',
+  forgotDesc:
+    'It’s the trade-off for privacy. Your data is encrypted by your password. Our server never sees this password.',
+  forgotEmailTitle: 'Emailed password to yourself?',
+  forgotEmailSearch: 'Search your mail for:',
+  forgotEmailSubject: 'Email subject',
+  forgotAgain: 'Start again',
+  forgotAgainDesc: 'Feeds are easy to subscribe to again in a new account.',
+  backToSignIn: 'Back to sign in',
   home: 'Home',
   localDescription1:
     'Slow Reader works right on your device. No account needed.',
