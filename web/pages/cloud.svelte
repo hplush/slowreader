@@ -2,6 +2,7 @@
   import {
     mdiAccountPlus,
     mdiCellphoneKey,
+    mdiChevronLeft,
     mdiChevronRight,
     mdiCloudAlert,
     mdiEmailFast,
@@ -133,61 +134,77 @@
               {#if $reauthError}
                 <Error id="cloud-reauth-error">{$reauthError}</Error>
               {/if}
-              <Button
-                icon={mdiLogin}
-                loader={$reauthing ? $t.confirming : undefined}
-                size="wide"
-                type="submit"
-                variant="main"
-              >
-                {$t.confirmByPassword}
-              </Button>
+              <Stack gap="s" row>
+                <Button
+                  color="secondary"
+                  disabled={$reauthing}
+                  icon={mdiChevronLeft}
+                  onclick={page.cancelReauth}
+                  size="wide"
+                  variant="plain"
+                >
+                  {$t.cancel}
+                </Button>
+                <Button
+                  icon={mdiLogin}
+                  loader={$reauthing ? $t.confirming : undefined}
+                  size="wide"
+                  type="submit"
+                  variant="main"
+                >
+                  {$t.confirm}
+                </Button>
+              </Stack>
             </Stack>
           </Form>
         {/if}
-        <Stack>
-          {#if page.passkeySupport && hasPasskeys}
-            {#if $reauth.passwordOnly && $passkeyOnly}
+        {#if $passkeyOnly || (page.passkeySupport && hasPasskeys)}
+          <Stack>
+            {#if page.passkeySupport && hasPasskeys}
+              {#if $reauth.passwordOnly && $passkeyOnly}
+                <Button
+                  disabled={$reauthing}
+                  icon={mdiLockPlus}
+                  onclick={page.generateNewPassword}
+                  size="wide"
+                  variant="main"
+                >
+                  {$t.createPassword}
+                </Button>
+              {:else if $reauth.passwordOnly}
+                <p>{$t.lostPassword}</p>
+                <Button
+                  disabled={$reauthing}
+                  icon={mdiLockReset}
+                  onclick={page.generateNewPassword}
+                  size="wide"
+                >
+                  {$t.generateNewPassword}
+                </Button>
+              {:else}
+                <Button
+                  disabled={$reauthing}
+                  icon={mdiKeyVariant}
+                  onclick={page.confirmByPasskey}
+                  size="wide"
+                >
+                  {$t.confirmByPasskey}
+                </Button>
+              {/if}
+            {/if}
+            {#if $passkeyOnly}
               <Button
+                color="secondary"
                 disabled={$reauthing}
-                icon={mdiLockPlus}
-                onclick={page.generateNewPassword}
+                onclick={page.cancelReauth}
                 size="wide"
-                variant="main"
+                variant="plain"
               >
-                {$t.createPassword}
-              </Button>
-            {:else if $reauth.passwordOnly}
-              <p>{$t.lostPassword}</p>
-              <Button
-                disabled={$reauthing}
-                icon={mdiLockReset}
-                onclick={page.generateNewPassword}
-                size="wide"
-              >
-                {$t.generateNewPassword}
-              </Button>
-            {:else}
-              <Button
-                disabled={$reauthing}
-                icon={mdiKeyVariant}
-                onclick={page.confirmByPasskey}
-                size="wide"
-              >
-                {$t.confirmByPasskey}
+                {$t.cancel}
               </Button>
             {/if}
-          {/if}
-          <Button
-            color="secondary"
-            disabled={$reauthing}
-            onclick={page.cancelReauth}
-            size="wide"
-            variant="plain"
-          >
-            {$t.cancel}
-          </Button>
-        </Stack>
+          </Stack>
+        {/if}
       </Stack>
     {:else if $hasCloud && $newPassword}
       <Stack align="center" gap="xl">

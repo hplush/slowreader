@@ -82,7 +82,7 @@ export const cloudMessages = i18n('cloud', {
   lastPasskeyDesc:
     'Without passkeys, you can sign in only with the password. Enter it to be sure you remember it.',
   lostPassword: 'Lost the password? Generate a new one with a passkey first.',
-  confirmByPassword: 'Confirm with password',
+  confirm: 'Confirm',
   confirmByPasskey: 'Confirm with passkey',
   confirming: 'Confirming…'
 })
