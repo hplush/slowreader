@@ -101,17 +101,6 @@ function score(candidate: Candidate): number {
   return Math.abs(candidate.height - 0.6) * (growing ? 1.2 : 1)
 }
 
-function isBetter(a: Candidate, b: Candidate): boolean {
-  let diff = score(a) - score(b)
-  if (Math.abs(diff) > 1e-9) return diff < 0
-  if (a.column !== b.column) return a.column
-  if (a.counts.length !== b.counts.length) {
-    return a.counts.length < b.counts.length
-  }
-  let index = a.counts.findIndex((count, i) => count !== b.counts[i])
-  return index !== -1 && a.counts[index]! > b.counts[index]!
-}
-
 function layoutPiece(cells: CollageCell[]): CollageRow[] {
   let candidates: Candidate[] = []
   if (cells.length === 3 || cells.length === 4) {
@@ -122,11 +111,12 @@ function layoutPiece(cells: CollageCell[]): CollageRow[] {
       candidates.push(rowsCandidate(cells, counts))
     }
   }
-  let allowed = candidates.filter(i => i.smallest >= 0.2)
-  if (allowed.length === 0) {
-    return candidates.reduce((a, b) => (b.smallest > a.smallest ? b : a)).rows
-  }
-  return allowed.reduce((a, b) => (isBetter(b, a) ? b : a)).rows
+  let best = Math.max(...candidates.map(i => i.smallest))
+  let allowed = candidates.filter(i => {
+    return i.smallest >= Math.min(0.2, best - 1e-9)
+  })
+  // Candidates go in tie order: column, fewer rows, bigger first rows
+  return allowed.reduce((a, b) => (score(b) < score(a) - 1e-9 ? b : a)).rows
 }
 
 /**

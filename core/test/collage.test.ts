@@ -80,6 +80,7 @@ describe('collage', () => {
   test('clamps extreme shapes', () => {
     equal(layout([photo(3, 1), landscape(), landscape()]), '1 + 2, 346 px')
     equal(layout(photos(2, 4, 1)), '1 + 1, 325 px')
+    equal(layout(photos(10, 3, 1)), '3 + 3 + 2 + 2, 271 px')
     equal(layout([photo(9, 19.5), landscape()]), '2, 266 px')
     deepEqual(
       getMediaCollage([photo(4, 1), landscape()]).rows[0]?.blocks.map(block => {
