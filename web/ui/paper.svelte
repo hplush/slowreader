@@ -49,6 +49,8 @@
 <style>
   :global {
     .paper {
+      --current-background: var(--paper-color);
+
       position: relative;
       margin: 0.25rem 0 0.5rem 0;
       padding: 0.5rem 0;
