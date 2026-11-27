@@ -7,6 +7,7 @@ import {
   addAccount,
   addFeed,
   addRecentFollows,
+  askDeviceSignInAfterDownload,
   addFilter,
   addPost,
   changeAccount,
@@ -32,6 +33,7 @@ import {
   needFollowsSync,
   needsDeviceSignIn,
   openedDatabase,
+  router,
   setDeviceSession,
   syncFollows,
   testAccount,
@@ -42,6 +44,7 @@ import type { AccountLoader, FollowedAuthor } from '../loader/common.ts'
 import {
   cleanClient,
   expectWarning,
+  openRoute,
   startClient,
   waitFor,
   waitUntil
@@ -794,6 +797,26 @@ describe('account', () => {
     deepEqual(deviceSessions.get(), {
       [kept]: { device: 'kept', service: 'telegram' }
     })
+  })
+
+  test('asks to sign in to device-only account after download', async () => {
+    await addAccount(testAccount())
+    let accountId = await addAccount(
+      testAccount({ credentials: null, service: 'telegram' })
+    )
+    downloadingCloudData.set(true)
+    askDeviceSignInAfterDownload()
+    openRoute({ params: {}, route: 'slow' })
+    await setTimeout(10)
+    deepEqual(router.get().popups, [])
+
+    downloadingCloudData.set(false)
+    await waitUntil(() => router.get().popups.length > 0)
+    deepEqual(router.get().popups, [{ param: accountId, popup: 'account' }])
+
+    openRoute({ params: {}, route: 'fast' })
+    await setTimeout(10)
+    deepEqual(router.get().popups, [])
   })
 
   test('opens post on user server', () => {

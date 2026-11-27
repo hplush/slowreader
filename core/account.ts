@@ -40,6 +40,7 @@ import { getOriginKey, loaders, tryLoadFeedData } from './loader/index.ts'
 import { accountsMessages } from './messages/index.ts'
 import { deletePost, recalcPostsReading } from './post.ts'
 import { deleteFeedStats } from './reactions.ts'
+import { openPopup, router } from './router.ts'
 import {
   ACCOUNT_SERVICES,
   type AccountChanges,
@@ -213,6 +214,26 @@ onClient(() =>
     if (db) void endSessionsOfDeletedAccounts()
   })
 )
+
+async function openDeviceSignIn(): Promise<void> {
+  let sessions = deviceSessions.get()
+  let accounts = await loadAccounts()
+  let account = accounts.find(i => needsDeviceSignIn(i, sessions))
+  if (account) openPopup('account', account.id)
+}
+
+export function askDeviceSignInAfterDownload(): void {
+  let unbind = effect(
+    [downloadingCloudData, openedDatabase, router],
+    (downloading, db, { route }) => {
+      if (!downloading && db && route !== 'home') {
+        // Home page redirect would drop the popup
+        unbind()
+        void openDeviceSignIn()
+      }
+    }
+  )
+}
 
 /**
  * Another account of the service takes the feeds, and the follows sync

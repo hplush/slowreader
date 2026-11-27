@@ -14,7 +14,7 @@ import {
 } from '@slowreader/api'
 import { customAlphabet } from 'nanoid'
 
-import { endDeviceSessions } from './account.ts'
+import { askDeviceSignInAfterDownload, endDeviceSessions } from './account.ts'
 import { busyDuring } from './busy.ts'
 import { client, getClient } from './client.ts'
 import { getEnvironment, onEnvironment } from './environment.ts'
@@ -130,6 +130,7 @@ export async function startCloudSession(
   // The feeds of the account are known only after the download
   hasSources.set(undefined)
   userId.set(credentials.userId)
+  askDeviceSignInAfterDownload()
 }
 
 /**
