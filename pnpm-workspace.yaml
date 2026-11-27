@@ -41,6 +41,8 @@ minimumReleaseAgeExclude:
 
 verifyDepsBeforeRun: false
 
+pmOnFail: ignore
+
 trustPolicy: no-downgrade
 
 trustPolicyIgnoreAfter: 10080
