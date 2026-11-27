@@ -59,10 +59,26 @@ let poolOptions = {
   preserveOnInitFailure: true
 }
 
+let warnings: string[] = []
+Object.assign(globalThis, {
+  sqlite3ApiConfig: {
+    warn(...args: unknown[]) {
+      warnings.push(args.map(String).join(' '))
+      // eslint-disable-next-line no-console
+      console.warn(...args)
+    }
+  }
+})
+
 // The page passes the VFS as the worker’s name
 wasmWorker(
   async sqlite3 => {
     if (self.name === 'opfs') {
+      if (!('OpfsDb' in sqlite3.oo1)) {
+        throw new Error(
+          `No OPFS VFS, isolated: ${crossOriginIsolated}\n${warnings.join('\n')}`
+        )
+      }
       let db = new sqlite3.oo1.OpfsDb(DATABASE, 'cw')
       // The only connection keeps the file open between the queries,
       // which makes reading in Firefox 20 times faster
