@@ -95,6 +95,7 @@
             />
           {/if}
           <PostMedia
+            collage={!full}
             media={getMediaOutsideText(
               addMediaSizes(quoted.media, quoted.mediaSizes),
               text,

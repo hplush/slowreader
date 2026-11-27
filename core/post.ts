@@ -809,6 +809,14 @@ export function uniqueMedia(media: PostMedia[]): PostMedia[] | undefined {
   return [...unique.values()]
 }
 
+export function isRoundVideo(media: PostMedia): boolean {
+  return media.type.endsWith(';mode=round')
+}
+
+export function isSticker(media: PostMedia): boolean {
+  return media.type.endsWith(';mode=sticker')
+}
+
 export function addMediaSizes(
   media: null | PostMedia[] | undefined,
   sizes: (MediaSize | null)[] | null | undefined

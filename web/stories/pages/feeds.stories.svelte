@@ -149,6 +149,28 @@
     } satisfies Partial<PostValue>
   })
 
+  function album(
+    title: string,
+    sizes: ([number, number] | null)[]
+  ): Partial<PostValue> {
+    return {
+      feedId: 'mastodon',
+      full: `<p>${title}</p>`,
+      intro: null,
+      media: sizes.map((_, index) => ({
+        alt: `Photo ${index + 1}`,
+        type: 'image',
+        url: imgExample
+      })),
+      mediaSizes: sizes.map(
+        size => size && { height: size[1], width: size[0] }
+      ),
+      originId: title,
+      publishedAt: 4,
+      reading: 'fast'
+    }
+  }
+
   const MASTODON = [
     {
       accountId: 'account-me',
@@ -278,6 +300,106 @@
       publishedAt: 5,
       reading: 'fast',
       warning: `Movie spoilers ${EMOJI}`
+    },
+    {
+      ...album('Album of 2 photos with sticker', [
+        [4, 3],
+        [4, 3]
+      ]),
+      media: [
+        { alt: '👍', type: 'image;mode=sticker', url: emojiExample },
+        { alt: 'Photo 1', type: 'image', url: imgExample },
+        { alt: 'Photo 2', type: 'image', url: imgExample }
+      ],
+      mediaSizes: [
+        { height: 512, width: 512 },
+        { height: 3, width: 4 },
+        { height: 3, width: 4 }
+      ]
+    },
+    album('Album with tall first photo', [
+      [3, 4],
+      [4, 3],
+      [4, 3]
+    ]),
+    album('Album of 4 portraits', [
+      [3, 4],
+      [3, 4],
+      [3, 4],
+      [3, 4]
+    ]),
+    album('Album of 4 squares', [
+      [1, 1],
+      [1, 1],
+      [1, 1],
+      [1, 1]
+    ]),
+    album('Album of 5 photos', [
+      [4, 3],
+      [4, 3],
+      [4, 3],
+      [4, 3],
+      [4, 3]
+    ]),
+    album(
+      'Album of 10 mixed photos',
+      Array.from({ length: 10 }, (_, index) => (index % 2 ? [3, 4] : [4, 3]))
+    ),
+    album(
+      'Album of 12 photos',
+      Array.from({ length: 12 }, () => [4, 3])
+    ),
+    album('Album without sizes', [null, null, null]),
+    album('Album with panorama', [
+      [3, 1],
+      [4, 3],
+      [4, 3]
+    ]),
+    {
+      feedId: 'mastodon',
+      full: '<p>Album with video and GIF</p>',
+      intro: null,
+      media: [
+        { alt: 'Photo', type: 'image', url: imgExample },
+        { alt: 'Video', poster: imgExample, type: 'video', url: videoExample },
+        {
+          alt: 'GIF',
+          poster: imgExample,
+          type: 'video;mode=gif',
+          url: 'https://example.com/gif.mp4'
+        }
+      ],
+      mediaSizes: [
+        { height: 4, width: 3 },
+        { height: 180, width: 320 },
+        { height: 3, width: 4 }
+      ],
+      originId: 'album-video',
+      publishedAt: 4,
+      reading: 'fast'
+    },
+    {
+      feedId: 'mastodon',
+      full: '<p>Quoting post with album</p>',
+      intro: null,
+      publishedAt: 4,
+      quoted: {
+        author: AUTHOR,
+        full: '<p>Quoted album</p>',
+        media: [
+          { alt: 'Photo 1', type: 'image', url: imgExample },
+          { alt: 'Photo 2', type: 'image', url: imgExample },
+          { alt: 'Photo 3', type: 'image', url: imgExample }
+        ],
+        mediaSizes: [
+          { height: 3, width: 4 },
+          { height: 3, width: 4 },
+          { height: 3, width: 4 }
+        ],
+        missing: false,
+        url: 'https://mastodon.social/@jane/3'
+      },
+      reading: 'fast'
     },
     {
       feedId: 'mastodon',

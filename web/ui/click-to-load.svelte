@@ -15,6 +15,7 @@
   let {
     alt,
     bytes,
+    fill = false,
     focus = false,
     height,
     onload,
@@ -29,6 +30,7 @@
   }: {
     alt?: null | string
     bytes?: null | number
+    fill?: boolean
     focus?: boolean
     height?: null | number
     onload: () => void
@@ -68,16 +70,19 @@
 
 <span
   class="click-to-load"
+  class:is-fill={fill}
   class:is-pictured={placeholder || poster}
   class:is-round={round}
 >
-  <svg
-    class="click-to-load_ratio"
-    aria-hidden="true"
-    height={ratio[1]}
-    viewBox={`0 0 ${ratio[0]} ${ratio[1]}`}
-    width={ratio[0]}
-  ></svg>
+  {#if !fill}
+    <svg
+      class="click-to-load_ratio"
+      aria-hidden="true"
+      height={ratio[1]}
+      viewBox={`0 0 ${ratio[0]} ${ratio[1]}`}
+      width={ratio[0]}
+    ></svg>
+  {/if}
   {#if placeholder}
     <img class="click-to-load_blur" alt="" src={placeholder} />
   {/if}
@@ -153,6 +158,14 @@
         overflow: hidden;
         border-radius: 50%;
       }
+
+      &.is-fill {
+        container: click-to-load / size;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        border-radius: 0;
+      }
     }
 
     .click-to-load_blur,
@@ -193,6 +206,10 @@
         position: relative;
       }
 
+      .click-to-load.is-fill & {
+        padding: 0.25rem;
+      }
+
       .click-to-load.is-round & {
         justify-content: flex-start;
         padding: calc(50% - 2rem) 15% 0 15%;
@@ -217,6 +234,10 @@
       &:active:not([aria-disabled='true']),
       &:focus-visible {
         color: var(--text-color);
+      }
+
+      .click-to-load.is-fill &:focus-visible {
+        outline-offset: -3px;
       }
     }
 
@@ -269,6 +290,19 @@
       overflow: hidden;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
+    }
+
+    @container click-to-load (height < 8rem) or (width < 6rem) {
+      .click-to-load_size,
+      .click-to-load_alt {
+        display: none;
+      }
+    }
+
+    @container click-to-load (height < 7rem) {
+      .click-to-load_sensitive {
+        display: none;
+      }
     }
   }
 </style>

@@ -184,6 +184,7 @@
         <PostPoll lang={post.lang} poll={post.poll} {post} {userPostUrl} />
       {/if}
       <PostMedia
+        collage
         media={getMediaOutsideText(post.media, intro, post.intro === null)}
         postUrl={url}
         protect={post.protected}

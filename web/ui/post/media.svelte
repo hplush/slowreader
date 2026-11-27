@@ -12,9 +12,13 @@
     canAutoplayVideos,
     commonMessages,
     formatSize,
+    getMediaCollage,
     i18nFormat,
     isLoaderMedia,
     isMediaCached,
+    isRoundVideo,
+    isSticker,
+    type MediaSize,
     type ReaderMedia,
     reportLoader,
     saveData,
@@ -39,12 +43,14 @@
   import Icon from '../icon.svelte'
 
   let {
+    collage = false,
     media,
     postUrl,
     protect = false,
     published,
     warningClicked = false
   }: {
+    collage?: boolean
     media: ReaderMedia[]
     postUrl?: string
     protect?: boolean | null
@@ -64,14 +70,6 @@
     if (protect) return 'nodownload noremoteplayback'
     if (isLoaderMedia(item.url)) return 'nodownload'
     return undefined
-  }
-
-  function isRound(item: ReaderMedia): boolean {
-    return item.type.endsWith(';mode=round')
-  }
-
-  function isSticker(item: ReaderMedia): boolean {
-    return item.type.endsWith(';mode=sticker')
   }
 
   function trackPlayback(url: string, video: HTMLVideoElement): void {
@@ -100,6 +98,7 @@
   }
 
   let broken = new SvelteSet<string>()
+  let natural = new SvelteMap<string, MediaSize>()
   let loaded = new SvelteSet<string>()
   let downloaded = new SvelteSet<string>()
   let declined = new SvelteSet<string>()
@@ -127,6 +126,17 @@
       isLoaderMedia(item.url) && !loaded.has(item.url) && !broken.has(item.url)
     )
   }
+
+  function addNaturalSize(item: ReaderMedia): ReaderMedia {
+    let size = natural.get(item.url)
+    return size ? { ...item, size: { ...item.size, ...size } } : item
+  }
+
+  let layout = $derived(
+    collage
+      ? getMediaCollage(media.map(addNaturalSize))
+      : { other: media, rows: [] }
+  )
 
   let sensitiveShown = $derived(
     revealed || warningClicked || $showSensitiveMedia
@@ -220,8 +230,19 @@
       broken.add(item.url)
     }}
     onload={async event => {
-      await waitImageDecoded(event.currentTarget)
+      let img = event.currentTarget
+      await waitImageDecoded(img)
       loaded.add(item.url)
+      if (
+        collage &&
+        !(item.size?.width && item.size.height) &&
+        img instanceof HTMLImageElement
+      ) {
+        natural.set(item.url, {
+          height: img.naturalHeight,
+          width: img.naturalWidth
+        })
+      }
     }}
     title={item.alt}
     width={item.size?.width}
@@ -308,7 +329,7 @@
   <!-- svelte-ignore a11y_media_has_caption: feeds have no captions -->
   <video
     class="post-media_item"
-    class:is-round={isRound(item)}
+    class:is-round={isRoundVideo(item)}
     {@attach focusClicked(item.url)}
     {@attach mediaSrc(item.url, { published, stream: true, web: false })}
     {@attach mediaSrc(shownPoster(item), { attribute: 'poster' })}
@@ -318,7 +339,9 @@
     aria-busy={waitsFile(item)}
     aria-label={item.alt}
     autoplay={clicked === item.url && !isLoaderMedia(item.url)}
-    controls={!isRound(item) && !waitsFile(item) && !autoplayed.has(item.url)}
+    controls={!isRoundVideo(item) &&
+      !waitsFile(item) &&
+      !autoplayed.has(item.url)}
     controlslist={hiddenControls(item)}
     disablepictureinpicture={!!protect}
     height={item.size?.height}
@@ -347,13 +370,14 @@
   </video>
 {/snippet}
 
-{#snippet click(item: ReaderMedia)}
+{#snippet click(item: ReaderMedia, fill: boolean)}
   {@const scale = isSticker(item)
     ? 192 / Math.max(item.size?.width ?? 0, item.size?.height ?? 0, 192)
     : 1}
   <ClickToLoad
     alt={item.alt}
     bytes={item.size?.approximate ? undefined : item.size?.bytes}
+    {fill}
     focus={stopped === item.url}
     height={item.size?.height && item.size.height * scale}
     onload={() => {
@@ -367,12 +391,103 @@
       : item.placeholder}
     play={item.type.startsWith('video') && !item.type.endsWith(';mode=gif')}
     poster={item.sensitive && !sensitiveShown ? undefined : shownPoster(item)}
-    round={isRound(item)}
+    round={isRoundVideo(item)}
     sensitive={!!item.sensitive && !sensitiveShown}
     url={item.url}
     video={!item.type.startsWith('image')}
     width={item.size?.width && item.size.width * scale}
   />
+{/snippet}
+
+{#snippet entry(item: ReaderMedia, cell: boolean)}
+  {#if item.type.startsWith('video') && !item.type.endsWith(';mode=gif')}
+    <span class="post-media_frame" {@attach autoplay(item)}>
+      {#if waitsClick(item, $saveData, downloaded)}
+        {@render click(item, cell)}
+      {:else}
+        {@render video(item)}
+        {#if waitsFile(item)}
+          {@render stop(item.url)}
+        {:else if isRoundVideo(item)}
+          {@render toggle(item)}
+        {/if}
+      {/if}
+    </span>
+  {:else if waitsClick(item, $saveData, downloaded)}
+    {@render click(item, cell)}
+  {:else if item.type.startsWith('image') && broken.has(item.url)}
+    <span
+      style:width={!cell && item.size?.width
+        ? `${item.size.width}px`
+        : undefined}
+      style:aspect-ratio={!cell && item.size?.width && item.size.height
+        ? `${item.size.width} / ${item.size.height}`
+        : undefined}
+      class="post-media_item is-broken"
+      class:is-sticker={isSticker(item)}
+    >
+      <BrokenImage alt={item.alt} />
+    </span>
+  {:else if item.type.startsWith('image') && isLoaderMedia(item.url)}
+    <span class="post-media_frame">
+      {@render image(item)}
+      {#if !loaded.has(item.url)}
+        {@render loader()}
+      {/if}
+    </span>
+  {:else if item.type.startsWith('image')}
+    {@render image(item)}
+  {:else if item.type.endsWith(';mode=gif')}
+    <video
+      class="post-media_item"
+      {@attach focusClicked(item.url)}
+      {@attach mediaSrc(item.url, { published, web: false })}
+      {@attach mediaSrc(item.poster, { attribute: 'poster' })}
+      aria-label={item.alt}
+      autoplay
+      disablepictureinpicture
+      height={item.size?.height}
+      loop
+      muted
+      playsinline
+      title={item.alt}
+      width={item.size?.width}
+    >
+      {@render sources(item)}
+    </video>
+  {:else if item.type.startsWith('audio') && !isLoaderMedia(item.url)}
+    <audio
+      class="post-media_audio"
+      {@attach mediaSrc(item.url)}
+      aria-label={item.alt}
+      controls
+      preload="none"
+      title={item.alt}
+    ></audio>
+  {:else}
+    <a
+      class="post-media_file"
+      href={isLoaderMedia(item.url) ? postUrl : item.url}
+      rel="noopener"
+      target="_blank"
+    >
+      <Icon
+        path={item.type.startsWith('audio') ? mdiMusicNote : mdiFileOutline}
+      />
+      <span class="post-media_name">
+        {item.name ?? (item.type.startsWith('audio') ? $t.audioFile : $t.file)}
+      </span>
+      {#if item.size?.bytes}
+        <span class="post-media_bytes">
+          {formatSize($i18nFormat, item.size.bytes)}
+        </span>
+      {/if}
+      {#if isLoaderMedia(item.url)}
+        <span class="sr-only">{$t.openInApp}</span>
+      {/if}
+      <Icon path={mdiOpenInNew} />
+    </a>
+  {/if}
 {/snippet}
 
 {#if media.length > 0}
@@ -385,96 +500,34 @@
     role="presentation"
   >
     <div class="post-media_list" inert={hidden}>
-      {#each media as item, index (`${item.url}${index}`)}
-        {#if item.type.startsWith('video') && !item.type.endsWith(';mode=gif')}
-          <span class="post-media_frame" {@attach autoplay(item)}>
-            {#if waitsClick(item, $saveData, downloaded)}
-              {@render click(item)}
-            {:else}
-              {@render video(item)}
-              {#if waitsFile(item)}
-                {@render stop(item.url)}
-              {:else if isRound(item)}
-                {@render toggle(item)}
-              {/if}
-            {/if}
-          </span>
-        {:else if waitsClick(item, $saveData, downloaded)}
-          {@render click(item)}
-        {:else if item.type.startsWith('image') && broken.has(item.url)}
-          <span
-            style:width={item.size?.width && `${item.size.width}px`}
-            style:aspect-ratio={item.size?.width &&
-              item.size.height &&
-              `${item.size.width} / ${item.size.height}`}
-            class="post-media_item is-broken"
-            class:is-sticker={isSticker(item)}
-          >
-            <BrokenImage alt={item.alt} />
-          </span>
-        {:else if item.type.startsWith('image') && isLoaderMedia(item.url)}
-          <span class="post-media_frame">
-            {@render image(item)}
-            {#if !loaded.has(item.url)}
-              {@render loader()}
-            {/if}
-          </span>
-        {:else if item.type.startsWith('image')}
-          {@render image(item)}
-        {:else if item.type.endsWith(';mode=gif')}
-          <video
-            class="post-media_item"
-            {@attach focusClicked(item.url)}
-            {@attach mediaSrc(item.url, { published, web: false })}
-            {@attach mediaSrc(item.poster, { attribute: 'poster' })}
-            aria-label={item.alt}
-            autoplay
-            disablepictureinpicture
-            height={item.size?.height}
-            loop
-            muted
-            playsinline
-            title={item.alt}
-            width={item.size?.width}
-          >
-            {@render sources(item)}
-          </video>
-        {:else if item.type.startsWith('audio') && !isLoaderMedia(item.url)}
-          <audio
-            class="post-media_audio"
-            {@attach mediaSrc(item.url)}
-            aria-label={item.alt}
-            controls
-            preload="none"
-            title={item.alt}
-          ></audio>
-        {:else}
-          <a
-            class="post-media_file"
-            href={isLoaderMedia(item.url) ? postUrl : item.url}
-            rel="noopener"
-            target="_blank"
-          >
-            <Icon
-              path={item.type.startsWith('audio')
-                ? mdiMusicNote
-                : mdiFileOutline}
-            />
-            <span class="post-media_name">
-              {item.name ??
-                (item.type.startsWith('audio') ? $t.audioFile : $t.file)}
-            </span>
-            {#if item.size?.bytes}
-              <span class="post-media_bytes">
-                {formatSize($i18nFormat, item.size.bytes)}
-              </span>
-            {/if}
-            {#if isLoaderMedia(item.url)}
-              <span class="sr-only">{$t.openInApp}</span>
-            {/if}
-            <Icon path={mdiOpenInNew} />
-          </a>
-        {/if}
+      {#if layout.rows.length > 0}
+        <div class="post-media_collage">
+          {#each layout.rows as row, rowIndex (rowIndex)}
+            <div style:aspect-ratio={row.shape} class="post-media_row">
+              {#each row.blocks as block, blockIndex (blockIndex)}
+                {#if block.type === 'column'}
+                  <div style:flex-grow={block.shape} class="post-media_column">
+                    {#each block.cells as cell, cellIndex (cellIndex)}
+                      <div
+                        style:flex-grow={1 / cell.shape}
+                        class="post-media_cell"
+                      >
+                        {@render entry(cell.media, true)}
+                      </div>
+                    {/each}
+                  </div>
+                {:else}
+                  <div style:flex-grow={block.shape} class="post-media_cell">
+                    {@render entry(block.media, true)}
+                  </div>
+                {/if}
+              {/each}
+            </div>
+          {/each}
+        </div>
+      {/if}
+      {#each layout.other as item, index (`${item.url}${index}`)}
+        {@render entry(item, false)}
       {/each}
     </div>
     {#if hidden}
@@ -510,6 +563,38 @@
       .post-media.is-hidden & {
         filter: blur(2rem);
       }
+    }
+
+    .post-media_collage {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+      width: 100%;
+      overflow: hidden;
+      border-radius: var(--base-radius);
+    }
+
+    .post-media_row {
+      display: flex;
+      gap: 0.125rem;
+      min-height: 0;
+    }
+
+    .post-media_column {
+      display: flex;
+      flex-direction: column;
+      flex-basis: 0;
+      gap: 0.125rem;
+      min-width: 0;
+    }
+
+    .post-media_cell {
+      display: grid;
+      grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+      flex-basis: 0;
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
     }
 
     .post-media_item {
@@ -563,6 +648,19 @@
 
     .post-media_frame .post-media_item {
       grid-area: 1 / 1;
+    }
+
+    .post-media_cell > .post-media_frame {
+      grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+    }
+
+    .post-media_cell > .post-media_frame,
+    .post-media_cell .post-media_item {
+      width: 100%;
+      max-width: none;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 0;
     }
 
     .post-media_item.is-round {
