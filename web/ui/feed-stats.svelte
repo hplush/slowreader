@@ -112,8 +112,8 @@
     <ul class="feed-stats_numbers" role="list">
       {@render number(bar.total, $t.statsSeen(bar.total))}
       {@render number(
-        stats.liked,
-        $t.statsLiked({ count: stats.liked }),
+        stats.liked + stats.opened,
+        $t.statsLikedOrOpened({ count: stats.liked + stats.opened }),
         'liked'
       )}
       {@render number(

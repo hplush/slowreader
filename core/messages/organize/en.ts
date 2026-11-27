@@ -59,6 +59,7 @@ export const organizeMessages = i18n('organize', {
   stats: 'Last 90 days',
   statsDisliked: params('{count} disliked'),
   statsLiked: params('{count} liked'),
+  statsLikedOrOpened: params('{count} liked or opened'),
   statsOpened: params('{count} opened'),
   statsOther: params('{count} only seen'),
   statsSeen: count({
