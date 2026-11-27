@@ -20,6 +20,7 @@ import {
   deletePost,
   fastPostsMaxAge,
   generalReader,
+  markReadOn,
   getTables,
   GENERAL_CATEGORY,
   isDemo,
@@ -128,6 +129,7 @@ describe('import page', () => {
 
   afterEach(async () => {
     generalReader.set('feed')
+    markReadOn.set('open')
     removeTrackers.set(true)
     await cleanClient()
     restoreAll()
@@ -155,6 +157,7 @@ describe('import page', () => {
     showUsageBalance.set(false)
     trackUsage.set(false)
     generalReader.set('list')
+    markReadOn.set('none')
     textSize.set(150)
     postFont.set('custom')
     postLineHeight.set('relaxed')
@@ -187,6 +190,7 @@ describe('import page', () => {
     showUsageBalance.set(true)
     trackUsage.set(true)
     generalReader.set('feed')
+    markReadOn.set('open')
     textSize.set(100)
     postFont.set('default')
     postLineHeight.set('normal')
@@ -221,6 +225,7 @@ describe('import page', () => {
     equal(showUsageBalance.get(), false)
     equal(trackUsage.get(), false)
     equal(generalReader.get(), 'list')
+    equal(markReadOn.get(), 'none')
     equal(textSize.get(), 150)
     equal(postFont.get(), 'custom')
     equal(postLineHeight.get(), 'relaxed')

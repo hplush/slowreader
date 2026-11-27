@@ -345,6 +345,7 @@ export const settingsTable = defineCrdtTable('settings', {
   devtoolDisabledLoaderMethods: optional(json([string()])),
   fastPostsMaxAge: optional(number()),
   generalReader: optional(oneOf(READERS)),
+  markReadOn: optional(oneOf(['none', 'open'])),
   nightLock: optional(
     json({ enabled: boolean(), from: number(), to: number() })
   ),

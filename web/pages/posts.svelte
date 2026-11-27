@@ -3,6 +3,7 @@
     mdiAlertOutline,
     mdiCancel,
     mdiDownloadOff,
+    mdiEyeCheckOutline,
     mdiEyeOutline,
     mdiPlayCircleOutline,
     mdiShieldCheckOutline,
@@ -12,6 +13,7 @@
   import {
     autoplayVideos,
     canDetectNetwork,
+    markReadOn,
     openWarnings,
     removeTrackers,
     saveData,
@@ -32,6 +34,18 @@
 
 <ThinPage title={[$t.pageTitle, $settingsMessages.commonTitle]}>
   <Stack gap="m">
+    <Radio
+      label={$t.markReadOn}
+      onchange={value => {
+        markReadOn.set(value)
+      }}
+      size="wide"
+      value={$markReadOn}
+      values={[
+        ['open', $t.markReadOnOpen, mdiEyeCheckOutline],
+        ['none', $t.markReadOnNone, mdiCancel]
+      ]}
+    />
     <Switch
       icon={mdiAlertOutline}
       label={$t.openWarnings}

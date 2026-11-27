@@ -32,6 +32,7 @@
     isDemo,
     lastUsage,
     manyDeadFeeds,
+    markReadOn,
     mediaErrors,
     mediaStatistics,
     type NetworkType,
@@ -264,6 +265,7 @@
     trackUsage.set(true)
     fastPostsMaxAge.set(604800)
     generalReader.set('feed')
+    markReadOn.set('open')
     nightLock.set({ enabled: false, from: 23, to: 4 })
     cacheMediaReading.set('all')
     autoRefresh.set('never')

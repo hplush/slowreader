@@ -1,6 +1,7 @@
 <script context="module" lang="ts">
   import {
     autoplayVideos,
+    markReadOn,
     openWarnings,
     removeTrackers,
     saveDataMode
@@ -19,6 +20,7 @@
 <Story name="Base" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {
+      markReadOn.set('none')
       openWarnings.set(true)
       removeTrackers.set(false)
       autoplayVideos.set('free')

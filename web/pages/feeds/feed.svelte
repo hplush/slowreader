@@ -4,11 +4,9 @@
   import Feed from '../../ui/feed/index.svelte'
 
   let {
-    autoread,
     feedUrl,
     reader
   }: {
-    autoread: boolean
     feedUrl?: string
     reader: FeedReader
   } = $props()
@@ -17,7 +15,7 @@
 
 <Feed
   authors={$authors}
-  {autoread}
+  autoread
   {feedUrl}
   posts={$list}
   userPostUrl={$userPostUrl}

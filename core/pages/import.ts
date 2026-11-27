@@ -28,6 +28,7 @@ import {
   customPostFont,
   fastPostsMaxAge,
   generalReader,
+  markReadOn,
   nightLock,
   openWarnings,
   postFont,
@@ -198,6 +199,7 @@ export const importPage = createPage('import', () => {
       fastPostsMaxAge.set(settings.fastPostsMaxAge)
     }
     if (settings.generalReader) generalReader.set(settings.generalReader)
+    if (settings.markReadOn) markReadOn.set(settings.markReadOn)
     if (settings.nightLock) nightLock.set(settings.nightLock)
     if (settings.openWarnings !== undefined) {
       openWarnings.set(settings.openWarnings)

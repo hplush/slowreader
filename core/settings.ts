@@ -234,6 +234,8 @@ export const fastPostsMaxAge = syncedSetting('fastPostsMaxAge', 604800)
 
 export const generalReader = syncedSetting('generalReader', 'feed')
 
+export const markReadOn = syncedSetting('markReadOn', 'open')
+
 export const nightLock = syncedSetting('nightLock', {
   enabled: false,
   from: 23,
@@ -255,6 +257,7 @@ onClient(() =>
         devtoolDisabledLoaderMethods,
         fastPostsMaxAge,
         generalReader,
+        markReadOn,
         nightLock,
         openWarnings,
         remindUseful,
@@ -277,6 +280,7 @@ export interface Settings {
   customPostFont: StoreValue<typeof customPostFont>
   fastPostsMaxAge: StoreValue<typeof fastPostsMaxAge>
   generalReader: StoreValue<typeof generalReader>
+  markReadOn: StoreValue<typeof markReadOn>
   nightLock: NightLock
   openWarnings: StoreValue<typeof openWarnings>
   postFont: PostFont

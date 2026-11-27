@@ -9,6 +9,7 @@ import {
   canAutoplayVideos,
   customPostFont,
   fastPostsMaxAge,
+  markReadOn,
   requestMethod,
   theme,
   openWarnings,
@@ -55,6 +56,10 @@ describe('settings', () => {
   test('has store for content warnings settings', () => {
     equal(openWarnings.get(), false)
     equal(removeTrackers.get(), true)
+  })
+
+  test('marks posts as read on open by default', () => {
+    equal(markReadOn.get(), 'open')
   })
 
   test('has store for fast posts lifetime', () => {

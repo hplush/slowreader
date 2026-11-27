@@ -62,6 +62,7 @@ import {
   trackInterest
 } from '../reactions.ts'
 import { closeLastPopup } from '../router.ts'
+import { markReadOn } from '../settings.ts'
 import { loadPreviewThread, loadThreadByUrl, updateThread } from '../thread.ts'
 import { type CreatedLoadedPopup, definePopup } from './common.ts'
 
@@ -371,6 +372,9 @@ export const post = definePopup('post', async loader => {
       }
     },
     removing: $removing,
+    seen(): void {
+      if (markReadOn.get() === 'open') read?.set(true)
+    },
     thread: $thread,
     userPostUrl: getUserPostUrls(),
     whole: !!service && !isWebFeed(service)

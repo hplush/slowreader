@@ -19,6 +19,7 @@ import {
   loaders,
   loadPost,
   loadThreadPosts,
+  markReadOn,
   moveToLater,
   openedPopups,
   organizeMessages,
@@ -59,6 +60,7 @@ describe('post popup', () => {
   })
 
   afterEach(async () => {
+    markReadOn.set('open')
     await cleanClient()
     restoreAll()
   })
@@ -225,6 +227,31 @@ describe('post popup', () => {
     equal((await loadPost(id1))!.read, 0)
     equal((await loadPost(id1))!.readAt! >= now, true)
     equal((await loadPost(id2))!.read, 0)
+  })
+
+  test('marks post as read when user saw it', async () => {
+    let feed = await addFeed(testFeed({ categoryId: GENERAL_CATEGORY }))
+    let id = await addPost(testPost({ feedId: feed }))
+    let preview = openTestPopup('post', getPostPopupParam({ feedId: feed, id }))
+    await waitLoading(preview.loading)
+    checkLoadedPopup(preview).seen()
+    await setTimeout(1)
+    equal((await loadPost(id))!.read, 0)
+
+    markReadOn.set('none')
+    let popup = openTestPopup(
+      'post',
+      getPostPopupParam({ feedId: feed, id }, true)
+    )
+    await waitLoading(popup.loading)
+    checkLoadedPopup(popup).seen()
+    await setTimeout(1)
+    equal((await loadPost(id))!.read, 0)
+
+    markReadOn.set('open')
+    checkLoadedPopup(popup).seen()
+    await setTimeout(1)
+    equal((await loadPost(id))!.read, 1)
   })
 
   test('returns post from the history to unread', async () => {

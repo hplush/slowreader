@@ -212,6 +212,7 @@ describe('export page', () => {
         customPostFont: '',
         fastPostsMaxAge: 604800,
         generalReader: 'feed',
+        markReadOn: 'open',
         nightLock: { enabled: false, from: 23, to: 4 },
         openWarnings: false,
         postFont: 'default',

@@ -86,11 +86,7 @@
   )
 
   onMount(() => {
-    if (popup.read) {
-      onNextVisibility(() => {
-        popup.read?.set(true)
-      })
-    }
+    if (popup.read) onNextVisibility(popup.seen)
   })
 </script>
 
