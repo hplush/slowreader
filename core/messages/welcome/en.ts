@@ -7,7 +7,7 @@ export const welcomeMessages = i18n('welcome', {
     'Choose what to do with the demo feeds before you create an account.',
   deleting: 'Deleting the demo feeds',
   demoTitle: 'You are in the demo mode',
-  drop: 'Delete',
+  drop: 'Clean',
   emptyAdd: 'Add feeds',
   emptyImport: 'Import RSS feeds',
   emptyText: 'You haven’t subscribed to any feed yet',
