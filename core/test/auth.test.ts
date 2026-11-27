@@ -9,6 +9,7 @@ import {
 import { restoreAll, spyOn } from 'nanospy'
 import { deepEqual, equal, notEqual, ok } from 'node:assert/strict'
 import { after, afterEach, beforeEach, describe, test } from 'node:test'
+import { setTimeout } from 'node:timers/promises'
 
 import {
   authMessages,
@@ -565,5 +566,25 @@ describe('passkey auth', () => {
     start.startAutofill()
     await waitFor(start.signError, error => !!error)
     equal(start.signError.get(), commonMessages.get().unknownPasskey)
+  })
+
+  test('hides unexpected autofill errors', async () => {
+    let error = new DOMException('This is an invalid domain.', 'SecurityError')
+    let asked = false
+    setupEnvironment({
+      ...getEnvironment(),
+      getPasskey() {
+        asked = true
+        return Promise.reject(error)
+      }
+    })
+    openPage({ params: {}, route: 'signUp' })
+    let start = openPage({ params: {}, route: 'start' })
+    await expectWarning(async () => {
+      start.startAutofill()
+      await waitUntil(() => asked)
+      await setTimeout(10)
+    }, [error])
+    equal(start.signError.get(), undefined)
   })
 })

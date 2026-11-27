@@ -51,9 +51,10 @@ export function injectSignIn(): {
     $signError.set(undefined)
     if (value) $usePassword.set(true)
   })
-  // User didn’t ask for autofill, so there is no reason to show network errors
+  // User didn’t ask for autofill, so show only errors about the chosen passkey
   let unbindAutofill = $autofillError.listen(error => {
-    if (error && error !== commonMessages.get().networkError) {
+    let { internalError, networkError } = commonMessages.get()
+    if (error && error !== networkError && error !== internalError) {
       $signError.set(error)
     }
   })
