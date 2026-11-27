@@ -154,10 +154,15 @@ export class HTTPStatusError extends Error {
     thrown: unknown,
     statuses?: number[] | RegExp
   ): thrown is HTTPStatusError {
-    if (!(thrown instanceof Error) || thrown.name !== 'HTTPStatusError') {
+    if (
+      !(thrown instanceof Error) ||
+      thrown.name !== 'HTTPStatusError' ||
+      !('status' in thrown) ||
+      typeof thrown.status !== 'number'
+    ) {
       return false
     }
-    let status = (thrown as HTTPStatusError).status
+    let status = thrown.status
     if (!statuses) {
       return true
     } else if (Array.isArray(statuses)) {

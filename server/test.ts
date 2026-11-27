@@ -61,24 +61,23 @@ export async function getServerLogIds(): Promise<string[]> {
   return rows.map(row => String(row.id))
 }
 
-function destroyable<Some extends TestServer>(
-  server: Some
-): AsyncDisposable & Some {
-  return Object.assign(server, {
-    async [Symbol.asyncDispose]() {
-      await server.destroy()
-    }
-  })
+class DisposableTestServer
+  extends TestServer<object, ClientData>
+  implements AsyncDisposable
+{
+  async [Symbol.asyncDispose](): Promise<void> {
+    await this.destroy()
+  }
 }
 
-export function emptyTestServer(): AsyncDisposable & TestServer {
-  return destroyable(new TestServer())
+export function emptyTestServer(): DisposableTestServer {
+  return new DisposableTestServer()
 }
 
 export function buildTestServer(
   opts: ConstructorParameters<typeof TestServer>[0] = {}
-): AsyncDisposable & TestServer<object, ClientData> {
-  let server = new TestServer<object, ClientData>({ store, ...opts })
+): DisposableTestServer {
+  let server = new DisposableTestServer({ store, ...opts })
   authModule(server)
   healthModule(server)
   usersModule(server)
@@ -87,5 +86,5 @@ export function buildTestServer(
   sessionsModule(server)
   syncModule(server)
   eventsModule(server, 'T'.repeat(32))
-  return destroyable(server)
+  return server
 }

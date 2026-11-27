@@ -16,10 +16,10 @@
     "test:offline:coverage": "bnt --test-force-exit --coverage 100 --coverage-exclude '{db/index.ts,aaguids/utils.ts,../api/**,../proxy/**,test.ts,test/**}'"
   },
   "dependencies": {
-    "@electric-sql/pglite": "0.5.17",
+    "@electric-sql/pglite": "0.6.0",
     "@logux/actions": "0.8.1",
     "@logux/core": "0.12.2",
-    "@logux/server": "0.17.1",
+    "@logux/server": "0.17.2",
     "@simplewebauthn/server": "14.1.0",
     "@slowreader/api": "workspace:*",
     "@slowreader/proxy": "workspace:*",
@@ -30,7 +30,7 @@
     "ua-parser-js": "2.0.10"
   },
   "devDependencies": {
-    "@logux/client": "0.28.3",
+    "@logux/client": "0.29.0",
     "better-node-test": "2.0.0",
     "drizzle-kit": "1.0.0-rc.4"
   }

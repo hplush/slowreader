@@ -8,14 +8,14 @@
 ARG HEALTHCHECK=ghcr.io/tarampampam/microcheck:1.4.0@sha256:c9f79cd408626de7c10f2d487d67339f49adf0ba61dde96ede65343269db1f85
 
 # cgr.dev/chainguard/wolfi-base:latest
-FROM --platform=$BUILDPLATFORM cgr.dev/chainguard/wolfi-base@sha256:c902a861151182e4ce2de29b8632ba3f7d75b68c35880580f16e353819e524d3 AS tools
+FROM --platform=$BUILDPLATFORM cgr.dev/chainguard/wolfi-base@sha256:4cf5932a0f95a88af352f77e4efa67480cab0e1f7a48f0eddca3cce003a7c0fb AS tools
 
 ENV NODE_VERSION=26.13.1 \
   NODE_CHECKSUM_X64=5c063e46bab0fbc1c17cc445d7ff129cbdcd0471be6ed83b6ab864f8143bc864 \
   NODE_CHECKSUM_ARM64=89e1853138db51e8b82d3e98ba9c0d3f2956a28e5e55ea1b7e12d25aae92d5dd \
-  PNPM_VERSION=12.23.0 \
-  PNPM_CHECKSUM_X64=b515e29f2ac1adc0fbe63173414a6682827baff24f17e7ad3476821bdef236ac \
-  PNPM_CHECKSUM_ARM64=dd03f7616625ff8f13d952f641f0864a2300d73d0a751a682737615bd9f9a7a2
+  PNPM_VERSION=12.24.0 \
+  PNPM_CHECKSUM_X64=1c67021e5203fb4c9cf11d9a4ade225417b299e6ef0316203e15b85cbe374585 \
+  PNPM_CHECKSUM_ARM64=25d9b8ba9f192fa645240f4070380db80ce69b329aebd2b10155683dbb3e10ff
 
 # Docker downloads them and checks the hash, so we need no curl
 ADD --checksum=sha256:${NODE_CHECKSUM_X64} \
@@ -67,7 +67,7 @@ COPY web/tsconfig.json web/
 
 # Node.js for the image’s platform, for the server and the final image
 # cgr.dev/chainguard/wolfi-base:latest
-FROM cgr.dev/chainguard/wolfi-base@sha256:c902a861151182e4ce2de29b8632ba3f7d75b68c35880580f16e353819e524d3 AS target
+FROM cgr.dev/chainguard/wolfi-base@sha256:4cf5932a0f95a88af352f77e4efa67480cab0e1f7a48f0eddca3cce003a7c0fb AS target
 ARG TARGETARCH
 # Exact versions to get the same libraries in every build
 RUN apk add --no-cache libatomic=16.2.0-r5 libstdc++=16.2.0-r5
@@ -77,7 +77,7 @@ WORKDIR /app
 
 # Web assets are the same on ARM, and Node.js crashes in ARM emulation
 # cgr.dev/chainguard/wolfi-base:latest
-FROM --platform=$BUILDPLATFORM cgr.dev/chainguard/wolfi-base@sha256:c902a861151182e4ce2de29b8632ba3f7d75b68c35880580f16e353819e524d3 AS native
+FROM --platform=$BUILDPLATFORM cgr.dev/chainguard/wolfi-base@sha256:4cf5932a0f95a88af352f77e4efa67480cab0e1f7a48f0eddca3cce003a7c0fb AS native
 ARG BUILDARCH
 RUN apk add --no-cache libatomic=16.2.0-r5 libstdc++=16.2.0-r5
 COPY --from=tools /tools/${BUILDARCH}/ /usr/local/
@@ -136,7 +136,7 @@ COPY proxy/ proxy/
 COPY server/ server/
 
 # cgr.dev/chainguard/nginx:latest
-FROM cgr.dev/chainguard/nginx@sha256:9debcc9767ac653c2b302d74d1ce157a445da8bbcc1f2d48993d02f68fb2e964 AS base
+FROM cgr.dev/chainguard/nginx@sha256:7f1cc53f9c57ecfd182fa7a266f6178c5ba4b0a826421b87a753021db7d3d430 AS base
 
 FROM ${HEALTHCHECK} AS healthcheck
 
