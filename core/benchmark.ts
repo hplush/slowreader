@@ -1,15 +1,20 @@
-import { type Credentials, signInByPassword, signUpByPassword } from './auth.ts'
-import { busyDuring } from './busy.ts'
+import {
+  type Credentials,
+  generateCredentials,
+  signUpByPassword,
+  startLocalUser
+} from './auth.ts'
+import { busy, busyDuring } from './busy.ts'
 import { addCategory } from './category.ts'
 import { client } from './client.ts'
 import { addFeed } from './feed.ts'
 import { nowInSeconds } from './lib/date.ts'
 import { setLoaderReporter } from './loader.ts'
-import { benchmarkMessages } from './messages/index.ts'
+import { benchmarkMessages, commonMessages } from './messages/index.ts'
 import { addPost, type NewPost, type PostValue, uniqueMedia } from './post.ts'
 import { setRequestMethod } from './request.ts'
 import { GENERAL_CATEGORY, getCrdt } from './schema.ts'
-import { benchmarkStatistics, hasCloud, userId } from './settings.ts'
+import { benchmarkStatistics, userId } from './settings.ts'
 
 export interface LoaderSpan {
   end: number | undefined
@@ -58,6 +63,8 @@ export interface FillStatistics {
   posts: number
   readerFeed: string
   slowFeeds: string[]
+  upload: number
+  uploadSync: number
 }
 
 let debug = false
@@ -247,7 +254,7 @@ function createPost(
 
 async function fillClient(
   progress: (done: number, total: number) => void
-): Promise<FillStatistics> {
+): Promise<Omit<FillStatistics, 'upload' | 'uploadSync'>> {
   let size = debug
     ? { categories: 2, feeds: 10 }
     : // Remove after fixing app’s memory usage. Right now the full benchmark
@@ -378,45 +385,18 @@ export function mockBenchmarkRequests(): void {
   })
 }
 
-/**
- * Fixed credentials to reuse the account of the previous run: the server
- * keeps the user between the runs, and the browser keeps the session cookie.
- */
-const BENCHMARK_CREDENTIALS: Credentials = {
-  encryptionKey: new Uint8Array(32).fill(1),
-  password:
-    'benchmarkPasswordAuthKbenchmarkPasswordUnsafeKeyForTheBenchmarkRun',
-  userId: '9999999999999999'
-}
-
-/**
- * Create cloud benchmark user on the local server. Users read with the server,
- * so the benchmark must measure the log tracking and the sync too.
- */
-export async function signInBenchmark(): Promise<void> {
-  if (userId.get() !== BENCHMARK_CREDENTIALS.userId || !hasCloud.get()) {
-    try {
-      await signUpByPassword(BENCHMARK_CREDENTIALS)
-    } catch {
-      // The server keeps the user of the previous run
-      await signInByPassword(
-        BENCHMARK_CREDENTIALS.userId,
-        BENCHMARK_CREDENTIALS.password
-      )
-    }
-  }
-  if (!client.get()) {
-    await new Promise<void>(resolve => {
-      let unbind = client.subscribe(logux => {
-        if (logux) {
-          setTimeout(() => {
-            unbind()
-            resolve()
-          })
-        }
-      })
+export async function waitBenchmarkClient(): Promise<void> {
+  if (client.get()) return
+  await new Promise<void>(resolve => {
+    let unbind = client.subscribe(logux => {
+      if (logux) {
+        setTimeout(() => {
+          unbind()
+          resolve()
+        })
+      }
     })
-  }
+  })
 }
 
 /**
@@ -429,11 +409,59 @@ export async function waitBenchmarkSync(): Promise<void> {
   await logux.waitFor('synchronized')
 }
 
+// `synchronized` state comes before the server processed the actions
+async function waitUploadConfirmed(): Promise<void> {
+  let logux = client.get()!
+  let waiting = true
+  while (waiting) {
+    waiting = false
+    await logux.log.each({ reason: 'syncing' }, () => {
+      waiting = true
+      return false
+    })
+    if (waiting) {
+      await new Promise(resolve => {
+        setTimeout(resolve, 100)
+      })
+    }
+  }
+}
+
+async function uploadBenchmarkData(
+  credentials: Credentials
+): Promise<Pick<FillStatistics, 'upload' | 'uploadSync'>> {
+  let start = performance.now()
+  let uploaded = new Promise<void>(resolve => {
+    let uploading = false
+    let unbind = busy.subscribe(value => {
+      if (value && value.label === commonMessages.get().uploadingData) {
+        uploading = true
+      } else if (uploading) {
+        unbind()
+        resolve()
+      }
+    })
+  })
+  await signUpByPassword(credentials)
+  await uploaded
+  let upload = performance.now() - start
+  await waitBenchmarkClient()
+  await waitUploadConfirmed()
+  return { upload, uploadSync: performance.now() - start }
+}
+
 /**
- * Create categories, feeds and posts and save statistics about them.
+ * Create categories, feeds and posts as a local user, then sign up
+ * and upload them to the cloud. Save statistics about both steps.
  */
 export async function fillBenchmarkData(): Promise<FillStatistics> {
-  let statistics = await busyDuring(
+  if (userId.get()) {
+    throw new Error('Call benchmark.clean() to fill the database again')
+  }
+  let credentials = generateCredentials()
+  await startLocalUser(credentials)
+  await waitBenchmarkClient()
+  let filled = await busyDuring(
     benchmarkMessages.get().creatingData,
     setProgress => {
       return fillClient((done, total) => {
@@ -441,6 +469,8 @@ export async function fillBenchmarkData(): Promise<FillStatistics> {
       })
     }
   )
+  let uploading = await uploadBenchmarkData(credentials)
+  let statistics = { ...filled, ...uploading }
   benchmarkStatistics.set(statistics)
   return statistics
 }

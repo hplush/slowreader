@@ -11,7 +11,7 @@ import {
   getBenchmarkRuns,
   mockBenchmarkRequests,
   setBenchmarkDebug,
-  signInBenchmark,
+  waitBenchmarkClient,
   waitBenchmarkSync
 } from '@slowreader/core/benchmark'
 
@@ -55,6 +55,8 @@ interface BenchmarkResults {
   start: number
   storage: { end: StorageSize; start: StorageSize }
   total: BenchmarkTotal
+  upload: number
+  uploadSync: number
 }
 
 function total(scenarios: ScenarioResults[]): BenchmarkTotal {
@@ -78,7 +80,7 @@ function total(scenarios: ScenarioResults[]): BenchmarkTotal {
 
 async function prepare(): Promise<void> {
   mockBenchmarkRequests()
-  await signInBenchmark()
+  await waitBenchmarkClient()
   await waitBenchmarkSync()
   try {
     await waitIdle(START_TIMEOUT)
@@ -113,12 +115,9 @@ function merge(runs: Measurement[], failed: number): ScenarioResults {
   }
 }
 
-async function fill(): Promise<FillStatistics> {
+function fill(): Promise<FillStatistics> {
   mockBenchmarkRequests()
-  await signInBenchmark()
-  let statistics = await fillBenchmarkData()
-  await waitBenchmarkSync()
-  return statistics
+  return fillBenchmarkData()
 }
 
 async function clean(): Promise<void> {
@@ -198,7 +197,9 @@ async function run(only?: string): Promise<BenchmarkResults> {
     scenarios: list,
     start: await startTime,
     storage: { end: await measureStorage(), start: storageStart },
-    total: total(Object.values(list))
+    total: total(Object.values(list)),
+    upload: Math.round(statistics.upload),
+    uploadSync: Math.round(statistics.uploadSync)
   }
   return window.benchmark.results
 }

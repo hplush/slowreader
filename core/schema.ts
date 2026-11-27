@@ -1,7 +1,7 @@
 // Single place with all database tables. Every table is a CRDT LWW map
 // on top of SQL database, which is filled by actions from Logux log.
 
-import type { CrossTabClient } from '@logux/client'
+import type { ClientMeta, CrossTabClient } from '@logux/client'
 import {
   bigint,
   boolean,
@@ -20,7 +20,7 @@ import {
   optional,
   string
 } from '@logux/client/db'
-import type { Action, MetaTime } from '@logux/core'
+import type { Action, AnyAction, MetaTime } from '@logux/core'
 import type { Database, SqlStoreValue } from '@nanostores/sql'
 import { atom, effect, onMount, type ReadableAtom } from 'nanostores'
 
@@ -608,10 +608,17 @@ async function uploadLocalData(logux: CrossTabClient): Promise<void> {
     await busyDuring(
       commonMessages.get().uploadingData,
       async setProgress => {
-        for (let i = 0; i < actions.length; i++) {
+        for (let i = 0; i < actions.length; i += 100) {
           if (!hasDatabase()) return
-          await logux.log.add(actions[i]![0], { sync: true })
-          if (i % 20 === 0) setProgress(i / actions.length)
+          let chunk = actions.slice(i, i + 100)
+          let entries = chunk.map(
+            ([action]): [AnyAction, Partial<ClientMeta>] => [
+              action as AnyAction,
+              { sync: true }
+            ]
+          )
+          await logux.log.add(entries)
+          setProgress((i + chunk.length) / actions.length)
         }
       },
       true

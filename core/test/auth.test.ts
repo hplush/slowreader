@@ -110,7 +110,9 @@ describe('auth', () => {
       feeds: 10,
       posts: 100,
       readerFeed: 'feed',
-      slowFeeds: ['feed']
+      slowFeeds: ['feed'],
+      upload: 200,
+      uploadSync: 300
     }
     storage['slowreader:benchmark'] = JSON.stringify(statistics)
     t.after(benchmarkStatistics.listen(() => {}))

@@ -36,6 +36,7 @@ import {
   getTables,
   lastReset,
   loadFeeds,
+  loadPost,
   loadPosts,
   receivingProgress,
   reportDatabaseError,
@@ -954,5 +955,42 @@ describe('log', () => {
     let entries = await logEntries()
     equal(entries[0]![1].reasons.includes(`feeds/${feedId}`), true)
     deepEqual((await loadFeeds())[0]!.title, 'A')
+  })
+
+  test('uploads local data by a few transactions', async () => {
+    let transactions = 0
+    setupEnvironment({
+      ...getTestEnvironment(),
+      databaseCreator() {
+        let driver = nodeDriver(join(dir, 'app.sqlite'))
+        return openDb({
+          ...driver,
+          transaction(callback, opts) {
+            transactions += 1
+            return driver.transaction(callback, opts)
+          }
+        })
+      },
+      server: server!
+    })
+    let credentials = generateCredentials()
+    await startLocalUser(credentials)
+    let feedId = await addFeed(testFeed())
+    for (let i = 0; i < 3; i++) {
+      let posts = Array.from({ length: 100 }, (_, j) => {
+        return testPost({ feedId, id: `${i}-${j}` })
+      })
+      await addPost(posts)
+    }
+    await changePost('0-0', { read: 1 })
+
+    transactions = 0
+    await signUpByPassword(credentials)
+    await waitSync()
+
+    ok(transactions < 50, `${transactions} transactions`)
+    equal((await getServerLogIds()).length, 5)
+    equal((await loadPosts()).length, 300)
+    equal((await loadPost('0-0'))!.read, 1)
   })
 })

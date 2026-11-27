@@ -1,6 +1,5 @@
-// Tables are the source of truth, so the log keeps only what can not be
-// restored from them: unsent actions, tombstones of deleted rows and shadows
-// of the actions, which still own a cell on the server.
+// The log keeps only what the tables can not restore: unsent actions,
+// tombstones and shadows of actions, which own a cell on the server.
 
 import { loguxProcessed, shadow, zeroClean } from '@logux/actions'
 import { type Client, type ClientMeta, replaceWithShadow } from '@logux/client'
@@ -34,8 +33,7 @@ export function isFromLog(meta: ClientMeta | MetaTime): meta is ClientMeta {
 }
 
 /**
- * Action of any table, even of the one, which only the newer app knows.
- * Server actions have other keys, like `userId`.
+ * Also tables of the newer app. Server actions have other keys.
  */
 function isTableAction(action: Action): boolean {
   let keys = Object.keys(action)
@@ -53,8 +51,7 @@ function cellsOf(fields: object | undefined): string[] {
 }
 
 /**
- * The database is closed on sign out in the middle of the task. The report
- * is delayed to not break the queue by the throwing warning of tests.
+ * Delayed, so the throwing warning of tests will not break the queue.
  */
 /* node:coverage disable */
 function reportTaskError(error: unknown): void {
@@ -65,21 +62,15 @@ function reportTaskError(error: unknown): void {
 /* node:coverage enable */
 
 /**
- * Track the log to keep in it only actions, which are not derivable
- * from the tables. It is used only by the cloud user: the local log
- * is empty, since the local actions are never sent anywhere.
+ * Only for the cloud user: local actions are never sent, so they are not kept.
  */
 export function trackLog(logux: Client, crdt: CrdtDatabase): LogTracker {
-  // Tracking reads the log and writes it back, so the tasks are serialized
-  // to not overwrite the reasons, which another task has just removed.
-  // They start on `CrdtDatabase#ready`: the migration replay opens its
-  // transactions outside of the log store’s queue, so a log write during
-  // the replay will wait for the transaction, which waits for the write.
+  // Tasks read reasons and write them back, so they run one by one.
+  // They wait for `ready`: a log write during the migration replay deadlocks.
   let tasks = createCrdtTasks(crdt, { onError: reportTaskError })
 
   /**
-   * Reasons of the log tracking. Everything else (`syncing`,
-   * `applying-to-db`) belongs to Logux and must not be moved to the shadow.
+   * Shadow must not get Logux reasons like `syncing`.
    */
   function isCellReason(reason: string): boolean {
     if (reason === 'tombstone') return true
@@ -87,14 +78,12 @@ export function trackLog(logux: Client, crdt: CrdtDatabase): LogTracker {
   }
 
   /**
-   * IDs of the actions, which were replaced by the shadow. Their `clean`
-   * event must not ask the server to remove them.
+   * Their `clean` event must not remove them on the server.
    */
   let shadowed = new Set<string>()
 
   /**
-   * Nobody owns cells of the deleted row anymore. Reasons are taken
-   * from the log, since the schema does not have columns of the newer app.
+   * Reasons are read from the log: the schema lacks columns of the newer app.
    */
   async function forgetRows(plural: string, ids: string[]): Promise<void> {
     for (let id of ids) {
@@ -114,8 +103,7 @@ export function trackLog(logux: Client, crdt: CrdtDatabase): LogTracker {
   }
 
   /**
-   * Previous owners of the won cells lost them, and this action lost
-   * the cells, which it touched but did not win.
+   * Remove `won` cells from older actions and `lost` cells from this one.
    */
   async function forgetCells(
     plural: string,
@@ -125,35 +113,27 @@ export function trackLog(logux: Client, crdt: CrdtDatabase): LogTracker {
     meta: ClientMeta | MetaTime
   ): Promise<void> {
     if (won.length > 0) {
-      for (let id of ids) {
-        // The shadow of the applied action is the action itself, so it keeps
-        // the cells, which the action has just won. The order can not tell
-        // them apart: the server re-sends the action with another `time`,
-        // and the restart writes the shadow under another node ID
-        await logux.log.removeReason(won, {
-          exceptIndex: meta.id,
-          index: `${plural}/${id}`,
-          olderThan: meta
+      // Shadow of this action may look older, `exceptIndex` keeps its cells
+      await Promise.all(
+        ids.map(id => {
+          return logux.log.removeReason(won, {
+            exceptIndex: meta.id,
+            index: `${plural}/${id}`,
+            olderThan: meta
+          })
         })
-      }
+      )
     }
     if (isFromLog(meta)) {
       if (lost.length > 0) {
         await logux.log.removeReason(lost, { id: meta.id })
       }
     } else if (won.length > 0) {
-      // The action was restored from the tables, so its shadow could lose
-      // the reasons of the cells, which it still owns. The shadow keeps
-      // the ID of the original action in its indexes
+      // Restored from the tables, so the won cells go back to its shadow
       await logux.log.addReason(won, { index: meta.id })
     }
   }
 
-  /**
-   * The server re-sends the actions, which the client did not confirm as
-   * received, and the shadow can not be recognized as their copy
-   * by the action itself, so every shadow is indexed by the original ID.
-   */
   async function findShadow(id: string): Promise<ClientMeta | undefined> {
     let found: ClientMeta | undefined
     await logux.log.each({ index: id }, (action, meta) => {
@@ -164,9 +144,7 @@ export function trackLog(logux: Client, crdt: CrdtDatabase): LogTracker {
   }
 
   /**
-   * The body of the applied action duplicates the tables, so replace it
-   * with the shadow, which keeps only the ID, the reasons, the indexes
-   * and the time.
+   * The body duplicates the tables, the shadow keeps only the meta.
    */
   async function shadowAction(id: string): Promise<void> {
     let [action, meta] = await logux.log.byId(id)
@@ -179,12 +157,8 @@ export function trackLog(logux: Client, crdt: CrdtDatabase): LogTracker {
     // The shadow would lose values of columns, which only the newer app knows
     if (newer) return
     let reasons = meta.reasons.filter(isCellReason)
-    // The action, which lost last write wins for every field, owns nothing,
-    // so the `clean` event will ask the server to remove it
-    if (reasons.length === 0) {
-      await logux.log.changeMeta(id, { reasons: [] })
-      return
-    }
+    // Owns no cells, so Logux removes it with its last reason
+    if (reasons.length === 0) return
     shadowed.add(id)
     let previous = await findShadow(id)
     if (previous) {
@@ -194,16 +168,14 @@ export function trackLog(logux: Client, crdt: CrdtDatabase): LogTracker {
     } else {
       await replaceWithShadow(logux, {
         ...meta,
+        // The server re-sends unconfirmed actions, this index finds the shadow
         indexes: [...(meta.indexes ?? []), id],
         reasons
       })
     }
   }
 
-  /**
-   * Cleaning is batched: marking a page of posts as read cleans
-   * hundreds of actions at once.
-   */
+  // Reading a page of posts cleans hundreds of actions at once
   let cleaning = new Set<string>()
   let cleanOnServer = debounce(() => {
     let ids = [...cleaning]
@@ -213,10 +185,18 @@ export function trackLog(logux: Client, crdt: CrdtDatabase): LogTracker {
     })
   }, 1)
 
+  // The server confirms actions one by one
+  let confirmed = new Set<string>()
+  let shadowConfirmed = debounce(() => {
+    let ids = [...confirmed]
+    confirmed.clear()
+    tasks.add(async () => {
+      await Promise.all(ids.map(id => shadowAction(id)))
+    })
+  }, 1)
+
   /**
-   * Deletion is the only action without a row, so somebody must delete it
-   * by a timer. Any device can do it: `0/clean` checks the user,
-   * not the author.
+   * Tombstone has no row to lose its reason, so any device expires it by time.
    */
   async function expireTombstones(): Promise<void> {
     let expired: string[] = []
@@ -230,8 +210,7 @@ export function trackLog(logux: Client, crdt: CrdtDatabase): LogTracker {
   }
 
   /**
-   * The shadow and the removal of the original are two writes, so the tab,
-   * which was closed between them, leaves the body in the log.
+   * The tab closed between adding the shadow and removing the body leaves both.
    */
   async function repairLog(): Promise<void> {
     let shadows = new Set<string>()
@@ -300,26 +279,27 @@ export function trackLog(logux: Client, crdt: CrdtDatabase): LogTracker {
         let lost = toReasons(touched).filter(cell => !winners.has(cell))
         tasks.add(() => forgetCells(plural, ids, [...winners], lost, meta))
         if (plural === 'posts' && verb === 'created') {
-          // Prevent posts duplication
+          // Refresh could add a post again after its deletion
           tasks.add(async () => {
             let resurrected: string[] = []
-            for (let id of ids) {
-              await logux.log.each(
-                { index: `posts/${id}` },
-                (post, deleted) => {
-                  if (deleted.reasons.includes('tombstone')) {
-                    resurrected.push(id)
-                    return false
+            await Promise.all(
+              ids.map(id => {
+                return logux.log.each(
+                  { index: `posts/${id}` },
+                  (post, deleted) => {
+                    if (deleted.reasons.includes('tombstone')) {
+                      resurrected.push(id)
+                      return false
+                    }
                   }
-                }
-              )
-            }
+                )
+              })
+            )
             if (resurrected.length > 0) await deletePost(resurrected)
           })
         }
       }
-      // The action, which came from the server, will never be sent back,
-      // so there is no `logux/processed` to wait for
+      // Actions from the server get no `logux/processed`
       if (isFromLog(meta) && !meta.sync) {
         tasks.add(() => shadowAction(meta.id))
       }
@@ -337,9 +317,9 @@ export function trackLog(logux: Client, crdt: CrdtDatabase): LogTracker {
     }),
 
     logux.type(loguxProcessed, action => {
-      // Unconfirmed action is our outbox copy and may be re-sent,
-      // so own actions become shadows only after the server confirmation
-      tasks.add(() => shadowAction(action.id))
+      // Own action may be re-sent until the server confirms it
+      confirmed.add(action.id)
+      shadowConfirmed()
     }),
 
     logux.on('state', () => {
@@ -352,6 +332,7 @@ export function trackLog(logux: Client, crdt: CrdtDatabase): LogTracker {
   return {
     destroy() {
       cleanOnServer.cancel()
+      shadowConfirmed.cancel()
       for (let unbind of unbinds) unbind()
       tasks.destroy()
     },

@@ -41,6 +41,8 @@ interface FillStatistics {
   duration: number
   feeds: number
   posts: number
+  upload: number
+  uploadSync: number
 }
 
 interface StorageSize {
@@ -570,7 +572,9 @@ try {
   let data = await chromium.evaluate<FillStatistics>('window.benchmark.data')
   status(
     `Data: ${data.feeds} feeds, ${data.posts} posts, ` +
-      `filled in ${Math.round(data.duration)} ms`
+      `filled in ${Math.round(data.duration)} ms, ` +
+      `uploaded in ${Math.round(data.upload)} ms, ` +
+      `synced in ${Math.round(data.uploadSync)} ms`
   )
   if (data.debug !== debug) {
     warning(

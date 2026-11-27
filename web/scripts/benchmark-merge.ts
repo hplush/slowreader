@@ -34,6 +34,8 @@ interface Report {
   start: number
   storage: { end: StorageSize; start: StorageSize }
   total: { documents: number; listeners: number; renderer: number }
+  upload: number
+  uploadSync: number
 }
 
 function median(list: number[]): number {
@@ -49,7 +51,9 @@ function toSeries(report: Report): Record<string, number> {
     posts: report.posts,
     renderer_bytes: report.total.renderer * 1024 * 1024,
     start_seconds: report.start / 1000,
-    storage_growth_bytes: report.storage.end.total - report.storage.start.total
+    storage_growth_bytes: report.storage.end.total - report.storage.start.total,
+    upload_seconds: report.upload / 1000,
+    upload_sync_seconds: report.uploadSync / 1000
   }
   for (let type of ['indexedDB', 'localStorage', 'opfs'] as const) {
     series[`storage_bytes{type="${type}"}`] = report.storage.end[type]

@@ -4,7 +4,7 @@ Benchmark fills the client with a lot of data, replays user actions in the real 
 
 It runs inside the real web client (lazy chunk, loaded only with `?benchmark` on local server, `dev.slowreader.app`, and PR previews), not in a special page, so numbers include real bundle, real Svelte components, real SQLite in OPFS.
 
-Benchmark user is a cloud user on a local sync server, because the log tracking and the sync are a big part of every write.
+Benchmark fills the data as a local user and signs up, so it measures the upload of local data too. Then scenarios run as this cloud user on a local sync server, because the log tracking and the sync are a big part of every write.
 
 ## Run Script
 
@@ -54,7 +54,6 @@ Other commands:
 ```js
 await benchmark.run('read-page') // single scenario, for debugging
 await benchmark.clean() // remove database and reload with new data
-await benchmark.fill() // create data again
 await benchmark.storage() // IndexedDB, OPFS, and localStorage sizes in bytes
 ```
 
@@ -71,7 +70,7 @@ Every Monday the workflow replaces the whole `benchmark` branch with a new commi
 [Our Grafana](https://github.com/hplush/cloud) warns in Telegram if a number of the last run is over the median of the 4 weeks before it on the same CPU ([rules](https://github.com/hplush/cloud/blob/main/roles/dashboards/templates/rules.alerting.yml.j2)):
 
 - By 10% for DOM size, listeners, storage, and storage growth.
-- By 30% and 50 ms for duration, loaders, start, and database filling.
+- By 30% and 50 ms for duration, loaders, start, database filling, and upload.
 - By 30% for renderer memory.
 
 ## Methodology
@@ -117,6 +116,9 @@ Every scenario runs 5 times. Run, which did not finish in 1 minute or did not fi
     },
     start: {} // The same, but after database filling, before scenarios
   },
+  upload: 2100, // Time from the sign-up to the end of the upload loader in ms
+  // Time from the sign-up until the server confirmed every uploaded action
+  uploadSync: 5300,
   total: {
     domSize: 2688, // Sum of scenarios
     duration: 35462, // Sum
