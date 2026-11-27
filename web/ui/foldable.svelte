@@ -98,7 +98,7 @@
       padding: max(0rem, (var(--control-height) - 1lh) / 2) 0.5rem
         max(0rem, (var(--control-height) - 1lh) / 2) 0.25rem;
       margin-inline-start: -0.25rem;
-      font: var(--app-title-font);
+      font: var(--secondary-title-font);
       text-align: start;
       border-radius: var(--base-radius);
 
