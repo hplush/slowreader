@@ -30,7 +30,7 @@ export const commonMessages = i18n('common', {
   invalidUrl: 'This doesn’t look like a valid web address',
   invalidUserId: 'User ID must contain 16 digits',
   loading: 'Loading…',
-  loadingData: 'Loading local data',
+  loadingData: 'Reading local database',
   migratingDatabase: 'Migrating local database',
   networkError:
     'Can’t reach the server. Please check your internet connection.',
