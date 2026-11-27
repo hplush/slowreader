@@ -6,6 +6,7 @@ export const organizeMessages = i18n('organize', {
   abandoned: 'Feed seems abandoned',
   account: 'Account',
   accountReading: 'Account',
+  addCategory: 'Add category',
   anonymous: 'Anonymous',
   categoriesTitle: 'Categories',
   deleteCategory: 'Delete category',

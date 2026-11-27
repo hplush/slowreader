@@ -2,6 +2,7 @@ import { atom, computed, effect } from 'nanostores'
 
 import { getAccounts } from '../account.ts'
 import {
+  addCategory,
   feedsByCategory,
   type FeedsByCategory,
   getCategories
@@ -63,6 +64,9 @@ export const categoriesPage = createPage('categories', () => {
 
   return {
     ...openedFeedMixin,
+    async add(title: string) {
+      $scrollTarget.set(await addCategory({ title }))
+    },
     exit() {
       unbind()
       unbindOpen()

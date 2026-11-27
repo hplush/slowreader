@@ -131,6 +131,16 @@ describe('categories page', () => {
     })
   })
 
+  test('adds category and scrolls to it', async () => {
+    let page = openPage({ params: {}, route: 'categories' })
+    await waitLoading(page.loading)
+
+    await page.add('A')
+    let category = page.groups.get()[0]![0]
+    equal(category.title, 'A')
+    equal(page.scrollTarget.get(), category.id)
+  })
+
   test('moves feeds to general on category deletion', async () => {
     let idA = await addCategory({ title: 'A' })
     let idB = await addCategory({ title: 'B' })

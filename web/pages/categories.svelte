@@ -1,7 +1,8 @@
 <script lang="ts">
-  import { mdiPencilOutline } from '@mdi/js'
+  import { mdiPencilOutline, mdiPlusCircleOutline } from '@mdi/js'
   import {
     type CategoriesPage,
+    commonMessages as common,
     router,
     organizeMessages as t
   } from '@slowreader/core'
@@ -14,6 +15,7 @@
   import NoFeeds from '../ui/no-feeds.svelte'
   import PopupablePage from '../ui/popupable-page.svelte'
   import Stack from '../ui/stack.svelte'
+  import Title from '../ui/title.svelte'
 
   let { page }: { page: CategoriesPage } = $props()
 
@@ -23,6 +25,20 @@
 
 <PopupablePage padding title={[$t.categoriesTitle, $t.feedsTitle]}>
   <Stack gap="m">
+    <Title>
+      {$t.categoriesTitle}
+      {#snippet action()}
+        <Button
+          icon={mdiPlusCircleOutline}
+          onclick={() => {
+            let title = prompt($common.categoryName)
+            if (title) page.add(title)
+          }}
+        >
+          {$t.addCategory}
+        </Button>
+      {/snippet}
+    </Title>
     {#if $sync !== 'none'}
       <Loader
         finished={$sync === 'done'}
