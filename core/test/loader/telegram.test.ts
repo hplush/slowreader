@@ -866,7 +866,8 @@ describe('telegram loader', () => {
       (await loadFeedPosts())[0]!.full,
       '<p><b>Title 🚀</b></p>' +
         '<p>See <a href="https://example.com">example.com</a>, ' +
-        '<a href="https://t.me/channel">@channel</a> and #tag<br>' +
+        '<a href="https://t.me/channel">@channel</a> and ' +
+        '<span class="hashtag">#tag</span><br>' +
         '<span class="spoiler">Use</span> <code>&lt;code&gt;</code> &amp; ' +
         '<a href="https://example.com/?a=1&amp;b=2"><b>link</b></a>.</p>' +
         '<blockquote>Quoted text</blockquote>' +

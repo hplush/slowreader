@@ -514,7 +514,7 @@ describe('bluesky loader', () => {
           full:
             '<p>🙂: <a href="https://example.com/long">example.com...</a> ' +
             '<a href="https://bsky.app/profile/did:plc:bob">@bob</a> ' +
-            '<a href="https://bsky.app/hashtag/a%20b">#a_b</a></p>' +
+            '<a href="https://bsky.app/hashtag/a%20b" class="hashtag">#a_b</a></p>' +
             '<p>A &amp; &lt;b&gt;<br>Next</p>',
           originId: uri('jane', '1'),
           preview: {

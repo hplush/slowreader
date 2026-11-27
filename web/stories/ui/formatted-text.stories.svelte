@@ -44,7 +44,8 @@
     '  <p><del>Conclusion</del></p>\n' +
     '  <p><ins>Fish are fascinating creatures!</ins> They come in all shapes and sizes, from the tiny <small>paedocypris</small> to the massive <samp>whale shark</samp>.</p>\n' +
     '  <p><sub>Subscript text</sub> and <sup>superscript text</sup> can also be used for scientific notation.</p>\n' +
-    '  <p>For more information, visit our <a href="https://example.com">website</a>.</p>\n'
+    '  <p>For more information, visit our <a href="https://example.com">website</a>.</p>\n' +
+    '  <p>Telegram post ends with <span class="hashtag">#fish</span> <span class="hashtag">#biology</span>, Mastodon post with <a class="hashtag" href="https://mastodon.social/tags/fish">#fish</a></p>\n'
 
   // get document.referrer if our story inside iframe
   let currHref =

@@ -366,6 +366,13 @@
       visibility: hidden;
     }
 
+    .formatted-text .hashtag {
+      &,
+      &:visited {
+        color: var(--secondary-text-color);
+      }
+    }
+
     .formatted-text p {
       margin-bottom: 0.5lh;
 

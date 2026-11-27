@@ -256,14 +256,21 @@ function toLoadedAuthor(profile: BlueskyProfile): LoadedAuthor {
   }
 }
 
-function getFacetLink(facet: BlueskyFacet): string | undefined {
+function getFacetLink(
+  facet: BlueskyFacet
+): { hashtag: boolean; href: string } | undefined {
   for (let feature of facet.features) {
-    if (feature.$type === 'app.bsky.richtext.facet#link') return feature.uri
+    if (feature.$type === 'app.bsky.richtext.facet#link') {
+      return feature.uri ? { hashtag: false, href: feature.uri } : undefined
+    }
     if (feature.$type === 'app.bsky.richtext.facet#mention') {
-      return `${APP}/profile/${feature.did}`
+      return { hashtag: false, href: `${APP}/profile/${feature.did}` }
     }
     if (feature.$type === 'app.bsky.richtext.facet#tag') {
-      return `${APP}/hashtag/${encodeURIComponent(feature.tag!)}`
+      return {
+        hashtag: true,
+        href: `${APP}/hashtag/${encodeURIComponent(feature.tag!)}`
+      }
     }
   }
   return undefined
@@ -301,11 +308,12 @@ function textToHtml(record: BlueskyRecord): string {
   )
   for (let facet of facets) {
     let { byteEnd, byteStart } = facet.index
-    let href = getFacetLink(facet)
-    if (!href || byteStart < position || byteEnd > bytes.length) continue
+    let found = getFacetLink(facet)
+    if (!found || byteStart < position || byteEnd > bytes.length) continue
     appendText(paragraphs, decoder.decode(bytes.slice(position, byteStart)))
     let link = document.createElement('a')
-    link.href = href
+    link.href = found.href
+    if (found.hashtag) link.className = 'hashtag'
     link.textContent = decoder.decode(bytes.slice(byteStart, byteEnd))
     paragraphs.at(-1)!.append(link)
     position = byteEnd

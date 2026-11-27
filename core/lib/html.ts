@@ -257,9 +257,16 @@ function getPurify(): ReturnType<typeof createDOMPurify> {
         data.keepAttr = false
       } else if (data.attrName === 'class') {
         // Emoji should stay inside the text line, unlike other images
-        let known = { img: 'emoji', span: 'spoiler' }[node.localName]
-        data.keepAttr = !!known && data.attrValue.split(' ').includes(known)
-        if (known) data.attrValue = known
+        let known = {
+          a: ['hashtag'],
+          img: ['emoji'],
+          span: ['hashtag', 'spoiler']
+        }[node.localName]
+        let classes = data.attrValue
+          .split(' ')
+          .filter(name => known?.includes(name))
+        data.keepAttr = classes.length > 0
+        data.attrValue = classes.join(' ')
       } else if (
         data.attrName === 'src' &&
         node.localName === 'img' &&

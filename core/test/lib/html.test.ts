@@ -63,7 +63,7 @@ describe('html', () => {
     )
   })
 
-  test('keeps only emoji and spoiler classes', () => {
+  test('keeps only emoji, spoiler, and hashtag classes', () => {
     equal(
       sanitize(
         '<p class="emoji">A<img class="emoji big" src="https://a.com/e.png">' +
@@ -76,9 +76,13 @@ describe('html', () => {
     equal(
       sanitize(
         '<p class="spoiler"><span class="big spoiler">A</span>' +
-          '<span class="emoji">B</span><b class="spoiler">C</b></p>'
+          '<span class="emoji">B</span><b class="spoiler">C</b>' +
+          '<span class="hashtag big">#D</span><b class="hashtag">E</b>' +
+          '<a class="mention hashtag" href="https://a.social/tags/f">#F</a></p>'
       ),
-      '<p><span class="spoiler">A</span><span>B</span><b>C</b></p>'
+      '<p><span class="spoiler">A</span><span>B</span><b>C</b>' +
+        '<span class="hashtag">#D</span><b>E</b>' +
+        '<a class="hashtag" href="https://a.social/tags/f">#F</a></p>'
     )
   })
 
