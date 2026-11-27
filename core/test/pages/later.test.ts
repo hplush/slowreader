@@ -11,6 +11,7 @@ import {
   laterMessages,
   loadPost,
   moveToLater,
+  router,
   testFeed,
   testPost,
   waitLoading
@@ -126,5 +127,20 @@ describe('later page', () => {
     await page.addFromClipboard()
     equal(page.added.get(), false)
     equal(page.already.get(), true)
+  })
+  test('adds link from URL and removes it from URL', async () => {
+    let response = expectRequest('https://a.com/1').andWait()
+    let page = openPage({ params: { add: 'a.com/1' }, route: 'later' })
+    deepEqual(router.get().params, {})
+    equal(page.adding.get(), true)
+    expectRequest('https://a.com/').andRespond(404)
+    expectRequest('https://a.com/favicon.ico').andRespond(404)
+    await response(200, '<html><head><title>One</title></head></html>')
+    await setTimeout(10)
+    equal(page.added.get(), true)
+    deepEqual(
+      page.posts.get().map(post => post.url),
+      ['https://a.com/1']
+    )
   })
 })

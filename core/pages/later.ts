@@ -9,8 +9,9 @@ import { hasPersonAvatar } from '../loader/index.ts'
 import { laterMessages } from '../messages/index.ts'
 import type { ReaderPost } from '../post.ts'
 import type { FeedAuthor } from '../readers/common.ts'
+import { navigate } from '../router.ts'
 import { openedDatabase } from '../schema.ts'
-import { createPage } from './common.ts'
+import { createPage, routeParam } from './common.ts'
 
 function toFeedAuthor(post: ReaderPost): FeedAuthor | undefined {
   let author = post.author
@@ -44,6 +45,7 @@ export const laterPage = createPage('later', () => {
   let $authors = atom<ReadonlyMap<string, FeedAuthor>>(new Map())
   let $posts = atom<ReaderPost[]>([])
   let adding = createLaterAdding()
+  let $add = routeParam('later', 'add')
 
   let unbind = effect(openedDatabase, db => {
     if (!db) return
@@ -67,6 +69,13 @@ export const laterPage = createPage('later', () => {
     })
   })
 
+  let unbindAdd = $add.subscribe(url => {
+    if (url) {
+      void adding.add(url)
+      navigate(route => ({ ...route, params: {} }), true)
+    }
+  })
+
   return {
     async addFromClipboard() {
       await adding.add(readClipboard())
@@ -77,11 +86,12 @@ export const laterPage = createPage('later', () => {
     authors: $authors,
     exit() {
       unbind()
+      unbindAdd()
       adding.destroy()
     },
     failure: adding.failure,
     loading: $loading,
-    params: {},
+    params: { add: $add },
     pasteable: getEnvironment().clipboard.readable,
     posts: $posts,
     userPostUrl: getUserPostUrls()

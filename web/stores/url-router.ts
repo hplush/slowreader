@@ -103,6 +103,14 @@ export const urlRouter = computed(pathRouter, path => {
       }),
       route: path.route
     }
+  } else if (path.route === 'later') {
+    return {
+      hash: path.hash,
+      params: moveFromSearch<Routes['later']>(path.params, path.search, {
+        add: true
+      }),
+      route: path.route
+    }
   } else if (path.route === 'fast') {
     return {
       hash: path.hash,
@@ -177,6 +185,8 @@ export function getURL(
     url = moveToSearch(page, { from: true })
   } else if (page.route === 'categories') {
     url = moveToSearch(page, { open: true })
+  } else if (page.route === 'later') {
+    url = moveToSearch(page, { add: true })
   } else {
     url = getPagePath(pathRouter, page)
   }

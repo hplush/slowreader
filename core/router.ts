@@ -26,7 +26,7 @@ export interface Routes {
   home: {}
   import: {}
   interface: {}
-  later: {}
+  later: { add?: string }
   menu: {}
   posts: {}
   relogin: {}
