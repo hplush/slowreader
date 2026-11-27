@@ -195,6 +195,7 @@ export const post = definePopup('post', async loader => {
   let later: WritableAtom<boolean>
   let $laterLocked: ReadableAtom<boolean>
   let $laterSaving = atom(false)
+  let $removing = atom(false)
   function saveLater(job: () => Promise<void>): void {
     $laterSaving.set(true)
     void job().finally(() => {
@@ -361,10 +362,15 @@ export const post = definePopup('post', async loader => {
     reaction: $reaction,
     read,
     async remove() {
-      let current = $post.get() as PostValue
-      closeLastPopup()
-      await deleteFromLater(current)
+      $removing.set(true)
+      try {
+        await deleteFromLater($post.get() as PostValue)
+        closeLastPopup()
+      } finally {
+        $removing.set(false)
+      }
     },
+    removing: $removing,
     thread: $thread,
     userPostUrl: getUserPostUrls(),
     whole: !!service && !isWebFeed(service)

@@ -57,6 +57,7 @@
     reacted,
     reaction,
     read,
+    removing,
     thread,
     userPostUrl
   } = $derived(popup)
@@ -112,6 +113,7 @@
       <Button
         color="dangerous"
         icon={mdiTrashCanOutline}
+        loader={$removing}
         onclick={popup.remove}
         size="icon"
       >
@@ -261,6 +263,7 @@
             <Button
               color="dangerous"
               icon={mdiTrashCanOutline}
+              loader={$removing}
               onclick={popup.remove}
               size="pill"
             >

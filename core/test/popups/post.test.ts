@@ -919,7 +919,12 @@ describe('post popup', () => {
     let reading = checkLoadedPopup(autoread)
     equal(reading.read, undefined)
 
-    await reading.remove()
+    keepMount(reading.removing)
+    let removing = reading.remove()
+    equal(reading.removing.get(), true)
+    deepEqual(openedPopups.get(), [opened, autoread])
+    await removing
+    equal(reading.removing.get(), false)
     deepEqual(openedPopups.get(), [opened])
     equal(await loadPost(id), undefined)
   })
