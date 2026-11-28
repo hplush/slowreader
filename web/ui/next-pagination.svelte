@@ -26,6 +26,13 @@
     prev: string | undefined
     useful: boolean
   } = $props()
+
+  let readJoined = $derived.by((): 'end' | 'middle' | 'start' | undefined => {
+    if (prev && next) return 'middle'
+    if (prev) return 'end'
+    if (next) return 'start'
+    return undefined
+  })
 </script>
 
 {#if page > 0 && useful}
@@ -41,6 +48,7 @@
     <Button
       href={getPaginationURL($router, prev)}
       icon={mdiArrowLeft}
+      joined="start"
       size="icon"
     >
       {$t.prevPage}
@@ -49,6 +57,7 @@
   <Button
     anchor="read-page"
     icon={mdiCheckboxMultipleMarkedOutline}
+    joined={readJoined}
     {loader}
     onclick={onread}
     size="wide"
@@ -65,6 +74,7 @@
       anchor="next-page"
       href={getPaginationURL($router, next)}
       icon={mdiArrowRight}
+      joined="end"
       size="icon"
     >
       {$t.nextPage}
