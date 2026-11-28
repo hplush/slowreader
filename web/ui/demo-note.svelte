@@ -18,14 +18,13 @@
   <Stack gap="s" row>
     <Button
       icon={mdiRestart}
-      joined="start"
       onclick={deleteDemoWithBusy}
       size="wide"
       variant="attention"
     >
       {$t.drop}
     </Button>
-    <Button joined="end" onclick={keepDemo} size="wide" variant="secondary">
+    <Button onclick={keepDemo} size="wide" variant="plain">
       {$t.keep}
     </Button>
   </Stack>
