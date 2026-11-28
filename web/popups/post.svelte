@@ -199,18 +199,6 @@
       <Stack gap="l">
         {#if url && !popup.whole}
           <Stack align="center">
-            <Button
-              {@attach link => {
-                openLink = link
-              }}
-              href={url}
-              icon={mdiOpenInNew}
-              size="wide"
-              target="_blank"
-              variant="attention"
-            >
-              {$t.url}
-            </Button>
             {#if $extractStatus && $extractStatus.status !== 'done'}
               <Stack row gap="xs">
                 <Button
