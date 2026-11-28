@@ -88,6 +88,7 @@
 
       display: flex;
       flex-direction: column;
+      width: stretch;
       overflow: hidden;
       color: var(--text-color);
       text-decoration: none;
