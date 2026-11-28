@@ -7,7 +7,7 @@
     mdiEyeCheck,
     mdiEyeCheckOutline,
     mdiOpenInNew,
-    mdiTextBoxOutline,
+    mdiArrowDownBoldBoxOutline,
     mdiThumbDown,
     mdiThumbUp,
     mdiTrashCanOutline
@@ -212,13 +212,42 @@
               {$t.url}
             </Button>
             {#if $extractStatus && $extractStatus.status !== 'done'}
+              <Stack row gap="xs">
+                <Button
+                  {@attach link => {
+                    openLink = link
+                  }}
+                  href={url}
+                  icon={mdiOpenInNew}
+                  size="wide"
+                  target="_blank"
+                  variant="attention"
+                  joined="start"
+                >
+                  {$t.url}
+                </Button>
+                <Button
+                  icon={mdiArrowDownBoldBoxOutline}
+                  loader={$extractStatus.status === 'downloading'}
+                  onclick={extract}
+                  variant="attention"
+                  joined="end"
+                >
+                  {$t.extract}
+                </Button>
+              </Stack>
+            {:else}
               <Button
-                icon={mdiTextBoxOutline}
-                loader={$extractStatus.status === 'downloading'}
-                onclick={extract}
-                size="pill"
+                {@attach link => {
+                  openLink = link
+                }}
+                href={url}
+                icon={mdiOpenInNew}
+                size="wide"
+                target="_blank"
+                variant="attention"
               >
-                {$t.extract}
+                {$t.url}
               </Button>
             {/if}
             {#if $extractStatus?.status === 'failed'}

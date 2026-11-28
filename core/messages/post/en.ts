@@ -9,7 +9,7 @@ export const postMessages = i18n('post', {
   dislike: 'Dislike',
   downloadImage: 'Download image',
   downloadSensitive: 'Download & show',
-  extract: 'Download full post',
+  extract: 'Full',
   extracted: 'Full post downloaded',
   file: 'File',
   sensitiveMedia: 'Sensitive media',
@@ -39,6 +39,6 @@ export const postMessages = i18n('post', {
   showWarning: 'Show post',
   unread: 'Mark post as unread',
   unsupported: 'Unsupported',
-  url: 'Open post link',
+  url: 'Open post',
   vote: 'Open post to vote'
 })
