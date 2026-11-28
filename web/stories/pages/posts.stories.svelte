@@ -4,7 +4,8 @@
     markReadOn,
     openWarnings,
     removeTrackers,
-    saveDataMode
+    saveDataMode,
+    showReadFeeds
   } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
@@ -23,6 +24,7 @@
       markReadOn.set('none')
       openWarnings.set(true)
       removeTrackers.set(false)
+      showReadFeeds.set(true)
       autoplayVideos.set('free')
     }}
     route="posts"

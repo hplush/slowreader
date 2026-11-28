@@ -41,6 +41,7 @@ import {
   openCategory,
   setLayoutType,
   setupEnvironment,
+  showReadFeeds,
   slowMenu,
   syncError,
   syncStatus,
@@ -51,6 +52,7 @@ import {
   toggleCategory,
   unreadFastMenu,
   userId,
+  visibleSlowMenu,
   waitLoading
 } from '../index.ts'
 import {
@@ -243,6 +245,55 @@ describe('menu', () => {
       { id: idB, title: 'B' },
       { id: idA, title: 'Z' }
     ])
+  })
+
+  test('shows read useful feeds by setting', async t => {
+    keepMount(slowMenu)
+    keepMount(visibleSlowMenu)
+    await waitLoading(menuLoading)
+
+    let idB = await addCategory({ title: 'B' })
+    let read = await addFeed(
+      testFeed({ categoryId: idB, reading: 'slow', title: '1' })
+    )
+    let unread = await addFeed(testFeed({ reading: 'slow', title: '2' }))
+    await addFeed(testFeed({ reading: 'fast', title: '3' }))
+    let filtered = await addFeed(testFeed({ reading: 'fast', title: '4' }))
+    await addFilter({ action: 'slow', feedId: filtered, query: 'include(a)' })
+    await setTimeout(10)
+    deepEqual(visibleSlowMenu.get(), [])
+
+    showReadFeeds.set(true)
+    t.after(() => {
+      showReadFeeds.set(false)
+    })
+    deepEqual(visibleSlowMenu.get(), [
+      [
+        GENERAL,
+        [
+          [{ id: unread, title: '2' }, 0],
+          [{ id: filtered, title: '4' }, 0]
+        ]
+      ],
+      [{ id: idB, title: 'B' }, [[{ id: read, title: '1' }, 0]]]
+    ])
+    deepEqual(openableMenu.get(), { fast: false, slow: false })
+
+    await addPost(testPost({ feedId: unread, reading: 'slow' }))
+    deepEqual(visibleSlowMenu.get(), [
+      [
+        GENERAL,
+        [
+          [{ id: unread, title: '2' }, 1],
+          [{ id: filtered, title: '4' }, 0]
+        ]
+      ],
+      [{ id: idB, title: 'B' }, [[{ id: read, title: '1' }, 0]]]
+    ])
+    deepEqual(slowMenu.get(), [[GENERAL, [[{ id: unread, title: '2' }, 1]]]])
+
+    showReadFeeds.set(false)
+    equal(visibleSlowMenu.get(), slowMenu.get())
   })
 
   test('shows accounts in fast menu', async () => {

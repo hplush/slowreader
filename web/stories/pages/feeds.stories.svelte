@@ -544,6 +544,19 @@
   </Scene>
 </Story>
 
+<Story name="Slow Feed Read" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    feeds={[
+      { id: 'feed', reading: 'slow', title: 'The Mozilla Blog' },
+      { id: 'other', reading: 'slow', title: 'WebKit Blog' }
+    ]}
+    posts={[{ feedId: 'other', reading: 'slow' }]}
+    route={{ params: { feed: 'feed' }, route: 'slow' }}
+  >
+    <FeedsPage page={pages.slow()} />
+  </Scene>
+</Story>
+
 <Story name="Loading" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     feeds={[{ id: 'feed', reading: 'slow', title: 'The Mozilla Blog' }]}

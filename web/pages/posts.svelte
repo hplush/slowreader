@@ -2,6 +2,7 @@
   import {
     mdiAlertOutline,
     mdiCancel,
+    mdiCheckboxMultipleMarkedOutline,
     mdiDownloadOff,
     mdiEyeCheckOutline,
     mdiEyeOutline,
@@ -18,6 +19,7 @@
     removeTrackers,
     saveData,
     settingsMessages,
+    showReadFeeds,
     showSensitiveMedia,
     switchOf,
     postsMessages as t
@@ -45,6 +47,11 @@
         ['open', $t.markReadOnOpen, mdiEyeCheckOutline],
         ['none', $t.markReadOnNone, mdiCancel]
       ]}
+    />
+    <Switch
+      icon={mdiCheckboxMultipleMarkedOutline}
+      label={$t.showReadFeeds}
+      store={showReadFeeds}
     />
     <Switch
       icon={mdiAlertOutline}

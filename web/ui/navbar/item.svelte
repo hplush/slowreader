@@ -14,7 +14,8 @@
     icon,
     name,
     number,
-    onclick
+    onclick,
+    secondary
   }: {
     children?: Snippet
     current?: boolean
@@ -24,11 +25,12 @@
     name: string
     number?: number
     onclick?: () => void
+    secondary?: boolean
   } = $props()
 </script>
 
 <Clickable
-  class="navbar-item"
+  class={{ 'is-secondary': secondary, 'navbar-item': true }}
   aria-controls="page"
   aria-current={current ? 'page' : null}
   {href}
@@ -83,6 +85,10 @@
       &:focus-visible,
       &:active {
         background: --tune-background(--flat-button);
+      }
+
+      &.is-secondary:not([aria-current='page']) {
+        color: var(--secondary-text-color);
       }
 
       &[aria-current='page'] {

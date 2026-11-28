@@ -10,6 +10,7 @@
     type PostValue,
     refreshStatistics,
     refreshStatus,
+    showReadFeeds,
     showUsageBalance,
     syncStatus
   } from '@slowreader/core'
@@ -41,6 +42,12 @@
       title: 'The Mozilla Blog'
     },
     {
+      categoryId: 'browsers',
+      id: 'webkit',
+      reading: 'slow',
+      title: 'WebKit Blog'
+    },
+    {
       avatar: 'https://NO_SERVER/broken.png',
       categoryId: 'socials',
       id: 'mastadon',
@@ -69,7 +76,14 @@
 </script>
 
 <Story name="Light Slow" asChild parameters={{ layout: 'fullscreen' }}>
-  <Scene categories={CATEGORIES} feeds={FEEDS} posts={POSTS}>
+  <Scene
+    categories={CATEGORIES}
+    feeds={FEEDS}
+    oninit={() => {
+      showReadFeeds.set(true)
+    }}
+    posts={POSTS}
+  >
     <Navbar />
   </Scene>
 </Story>

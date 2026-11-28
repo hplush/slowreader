@@ -219,6 +219,7 @@ describe('export page', () => {
         postLineHeight: 'normal',
         remindUseful: true,
         removeTrackers: true,
+        showReadFeeds: false,
         showSensitiveMedia: false,
         showUsageBalance: true,
         textSize: 100,

@@ -39,6 +39,7 @@ import {
   nightLock,
   openWarnings,
   removeTrackers,
+  showReadFeeds,
   postFont,
   postLineHeight,
   seenBuffer,
@@ -131,6 +132,7 @@ describe('import page', () => {
     generalReader.set('feed')
     markReadOn.set('open')
     removeTrackers.set(true)
+    showReadFeeds.set(false)
     await cleanClient()
     restoreAll()
     checkAndRemoveRequestMock()
@@ -153,6 +155,7 @@ describe('import page', () => {
     nightLock.set({ enabled: true, from: 22, to: 6 })
     openWarnings.set(true)
     removeTrackers.set(false)
+    showReadFeeds.set(true)
     remindUseful.set(false)
     showUsageBalance.set(false)
     trackUsage.set(false)
@@ -186,6 +189,7 @@ describe('import page', () => {
     nightLock.set({ enabled: false, from: 23, to: 7 })
     openWarnings.set(false)
     removeTrackers.set(true)
+    showReadFeeds.set(false)
     remindUseful.set(true)
     showUsageBalance.set(true)
     trackUsage.set(true)
@@ -221,6 +225,7 @@ describe('import page', () => {
     deepEqual(nightLock.get(), { enabled: true, from: 22, to: 6 })
     equal(openWarnings.get(), true)
     equal(removeTrackers.get(), false)
+    equal(showReadFeeds.get(), true)
     equal(remindUseful.get(), false)
     equal(showUsageBalance.get(), false)
     equal(trackUsage.get(), false)

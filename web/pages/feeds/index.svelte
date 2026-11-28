@@ -7,10 +7,12 @@
     mdiBookmarkOutline,
     mdiCheckboxMultipleMarkedOutline,
     mdiReload,
+    mdiTextBoxMultipleOutline,
     mdiThumbUp
   } from '@mdi/js'
   import {
     type FeedsPage,
+    getPopupId,
     hasPersonAvatar,
     isRefreshing,
     laterMessages as later,
@@ -22,6 +24,7 @@
     refreshProgress,
     router,
     feedsMessages as t,
+    visibleSlowMenu,
     welcomeMessages as welcome
   } from '@slowreader/core'
   import type { Attachment } from 'svelte/attachments'
@@ -92,7 +95,7 @@
       <div {@attach keepMenuScroll(page.reading)}>
         <NavbarFast />
       </div>
-    {:else if $openableMenu.slow}
+    {:else if $openableMenu.slow || $visibleSlowMenu.length > 0}
       <div {@attach keepMenuScroll(page.reading)}>
         <NavbarSlow />
       </div>
@@ -164,6 +167,23 @@
       {#if $postsLoading || !$posts}
         <Stack height="stretch" justify="center">
           <Loader track="posts" />
+        </Stack>
+      {:else if $feed && ($posts.name === 'empty' || $list?.length === 0)}
+        <Stack align="center">
+          <PageIcon path={mdiThumbUp}>
+            <Stack align="center" gap="l">
+              {$t.feedRead}
+              <Stack align="center" reading="slow">
+                <Button
+                  aria-controls={getPopupId('feed', $feed.url)}
+                  href={getPopupHash($router, 'feed', $feed.url)}
+                  icon={mdiTextBoxMultipleOutline}
+                >
+                  {$t.allPosts}
+                </Button>
+              </Stack>
+            </Stack>
+          </PageIcon>
         </Stack>
       {:else if $posts.name === 'empty'}
         <FeedsEmptyPage reader={$posts} />

@@ -54,6 +54,7 @@
     requestMethod,
     saveDataMode,
     seenBuffer,
+    showReadFeeds,
     showSensitiveMedia,
     showUsageBalance,
     signOut,
@@ -258,6 +259,7 @@
     postLineHeight.set('normal')
     customPostFont.set('')
     showSensitiveMedia.set(false)
+    showReadFeeds.set(false)
     openWarnings.set(false)
     removeTrackers.set(true)
     showUsageBalance.set(true)

@@ -12,5 +12,6 @@ export const postsMessages = i18n('posts', {
   openWarnings: 'Open content warnings',
   pageTitle: 'Posts',
   removeTrackers: 'Remove trackers from posts',
+  showReadFeeds: 'Show read feeds in Useful',
   showSensitiveMedia: 'Show sensitive media without blur'
 })

@@ -32,6 +32,7 @@ import {
   lazyDbQuery,
   getTableActions
 } from './schema.ts'
+import { showReadFeeds } from './settings.ts'
 
 export const FEED_ROUTES = [
   'add',
@@ -417,10 +418,8 @@ function createMenuReducer(logux: CrossTabClient): StorageReducer<MenuState> {
 interface MenuTree {
   fast: MenuItem[]
   slow: [MenuItem, MenuFeed[]][]
-  /**
-   * IDs of feeds and accounts by category to count fast unread posts
-   */
   sources: Map<string, string[]>
+  usefulFeeds: Set<string>
 }
 
 /**
@@ -435,6 +434,7 @@ const GENERAL: [string, string] = [GENERAL_CATEGORY, '']
  */
 function buildTree(state: MenuState): MenuTree {
   let byCategory = new Map<string, [feeds: Sorted, hasFast: boolean]>()
+  let usefulFeeds = new Set<string>()
   for (let item of state.feeds) {
     let id = item[0]
     let account = state.accounts[state.feedAccount[id] ?? '']
@@ -443,11 +443,14 @@ function buildTree(state: MenuState): MenuTree {
     group[0].push(item)
     if ((state.feedReading[id] ?? account?.[1] ?? 'fast') === 'fast') {
       group[1] = true
+    } else {
+      usefulFeeds.add(id)
     }
     byCategory.set(categoryId, group)
   }
   for (let id in state.filters) {
     let [feedId, action] = state.filters[id]!
+    if (action === 'slow') usefulFeeds.add(feedId)
     if (action !== 'fast') continue
     for (let group of byCategory.values()) {
       if (group[0].some(item => item[0] === feedId)) group[1] = true
@@ -490,17 +493,24 @@ function buildTree(state: MenuState): MenuTree {
   return {
     fast: fast.length > 0 ? fast : [{ id: GENERAL[0], title: GENERAL[1] }],
     slow,
-    sources
+    sources,
+    usefulFeeds
   }
 }
 
-function buildSlowMenu(tree: MenuTree, counts: Map<string, number>): SlowMenu {
+function buildSlowMenu(
+  tree: MenuTree,
+  counts: Map<string, number>,
+  withRead: boolean
+): SlowMenu {
   let menu: SlowMenu = []
   for (let [category, feeds] of tree.slow) {
     let list: [MenuFeed, number][] = []
     for (let feed of feeds) {
       let count = counts.get(feed.id)
-      if (count) list.push([feed, count])
+      if (count || (withRead && tree.usefulFeeds.has(feed.id))) {
+        list.push([feed, count ?? 0])
+      }
     }
     if (list.length > 0) menu.push([category, list])
   }
@@ -571,8 +581,21 @@ let $tree = computed($state, buildTree)
 export const fastMenu = computed($tree, tree => tree.fast)
 
 export const slowMenu = computed([$tree, $unread], (tree, unread) => {
-  return unread ? buildSlowMenu(tree, unread.slow) : []
+  return unread ? buildSlowMenu(tree, unread.slow, false) : []
 })
+
+/**
+ * Navigation to the next unread feed and the empty state must use `slowMenu`,
+ * since this one can have feeds without unread posts.
+ */
+export const visibleSlowMenu = computed(
+  [slowMenu, $tree, $unread, showReadFeeds],
+  (unreadMenu, tree, unread, withRead) => {
+    return withRead && unread
+      ? buildSlowMenu(tree, unread.slow, true)
+      : unreadMenu
+  }
+)
 
 export function firstUnreadSlowRoute():
   | { params: { feed: string }; route: 'slow' }

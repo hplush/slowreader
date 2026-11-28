@@ -35,6 +35,7 @@ import {
   postLineHeight,
   remindUseful,
   removeTrackers,
+  showReadFeeds,
   showSensitiveMedia,
   showUsageBalance,
   textSize,
@@ -209,6 +210,9 @@ export const importPage = createPage('import', () => {
     }
     if (settings.removeTrackers !== undefined) {
       removeTrackers.set(settings.removeTrackers)
+    }
+    if (settings.showReadFeeds !== undefined) {
+      showReadFeeds.set(settings.showReadFeeds)
     }
     if (settings.showSensitiveMedia !== undefined) {
       showSensitiveMedia.set(settings.showSensitiveMedia)

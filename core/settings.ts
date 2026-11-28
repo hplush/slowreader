@@ -218,6 +218,8 @@ export const devtoolDisabledLoaderMethods = syncedSetting(
  */
 export const deadFeedsSeenAt = syncedSetting('deadFeedsSeenAt', 0)
 
+export const showReadFeeds = syncedSetting('showReadFeeds', false)
+
 export const showSensitiveMedia = syncedSetting('showSensitiveMedia', false)
 
 export const openWarnings = syncedSetting('openWarnings', false)
@@ -262,6 +264,7 @@ onClient(() =>
         openWarnings,
         remindUseful,
         removeTrackers,
+        showReadFeeds,
         showSensitiveMedia,
         showUsageBalance,
         trackUsage
@@ -287,6 +290,7 @@ export interface Settings {
   postLineHeight: PostLineHeight
   remindUseful: StoreValue<typeof remindUseful>
   removeTrackers: StoreValue<typeof removeTrackers>
+  showReadFeeds: StoreValue<typeof showReadFeeds>
   showSensitiveMedia: StoreValue<typeof showSensitiveMedia>
   showUsageBalance: StoreValue<typeof showUsageBalance>
   textSize: StoreValue<typeof textSize>

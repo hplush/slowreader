@@ -2,8 +2,8 @@
   import {
     GENERAL_CATEGORY,
     router,
-    slowMenu,
-    commonMessages as t
+    commonMessages as t,
+    visibleSlowMenu
   } from '@slowreader/core'
 
   import { getURL } from '../../stores/url-router.ts'
@@ -15,7 +15,7 @@
 
 <NavbarLater />
 
-{#each $slowMenu as [category, feeds] (category.id)}
+{#each $visibleSlowMenu as [category, feeds] (category.id)}
   <NavbarCategory
     id={category.id}
     name={category.id === GENERAL_CATEGORY
@@ -31,6 +31,7 @@
         current={$router.route === 'slow' && $router.params.feed === feed.id}
         href={getURL({ params: { feed: feed.id }, route: 'slow' })}
         number={unread}
+        secondary={unread === 0}
       >
         <FeedAvatar avatar={feed.avatar} feedId={feed.id} round={feed.round} />
       </NavbarItem>
